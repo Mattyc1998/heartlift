@@ -204,9 +204,11 @@ serve(async (req) => {
 
     // Check usage limits for free users (skip if regenerating)
     if (!isPremium && !requestRegenerate) {
-      const { data: usageData } = await supabase
+      const { data: usageData, error: usageError } = await supabase
         .rpc("get_user_daily_usage", { user_uuid: user.id, coach_id: coachId })
         .single();
+
+      console.log('Usage data:', usageData, 'Error:', usageError);
 
       if (usageData && !usageData.can_send_message) {
         const hoursLeft = Math.max(0, usageData.hours_until_reset);
