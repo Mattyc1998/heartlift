@@ -214,10 +214,9 @@ serve(async (req) => {
         const hoursLeft = Math.max(0, usageData.hours_until_reset);
         const minutesLeft = Math.max(0, Math.floor((usageData.hours_until_reset - hoursLeft) * 60));
         
-        const coach = coaches[coachId];
         return new Response(JSON.stringify({
           error: "usage_limit_reached",
-          message: `You've reached your daily limit of 5 messages with ${coach.name}. You can chat again in ${hoursLeft}h ${minutesLeft}m — or go Premium now to keep talking! 💫`,
+          message: `You've reached your daily limit of 10 messages across all coaches. You can chat again in ${hoursLeft}h ${minutesLeft}m — or go Premium now to keep talking! 💫`,
           hoursUntilReset: hoursLeft,
           minutesUntilReset: minutesLeft
         }), {
@@ -256,7 +255,7 @@ serve(async (req) => {
         const coach = coaches[coachId];
         return new Response(JSON.stringify({
           error: "usage_limit_reached", 
-          message: `You've reached your daily message limit with ${coach.name}. Upgrade to Premium for unlimited chatting! 🚀`
+          message: `You've reached your daily limit of 10 messages across all coaches. Upgrade to Premium for unlimited chatting! 🚀`
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 429,
@@ -304,7 +303,7 @@ serve(async (req) => {
     console.log('Current usage after increment:', currentUsage, 'Error:', usageError);
 
     const usageCount = currentUsage ? currentUsage.message_count : 0;
-    const remainingMessages = Math.max(0, 5 - usageCount);
+    const remainingMessages = Math.max(0, 10 - usageCount);
     const canSendMore = currentUsage ? currentUsage.can_send_message : true;
 
     return new Response(JSON.stringify({
@@ -314,7 +313,7 @@ serve(async (req) => {
       usageCount,
       remainingMessages,
       canSendMore,
-      showUpgradeModal: !isPremium && usageCount >= 5,
+      showUpgradeModal: !isPremium && usageCount >= 10,
       canRegenerate: isPremium // Only premium users can regenerate
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

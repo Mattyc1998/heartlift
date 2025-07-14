@@ -88,8 +88,9 @@ export const UsageCounter = ({ currentUsage, onUpgradeClick, isPremium = false }
     );
   }
 
-  const progressValue = Math.min((currentUsage / 5) * 100, 100);
-  const isAtLimit = currentUsage >= 5;
+  const progressValue = Math.min((currentUsage / 10) * 100, 100);
+  const isAtLimit = currentUsage >= 10;
+  const remainingMessages = Math.max(0, 10 - currentUsage);
 
   return (
     <Card className={`border-0 shadow-card ${isAtLimit ? 'bg-gradient-to-r from-red-50 to-orange-50' : 'bg-gradient-to-r from-blue-50 to-indigo-50'}`}>
@@ -98,7 +99,7 @@ export const UsageCounter = ({ currentUsage, onUpgradeClick, isPremium = false }
           <div className="flex items-center gap-2">
             <MessageSquare className={`w-4 h-4 ${isAtLimit ? 'text-red-600' : 'text-blue-600'}`} />
             <span className="text-sm font-medium">
-              {currentUsage} total messages today (5 per coach)
+              {remainingMessages} messages left today (10 total across all coaches)
             </span>
           </div>
           {isAtLimit && (

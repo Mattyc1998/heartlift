@@ -31,7 +31,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [usageCount, setUsageCount] = useState(0);
-  const [remainingMessages, setRemainingMessages] = useState(5);
+  const [remainingMessages, setRemainingMessages] = useState(10);
   const [canSendMessage, setCanSendMessage] = useState(true);
   const [isPremium, setIsPremium] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -127,8 +127,10 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
         .single();
 
       if (usageData) {
-        setUsageCount(usageData.message_count || 0);
-        setRemainingMessages(Math.max(0, 5 - (usageData.message_count || 0)));
+        const totalUsed = usageData.message_count || 0;
+        const remaining = Math.max(0, 10 - totalUsed);
+        setUsageCount(totalUsed);
+        setRemainingMessages(remaining);
         setCanSendMessage(usageData.can_send_message || false);
       }
     } catch (error) {
