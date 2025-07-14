@@ -284,8 +284,8 @@ serve(async (req) => {
         feature_name: "unlimited_ai_chat"
       });
     } else {
-      // Free users get basic responses
-      response = getBasicResponse(message, coach, coachId);
+      // Free users also get AI responses, but with usage limits
+      response = await generateAIResponse(message, coach, conversationHistory);
     }
 
     // Save coach response to conversation history
