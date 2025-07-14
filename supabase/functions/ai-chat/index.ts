@@ -297,21 +297,24 @@ serve(async (req) => {
       sender: 'coach'
     });
 
-    // Get current usage after increment
-    const { data: currentUsage } = await supabase
-      .rpc("get_user_daily_usage", { user_uuid: user.id, coach_id: coachId })
-      .single();
+    // Get current usage after increment - force refresh
+    const { data: currentUsage, error: usageError } = await supabase
+      .rpc("get_user_daily_usage", { user_uuid: user.id, coach_id: coachId });
 
-    const remainingMessages = Math.max(0, 5 - (currentUsage?.message_count || 0));
+    console.log('Current usage after increment:', currentUsage, 'Error:', usageError);
+
+    const usageCount = currentUsage ? currentUsage.message_count : 0;
+    const remainingMessages = Math.max(0, 5 - usageCount);
+    const canSendMore = currentUsage ? currentUsage.can_send_message : true;
 
     return new Response(JSON.stringify({
       response,
       coachName: coach.name,
       isPremium,
-      usageCount: currentUsage?.message_count || 0,
+      usageCount,
       remainingMessages,
-      canSendMore: currentUsage?.can_send_message || false,
-      showUpgradeModal: !isPremium && currentUsage?.message_count >= 5,
+      canSendMore,
+      showUpgradeModal: !isPremium && usageCount >= 5,
       canRegenerate: isPremium // Only premium users can regenerate
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

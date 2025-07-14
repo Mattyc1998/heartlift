@@ -45,8 +45,9 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
   useEffect(() => {
     if (user) {
       checkSubscriptionStatus();
+      loadUsageCount();
     }
-  }, [user]);
+  }, [user, coachPersonality]);
 
   useEffect(() => {
     // Show welcome modal when user becomes premium
@@ -114,6 +115,24 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
         }
       ]);
       setConversationLoaded(true);
+    }
+  };
+
+  const loadUsageCount = async () => {
+    if (!user) return;
+
+    try {
+      const { data: usageData } = await supabase
+        .rpc("get_user_daily_usage", { user_uuid: user.id, coach_id: coachPersonality })
+        .single();
+
+      if (usageData) {
+        setUsageCount(usageData.message_count || 0);
+        setRemainingMessages(Math.max(0, 5 - (usageData.message_count || 0)));
+        setCanSendMessage(usageData.can_send_message || false);
+      }
+    } catch (error) {
+      console.error("Error loading usage count:", error);
     }
   };
 
