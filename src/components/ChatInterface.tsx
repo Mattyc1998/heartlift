@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User, Crown, Clock, AlertCircle, Sparkles } from "lucide-react";
+import { Send, Bot, User, Crown, Clock, AlertCircle, Sparkles, RefreshCw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -283,6 +283,40 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
     }
   };
 
+  const refreshConversation = async () => {
+    if (!user) return;
+
+    try {
+      // Clear conversation history from database
+      await supabase
+        .from('conversation_history')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('coach_id', coachPersonality);
+
+      // Reset to default greeting
+      const greeting = coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`;
+      setMessages([{
+        id: '1',
+        content: greeting,
+        sender: 'coach',
+        timestamp: new Date()
+      }]);
+
+      toast({
+        title: "Conversation refreshed",
+        description: "Started a fresh conversation with " + coachName,
+      });
+    } catch (error) {
+      console.error('Error refreshing conversation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to refresh conversation. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <UsageCounter 
@@ -296,12 +330,24 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
 
       <Card className="h-[500px] sm:h-[600px] flex flex-col shadow-gentle">
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center space-x-2">
-            <div className="p-2 rounded-full bg-gradient-to-r from-primary to-primary-glow">
-              <Bot className="w-4 h-4 text-primary-foreground" />
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="p-2 rounded-full bg-gradient-to-r from-primary to-primary-glow">
+                <Bot className="w-4 h-4 text-primary-foreground" />
+              </div>
+              <span>{coachName}</span>
+              {isPremium && <PremiumBadge variant="compact" />}
             </div>
-            <span>{coachName}</span>
-            {isPremium && <PremiumBadge variant="compact" />}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={refreshConversation}
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+              disabled={isTyping}
+            >
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </Button>
           </CardTitle>
         </CardHeader>
         
