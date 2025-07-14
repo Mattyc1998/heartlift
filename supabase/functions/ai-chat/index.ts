@@ -126,7 +126,7 @@ function getBasicResponse(message: string, coach: CoachPersonality): string {
     ]
   };
   
-  const coachResponses = responses[coach.id as keyof typeof responses] || responses.chill;
+  const coachResponses = responses[coachId as keyof typeof responses] || responses.chill;
   return coachResponses[Math.floor(Math.random() * coachResponses.length)];
 }
 

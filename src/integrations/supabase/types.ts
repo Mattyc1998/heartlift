@@ -161,6 +161,42 @@ export type Database = {
         }
         Relationships: []
       }
+      mood_entries: {
+        Row: {
+          created_at: string
+          entry_date: string
+          id: string
+          message_received: string | null
+          mood_emoji: string
+          mood_label: string
+          mood_level: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entry_date?: string
+          id?: string
+          message_received?: string | null
+          mood_emoji: string
+          mood_label: string
+          mood_level: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entry_date?: string
+          id?: string
+          message_received?: string | null
+          mood_emoji?: string
+          mood_label?: string
+          mood_level?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       premium_features_usage: {
         Row: {
           created_at: string
