@@ -29,7 +29,7 @@ export const UsageCounter = ({ currentUsage, onUpgradeClick, isPremium = false }
 
     try {
       const { data, error } = await supabase
-        .rpc("get_user_daily_usage", { user_uuid: user.id })
+        .rpc("get_user_daily_usage", { user_uuid: user.id, coach_id: null })
         .single();
 
       if (error) throw error;
@@ -98,7 +98,7 @@ export const UsageCounter = ({ currentUsage, onUpgradeClick, isPremium = false }
           <div className="flex items-center gap-2">
             <MessageSquare className={`w-4 h-4 ${isAtLimit ? 'text-red-600' : 'text-blue-600'}`} />
             <span className="text-sm font-medium">
-              {currentUsage}/5 messages today
+              {currentUsage}/5 messages with current coach
             </span>
           </div>
           {isAtLimit && (

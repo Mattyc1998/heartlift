@@ -185,7 +185,7 @@ export type Database = {
     }
     Functions: {
       get_user_daily_usage: {
-        Args: { user_uuid: string } | { user_uuid: string; coach_id?: string }
+        Args: { user_uuid: string; coach_id?: string }
         Returns: {
           message_count: number
           last_message_at: string
