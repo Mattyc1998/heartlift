@@ -98,7 +98,7 @@ export const UsageCounter = ({ currentUsage, onUpgradeClick, isPremium = false }
           <div className="flex items-center gap-2">
             <MessageSquare className={`w-4 h-4 ${isAtLimit ? 'text-red-600' : 'text-blue-600'}`} />
             <span className="text-sm font-medium">
-              {currentUsage}/5 messages with current coach
+              {currentUsage} total messages today (5 per coach)
             </span>
           </div>
           {isAtLimit && (
