@@ -3,12 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User, Crown, Clock, AlertCircle } from "lucide-react";
+import { Send, Bot, User, Crown, Clock, AlertCircle, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { PremiumUpgradeModal } from "./PremiumUpgradeModal";
 import { UsageCounter } from "./UsageCounter";
+import { WelcomeToPremiumModal } from "./WelcomeToPremiumModal";
+import { PremiumBadge } from "./PremiumBadge";
 
 interface Message {
   id: string;
@@ -38,6 +40,7 @@ export const ChatInterface = ({ coachName, coachPersonality }: ChatInterfaceProp
   const [canSendMessage, setCanSendMessage] = useState(true);
   const [isPremium, setIsPremium] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [upgradeModalTrigger, setUpgradeModalTrigger] = useState<"usage_limit" | "premium_teaser">("usage_limit");
 
   const { user } = useAuth();
@@ -49,11 +52,30 @@ export const ChatInterface = ({ coachName, coachPersonality }: ChatInterfaceProp
     }
   }, [user]);
 
+  useEffect(() => {
+    // Show welcome modal when user becomes premium
+    if (isPremium && !showWelcomeModal) {
+      const hasSeenWelcome = localStorage.getItem('hasSeenPremiumWelcome');
+      if (!hasSeenWelcome) {
+        setShowWelcomeModal(true);
+        localStorage.setItem('hasSeenPremiumWelcome', 'true');
+      }
+    }
+  }, [isPremium]);
+
   const checkSubscriptionStatus = async () => {
     if (!user) return;
-    // For now, assume all users are free users
-    // Premium subscription check will be added later
-    setIsPremium(false);
+
+    try {
+      const { data: hasPremium } = await supabase
+        .rpc("user_has_premium_access", { user_uuid: user.id })
+        .single();
+
+      setIsPremium(hasPremium || false);
+    } catch (error) {
+      console.error("Error checking subscription:", error);
+      setIsPremium(false);
+    }
   };
 
   const sendMessage = async () => {
@@ -81,6 +103,8 @@ export const ChatInterface = ({ coachName, coachPersonality }: ChatInterfaceProp
         body: {
           message: inputMessage,
           coachId: coachPersonality,
+          conversationHistory: messages.slice(-5), // Send last 5 messages for context
+          requestRegenerate: false
         },
         headers: {
           Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
@@ -132,6 +156,57 @@ export const ChatInterface = ({ coachName, coachPersonality }: ChatInterfaceProp
     }
   };
 
+  const regenerateResponse = async (messageId: string) => {
+    if (!isPremium) return;
+    
+    const messageIndex = messages.findIndex(m => m.id === messageId);
+    if (messageIndex === -1) return;
+    
+    const userMessage = messages[messageIndex - 1];
+    if (!userMessage || userMessage.sender !== 'user') return;
+    
+    setIsTyping(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-chat', {
+        body: {
+          message: userMessage.content,
+          coachId: coachPersonality,
+          conversationHistory: messages.slice(0, messageIndex - 1).map(m => ({
+            role: m.sender === 'user' ? 'user' : 'assistant',
+            content: m.content
+          })),
+          requestRegenerate: true
+        },
+        headers: {
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        },
+      });
+
+      if (error) throw error;
+
+      // Replace the bot response
+      const updatedMessages = [...messages];
+      updatedMessages[messageIndex] = {
+        ...updatedMessages[messageIndex],
+        content: data.response,
+        timestamp: new Date()
+      };
+      
+      setMessages(updatedMessages);
+      
+    } catch (error) {
+      console.error("Error regenerating response:", error);
+      toast({
+        title: "Error",
+        description: "Failed to regenerate response. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <UsageCounter 
@@ -150,7 +225,7 @@ export const ChatInterface = ({ coachName, coachPersonality }: ChatInterfaceProp
               <Bot className="w-4 h-4 text-primary-foreground" />
             </div>
             <span>{coachName}</span>
-            {isPremium && <Crown className="w-4 h-4 text-yellow-500" />}
+            {isPremium && <PremiumBadge variant="compact" />}
           </CardTitle>
         </CardHeader>
         
@@ -196,6 +271,21 @@ export const ChatInterface = ({ coachName, coachPersonality }: ChatInterfaceProp
                         >
                           <Crown className="w-3 h-3 mr-1" />
                           Unlock Premium
+                        </Button>
+                      </div>
+                    )}
+                    
+                    {message.sender === 'coach' && isPremium && !message.isPremiumTeaser && (
+                      <div className="mt-2 pt-2 border-t border-border/50">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => regenerateResponse(message.id)}
+                          className="text-xs"
+                          disabled={isTyping}
+                        >
+                          <Sparkles className="w-3 h-3 mr-1" />
+                          Regenerate
                         </Button>
                       </div>
                     )}
@@ -274,6 +364,12 @@ export const ChatInterface = ({ coachName, coachPersonality }: ChatInterfaceProp
         onClose={() => setShowUpgradeModal(false)}
         trigger={upgradeModalTrigger}
         coachName={coachName}
+      />
+      
+      <WelcomeToPremiumModal
+        isOpen={showWelcomeModal}
+        onClose={() => setShowWelcomeModal(false)}
+        userName={user?.user_metadata?.full_name || "there"}
       />
     </div>
   );
