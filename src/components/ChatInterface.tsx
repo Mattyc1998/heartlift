@@ -27,22 +27,17 @@ interface ChatInterfaceProps {
 }
 
 export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: ChatInterfaceProps) => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`,
-      sender: 'coach',
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [usageCount, setUsageCount] = useState(0);
+  const [remainingMessages, setRemainingMessages] = useState(5);
   const [canSendMessage, setCanSendMessage] = useState(true);
   const [isPremium, setIsPremium] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [upgradeModalTrigger, setUpgradeModalTrigger] = useState<"usage_limit" | "premium_teaser">("usage_limit");
+  const [conversationLoaded, setConversationLoaded] = useState(false);
 
   const { user } = useAuth();
   const { toast } = useToast();
@@ -64,17 +59,63 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
     }
   }, [isPremium]);
 
-  // Update greeting message when coach changes
+  // Load conversation history when coach changes
   useEffect(() => {
-    setMessages([
-      {
-        id: '1',
-        content: coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`,
-        sender: 'coach',
-        timestamp: new Date()
+    if (user && coachPersonality) {
+      loadConversationHistory();
+    }
+  }, [user, coachPersonality]);
+
+  const loadConversationHistory = async () => {
+    if (!user) return;
+
+    try {
+      const { data: history, error } = await supabase
+        .from('conversation_history')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('coach_id', coachPersonality)
+        .order('created_at', { ascending: true })
+        .limit(50); // Load last 50 messages
+
+      if (error) throw error;
+
+      if (history && history.length > 0) {
+        const loadedMessages: Message[] = history.map((msg, index) => ({
+          id: `${msg.id}-${index}`,
+          content: msg.message_content,
+          sender: msg.sender as 'user' | 'coach',
+          timestamp: new Date(msg.created_at)
+        }));
+        
+        setMessages(loadedMessages);
+      } else {
+        // No history found, show default greeting
+        setMessages([
+          {
+            id: '1',
+            content: coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`,
+            sender: 'coach',
+            timestamp: new Date()
+          }
+        ]);
       }
-    ]);
-  }, [coachName, coachGreeting]);
+      
+      setConversationLoaded(true);
+    } catch (error) {
+      console.error("Error loading conversation history:", error);
+      // Fallback to default greeting
+      setMessages([
+        {
+          id: '1',
+          content: coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`,
+          sender: 'coach',
+          timestamp: new Date()
+        }
+      ]);
+      setConversationLoaded(true);
+    }
+  };
 
   const checkSubscriptionStatus = async () => {
     if (!user) return;
@@ -144,6 +185,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
 
       setMessages(prev => [...prev, coachResponse]);
       setUsageCount(data.usageCount || 0);
+      setRemainingMessages(data.remainingMessages || 0);
       setCanSendMessage(data.canSendMore !== false);
       setIsPremium(data.isPremium || false);
 
@@ -333,7 +375,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
                     ? "Daily limit reached - upgrade to continue"
                     : isPremium
                     ? "Ask me anything... (Premium)"
-                     : `Share what's on your heart... (${5 - usageCount} left)`
+                     : `Share what's on your heart... (${remainingMessages} left)`
                 }
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                 className="flex-1"

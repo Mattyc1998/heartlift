@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      conversation_history: {
+        Row: {
+          coach_id: string
+          created_at: string
+          id: string
+          message_content: string
+          sender: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          coach_id: string
+          created_at?: string
+          id?: string
+          message_content: string
+          sender: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          coach_id?: string
+          created_at?: string
+          id?: string
+          message_content?: string
+          sender?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_affirmations: {
         Row: {
           category: string | null

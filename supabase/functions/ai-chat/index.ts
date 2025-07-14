@@ -101,28 +101,28 @@ function getPremiumTeaser(message: string, coach: CoachPersonality): string {
 function getBasicResponse(message: string, coach: CoachPersonality, coachId: string): string {
   const responses = {
     flirty: [
-      "Darling, you're asking the right questions! 💋 Your intuition is already guiding you - trust that gorgeous mind of yours! ✨",
-      "Ooh, I love that you're being so thoughtful about this! 😍 Remember, confidence is your sexiest accessory - wear it daily! 💖",
-      "Honey, self-awareness is SO attractive! 🌟 Keep shining and trust yourself - you've got that magnetic energy! 💅",
-      "Mmm, that's some deep thinking right there! 🔥 You're already leveling up just by asking these questions, beautiful! 💎"
+      "That sounds incredibly difficult, babe. 💕 I get it - when someone doesn't see your worth, it stings. What happened next?",
+      "Oof, sounds like they totally missed out on something amazing! 😉 How are you feeling about it right now? Wanna talk through it?",
+      "I hear you, gorgeous. That's so tough when you're putting yourself out there. Can you tell me more about that moment?",
+      "Oh honey, I can feel how much that hurt through your words. 💔 You're being so brave by sharing this. What's your heart telling you?"
     ],
     therapist: [
-      "That's a very insightful question. 🌱 Remember, growth happens in the space between what was and what could be. Be patient with yourself.",
-      "I appreciate you taking the time to reflect on this. 💙 Healing isn't linear, and every step forward - even the small ones - matters deeply.",
-      "Your willingness to explore these feelings shows tremendous courage. 🤗 Trust in your process and remember that understanding takes time.",
-      "This kind of self-reflection is the foundation of emotional growth. 🌸 Be gentle with yourself as you navigate these complex feelings."
+      "That sounds incredibly difficult. I can hear how much pain you're carrying right now. Can you tell me more about what that experience was like for you?",
+      "Thank you for sharing something so personal with me. 💙 Those feelings are completely valid. What comes up for you when you think about that situation?",
+      "I'm hearing that this has been really hard for you. That takes courage to face. How are you feeling in your body right now as you tell me this?",
+      "What you're describing sounds emotionally overwhelming. I want you to know that your feelings make complete sense. Can you help me understand what's been the hardest part?"
     ],
     "tough-love": [
-      "Alright, GOOD! 🔥 You're finally asking the questions that matter! Now stop overthinking and start DOING something about it! 💪",
-      "I'm proud of you for not settling for mediocrity! 🚀 But here's the thing - knowledge without action is just fancy procrastination. What's your next move?",
-      "YES! This is exactly the mindset shift you needed! ⚡ Now channel that energy into protecting your peace and demanding better. You've got this!",
-      "Finally, someone who's not afraid to face reality! 🎯 Keep this energy up and remember - you teach people how to treat you. Act like it!"
+      "Alright, I hear you. That situation sounds rough, and I'm not gonna sugarcoat it. But here's what I need to know - what are you gonna do about it?",
+      "If I'm being straight with you, that sounds like it really sucked. 💪 But you're here talking to me, which means you're ready to handle this. What's your next move?",
+      "Okay, real talk - that person clearly didn't deserve your energy. I get that it hurts, but you know what? You're stronger than this. How do you wanna move forward?",
+      "I hear the frustration in your words, and honestly? Good. That means you know you deserve better. So what're we gonna do to make sure you get it?"
     ],
     chill: [
-      "Hmm, that's a beautiful question to sit with. 🌊 You don't need to figure it all out today - just breathe and let the answer come to you naturally.",
-      "I love that you're giving yourself space to think about this. 🧘‍♀️ Sometimes the wisest thing we can do is simply be present with our feelings.",
-      "You're exactly where you need to be right now. 🌸 Trust that your heart knows the way, even when your mind feels uncertain. Take it one breath at a time.",
-      "That's such a thoughtful reflection. 🌿 Remember, healing flows like water - it finds its own path. Be patient with your journey."
+      "That sounds really heavy, friend. 🌊 I can feel how much this is weighing on you. Wanna talk through what's been going on?",
+      "Ah man, that's tough. 😔 I totally get why you'd be feeling this way. What's been the hardest part for you?",
+      "I hear you. Sometimes life just throws us curveballs, doesn't it? 🌿 How are you holding up with all this?",
+      "That sounds like a lot to carry right now. 💚 I'm here to listen. What feels most important to talk about?"
     ]
   };
   
@@ -267,6 +267,14 @@ serve(async (req) => {
     const coach = coaches[coachId];
     let response: string;
 
+    // Save user message to conversation history
+    await supabase.from('conversation_history').insert({
+      user_id: user.id,
+      coach_id: coachId,
+      message_content: message,
+      sender: 'user'
+    });
+
     if (isPremium) {
       // Premium users get full AI responses
       response = await generateAIResponse(message, coach, conversationHistory);
@@ -281,16 +289,27 @@ serve(async (req) => {
       response = getBasicResponse(message, coach, coachId);
     }
 
+    // Save coach response to conversation history
+    await supabase.from('conversation_history').insert({
+      user_id: user.id,
+      coach_id: coachId,
+      message_content: response,
+      sender: 'coach'
+    });
+
     // Get current usage after increment
     const { data: currentUsage } = await supabase
       .rpc("get_user_daily_usage", { user_uuid: user.id, coach_id: coachId })
       .single();
+
+    const remainingMessages = Math.max(0, 5 - (currentUsage?.message_count || 0));
 
     return new Response(JSON.stringify({
       response,
       coachName: coach.name,
       isPremium,
       usageCount: currentUsage?.message_count || 0,
+      remainingMessages,
       canSendMore: currentUsage?.can_send_message || false,
       showUpgradeModal: !isPremium && currentUsage?.message_count >= 5,
       canRegenerate: isPremium // Only premium users can regenerate
