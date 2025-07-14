@@ -64,6 +64,18 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
     }
   }, [isPremium]);
 
+  // Update greeting message when coach changes
+  useEffect(() => {
+    setMessages([
+      {
+        id: '1',
+        content: coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`,
+        sender: 'coach',
+        timestamp: new Date()
+      }
+    ]);
+  }, [coachName, coachGreeting]);
+
   const checkSubscriptionStatus = async () => {
     if (!user) return;
 
