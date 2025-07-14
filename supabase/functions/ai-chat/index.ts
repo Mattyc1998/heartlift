@@ -98,7 +98,7 @@ function getPremiumTeaser(message: string, coach: CoachPersonality): string {
   return `That's exactly the kind of personalized insight I'd love to explore with you! 💡 Deep coaching like this is included in Premium, where I can give you tailored advice and detailed guidance. Want to unlock the full coaching experience? 🚀`;
 }
 
-function getBasicResponse(message: string, coach: CoachPersonality): string {
+function getBasicResponse(message: string, coach: CoachPersonality, coachId: string): string {
   const responses = {
     flirty: [
       "Darling, you're asking the right questions! 💋 Your intuition is already guiding you - trust that gorgeous mind of yours! ✨",
@@ -269,7 +269,7 @@ serve(async (req) => {
       });
     } else {
       // Free users get basic responses
-      response = getBasicResponse(message, coach);
+      response = getBasicResponse(message, coach, coachId);
     }
 
     // Get current usage after increment
