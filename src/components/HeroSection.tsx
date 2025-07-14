@@ -43,20 +43,21 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
             </div>
           </div>
           
-          <h1 className="text-6xl md:text-8xl font-bold text-foreground tracking-tight leading-tight">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold text-foreground tracking-tight leading-tight">
             Heart
             <span className="bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent animate-glow">
               Wise
             </span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
-            Your pocket relationship therapist with personality 💖<br />
-            <span className="text-lg">Navigate love, heartbreak, and communication with AI coaches who truly get you</span>
+          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
+            Your pocket relationship therapist with personality 💖
+            <br className="hidden sm:block" />
+            <span className="text-base sm:text-lg">Navigate love, heartbreak, and communication with AI coaches who truly get you</span>
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
           {[
             {
               icon: MessageCircle,
@@ -82,7 +83,7 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
           ].map((feature, index) => (
             <div 
               key={feature.title}
-              className={`group p-8 bg-card/80 backdrop-blur-sm rounded-2xl shadow-card border border-border hover:shadow-warm transition-all duration-500 hover:scale-[1.02] animate-slide-up bg-gradient-to-br ${feature.gradient}`}
+              className={`group p-4 sm:p-6 lg:p-8 bg-card/80 backdrop-blur-sm rounded-2xl shadow-card border border-border hover:shadow-warm transition-all duration-500 hover:scale-[1.02] animate-slide-up bg-gradient-to-br ${feature.gradient}`}
               style={{ animationDelay: `${index * 200}ms` }}
             >
               <div className="relative mb-4">
@@ -95,14 +96,14 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
           ))}
         </div>
 
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button 
-              variant="warm" 
-              size="lg" 
-              className="px-10 py-4 text-lg font-semibold group relative overflow-hidden"
-              onClick={handleGetStarted}
-            >
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
+              <Button 
+                variant="warm" 
+                size="lg" 
+                className="px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-semibold group relative overflow-hidden w-full sm:w-auto"
+                onClick={handleGetStarted}
+              >
               <span className="relative z-10 flex items-center gap-2">
                 {user ? (
                   <>

@@ -34,53 +34,59 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-secondary/30">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-full bg-gradient-to-r from-primary to-primary-glow">
-              <Heart className="w-6 h-6 text-primary-foreground" />
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        {/* Mobile-optimized header */}
+        <div className="flex items-center justify-between mb-4 sm:mb-8">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="p-1.5 sm:p-2 rounded-full bg-gradient-to-r from-primary to-primary-glow">
+              <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
             </div>
-            <h1 className="text-2xl font-bold">HeartWise</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">HeartWise</h1>
           </div>
           
           <Button 
             variant="gentle" 
+            size="sm"
             onClick={() => setCurrentTab("home")}
+            className="text-xs sm:text-sm"
           >
-            Back to Home
+            <span className="hidden sm:inline">Back to Home</span>
+            <span className="sm:hidden">Home</span>
           </Button>
         </div>
 
-        <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-4">
-            <TabsTrigger value="chat" className="flex items-center space-x-1">
-              <MessageCircle className="w-4 h-4" />
-              <span className="hidden sm:inline">Chat</span>
+        <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-4 sm:space-y-6">
+          {/* Mobile-optimized tab navigation */}
+          <TabsList className="grid w-full max-w-sm sm:max-w-md mx-auto grid-cols-4 h-12 sm:h-10">
+            <TabsTrigger value="chat" className="flex flex-col sm:flex-row items-center justify-center sm:space-x-1 p-1 sm:p-2">
+              <MessageCircle className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-sm mt-0.5 sm:mt-0 sm:hidden lg:inline">Chat</span>
             </TabsTrigger>
-            <TabsTrigger value="mood" className="flex items-center space-x-1">
-              <TrendingUp className="w-4 h-4" />
-              <span className="hidden sm:inline">Mood</span>
+            <TabsTrigger value="mood" className="flex flex-col sm:flex-row items-center justify-center sm:space-x-1 p-1 sm:p-2">
+              <TrendingUp className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-sm mt-0.5 sm:mt-0 sm:hidden lg:inline">Mood</span>
             </TabsTrigger>
-            <TabsTrigger value="coaches" className="flex items-center space-x-1">
-              <Heart className="w-4 h-4" />
-              <span className="hidden sm:inline">Coaches</span>
+            <TabsTrigger value="coaches" className="flex flex-col sm:flex-row items-center justify-center sm:space-x-1 p-1 sm:p-2">
+              <Heart className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-sm mt-0.5 sm:mt-0 sm:hidden lg:inline">Coaches</span>
             </TabsTrigger>
-            <TabsTrigger value="pricing" className="flex items-center space-x-1">
-              <CreditCard className="w-4 h-4" />
-              <span className="hidden sm:inline">Plans</span>
+            <TabsTrigger value="pricing" className="flex flex-col sm:flex-row items-center justify-center sm:space-x-1 p-1 sm:p-2">
+              <CreditCard className="w-4 h-4 sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-sm mt-0.5 sm:mt-0 sm:hidden lg:inline">Plans</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="space-y-6">
-            <div className="max-w-4xl mx-auto grid lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
+          <TabsContent value="chat" className="space-y-4 sm:space-y-6">
+            <div className="max-w-4xl mx-auto space-y-4 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-6">
+              {/* Mobile: Coach selector above chat, Desktop: Side by side */}
+              <div className="lg:col-span-1 lg:order-1">
                 <CoachPersonas 
                   onSelectCoach={setSelectedCoach}
                   selectedCoach={selectedCoach}
                   compact={true}
                 />
               </div>
-              <div className="lg:col-span-2">
+              <div className="lg:col-span-2 lg:order-2">
                 <ChatInterface 
                   coachName={coachData[selectedCoach as keyof typeof coachData]?.name || "Dr. Sage"}
                   coachPersonality={coachData[selectedCoach as keyof typeof coachData]?.personality || "therapist"}

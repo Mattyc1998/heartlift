@@ -79,7 +79,7 @@ export const CoachPersonas = ({ onSelectCoach, selectedCoach, compact = false }:
         <p className="text-muted-foreground text-lg">Each coach brings their unique personality and wisdom to guide your journey</p>
       </div>
       
-      <div className={`grid gap-6 ${compact ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
+      <div className={`grid gap-4 sm:gap-6 ${compact ? 'grid-cols-2 sm:grid-cols-4 lg:grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
         {coaches.map((coach, index) => {
           const Icon = coach.icon;
           const isSelected = selectedCoach === coach.id;
@@ -98,66 +98,76 @@ export const CoachPersonas = ({ onSelectCoach, selectedCoach, compact = false }:
               {/* Floating background decoration */}
               <div className={`absolute -top-10 -right-10 w-20 h-20 bg-gradient-to-r ${coach.color} rounded-full opacity-10 group-hover:scale-150 transition-transform duration-700`} />
               
-              <CardHeader className="pb-4 relative">
-                <div className="flex items-start space-x-4">
-                  <div className={`relative p-3 rounded-2xl bg-gradient-to-r ${coach.color} shadow-lg group-hover:animate-bounce-gentle`}>
-                    <Icon className="w-6 h-6 text-white" />
-                    <div className="absolute -top-1 -right-1 text-lg">
+              <CardHeader className={`pb-3 sm:pb-4 relative ${compact ? 'p-3 sm:p-6' : 'p-6'}`}>
+                <div className={`flex items-start ${compact ? 'flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4' : 'space-x-4'}`}>
+                  <div className={`relative ${compact ? 'p-2 sm:p-3' : 'p-3'} rounded-2xl bg-gradient-to-r ${coach.color} shadow-lg group-hover:animate-bounce-gentle ${compact ? 'mx-auto sm:mx-0' : ''}`}>
+                    <Icon className={`${compact ? 'w-4 h-4 sm:w-6 sm:h-6' : 'w-6 h-6'} text-white`} />
+                    <div className={`absolute -top-1 -right-1 ${compact ? 'text-sm sm:text-lg' : 'text-lg'}`}>
                       {coach.emoji}
                     </div>
                   </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-xl mb-1 group-hover:text-primary transition-colors">
+                  <div className={`flex-1 ${compact ? 'text-center sm:text-left' : ''}`}>
+                    <CardTitle className={`${compact ? 'text-base sm:text-xl' : 'text-xl'} mb-1 group-hover:text-primary transition-colors`}>
                       {coach.name}
                     </CardTitle>
-                    <CardDescription className={`text-sm font-medium ${coach.accent}`}>
+                    <CardDescription className={`${compact ? 'text-xs sm:text-sm hidden sm:block' : 'text-sm'} font-medium ${coach.accent}`}>
                       {coach.personality}
                     </CardDescription>
                   </div>
                   {isSelected && (
-                    <Star className="w-5 h-5 text-primary animate-pulse-warm" />
+                    <Star className={`${compact ? 'w-4 h-4 sm:w-5 sm:h-5' : 'w-5 h-5'} text-primary animate-pulse-warm`} />
                   )}
                 </div>
               </CardHeader>
               
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {coach.description}
-                </p>
-                
-                <div className="flex flex-wrap gap-2">
-                  {coach.specialties.map((specialty) => (
-                    <span 
-                      key={specialty}
-                      className={`px-2 py-1 text-xs rounded-full bg-gradient-to-r ${coach.color} text-white shadow-sm`}
-                    >
-                      {specialty}
-                    </span>
-                  ))}
-                </div>
-                
-                <div className={`p-3 rounded-lg bg-gradient-to-r ${coach.bgColor} border border-current border-opacity-10`}>
-                  <p className={`text-sm italic ${coach.accent} font-medium`}>
-                    "{coach.greeting}"
+              <CardContent className={`space-y-3 sm:space-y-4 ${compact ? 'p-3 sm:p-6' : 'p-6'}`}>
+                {!compact && (
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {coach.description}
                   </p>
-                </div>
+                )}
+                
+                {!compact && (
+                  <div className="flex flex-wrap gap-2">
+                    {coach.specialties.map((specialty) => (
+                      <span 
+                        key={specialty}
+                        className={`px-2 py-1 text-xs rounded-full bg-gradient-to-r ${coach.color} text-white shadow-sm`}
+                      >
+                        {specialty}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                
+                {!compact && (
+                  <div className={`p-3 rounded-lg bg-gradient-to-r ${coach.bgColor} border border-current border-opacity-10`}>
+                    <p className={`text-sm italic ${coach.accent} font-medium`}>
+                      "{coach.greeting}"
+                    </p>
+                  </div>
+                )}
                 
                 <Button 
                   variant={isSelected ? coach.id as any : "gentle"} 
-                  size="sm" 
-                  className="w-full transition-all duration-300"
+                  size={compact ? "sm" : "sm"}
+                  className={`w-full transition-all duration-300 ${compact ? 'text-xs sm:text-sm' : ''}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     onSelectCoach(coach.id);
                   }}
                 >
                   {isSelected ? (
-                    <span className="flex items-center gap-2">
-                      <Star className="w-4 h-4" />
-                      Your Coach
+                    <span className="flex items-center gap-1 sm:gap-2">
+                      <Star className={`${compact ? 'w-3 h-3 sm:w-4 sm:h-4' : 'w-4 h-4'}`} />
+                      <span className={compact ? 'hidden sm:inline' : ''}>Your Coach</span>
+                      <span className={compact ? 'sm:hidden' : 'hidden'}>✓</span>
                     </span>
                   ) : (
-                    `Chat with ${coach.name.split(' ')[0]}`
+                    <>
+                      <span className={compact ? 'hidden sm:inline' : ''}>{`Chat with ${coach.name.split(' ')[0]}`}</span>
+                      <span className={compact ? 'sm:hidden' : 'hidden'}>{coach.name.split(' ')[0]}</span>
+                    </>
                   )}
                 </Button>
               </CardContent>

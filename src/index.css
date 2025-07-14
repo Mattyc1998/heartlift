@@ -144,5 +144,23 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    /* Better mobile text rendering */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Better touch targets for mobile */
+  @media (hover: none) and (pointer: coarse) {
+    button, [role="button"], a {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
+  /* Smooth scrolling for mobile */
+  @supports (-webkit-overflow-scrolling: touch) {
+    .overflow-auto, .overflow-y-auto {
+      -webkit-overflow-scrolling: touch;
+    }
   }
 }
