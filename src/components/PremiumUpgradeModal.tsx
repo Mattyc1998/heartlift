@@ -87,7 +87,7 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
       return {
         title: "You've reached today's free limit 💫",
         description: "Want to keep talking? Upgrade to Premium and chat unlimited with all your coaches!",
-        highlight: "Free users get 3 messages per day"
+        highlight: "Free users get 5 messages per coach per day"
       };
     }
     

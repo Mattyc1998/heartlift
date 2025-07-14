@@ -201,16 +201,17 @@ serve(async (req) => {
     // Check usage limits for free users (skip if regenerating)
     if (!isPremium && !requestRegenerate) {
       const { data: usageData } = await supabase
-        .rpc("get_user_daily_usage", { user_uuid: user.id })
+        .rpc("get_user_daily_usage", { user_uuid: user.id, coach_id: coachId })
         .single();
 
       if (usageData && !usageData.can_send_message) {
         const hoursLeft = Math.max(0, usageData.hours_until_reset);
         const minutesLeft = Math.max(0, Math.floor((usageData.hours_until_reset - hoursLeft) * 60));
         
+        const coach = coaches[coachId];
         return new Response(JSON.stringify({
           error: "usage_limit_reached",
-          message: `You've reached your daily limit of 3 messages. You can chat again in ${hoursLeft}h ${minutesLeft}m — or go Premium now to keep talking! 💫`,
+          message: `You've reached your daily limit of 5 messages with ${coach.name}. You can chat again in ${hoursLeft}h ${minutesLeft}m — or go Premium now to keep talking! 💫`,
           hoursUntilReset: hoursLeft,
           minutesUntilReset: minutesLeft
         }), {
@@ -236,12 +237,13 @@ serve(async (req) => {
 
       // Increment usage for free users
       const { data: canIncrement } = await supabase
-        .rpc("increment_user_usage", { user_uuid: user.id });
+        .rpc("increment_user_usage", { user_uuid: user.id, coach_id: coachId });
 
       if (!canIncrement) {
+        const coach = coaches[coachId];
         return new Response(JSON.stringify({
           error: "usage_limit_reached",
-          message: "You've reached your daily message limit. Upgrade to Premium for unlimited chatting! 🚀"
+          message: `You've reached your daily message limit with ${coach.name}. Upgrade to Premium for unlimited chatting! 🚀`
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 429,
@@ -268,7 +270,7 @@ serve(async (req) => {
 
     // Get current usage after increment
     const { data: currentUsage } = await supabase
-      .rpc("get_user_daily_usage", { user_uuid: user.id })
+      .rpc("get_user_daily_usage", { user_uuid: user.id, coach_id: coachId })
       .single();
 
     return new Response(JSON.stringify({
@@ -277,7 +279,7 @@ serve(async (req) => {
       isPremium,
       usageCount: currentUsage?.message_count || 0,
       canSendMore: currentUsage?.can_send_message || false,
-      showUpgradeModal: !isPremium && currentUsage?.message_count >= 3,
+      showUpgradeModal: !isPremium && currentUsage?.message_count >= 5,
       canRegenerate: isPremium // Only premium users can regenerate
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -124,6 +124,7 @@ export type Database = {
       }
       user_usage: {
         Row: {
+          coach_id: string | null
           created_at: string
           date: string
           id: string
@@ -133,6 +134,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          coach_id?: string | null
           created_at?: string
           date?: string
           id?: string
@@ -142,6 +144,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          coach_id?: string | null
           created_at?: string
           date?: string
           id?: string
@@ -182,7 +185,7 @@ export type Database = {
     }
     Functions: {
       get_user_daily_usage: {
-        Args: { user_uuid: string }
+        Args: { user_uuid: string } | { user_uuid: string; coach_id?: string }
         Returns: {
           message_count: number
           last_message_at: string
@@ -191,7 +194,7 @@ export type Database = {
         }[]
       }
       increment_user_usage: {
-        Args: { user_uuid: string }
+        Args: { user_uuid: string } | { user_uuid: string; coach_id?: string }
         Returns: boolean
       }
       track_premium_feature_usage: {
