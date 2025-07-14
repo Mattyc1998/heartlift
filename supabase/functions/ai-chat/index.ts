@@ -245,14 +245,14 @@ serve(async (req) => {
       const { data: canIncrement, error: incrementError } = await supabase
         .rpc("increment_user_usage", { user_uuid: user.id, coach_id: coachId });
 
-      console.log('Increment result:', canIncrement, 'Error:', incrementError);
+      console.log('Increment attempt for coach:', coachId, 'Result:', canIncrement, 'Error:', incrementError);
 
       if (incrementError) {
         console.error('Error incrementing usage:', incrementError);
-        // Don't block on increment error, just log it
+        throw new Error('Failed to track usage');
       }
 
-      if (!canIncrement && !incrementError) {
+      if (!canIncrement) {
         const coach = coaches[coachId];
         return new Response(JSON.stringify({
           error: "usage_limit_reached", 
