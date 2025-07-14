@@ -40,7 +40,7 @@ export const Auth = () => {
     } else {
       toast({
         title: "Welcome to HeartWise!",
-        description: "Please check your email to verify your account.",
+        description: "Your account has been created! You can now sign in with your email and password.",
       });
     }
     
