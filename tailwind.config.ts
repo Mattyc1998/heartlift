@@ -89,11 +89,21 @@ export default {
 				'fade-in': {
 					'0%': {
 						opacity: '0',
-						transform: 'translateY(10px)'
+						transform: 'translateY(20px)'
 					},
 					'100%': {
 						opacity: '1',
 						transform: 'translateY(0)'
+					}
+				},
+				'fade-in-scale': {
+					'0%': {
+						opacity: '0',
+						transform: 'scale(0.9) translateY(10px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'scale(1) translateY(0)'
 					}
 				},
 				'float-gentle': {
@@ -101,24 +111,65 @@ export default {
 						transform: 'translateY(0px)'
 					},
 					'50%': {
-						transform: 'translateY(-6px)'
+						transform: 'translateY(-8px)'
 					}
 				},
 				'pulse-warm': {
 					'0%, 100%': {
-						opacity: '1'
+						opacity: '1',
+						transform: 'scale(1)'
 					},
 					'50%': {
-						opacity: '0.8'
+						opacity: '0.9',
+						transform: 'scale(1.02)'
+					}
+				},
+				'wiggle': {
+					'0%, 100%': {
+						transform: 'rotate(-2deg)'
+					},
+					'50%': {
+						transform: 'rotate(2deg)'
+					}
+				},
+				'bounce-gentle': {
+					'0%, 100%': {
+						transform: 'translateY(0)'
+					},
+					'50%': {
+						transform: 'translateY(-4px)'
+					}
+				},
+				'glow': {
+					'0%, 100%': {
+						boxShadow: '0 0 20px hsl(var(--primary) / 0.1)'
+					},
+					'50%': {
+						boxShadow: '0 0 30px hsl(var(--primary) / 0.2)'
+					}
+				},
+				'slide-up': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(30px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
 					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'fade-in': 'fade-in 0.5s ease-out',
-				'float-gentle': 'float-gentle 3s ease-in-out infinite',
-				'pulse-warm': 'pulse-warm 2s ease-in-out infinite'
+				'fade-in': 'fade-in 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+				'fade-in-scale': 'fade-in-scale 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+				'float-gentle': 'float-gentle 4s ease-in-out infinite',
+				'pulse-warm': 'pulse-warm 3s ease-in-out infinite',
+				'wiggle': 'wiggle 1s ease-in-out infinite',
+				'bounce-gentle': 'bounce-gentle 2s ease-in-out infinite',
+				'glow': 'glow 2s ease-in-out infinite',
+				'slide-up': 'slide-up 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
 			}
 		}
 	},
