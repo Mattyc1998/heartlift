@@ -101,24 +101,28 @@ function getPremiumTeaser(message: string, coach: CoachPersonality): string {
 function getBasicResponse(message: string, coach: CoachPersonality): string {
   const responses = {
     flirty: [
-      "You're asking great questions! Remember, confidence is your best accessory. 💖 Keep believing in your worth!",
-      "Love that you're thinking about this! Trust your instincts - you've got this, gorgeous! ✨",
-      "Self-reflection is so attractive! Keep focusing on being the best version of yourself. 💅"
+      "Darling, you're asking the right questions! 💋 Your intuition is already guiding you - trust that gorgeous mind of yours! ✨",
+      "Ooh, I love that you're being so thoughtful about this! 😍 Remember, confidence is your sexiest accessory - wear it daily! 💖",
+      "Honey, self-awareness is SO attractive! 🌟 Keep shining and trust yourself - you've got that magnetic energy! 💅",
+      "Mmm, that's some deep thinking right there! 🔥 You're already leveling up just by asking these questions, beautiful! 💎"
     ],
     therapist: [
-      "It's wonderful that you're exploring this. Remember, healing isn't linear and every step counts. 🌱",
-      "Your awareness is already a sign of growth. Be gentle with yourself as you navigate this. 💙",
-      "These are important questions to consider. Take time to sit with your feelings and trust the process. 🤗"
+      "That's a very insightful question. 🌱 Remember, growth happens in the space between what was and what could be. Be patient with yourself.",
+      "I appreciate you taking the time to reflect on this. 💙 Healing isn't linear, and every step forward - even the small ones - matters deeply.",
+      "Your willingness to explore these feelings shows tremendous courage. 🤗 Trust in your process and remember that understanding takes time.",
+      "This kind of self-reflection is the foundation of emotional growth. 🌸 Be gentle with yourself as you navigate these complex feelings."
     ],
     "tough-love": [
-      "Good - you're asking the right questions! Now it's time to take action. What's one small step you can take today? 🔥",
-      "I love that you're not settling! Keep that energy and remember - you deserve respect. Period. 💪",
-      "You know what you need to do. Stop overthinking and start protecting your peace. You've got this! ⚡"
+      "Alright, GOOD! 🔥 You're finally asking the questions that matter! Now stop overthinking and start DOING something about it! 💪",
+      "I'm proud of you for not settling for mediocrity! 🚀 But here's the thing - knowledge without action is just fancy procrastination. What's your next move?",
+      "YES! This is exactly the mindset shift you needed! ⚡ Now channel that energy into protecting your peace and demanding better. You've got this!",
+      "Finally, someone who's not afraid to face reality! 🎯 Keep this energy up and remember - you teach people how to treat you. Act like it!"
     ],
     chill: [
-      "Take a breath. Whatever you're facing, you don't have to figure it all out right now. One step at a time. 🌊",
-      "Trust that you have the wisdom within you. Sometimes the answer comes when we stop forcing it. 🧘‍♀️",
-      "You're exactly where you need to be in your journey. Be patient with yourself. 🌸"
+      "Hmm, that's a beautiful question to sit with. 🌊 You don't need to figure it all out today - just breathe and let the answer come to you naturally.",
+      "I love that you're giving yourself space to think about this. 🧘‍♀️ Sometimes the wisest thing we can do is simply be present with our feelings.",
+      "You're exactly where you need to be right now. 🌸 Trust that your heart knows the way, even when your mind feels uncertain. Take it one breath at a time.",
+      "That's such a thoughtful reflection. 🌿 Remember, healing flows like water - it finds its own path. Be patient with your journey."
     ]
   };
   

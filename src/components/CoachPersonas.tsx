@@ -64,9 +64,10 @@ const coaches = [
 interface CoachPersonasProps {
   onSelectCoach: (coachId: string) => void;
   selectedCoach?: string;
+  compact?: boolean;
 }
 
-export const CoachPersonas = ({ onSelectCoach, selectedCoach }: CoachPersonasProps) => {
+export const CoachPersonas = ({ onSelectCoach, selectedCoach, compact = false }: CoachPersonasProps) => {
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="text-center space-y-3">
@@ -78,7 +79,7 @@ export const CoachPersonas = ({ onSelectCoach, selectedCoach }: CoachPersonasPro
         <p className="text-muted-foreground text-lg">Each coach brings their unique personality and wisdom to guide your journey</p>
       </div>
       
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className={`grid gap-6 ${compact ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
         {coaches.map((coach, index) => {
           const Icon = coach.icon;
           const isSelected = selectedCoach === coach.id;

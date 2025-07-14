@@ -9,10 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, MessageCircle, TrendingUp, CreditCard } from "lucide-react";
 
 const coachData = {
-  flirty: { name: "Flirty Sage", personality: "flirty" },
-  therapist: { name: "Dr. Empath", personality: "therapist" },
-  "tough-love": { name: "Truth Teller", personality: "tough-love" },
-  chill: { name: "Chill Mate", personality: "chill" }
+  flirty: { name: "Luna Love", personality: "flirty", greeting: "Hey gorgeous! Ready to turn heads? ✨" },
+  therapist: { name: "Dr. Sage", personality: "therapist", greeting: "I'm here to help you understand yourself better." },
+  "tough-love": { name: "Phoenix Fire", personality: "tough-love", greeting: "Time for some real talk. Ready to level up?" },
+  chill: { name: "River Calm", personality: "chill", greeting: "Take a deep breath. Let's figure this out together." }
 };
 
 const Index = () => {
@@ -77,12 +77,14 @@ const Index = () => {
                 <CoachPersonas 
                   onSelectCoach={setSelectedCoach}
                   selectedCoach={selectedCoach}
+                  compact={true}
                 />
               </div>
               <div className="lg:col-span-2">
                 <ChatInterface 
-                  coachName={coachData[selectedCoach as keyof typeof coachData]?.name || "Dr. Empath"}
+                  coachName={coachData[selectedCoach as keyof typeof coachData]?.name || "Dr. Sage"}
                   coachPersonality={coachData[selectedCoach as keyof typeof coachData]?.personality || "therapist"}
+                  coachGreeting={coachData[selectedCoach as keyof typeof coachData]?.greeting || "I'm here to help you understand yourself better."}
                 />
               </div>
             </div>

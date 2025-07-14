@@ -23,13 +23,14 @@ interface Message {
 interface ChatInterfaceProps {
   coachName: string;
   coachPersonality: string;
+  coachGreeting?: string;
 }
 
-export const ChatInterface = ({ coachName, coachPersonality }: ChatInterfaceProps) => {
+export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`,
+      content: coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`,
       sender: 'coach',
       timestamp: new Date()
     }
@@ -320,7 +321,7 @@ export const ChatInterface = ({ coachName, coachPersonality }: ChatInterfaceProp
                     ? "Daily limit reached - upgrade to Premium to continue"
                     : isPremium
                     ? "Ask me anything... (Premium user)"
-                    : `Share what's on your heart... (${3 - usageCount} messages left)`
+                     : `Share what's on your heart... (${5 - usageCount} messages left with this coach)`
                 }
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                 className="flex-1"
