@@ -38,6 +38,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_usage: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          last_message_at: string | null
+          message_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          id?: string
+          last_message_at?: string | null
+          message_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          last_message_at?: string | null
+          message_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       visitors: {
         Row: {
           created_at: string
@@ -67,7 +97,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_daily_usage: {
+        Args: { user_uuid: string }
+        Returns: {
+          message_count: number
+          last_message_at: string
+          can_send_message: boolean
+          hours_until_reset: number
+        }[]
+      }
+      increment_user_usage: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
