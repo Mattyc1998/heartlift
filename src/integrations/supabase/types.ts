@@ -14,6 +14,153 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_affirmations: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string
+          text: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          text: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          text?: string
+        }
+        Relationships: []
+      }
+      guided_meditations: {
+        Row: {
+          audio_url: string | null
+          category: string | null
+          created_at: string | null
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          title: string
+        }
+        Insert: {
+          audio_url?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          title: string
+        }
+        Update: {
+          audio_url?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      healing_kit_purchases: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string | null
+          id: string
+          purchased_at: string | null
+          status: string | null
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          purchased_at?: string | null
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          purchased_at?: string | null
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      healing_plan_days: {
+        Row: {
+          action_item: string | null
+          challenge: string | null
+          content: string
+          created_at: string | null
+          day_number: number
+          id: string
+          mindset_reframe: string | null
+          prompt: string | null
+          title: string
+        }
+        Insert: {
+          action_item?: string | null
+          challenge?: string | null
+          content: string
+          created_at?: string | null
+          day_number: number
+          id?: string
+          mindset_reframe?: string | null
+          prompt?: string | null
+          title: string
+        }
+        Update: {
+          action_item?: string | null
+          challenge?: string | null
+          content?: string
+          created_at?: string | null
+          day_number?: number
+          id?: string
+          mindset_reframe?: string | null
+          prompt?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      journal_prompts: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          emotional_theme: string | null
+          id: string
+          prompt: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          emotional_theme?: string | null
+          id?: string
+          prompt: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          emotional_theme?: string | null
+          id?: string
+          prompt?: string
+        }
+        Relationships: []
+      }
       premium_features_usage: {
         Row: {
           created_at: string
@@ -74,6 +221,36 @@ export type Database = {
         }
         Relationships: []
       }
+      recovery_milestones: {
+        Row: {
+          badge_name: string | null
+          created_at: string | null
+          day_number: number
+          description: string | null
+          id: string
+          reward_type: string | null
+          title: string
+        }
+        Insert: {
+          badge_name?: string | null
+          created_at?: string | null
+          day_number: number
+          description?: string | null
+          id?: string
+          reward_type?: string | null
+          title: string
+        }
+        Update: {
+          badge_name?: string | null
+          created_at?: string | null
+          day_number?: number
+          description?: string | null
+          id?: string
+          reward_type?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       subscribers: {
         Row: {
           created_at: string
@@ -118,6 +295,48 @@ export type Database = {
           subscription_end?: string | null
           subscription_tier?: string | null
           updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_healing_progress: {
+        Row: {
+          completed_days: number[] | null
+          completed_milestones: number[] | null
+          created_at: string | null
+          current_day: number | null
+          id: string
+          journal_entries: Json | null
+          last_contact_date: string | null
+          no_contact_start_date: string | null
+          no_contact_streak_days: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completed_days?: number[] | null
+          completed_milestones?: number[] | null
+          created_at?: string | null
+          current_day?: number | null
+          id?: string
+          journal_entries?: Json | null
+          last_contact_date?: string | null
+          no_contact_start_date?: string | null
+          no_contact_streak_days?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completed_days?: number[] | null
+          completed_milestones?: number[] | null
+          created_at?: string | null
+          current_day?: number | null
+          id?: string
+          journal_entries?: Json | null
+          last_contact_date?: string | null
+          no_contact_start_date?: string | null
+          no_contact_streak_days?: number | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Relationships: []
@@ -200,6 +419,10 @@ export type Database = {
       track_premium_feature_usage: {
         Args: { user_uuid: string; feature_name: string }
         Returns: undefined
+      }
+      user_has_healing_kit: {
+        Args: { user_uuid: string }
+        Returns: boolean
       }
       user_has_premium_access: {
         Args: { user_uuid: string }
