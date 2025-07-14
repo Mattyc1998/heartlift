@@ -1,11 +1,24 @@
 import { Button } from "@/components/ui/button";
 import { Heart, MessageCircle, TrendingUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeroSectionProps {
   onGetStarted?: () => void;
 }
 
 export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handleGetStarted = () => {
+    if (user) {
+      onGetStarted?.();
+    } else {
+      navigate('/auth');
+    }
+  };
+
   return (
     <section className="min-h-screen flex items-center justify-center px-4 py-16 bg-gradient-to-br from-background via-muted to-secondary">
       <div className="max-w-4xl mx-auto text-center space-y-8 animate-fade-in">
@@ -53,9 +66,9 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
             variant="warm" 
             size="lg" 
             className="px-8 py-3 text-lg"
-            onClick={onGetStarted}
+            onClick={handleGetStarted}
           >
-            Start Your Healing Journey
+            {user ? "Continue Your Journey" : "Start Your Healing Journey"}
           </Button>
           
           <p className="text-sm text-muted-foreground">
