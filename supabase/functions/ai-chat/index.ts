@@ -249,10 +249,10 @@ serve(async (req) => {
 
       if (incrementError) {
         console.error('Error incrementing usage:', incrementError);
-        throw new Error('Failed to track usage');
+        // Continue anyway, don't block the message
       }
 
-      if (!canIncrement) {
+      if (!canIncrement && !incrementError) {
         const coach = coaches[coachId];
         return new Response(JSON.stringify({
           error: "usage_limit_reached", 
