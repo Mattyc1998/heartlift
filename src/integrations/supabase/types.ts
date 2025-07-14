@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      premium_features_usage: {
+        Row: {
+          created_at: string
+          feature_name: string
+          id: string
+          last_used: string | null
+          updated_at: string
+          usage_count: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feature_name: string
+          id?: string
+          last_used?: string | null
+          updated_at?: string
+          usage_count?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feature_name?: string
+          id?: string
+          last_used?: string | null
+          updated_at?: string
+          usage_count?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -41,6 +71,54 @@ export type Database = {
           Password?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          last_used_premium_feature: string | null
+          payment_status: string | null
+          plan_type: string | null
+          premium_start_date: string | null
+          stripe_customer_id: string | null
+          subscribed: boolean
+          subscription_end: string | null
+          subscription_tier: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          last_used_premium_feature?: string | null
+          payment_status?: string | null
+          plan_type?: string | null
+          premium_start_date?: string | null
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          last_used_premium_feature?: string | null
+          payment_status?: string | null
+          plan_type?: string | null
+          premium_start_date?: string | null
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -113,6 +191,14 @@ export type Database = {
         }[]
       }
       increment_user_usage: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
+      track_premium_feature_usage: {
+        Args: { user_uuid: string; feature_name: string }
+        Returns: undefined
+      }
+      user_has_premium_access: {
         Args: { user_uuid: string }
         Returns: boolean
       }
