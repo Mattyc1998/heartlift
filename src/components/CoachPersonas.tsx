@@ -73,11 +73,10 @@ export const CoachPersonas = ({ onSelectCoach, selectedCoach, compact = false }:
       <div className="text-center space-y-3">
         <div className="flex items-center justify-center gap-2 mb-2">
           <Sparkles className="w-6 h-6 text-primary animate-pulse-warm" />
-          <h2 className="text-3xl font-bold text-foreground">Chat with your coaches</h2>
+          <h2 className="text-3xl font-bold text-foreground">Meet Your Coaches</h2>
           <Sparkles className="w-6 h-6 text-primary animate-pulse-warm" />
         </div>
-        <p className="text-muted-foreground text-lg">Start meaningful conversations with AI coaches who understand your unique journey</p>
-        <p className="text-muted-foreground text-sm">Choose a coach that resonates with you and begin your personalized healing experience</p>
+        <p className="text-muted-foreground text-lg">Each coach brings their unique personality and wisdom to guide your journey</p>
       </div>
       
       <div className={`grid gap-4 sm:gap-6 ${compact ? 'grid-cols-2 sm:grid-cols-4 lg:grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
