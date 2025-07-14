@@ -242,13 +242,20 @@ serve(async (req) => {
       }
 
       // Increment usage for free users
-      const { data: canIncrement } = await supabase
+      const { data: canIncrement, error: incrementError } = await supabase
         .rpc("increment_user_usage", { user_uuid: user.id, coach_id: coachId });
 
-      if (!canIncrement) {
+      console.log('Increment result:', canIncrement, 'Error:', incrementError);
+
+      if (incrementError) {
+        console.error('Error incrementing usage:', incrementError);
+        // Don't block on increment error, just log it
+      }
+
+      if (!canIncrement && !incrementError) {
         const coach = coaches[coachId];
         return new Response(JSON.stringify({
-          error: "usage_limit_reached",
+          error: "usage_limit_reached", 
           message: `You've reached your daily message limit with ${coach.name}. Upgrade to Premium for unlimited chatting! 🚀`
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
