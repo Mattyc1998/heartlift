@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { AttachmentStyleQuiz } from "@/components/AttachmentStyleQuiz";
 import { RecoveryMilestones } from "@/components/RecoveryMilestones";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Crown, Heart, Target, Star } from "lucide-react";
+import { Crown, Heart, Target, ArrowLeft } from "lucide-react";
 
 export default function AdvancedTools() {
   const { user, isPremium } = useAuth();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("quiz");
 
   if (!user) {
@@ -39,6 +40,17 @@ export default function AdvancedTools() {
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <Button
+            variant="outline"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
+        </div>
+        
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Crown className="w-8 h-8 text-primary" />

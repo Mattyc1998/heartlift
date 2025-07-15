@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { HealingKitNav } from "@/components/HealingKitNav";
 import { HealingPlan } from "@/components/HealingPlan";
 import { DailyAffirmations } from "@/components/DailyAffirmations";
 import { GuidedMeditations } from "@/components/GuidedMeditations";
 import { NoContactTracker } from "@/components/NoContactTracker";
-import { AttachmentStyleQuiz } from "@/components/AttachmentStyleQuiz";
-import { RecoveryMilestones } from "@/components/RecoveryMilestones";
 import { Card } from "@/components/ui/card";
-import { Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Heart, ArrowLeft } from "lucide-react";
 
 export default function HealingKit() {
   const { user, hasHealingKit } = useAuth();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("plan");
 
   if (!user) {
@@ -43,16 +43,12 @@ export default function HealingKit() {
     switch (activeSection) {
       case "plan":
         return <HealingPlan />;
-      case "quiz":
-        return <AttachmentStyleQuiz />;
       case "affirmations":
         return <DailyAffirmations />;
       case "meditations":
         return <GuidedMeditations />;
       case "tracker":
         return <NoContactTracker />;
-      case "milestones":
-        return <RecoveryMilestones />;
       default:
         return <HealingPlan />;
     }
@@ -61,6 +57,17 @@ export default function HealingKit() {
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <Button
+            variant="outline"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
+        </div>
+        
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
             Your Healing Kit
