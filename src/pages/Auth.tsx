@@ -40,8 +40,10 @@ export const Auth = () => {
     } else {
       toast({
         title: "Welcome to HeartWise!",
-        description: "Your account has been created! You can now sign in with your email and password.",
+        description: "Your account has been created successfully!",
       });
+      // Auto-navigate to main app after successful signup
+      navigate('/');
     }
     
     setIsLoading(false);
