@@ -176,6 +176,23 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
               Maybe later
             </Button>
             <Button 
+              variant="ghost" 
+              onClick={async () => {
+                const { data } = await supabase.functions.invoke('test-premium', {
+                  headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
+                });
+                if (data?.success) { 
+                  toast({ title: "Test Premium Activated!" });
+                  onClose();
+                  window.location.reload();
+                }
+              }}
+              className="flex-1"
+              size="sm"
+            >
+              TEST Premium
+            </Button>
+            <Button 
               variant="warm" 
               onClick={handleUpgrade}
               className="flex-1"
