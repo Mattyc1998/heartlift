@@ -40,6 +40,29 @@ serve(async (req) => {
     
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // First, check if there's already a local database record (from test functions)
+    const { data: existingSubscriber } = await supabaseClient
+      .from("subscribers")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (existingSubscriber && existingSubscriber.subscribed) {
+      logStep("Found existing active subscription in database", { 
+        subscribed: existingSubscriber.subscribed,
+        plan_type: existingSubscriber.plan_type,
+        payment_status: existingSubscriber.payment_status
+      });
+      return new Response(JSON.stringify({
+        subscribed: existingSubscriber.subscribed,
+        plan_type: existingSubscriber.plan_type || 'premium',
+        payment_status: existingSubscriber.payment_status || 'active'
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     
@@ -53,7 +76,7 @@ serve(async (req) => {
         plan_type: 'free',
         payment_status: 'inactive',
         updated_at: new Date().toISOString(),
-      }, { onConflict: 'email' });
+      }, { onConflict: 'user_id' });
       
       return new Response(JSON.stringify({ 
         subscribed: false, 
@@ -94,7 +117,7 @@ serve(async (req) => {
       payment_status: hasActiveSub ? 'active' : 'inactive',
       subscription_end: subscriptionEnd,
       updated_at: new Date().toISOString(),
-    }, { onConflict: 'email' });
+      }, { onConflict: 'user_id' });
 
     logStep("Updated database with subscription info", { subscribed: hasActiveSub });
     
