@@ -178,49 +178,6 @@ function getBasicResponse(message: string, coach: CoachPersonality, coachId: str
   return coachResponses[Math.floor(Math.random() * coachResponses.length)];
 }
 
-// Function to enforce personality-specific tone and style
-function enforceCoachTone(response: string, coachId: string): string {
-  switch (coachId) {
-    case 'flirty':
-      // Ensure Luna has emojis and flirty language
-      if (!response.includes('✨') && !response.includes('💋') && !response.includes('💖') && !response.includes('😘')) {
-        response += ' ✨';
-      }
-      if (!response.includes('babe') && !response.includes('gorgeous') && !response.includes('beautiful') && !response.includes('stunning')) {
-        response = response.replace(/you/i, 'babe');
-      }
-      break;
-    
-    case 'therapist':
-      // Ensure Dr. Sage ends with a reflective question
-      if (!response.includes('?')) {
-        response += ' What comes up for you when you think about this?';
-      }
-      break;
-    
-    case 'tough-love':
-      // Ensure Phoenix has action-oriented language
-      if (!response.includes('🔥') && !response.includes('💪') && !response.includes('⚡')) {
-        response += ' 🔥';
-      }
-      if (!response.toLowerCase().includes('what are you gonna do') && !response.toLowerCase().includes('time to') && !response.toLowerCase().includes('step up')) {
-        response += ' What are you gonna do about it?';
-      }
-      break;
-    
-    case 'chill':
-      // Ensure River has gentle, grounding language
-      if (!response.includes('🌿') && !response.includes('🌊') && !response.includes('💚') && !response.includes('🌱')) {
-        response += ' 🌿';
-      }
-      if (!response.toLowerCase().includes('breathe') && !response.toLowerCase().includes('gentle') && !response.toLowerCase().includes('flow')) {
-        response = response.replace(/\.$/, '. Let\'s breathe through this together.');
-      }
-      break;
-  }
-  
-  return response;
-}
 
 async function generateAIResponse(
   message: string,
@@ -296,6 +253,23 @@ serve(async (req) => {
 
     const user = userData.user;
     const { message, coachId = "chill", conversationHistory = [], requestRegenerate = false } = await req.json() as ChatRequest;
+
+    // Retrieve conversation history from database to ensure context
+    const { data: dbHistory, error: historyError } = await supabase
+      .from('conversation_history')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('coach_id', coachId)
+      .order('created_at', { ascending: true })
+      .limit(16); // Get last 16 messages for context
+
+    console.log('Retrieved conversation history:', dbHistory?.length || 0, 'messages');
+
+    // Convert database history to OpenAI format
+    const formattedHistory = dbHistory?.map(msg => ({
+      role: msg.sender === 'user' ? 'user' : 'assistant',
+      content: msg.message_content
+    })) || [];
 
     // Check if user has premium access
     const { data: hasPremium } = await supabase
@@ -377,10 +351,8 @@ serve(async (req) => {
     });
 
     if (isPremium) {
-      // Premium users get full AI responses
-      response = await generateAIResponse(message, coach, conversationHistory);
-      // Enforce coach-specific tone and style
-      response = enforceCoachTone(response, coachId);
+      // Premium users get full AI responses with conversation history
+      response = await generateAIResponse(message, coach, formattedHistory);
       
       // Track premium feature usage
       await supabase.rpc("track_premium_feature_usage", {
@@ -389,9 +361,7 @@ serve(async (req) => {
       });
     } else {
       // Free users also get AI responses, but with usage limits
-      response = await generateAIResponse(message, coach, conversationHistory);
-      // Enforce coach-specific tone and style
-      response = enforceCoachTone(response, coachId);
+      response = await generateAIResponse(message, coach, formattedHistory);
     }
 
     // Save coach response to conversation history
