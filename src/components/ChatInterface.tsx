@@ -33,18 +33,16 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
   const [usageCount, setUsageCount] = useState(0);
   const [remainingMessages, setRemainingMessages] = useState(10);
   const [canSendMessage, setCanSendMessage] = useState(true);
-  const [isPremium, setIsPremium] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [upgradeModalTrigger, setUpgradeModalTrigger] = useState<"usage_limit" | "premium_teaser">("usage_limit");
   const [conversationLoaded, setConversationLoaded] = useState(false);
 
-  const { user } = useAuth();
+  const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
     if (user) {
-      checkSubscriptionStatus();
       loadUsageCount();
     }
   }, [user, coachPersonality]);
@@ -138,20 +136,6 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
     }
   };
 
-  const checkSubscriptionStatus = async () => {
-    if (!user) return;
-
-    try {
-      const { data: hasPremium } = await supabase
-        .rpc("user_has_premium_access", { user_uuid: user.id })
-        .single();
-
-      setIsPremium(hasPremium || false);
-    } catch (error) {
-      console.error("Error checking subscription:", error);
-      setIsPremium(false);
-    }
-  };
 
   const sendMessage = async () => {
     if (!inputMessage.trim() || isTyping || !user) return;
@@ -208,7 +192,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
       setUsageCount(data.usageCount || 0);
       setRemainingMessages(data.remainingMessages || 0);
       setCanSendMessage(data.canSendMore !== false);
-      setIsPremium(data.isPremium || false);
+      
 
       // Refresh usage data to update the counter display
       await loadUsageCount();

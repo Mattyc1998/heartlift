@@ -9,6 +9,9 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   loading: boolean;
+  isPremium: boolean;
+  subscriptionStatus: 'free' | 'premium';
+  checkSubscription: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,26 +28,68 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPremium, setIsPremium] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<'free' | 'premium'>('free');
+
+  const checkSubscription = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('check-subscription', {
+        headers: {
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        },
+      });
+
+      if (!error && data) {
+        setIsPremium(data.subscribed || false);
+        setSubscriptionStatus(data.plan_type || 'free');
+      }
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+    }
+  };
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Check subscription when user logs in
+        if (session?.user && event === 'SIGNED_IN') {
+          await checkSubscription();
+        } else if (event === 'SIGNED_OUT') {
+          setIsPremium(false);
+          setSubscriptionStatus('free');
+        }
       }
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // Check subscription for existing session
+      if (session?.user) {
+        await checkSubscription();
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    // Auto-refresh subscription status every 30 seconds when user is logged in
+    if (!user) return;
+
+    const interval = setInterval(checkSubscription, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -81,6 +126,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signUp,
     signOut,
     loading,
+    isPremium,
+    subscriptionStatus,
+    checkSubscription,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

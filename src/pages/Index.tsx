@@ -4,6 +4,7 @@ import { CoachPersonas } from "@/components/CoachPersonas";
 import { ChatInterface } from "@/components/ChatInterface";
 import { MoodTracker } from "@/components/MoodTracker";
 import { PricingSection } from "@/components/PricingSection";
+import { PremiumManagement } from "@/components/PremiumManagement";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, MessageCircle, TrendingUp, CreditCard } from "lucide-react";
@@ -80,6 +81,11 @@ const Index = () => {
             <div className="text-center space-y-3 mb-6">
               <h2 className="text-3xl font-bold text-foreground">Chat with your coaches</h2>
               <p className="text-muted-foreground text-lg">Start meaningful conversations with AI coaches who understand your unique journey</p>
+            </div>
+            
+            {/* Premium Management */}
+            <div className="max-w-4xl mx-auto mb-6">
+              <PremiumManagement />
             </div>
             
             <div className="max-w-4xl mx-auto space-y-4 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-6">

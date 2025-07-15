@@ -41,7 +41,8 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
       if (error) throw error;
 
       if (data?.url) {
-        window.location.href = data.url;
+        // Open Stripe checkout in a new tab
+        window.open(data.url, '_blank');
       }
     } catch (error) {
       console.error('Error creating checkout:', error);
@@ -58,26 +59,26 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
   const premiumFeatures = [
     {
       icon: MessageSquare,
-      title: "Unlimited AI Conversations",
-      description: "Chat with all coaches as much as you want",
+      title: "💬 Unlimited AI Conversations",
+      description: "Remove message limits and switch between all coaches freely",
       gradient: "from-blue-400 to-blue-500"
     },
     {
       icon: Heart,
-      title: "Personalized Coaching",
-      description: "Deep insights, custom text suggestions, and relationship analysis",
+      title: "🧠 Personalized Coaching",
+      description: "Text suggestion helper, custom insights, and relationship pattern recognition",
       gradient: "from-pink-400 to-pink-500"
     },
     {
       icon: Zap,
-      title: "Advanced Tools",
-      description: "Break-up plans, attachment style analysis, and healing roadmaps",
+      title: "🛠 Advanced Tools",
+      description: "Break-up healing plan, attachment style quiz, and recovery timeline",
       gradient: "from-orange-400 to-orange-500"
     },
     {
       icon: Sparkles,
-      title: "Priority Support",
-      description: "Fast responses and exclusive content",
+      title: "💌 Priority Support",
+      description: "Priority badge, faster responses, and exclusive content",
       gradient: "from-purple-400 to-purple-500"
     }
   ];
@@ -154,6 +155,10 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
                   <div className="flex items-center gap-1">
                     <Check className="w-4 h-4 text-green-500" />
                     <span>Advanced tools</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Check className="w-4 h-4 text-green-500" />
+                    <span>Priority support</span>
                   </div>
                 </div>
               </div>
