@@ -146,14 +146,10 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
                   <p className="text-sm text-muted-foreground">Cancel anytime • No hidden fees</p>
                 </div>
                 
-                <div className="flex items-center justify-center gap-4 text-sm">
+                <div className="flex items-center justify-center gap-6 text-sm">
                   <div className="flex items-center gap-1">
                     <Check className="w-4 h-4 text-green-500" />
                     <span>Unlimited messages</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Check className="w-4 h-4 text-green-500" />
-                    <span>All coaches</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Check className="w-4 h-4 text-green-500" />
