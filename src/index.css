@@ -36,6 +36,11 @@ All colors MUST be HSL.
     --accent: 25 70% 88%;
     --accent-foreground: 340 15% 25%;
 
+    /* Healing kit colors */
+    --healing: 160 65% 70%;
+    --healing-foreground: 0 0% 100%;
+    --healing-glow: 160 75% 80%;
+
     /* Soft destructive */
     --destructive: 0 65% 65%;
     --destructive-foreground: 0 0% 100%;

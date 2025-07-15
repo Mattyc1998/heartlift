@@ -10,6 +10,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   loading: boolean;
   isPremium: boolean;
+  hasHealingKit: boolean;
   subscriptionStatus: 'free' | 'premium';
   checkSubscription: () => Promise<void>;
 }
@@ -29,12 +30,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isPremium, setIsPremium] = useState(false);
+  const [hasHealingKit, setHasHealingKit] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<'free' | 'premium'>('free');
 
   const checkSubscription = async () => {
     if (!user) return;
 
     try {
+      // Check premium status
       const { data, error } = await supabase.functions.invoke('check-subscription', {
         headers: {
           Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
@@ -44,6 +47,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!error && data) {
         setIsPremium(data.subscribed || false);
         setSubscriptionStatus(data.plan_type || 'free');
+      }
+
+      // Check healing kit access using the database function
+      const { data: healingKitData, error: healingKitError } = await supabase
+        .rpc('user_has_healing_kit', { user_uuid: user.id });
+
+      if (!healingKitError) {
+        setHasHealingKit(healingKitData || false);
       }
     } catch (error) {
       console.error('Error checking subscription:', error);
@@ -63,6 +74,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           await checkSubscription();
         } else if (event === 'SIGNED_OUT') {
           setIsPremium(false);
+          setHasHealingKit(false);
           setSubscriptionStatus('free');
         }
       }
@@ -127,6 +139,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signOut,
     loading,
     isPremium,
+    hasHealingKit,
     subscriptionStatus,
     checkSubscription,
   };

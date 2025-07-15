@@ -45,6 +45,11 @@ export default {
 					DEFAULT: 'hsl(var(--accent))',
 					foreground: 'hsl(var(--accent-foreground))'
 				},
+				healing: {
+					DEFAULT: 'hsl(var(--healing))',
+					foreground: 'hsl(var(--healing-foreground))',
+					glow: 'hsl(var(--healing-glow))'
+				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
 					foreground: 'hsl(var(--popover-foreground))'

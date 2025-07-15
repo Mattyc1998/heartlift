@@ -5,6 +5,7 @@ import { ChatInterface } from "@/components/ChatInterface";
 import { MoodTracker } from "@/components/MoodTracker";
 import { PricingSection } from "@/components/PricingSection";
 import { PremiumManagement } from "@/components/PremiumManagement";
+import { SubscriptionStatusBanner } from "@/components/SubscriptionStatusBanner";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, MessageCircle, TrendingUp, CreditCard } from "lucide-react";
@@ -36,6 +37,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-secondary/30">
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        
+        {/* Subscription Status Banner */}
+        <SubscriptionStatusBanner />
         {/* Mobile-optimized header */}
         <div className="flex items-center justify-between mb-4 sm:mb-8">
           <div className="flex items-center space-x-2 sm:space-x-3">

@@ -66,7 +66,7 @@ const plans = [
 
 export const PricingSection = () => {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const { user } = useAuth();
+  const { user, checkSubscription } = useAuth();
 
   const handlePlanClick = (planName: string) => {
     if (planName === "Premium") {
@@ -161,11 +161,11 @@ export const PricingSection = () => {
                              }
                              if (data?.success) { 
                                console.log('Success! Showing toast...');
-                               toast.success("✅ Test Premium Activated! Page will reload in 2 seconds.");
+                               toast.success("✅ Test Premium Activated! Refreshing status...");
+                               await checkSubscription(); // Refresh subscription status
                                setTimeout(() => {
-                                 console.log('Reloading page...');
-                                 window.location.reload();
-                               }, 2000);
+                                 console.log('Status refreshed');
+                               }, 1000);
                              }
                            } catch (error) {
                              console.error('Test premium error:', error);
@@ -196,11 +196,11 @@ export const PricingSection = () => {
                              }
                              if (data?.success) { 
                                console.log('Success! Showing toast...');
-                               toast.success("✅ Test Healing Kit Activated! Page will reload in 2 seconds.");
+                               toast.success("✅ Test Healing Kit Activated! Refreshing status...");
+                               await checkSubscription(); // Refresh subscription status
                                setTimeout(() => {
-                                 console.log('Reloading page...');
-                                 window.location.reload();
-                               }, 2000);
+                                 console.log('Status refreshed');
+                               }, 1000);
                              }
                            } catch (error) {
                              console.error('Test healing kit error:', error);
