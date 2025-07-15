@@ -137,35 +137,45 @@ async function generateAIResponse(
 ): Promise<string> {
   const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
   if (!openAIApiKey) {
-    throw new Error('OpenAI API key not found');
+    console.log('No OpenAI API key found, using basic response');
+    return getBasicResponse(message, coach, coach.name.toLowerCase().replace(/\s+/g, '-'));
   }
 
-  const messages = [
-    { role: 'system', content: coach.systemPrompt },
-    ...conversationHistory.slice(-8), // Keep last 8 messages for context
-    { role: 'user', content: message }
-  ];
+  try {
+    const messages = [
+      { role: 'system', content: coach.systemPrompt },
+      ...conversationHistory.slice(-8), // Keep last 8 messages for context
+      { role: 'user', content: message }
+    ];
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${openAIApiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages: messages,
-      max_tokens: 500,
-      temperature: 0.7,
-    }),
-  });
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: messages,
+        max_tokens: 500,
+        temperature: 0.7,
+      }),
+    });
 
-  if (!response.ok) {
-    throw new Error(`OpenAI API error: ${response.status}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`OpenAI API error: ${response.status} - ${errorText}`);
+      // Fall back to basic response on API error
+      return getBasicResponse(message, coach, coach.name.toLowerCase().replace(/\s+/g, '-'));
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+  } catch (error) {
+    console.error('Error calling OpenAI API:', error);
+    // Fall back to basic response on any error
+    return getBasicResponse(message, coach, coach.name.toLowerCase().replace(/\s+/g, '-'));
   }
-
-  const data = await response.json();
-  return data.choices[0].message.content;
 }
 
 serve(async (req) => {
