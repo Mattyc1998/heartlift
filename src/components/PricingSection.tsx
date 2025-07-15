@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Check, Heart, Sparkles, Crown } from "lucide-react";
 import { PremiumUpgradeModal } from "./PremiumUpgradeModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const plans = [
   {
@@ -131,14 +132,63 @@ export const PricingSection = () => {
                     ))}
                   </ul>
 
-                   <Button 
-                    variant={plan.variant} 
-                    className="w-full"
-                    size="lg"
-                    onClick={() => handlePlanClick(plan.name)}
-                  >
-                    {plan.buttonText}
-                  </Button>
+                   <div className="flex gap-2">
+                     {plan.name === "Premium" && (
+                       <Button 
+                         variant="outline"
+                         size="sm"
+                         onClick={async () => {
+                           try {
+                             const { data, error } = await supabase.functions.invoke('test-premium', {
+                               headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
+                             });
+                             if (error) throw error;
+                             if (data?.success) { 
+                               setShowUpgradeModal(false);
+                               alert("✅ Test Premium Activated! Page will reload.");
+                               setTimeout(() => window.location.reload(), 1000);
+                             }
+                           } catch (error) {
+                             console.error('Test premium error:', error);
+                             alert("❌ Error activating test premium");
+                           }
+                         }}
+                       >
+                         🧪 TEST
+                       </Button>
+                     )}
+                     {plan.name === "Healing Kit" && (
+                       <Button 
+                         variant="outline"
+                         size="sm"
+                         onClick={async () => {
+                           try {
+                             const { data, error } = await supabase.functions.invoke('test-healing-kit', {
+                               headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
+                             });
+                             if (error) throw error;
+                             if (data?.success) { 
+                               alert("✅ Test Healing Kit Activated! Page will reload.");
+                               setTimeout(() => window.location.reload(), 1000);
+                             }
+                           } catch (error) {
+                             console.error('Test healing kit error:', error);
+                             alert("❌ Error activating test kit");
+                           }
+                         }}
+                       >
+                         🧪 TEST
+                       </Button>
+                     )}
+                     <Button 
+                       variant={plan.variant} 
+                       className="flex-1"
+                       size="lg"
+                       onClick={() => handlePlanClick(plan.name)}
+                     >
+                       {plan.buttonText}
+                     </Button>
+                   </div>
                 </CardContent>
               </Card>
             );
