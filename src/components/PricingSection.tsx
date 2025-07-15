@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Heart, Sparkles, Crown } from "lucide-react";
+import { PremiumUpgradeModal } from "./PremiumUpgradeModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 const plans = [
   {
@@ -60,6 +63,18 @@ const plans = [
 ];
 
 export const PricingSection = () => {
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const { user } = useAuth();
+
+  const handlePlanClick = (planName: string) => {
+    if (planName === "Premium") {
+      if (!user) {
+        window.location.href = '/auth';
+        return;
+      }
+      setShowUpgradeModal(true);
+    }
+  };
   return (
     <section className="py-16 px-4 bg-gradient-to-br from-secondary/30 to-accent/30">
       <div className="max-w-6xl mx-auto">
@@ -116,10 +131,11 @@ export const PricingSection = () => {
                     ))}
                   </ul>
 
-                  <Button 
+                   <Button 
                     variant={plan.variant} 
                     className="w-full"
                     size="lg"
+                    onClick={() => handlePlanClick(plan.name)}
                   >
                     {plan.buttonText}
                   </Button>
@@ -137,6 +153,12 @@ export const PricingSection = () => {
             30-day money-back guarantee • Cancel anytime • Secure payments
           </p>
         </div>
+
+        <PremiumUpgradeModal 
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          trigger="usage_limit"
+        />
       </div>
     </section>
   );
