@@ -133,47 +133,66 @@ export const PricingSection = () => {
                   </ul>
 
                    <div className="flex gap-2">
-                     {plan.name === "Premium" && (
+                     {plan.name === "Premium" && user && (
                        <Button 
                          variant="outline"
                          size="sm"
                          onClick={async () => {
+                           console.log('Test Premium button clicked');
                            try {
+                             console.log('Calling test-premium function...');
                              const { data, error } = await supabase.functions.invoke('test-premium', {
                                headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
                              });
-                             if (error) throw error;
+                             console.log('Response:', { data, error });
+                             if (error) {
+                               console.error('Function error:', error);
+                               throw error;
+                             }
                              if (data?.success) { 
-                               setShowUpgradeModal(false);
-                               alert("✅ Test Premium Activated! Page will reload.");
-                               setTimeout(() => window.location.reload(), 1000);
+                               console.log('Success! Showing alert...');
+                               alert("✅ Test Premium Activated! Page will reload in 2 seconds.");
+                               setTimeout(() => {
+                                 console.log('Reloading page...');
+                                 window.location.reload();
+                               }, 2000);
                              }
                            } catch (error) {
                              console.error('Test premium error:', error);
-                             alert("❌ Error activating test premium");
+                             alert("❌ Error activating test premium: " + error.message);
                            }
                          }}
                        >
                          🧪 TEST
                        </Button>
                      )}
-                     {plan.name === "Healing Kit" && (
+                     {plan.name === "Healing Kit" && user && (
                        <Button 
                          variant="outline"
                          size="sm"
                          onClick={async () => {
+                           console.log('Test Healing Kit button clicked');
                            try {
+                             console.log('Calling test-healing-kit function...');
                              const { data, error } = await supabase.functions.invoke('test-healing-kit', {
                                headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
                              });
-                             if (error) throw error;
+                             console.log('Response:', { data, error });
+                             if (error) {
+                               console.error('Function error:', error);
+                               throw error;
+                             }
                              if (data?.success) { 
-                               alert("✅ Test Healing Kit Activated! Page will reload.");
-                               setTimeout(() => window.location.reload(), 1000);
+                               console.log('Success! Showing alert...');
+                               alert("✅ Test Healing Kit Activated! Page will reload in 2 seconds.");
+                               setTimeout(() => {
+                                 console.log('Reloading page...');
+                                 window.location.reload();
+                               }, 2000);
                              }
                            } catch (error) {
                              console.error('Test healing kit error:', error);
-                             alert("❌ Error activating test kit");
+                             alert("❌ Error activating test kit: " + error.message);
                            }
                          }}
                        >
