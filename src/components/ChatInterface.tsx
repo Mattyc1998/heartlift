@@ -123,7 +123,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
 
     try {
       const { data: usageData } = await supabase
-        .rpc("get_user_daily_usage", { user_uuid: user.id, input_coach_id: coachPersonality })
+        .rpc("get_user_daily_usage", { user_uuid: user.id, coach_id: coachPersonality })
         .single();
 
       if (usageData) {
