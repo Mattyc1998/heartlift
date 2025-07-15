@@ -10,6 +10,7 @@ interface HealingKitNavProps {
 export const HealingKitNav = ({ activeSection, onSectionChange }: HealingKitNavProps) => {
   const sections = [
     { id: "plan", label: "Healing Plan", icon: Target },
+    { id: "quiz", label: "Attachment Quiz", icon: Heart },
     { id: "affirmations", label: "Daily Affirmations", icon: Heart },
     { id: "meditations", label: "Guided Meditations", icon: BookOpen },
     { id: "tracker", label: "No Contact Tracker", icon: Calendar },

@@ -54,7 +54,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .rpc('user_has_healing_kit', { user_uuid: user.id });
 
       if (!healingKitError) {
+        console.log('[AuthContext] Healing kit status:', healingKitData);
         setHasHealingKit(healingKitData || false);
+      } else {
+        console.error('[AuthContext] Error checking healing kit:', healingKitError);
       }
     } catch (error) {
       console.error('Error checking subscription:', error);

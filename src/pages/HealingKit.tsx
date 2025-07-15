@@ -6,6 +6,8 @@ import { HealingPlan } from "@/components/HealingPlan";
 import { DailyAffirmations } from "@/components/DailyAffirmations";
 import { GuidedMeditations } from "@/components/GuidedMeditations";
 import { NoContactTracker } from "@/components/NoContactTracker";
+import { AttachmentStyleQuiz } from "@/components/AttachmentStyleQuiz";
+import { RecoveryMilestones } from "@/components/RecoveryMilestones";
 import { Card } from "@/components/ui/card";
 import { Heart } from "lucide-react";
 
@@ -41,6 +43,8 @@ export default function HealingKit() {
     switch (activeSection) {
       case "plan":
         return <HealingPlan />;
+      case "quiz":
+        return <AttachmentStyleQuiz />;
       case "affirmations":
         return <DailyAffirmations />;
       case "meditations":
@@ -48,12 +52,7 @@ export default function HealingKit() {
       case "tracker":
         return <NoContactTracker />;
       case "milestones":
-        return (
-          <Card className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Recovery Milestones</h2>
-            <p className="text-muted-foreground">Milestone tracking coming soon...</p>
-          </Card>
-        );
+        return <RecoveryMilestones />;
       default:
         return <HealingPlan />;
     }
