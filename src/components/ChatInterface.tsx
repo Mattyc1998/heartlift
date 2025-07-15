@@ -210,6 +210,9 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
       setCanSendMessage(data.canSendMore !== false);
       setIsPremium(data.isPremium || false);
 
+      // Refresh usage data to update the counter display
+      await loadUsageCount();
+
       if (data.isPremiumTeaser) {
         setUpgradeModalTrigger("premium_teaser");
         setShowUpgradeModal(true);
