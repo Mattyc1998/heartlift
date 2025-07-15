@@ -329,7 +329,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
       />
 
       <Card className="h-[500px] sm:h-[600px] flex flex-col shadow-gentle">
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-3 flex-shrink-0">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="p-2 rounded-full bg-gradient-to-r from-primary to-primary-glow">
@@ -351,9 +351,9 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
           </CardTitle>
         </CardHeader>
         
-        <CardContent className="flex-1 flex flex-col p-0">
-          <ScrollArea className="flex-1 px-4">
-            <div className="space-y-4 pb-4">
+        <CardContent className="flex-1 flex flex-col p-0 min-h-0">
+          <ScrollArea className="flex-1 px-4 h-full">
+            <div className="space-y-4 pb-4 pt-2">
               {messages.map((message) => (
                 <div
                   key={message.id}
