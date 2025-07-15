@@ -28,7 +28,7 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated");
 
     // Set test premium subscription
-    await supabaseClient.from("subscribers").upsert({
+    const { error: upsertError } = await supabaseClient.from("subscribers").upsert({
       email: user.email,
       user_id: user.id,
       stripe_customer_id: "test_customer",
@@ -37,7 +37,12 @@ serve(async (req) => {
       payment_status: 'active',
       subscription_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
       updated_at: new Date().toISOString(),
-    }, { onConflict: 'email' });
+    }, { onConflict: 'user_id' });
+
+    if (upsertError) {
+      console.error('Upsert error:', upsertError);
+      throw new Error(`Failed to update subscription: ${upsertError.message}`);
+    }
 
     return new Response(JSON.stringify({ success: true, message: "Test premium activated!" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

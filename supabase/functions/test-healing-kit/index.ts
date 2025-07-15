@@ -30,7 +30,7 @@ serve(async (req) => {
     console.log("Activating test healing kit for user:", user.email);
 
     // Add test healing kit purchase
-    await supabaseClient.from("healing_kit_purchases").upsert({
+    const { error: purchaseError } = await supabaseClient.from("healing_kit_purchases").upsert({
       user_id: user.id,
       stripe_session_id: "test_healing_kit_session",
       amount: 399,
@@ -40,8 +40,13 @@ serve(async (req) => {
       purchased_at: new Date().toISOString()
     }, { onConflict: 'user_id' });
 
+    if (purchaseError) {
+      console.error('Purchase error:', purchaseError);
+      throw new Error(`Failed to add healing kit purchase: ${purchaseError.message}`);
+    }
+
     // Initialize user progress
-    await supabaseClient.from("user_healing_progress").upsert({
+    const { error: progressError } = await supabaseClient.from("user_healing_progress").upsert({
       user_id: user.id,
       current_day: 1,
       completed_days: [],
@@ -49,6 +54,11 @@ serve(async (req) => {
       no_contact_streak_days: 0,
       journal_entries: []
     }, { onConflict: 'user_id' });
+
+    if (progressError) {
+      console.error('Progress error:', progressError);
+      throw new Error(`Failed to initialize healing progress: ${progressError.message}`);
+    }
 
     console.log("Test healing kit activated successfully");
 
