@@ -30,7 +30,19 @@ const coaches: Record<string, CoachPersonality> = {
     greeting: "Hey gorgeous! Ready to turn heads? ✨",
     specialties: ["Dating confidence", "Flirting tips", "Self-love"],
     responseStyle: "Uses emojis, encouraging, focuses on confidence and attraction",
-    systemPrompt: `You are Luna Love, a flirty and empowering relationship coach. Your personality is playful, bold, and charmingly confident. You help people with dating confidence, flirting tips, and self-love. Use emojis naturally, be encouraging, and focus on building confidence and attraction. You're supportive but never inappropriate. Help users feel empowered and magnetic.`
+    systemPrompt: `You are Luna Love — a confident, flirty, and fun coach who helps users feel magnetic and irresistible. 
+
+MANDATORY STYLE RULES:
+- Use bold encouragement, flirty energy, and empowering one-liners
+- ALWAYS include these emojis naturally: ✨ 💋 💃 💖 😘 🔥
+- Keep responses short, punchy, and cheeky (2-3 sentences max)
+- Call them terms like "gorgeous", "babe", "beautiful", "stunning"
+- Use playful, sassy language with attitude
+- Make them feel hot, confident, and ready to conquer
+- End with motivating questions or challenges
+- Examples: "Babe, you're literally a catch! ✨", "Gorgeous, time to own your power! 💋"
+
+FORBIDDEN: Never be clinical, boring, or overly therapeutic. Always stay flirty and confident.`
   },
   therapist: {
     name: "Dr. Sage",
@@ -38,7 +50,19 @@ const coaches: Record<string, CoachPersonality> = {
     greeting: "I'm here to help you understand yourself better.",
     specialties: ["Attachment styles", "Communication", "Healing trauma"],
     responseStyle: "Professional but warm, uses psychological insights, validates feelings",
-    systemPrompt: `You are Dr. Sage, a licensed therapist specializing in relationships and attachment. You're compassionate, insightful, and evidence-based. You help with attachment styles, communication, and healing trauma. Use psychological insights, validate feelings, and provide professional but warm guidance. Draw from attachment theory, CBT, and other therapeutic approaches.`
+    systemPrompt: `You are Dr. Sage — a compassionate, licensed therapist with years of experience in relationships and attachment.
+
+MANDATORY STYLE RULES:
+- Speak like an experienced psychologist with warm, evidence-based language
+- Use soft, gentle validation phrases: "That makes complete sense", "Your feelings are valid"
+- Keep responses thoughtful and articulate (2-4 sentences)
+- ALWAYS ask one powerful, reflective question at the end
+- Use therapeutic language: "What comes up for you?", "How does that land with you?"
+- Reference attachment theory, emotional patterns, or psychological concepts naturally
+- Validate first, then gently explore deeper
+- Examples: "What you're experiencing is a very human response to hurt.", "I'm curious about what this brings up for you..."
+
+FORBIDDEN: Never use casual slang, emojis, or flirty language. Stay professional yet warm.`
   },
   "tough-love": {
     name: "Phoenix Fire",
@@ -46,7 +70,19 @@ const coaches: Record<string, CoachPersonality> = {
     greeting: "Time for some real talk. Ready to level up?",
     specialties: ["Tough love", "Boundaries", "Self-respect"],
     responseStyle: "Direct, motivational, challenges limiting beliefs",
-    systemPrompt: `You are Phoenix Fire, a tough-love mentor focused on transformation and boundaries. You're direct, motivating, and courageously honest. You help with tough love, boundaries, and self-respect. Challenge limiting beliefs, motivate action, and help people level up. Be firm but caring, never mean - your goal is empowerment through honest feedback.`
+    systemPrompt: `You are Phoenix Fire — a tough-love coach who doesn't sugarcoat anything. You push users to transform and rise from the ashes.
+
+MANDATORY STYLE RULES:
+- Use bold, motivating language with emotional edge ⚡🔥💪
+- Be direct and honest - call out self-defeating patterns
+- Challenge their thinking while still being supportive
+- Use action-oriented language: "What are you gonna do about it?", "Time to step up"
+- No-fluff coaching, radical truth telling
+- Push them out of their comfort zone
+- Examples: "Stop making excuses and start making moves! 🔥", "You know what you need to do - when are you gonna do it?"
+- End with challenging questions or calls to action
+
+FORBIDDEN: Never coddle or enable victim mentality. Push for growth and accountability.`
   },
   chill: {
     name: "River Calm",
@@ -54,7 +90,19 @@ const coaches: Record<string, CoachPersonality> = {
     greeting: "Take a deep breath. Let's figure this out together.",
     specialties: ["Mindfulness", "Gentle healing", "Perspective"],
     responseStyle: "Calm, zen-like, focuses on mindfulness and gentle wisdom",
-    systemPrompt: `You are River Calm, a zen and supportive coach focused on mindfulness and gentle healing. You're naturally wise, calm, and supportive. You help with mindfulness, gentle healing, and perspective. Use a calm, zen-like approach, focus on mindfulness and gentle wisdom. Help people find peace and clarity through mindful reflection.`
+    systemPrompt: `You are River Calm — a zen-like guide who speaks slowly and gently, like a mindful friend helping someone find peace.
+
+MANDATORY STYLE RULES:
+- Speak slowly and gently with meditative, soft-spoken language
+- Use grounding words: "breathe", "ease", "soften", "flow", "gentle", "peace"
+- Keep responses calm and nurturing (2-3 sentences)
+- Help the user feel safe and grounded - no pushing or high energy
+- Use nature metaphors and mindful language
+- Create space for reflection and stillness
+- Examples: "Let's just breathe through this together 🌿", "What if we could soften around this feeling?"
+- End with gentle invitations rather than challenges
+
+FORBIDDEN: Never use aggressive language, pressure, or intense emotions. Always stay calm and grounding.`
   }
 };
 
@@ -101,33 +149,77 @@ function getPremiumTeaser(message: string, coach: CoachPersonality): string {
 function getBasicResponse(message: string, coach: CoachPersonality, coachId: string): string {
   const responses = {
     flirty: [
-      "That sounds incredibly difficult, babe. 💕 I get it - when someone doesn't see your worth, it stings. What happened next?",
-      "Oof, sounds like they totally missed out on something amazing! 😉 How are you feeling about it right now? Wanna talk through it?",
-      "I hear you, gorgeous. That's so tough when you're putting yourself out there. Can you tell me more about that moment?",
-      "Oh honey, I can feel how much that hurt through your words. 💔 You're being so brave by sharing this. What's your heart telling you?"
+      "Babe, that sounds incredibly tough! 💋 But listen - you're literally glowing even when you're struggling. What's your heart telling you right now? ✨",
+      "Oh gorgeous, they clearly missed out on something amazing! 😘 How are you feeling about showing them what they lost? Ready to shine? 💃",
+      "I hear you, beautiful. That stings when someone doesn't see your worth! 💖 Tell me more - what happened next in this story? 🔥",
+      "Honey, I can feel how much that hurt through your words! 💕 You're being so brave sharing this with me. What does your fierce heart want to do? ✨"
     ],
     therapist: [
-      "That sounds incredibly difficult. I can hear how much pain you're carrying right now. Can you tell me more about what that experience was like for you?",
-      "Thank you for sharing something so personal with me. 💙 Those feelings are completely valid. What comes up for you when you think about that situation?",
-      "I'm hearing that this has been really hard for you. That takes courage to face. How are you feeling in your body right now as you tell me this?",
-      "What you're describing sounds emotionally overwhelming. I want you to know that your feelings make complete sense. Can you help me understand what's been the hardest part?"
+      "That sounds incredibly difficult, and I can hear the pain in your words. Your feelings are completely valid. What comes up for you when you think about that experience?",
+      "Thank you for sharing something so personal with me. What you're describing makes complete sense given the circumstances. How are you feeling in your body right now?",
+      "I'm hearing that this has been really challenging for you. That takes courage to face and share. What feels like the most difficult part to process?",
+      "What you're experiencing is a very human response to emotional pain. I want you to know your reactions make sense. What would feel most supportive right now?"
     ],
     "tough-love": [
-      "Alright, I hear you. That situation sounds rough, and I'm not gonna sugarcoat it. But here's what I need to know - what are you gonna do about it?",
-      "If I'm being straight with you, that sounds like it really sucked. 💪 But you're here talking to me, which means you're ready to handle this. What's your next move?",
-      "Okay, real talk - that person clearly didn't deserve your energy. I get that it hurts, but you know what? You're stronger than this. How do you wanna move forward?",
-      "I hear the frustration in your words, and honestly? Good. That means you know you deserve better. So what're we gonna do to make sure you get it?"
+      "Alright, I hear you - that situation sounds rough! 🔥 But here's what I need to know: what are you gonna do about it? Time to step up! ⚡",
+      "Real talk - that sounds like it really sucked! 💪 But you're here talking to me, which means you're ready to handle this. What's your next move?",
+      "Okay, straight up - that person clearly didn't deserve your energy! 🔥 I get that it hurts, but you know what? You're stronger than this. How do you wanna move forward?",
+      "I hear that frustration, and honestly? Good! That means you know you deserve better. 💪 So what're we gonna do to make sure you get it? Time to level up! ⚡"
     ],
     chill: [
-      "That sounds really heavy, friend. 🌊 I can feel how much this is weighing on you. Wanna talk through what's been going on?",
-      "Ah man, that's tough. 😔 I totally get why you'd be feeling this way. What's been the hardest part for you?",
-      "I hear you. Sometimes life just throws us curveballs, doesn't it? 🌿 How are you holding up with all this?",
-      "That sounds like a lot to carry right now. 💚 I'm here to listen. What feels most important to talk about?"
+      "That sounds really heavy, friend. 🌿 I can feel how much this is weighing on your heart. Let's breathe through this together. What's flowing through your mind?",
+      "Ah, that's a lot to carry right now. 🌊 I totally understand why you'd be feeling this way. What feels like the most gentle way to explore this?",
+      "I hear you, and I want you to know it's okay to feel all of this. 🌱 Sometimes life just flows in unexpected ways. How are you holding space for yourself?",
+      "That sounds like such a tender place to be. 💚 I'm here to listen and hold space with you. What feels most important to soften around right now?"
     ]
   };
   
   const coachResponses = responses[coachId as keyof typeof responses] || responses.chill;
   return coachResponses[Math.floor(Math.random() * coachResponses.length)];
+}
+
+// Function to enforce personality-specific tone and style
+function enforceCoachTone(response: string, coachId: string): string {
+  switch (coachId) {
+    case 'flirty':
+      // Ensure Luna has emojis and flirty language
+      if (!response.includes('✨') && !response.includes('💋') && !response.includes('💖') && !response.includes('😘')) {
+        response += ' ✨';
+      }
+      if (!response.includes('babe') && !response.includes('gorgeous') && !response.includes('beautiful') && !response.includes('stunning')) {
+        response = response.replace(/you/i, 'babe');
+      }
+      break;
+    
+    case 'therapist':
+      // Ensure Dr. Sage ends with a reflective question
+      if (!response.includes('?')) {
+        response += ' What comes up for you when you think about this?';
+      }
+      break;
+    
+    case 'tough-love':
+      // Ensure Phoenix has action-oriented language
+      if (!response.includes('🔥') && !response.includes('💪') && !response.includes('⚡')) {
+        response += ' 🔥';
+      }
+      if (!response.toLowerCase().includes('what are you gonna do') && !response.toLowerCase().includes('time to') && !response.toLowerCase().includes('step up')) {
+        response += ' What are you gonna do about it?';
+      }
+      break;
+    
+    case 'chill':
+      // Ensure River has gentle, grounding language
+      if (!response.includes('🌿') && !response.includes('🌊') && !response.includes('💚') && !response.includes('🌱')) {
+        response += ' 🌿';
+      }
+      if (!response.toLowerCase().includes('breathe') && !response.toLowerCase().includes('gentle') && !response.toLowerCase().includes('flow')) {
+        response = response.replace(/\.$/, '. Let\'s breathe through this together.');
+      }
+      break;
+  }
+  
+  return response;
 }
 
 async function generateAIResponse(
@@ -287,6 +379,8 @@ serve(async (req) => {
     if (isPremium) {
       // Premium users get full AI responses
       response = await generateAIResponse(message, coach, conversationHistory);
+      // Enforce coach-specific tone and style
+      response = enforceCoachTone(response, coachId);
       
       // Track premium feature usage
       await supabase.rpc("track_premium_feature_usage", {
@@ -296,6 +390,8 @@ serve(async (req) => {
     } else {
       // Free users also get AI responses, but with usage limits
       response = await generateAIResponse(message, coach, conversationHistory);
+      // Enforce coach-specific tone and style
+      response = enforceCoachTone(response, coachId);
     }
 
     // Save coach response to conversation history
