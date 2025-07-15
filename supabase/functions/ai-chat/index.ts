@@ -318,7 +318,7 @@ serve(async (req) => {
 
       // Increment usage for free users
       const { data: canIncrement, error: incrementError } = await supabase
-        .rpc("increment_user_usage", { user_uuid: user.id, coach_id: coachId });
+        .rpc("increment_user_usage", { user_uuid: user.id, input_coach_id: coachId });
 
       console.log('Increment attempt for coach:', coachId, 'Result:', canIncrement, 'Error:', incrementError);
 
