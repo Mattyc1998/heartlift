@@ -114,13 +114,36 @@ export const HealingKitCard = () => {
               <p className="text-2xl font-bold text-primary">£3.99</p>
               <p className="text-xs text-muted-foreground">One-time purchase • Lifetime access</p>
             </div>
-            <Button 
-              onClick={handlePurchase}
-              disabled={isLoading}
-              className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-semibold px-8"
-            >
-              {isLoading ? "Processing..." : "Get Healing Kit"}
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  try {
+                    const { data, error } = await supabase.functions.invoke('test-healing-kit', {
+                      headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
+                    });
+                    if (error) throw error;
+                    if (data?.success) { 
+                      toast({ title: "✅ Test Healing Kit Activated!" });
+                      setTimeout(() => window.location.reload(), 1000);
+                    }
+                  } catch (error) {
+                    console.error('Test healing kit error:', error);
+                    toast({ title: "❌ Error activating test kit", variant: "destructive" });
+                  }
+                }}
+              >
+                🧪 TEST Kit
+              </Button>
+              <Button 
+                onClick={handlePurchase}
+                disabled={isLoading}
+                className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-semibold px-8"
+              >
+                {isLoading ? "Processing..." : "Get Healing Kit"}
+              </Button>
+            </div>
           </div>
           
           <div className="flex items-center gap-2 text-xs text-muted-foreground">

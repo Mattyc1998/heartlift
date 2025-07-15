@@ -178,19 +178,25 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
             <Button 
               variant="ghost" 
               onClick={async () => {
-                const { data } = await supabase.functions.invoke('test-premium', {
-                  headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
-                });
-                if (data?.success) { 
-                  toast({ title: "Test Premium Activated!" });
-                  onClose();
-                  window.location.reload();
+                try {
+                  const { data, error } = await supabase.functions.invoke('test-premium', {
+                    headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
+                  });
+                  if (error) throw error;
+                  if (data?.success) { 
+                    toast({ title: "✅ Test Premium Activated!" });
+                    onClose();
+                    setTimeout(() => window.location.reload(), 1000);
+                  }
+                } catch (error) {
+                  console.error('Test premium error:', error);
+                  toast({ title: "❌ Error activating test premium", variant: "destructive" });
                 }
               }}
               className="flex-1"
               size="sm"
             >
-              TEST Premium
+              🧪 TEST Premium
             </Button>
             <Button 
               variant="warm" 
