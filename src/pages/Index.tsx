@@ -8,7 +8,9 @@ import { PremiumManagement } from "@/components/PremiumManagement";
 import { SubscriptionStatusBanner } from "@/components/SubscriptionStatusBanner";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, MessageCircle, TrendingUp, CreditCard } from "lucide-react";
+import { Heart, MessageCircle, TrendingUp, CreditCard, Crown } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
 
 const coachData = {
   flirty: { name: "Luna Love", personality: "flirty", greeting: "Hey gorgeous! Ready to turn heads? ✨" },
@@ -20,6 +22,7 @@ const coachData = {
 const Index = () => {
   const [selectedCoach, setSelectedCoach] = useState<string>("therapist");
   const [currentTab, setCurrentTab] = useState("home");
+  const { isPremium, hasHealingKit } = useAuth();
 
   const handleGetStarted = () => {
     setCurrentTab("chat");
@@ -40,6 +43,29 @@ const Index = () => {
         
         {/* Subscription Status Banner */}
         <SubscriptionStatusBanner />
+        
+        {/* Premium Navigation */}
+        {(isPremium || hasHealingKit) && (
+          <div className="flex justify-center gap-2 mb-6">
+            {isPremium && (
+              <Link to="/advanced-tools">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Crown className="w-4 h-4" />
+                  Advanced Tools
+                </Button>
+              </Link>
+            )}
+            {hasHealingKit && (
+              <Link to="/healing-kit">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Heart className="w-4 h-4" />
+                  Healing Kit
+                </Button>
+              </Link>
+            )}
+          </div>
+        )}
+        
         {/* Mobile-optimized header */}
         <div className="flex items-center justify-between mb-4 sm:mb-8">
           <div className="flex items-center space-x-2 sm:space-x-3">

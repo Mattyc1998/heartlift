@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import { Auth } from "./pages/Auth";
 import { PremiumSuccess } from "./pages/PremiumSuccess";
 import HealingKit from "./pages/HealingKit";
+import AdvancedTools from "./pages/AdvancedTools";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/premium-success" element={<PremiumSuccess />} />
             <Route path="/healing-kit" element={<HealingKit />} />
+            <Route path="/advanced-tools" element={<AdvancedTools />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

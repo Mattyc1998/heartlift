@@ -29,13 +29,9 @@ export const SubscriptionStatusBanner = () => {
           )}
           
           {hasHealingKit && (
-            <Badge 
-              variant="secondary" 
-              className="bg-gradient-to-r from-healing to-healing-glow text-healing-foreground px-3 py-1 cursor-pointer hover:opacity-80" 
-              onClick={() => window.location.href = '/healing-kit'}
-            >
+            <Badge variant="secondary" className="bg-gradient-to-r from-healing to-healing-glow text-healing-foreground px-3 py-1">
               <Heart className="w-4 h-4 mr-1" />
-              Healing Kit Active - Click to Access
+              Healing Kit Active
             </Badge>
           )}
         </div>
