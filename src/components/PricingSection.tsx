@@ -5,6 +5,7 @@ import { Check, Heart, Sparkles, Crown } from "lucide-react";
 import { PremiumUpgradeModal } from "./PremiumUpgradeModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const plans = [
   {
@@ -74,6 +75,13 @@ export const PricingSection = () => {
         return;
       }
       setShowUpgradeModal(true);
+    } else if (planName === "Healing Kit") {
+      if (!user) {
+        window.location.href = '/auth';
+        return;
+      }
+      // For now, show info about healing kit
+      toast.info("Healing Kit purchase coming soon! Use the TEST button for now.");
     }
   };
   return (
@@ -133,12 +141,13 @@ export const PricingSection = () => {
                   </ul>
 
                    <div className="flex gap-2">
-                     {plan.name === "Premium" && user && (
+                     {plan.name === "Premium" && (
                        <Button 
                          variant="outline"
                          size="sm"
                          onClick={async () => {
                            console.log('Test Premium button clicked');
+                           toast.info("Activating test premium...");
                            try {
                              console.log('Calling test-premium function...');
                              const { data, error } = await supabase.functions.invoke('test-premium', {
@@ -147,11 +156,12 @@ export const PricingSection = () => {
                              console.log('Response:', { data, error });
                              if (error) {
                                console.error('Function error:', error);
-                               throw error;
+                               toast.error("Error: " + error.message);
+                               return;
                              }
                              if (data?.success) { 
-                               console.log('Success! Showing alert...');
-                               alert("✅ Test Premium Activated! Page will reload in 2 seconds.");
+                               console.log('Success! Showing toast...');
+                               toast.success("✅ Test Premium Activated! Page will reload in 2 seconds.");
                                setTimeout(() => {
                                  console.log('Reloading page...');
                                  window.location.reload();
@@ -159,19 +169,20 @@ export const PricingSection = () => {
                              }
                            } catch (error) {
                              console.error('Test premium error:', error);
-                             alert("❌ Error activating test premium: " + error.message);
+                             toast.error("❌ Error activating test premium: " + error.message);
                            }
                          }}
                        >
                          🧪 TEST
                        </Button>
                      )}
-                     {plan.name === "Healing Kit" && user && (
+                     {plan.name === "Healing Kit" && (
                        <Button 
                          variant="outline"
                          size="sm"
                          onClick={async () => {
                            console.log('Test Healing Kit button clicked');
+                           toast.info("Activating test healing kit...");
                            try {
                              console.log('Calling test-healing-kit function...');
                              const { data, error } = await supabase.functions.invoke('test-healing-kit', {
@@ -180,11 +191,12 @@ export const PricingSection = () => {
                              console.log('Response:', { data, error });
                              if (error) {
                                console.error('Function error:', error);
-                               throw error;
+                               toast.error("Error: " + error.message);
+                               return;
                              }
                              if (data?.success) { 
-                               console.log('Success! Showing alert...');
-                               alert("✅ Test Healing Kit Activated! Page will reload in 2 seconds.");
+                               console.log('Success! Showing toast...');
+                               toast.success("✅ Test Healing Kit Activated! Page will reload in 2 seconds.");
                                setTimeout(() => {
                                  console.log('Reloading page...');
                                  window.location.reload();
@@ -192,7 +204,7 @@ export const PricingSection = () => {
                              }
                            } catch (error) {
                              console.error('Test healing kit error:', error);
-                             alert("❌ Error activating test kit: " + error.message);
+                             toast.error("❌ Error activating test kit: " + error.message);
                            }
                          }}
                        >
