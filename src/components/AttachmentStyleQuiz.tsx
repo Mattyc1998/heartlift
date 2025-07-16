@@ -5,7 +5,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Heart, Users, Shield, Lightbulb } from "lucide-react";
+import { Heart, Users, Shield, Lightbulb, Calendar, BookOpen, Target, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface QuizQuestion {
   id: number;
@@ -21,6 +24,21 @@ interface AttachmentStyle {
   color: string;
 }
 
+interface Analysis {
+  detailedBreakdown: {
+    strengths: string[];
+    challenges: string[];
+    relationshipPatterns: string[];
+  };
+  healingPath: string;
+  triggers: string[];
+  copingTechniques: Array<{
+    technique: string;
+    description: string;
+    example: string;
+  }>;
+}
+
 const attachmentStyles: Record<string, AttachmentStyle> = {
   secure: {
     name: "Secure",
@@ -32,7 +50,7 @@ const attachmentStyles: Record<string, AttachmentStyle> = {
       "Trusting in relationships"
     ],
     icon: Heart,
-    color: "text-green-600"
+    color: "bg-green-500"
   },
   anxious: {
     name: "Anxious-Preoccupied",
@@ -44,7 +62,7 @@ const attachmentStyles: Record<string, AttachmentStyle> = {
       "Tendency to be clingy"
     ],
     icon: Users,
-    color: "text-yellow-600"
+    color: "bg-yellow-500"
   },
   avoidant: {
     name: "Dismissive-Avoidant",
@@ -56,7 +74,7 @@ const attachmentStyles: Record<string, AttachmentStyle> = {
       "Difficulty depending on others"
     ],
     icon: Shield,
-    color: "text-blue-600"
+    color: "bg-blue-500"
   },
   disorganized: {
     name: "Fearful-Avoidant",
@@ -68,68 +86,155 @@ const attachmentStyles: Record<string, AttachmentStyle> = {
       "Past trauma or inconsistent caregiving"
     ],
     icon: Lightbulb,
-    color: "text-purple-600"
+    color: "bg-purple-500"
   }
 };
 
-const quizQuestions: QuizQuestion[] = [
-  {
-    id: 1,
-    question: "When my partner seems distant, I usually:",
-    options: [
-      "Give them space and trust they'll come to me when ready",
-      "Worry that I've done something wrong and try to reconnect immediately", 
-      "Feel relieved and use the time for myself",
-      "Feel confused and don't know how to respond"
-    ]
-  },
-  {
-    id: 2,
-    question: "In conflicts with my partner, I tend to:",
-    options: [
-      "Stay calm and work together to find a solution",
-      "Get emotional and fear the relationship is ending",
-      "Shut down or walk away from the discussion",
-      "Feel overwhelmed and react unpredictably"
-    ]
-  },
-  {
-    id: 3,
-    question: "When it comes to expressing my needs in relationships:",
-    options: [
-      "I communicate them clearly and directly",
-      "I drop hints hoping my partner will notice",
-      "I prefer to handle things myself",
-      "I struggle to even identify what I need"
-    ]
-  },
-  {
-    id: 4,
-    question: "My biggest fear in relationships is:",
-    options: [
-      "Normal relationship challenges that we can work through",
-      "Being abandoned or rejected",
-      "Losing my independence or being controlled",
-      "Getting hurt again like I have in the past"
-    ]
-  },
-  {
-    id: 5,
-    question: "When my partner expresses strong emotions, I:",
-    options: [
-      "Listen and provide support",
-      "Feel responsible and try to fix everything",
-      "Feel uncomfortable and want to change the subject",
-      "Don't know how to respond appropriately"
-    ]
-  }
+// Daily rotating questions - 3 sets of questions
+const questionSets = [
+  // Set A - Days 1, 4, 7, etc.
+  [
+    {
+      id: 1,
+      question: "How do you typically feel when starting a new romantic relationship?",
+      options: [
+        "Excited and optimistic about the possibilities",
+        "Nervous and worried about being hurt",
+        "Cautious and prefer to keep some emotional distance",
+        "Confused about what I want from the relationship"
+      ]
+    },
+    {
+      id: 2,
+      question: "When your partner doesn't respond to your texts right away, you:",
+      options: [
+        "Assume they're busy and don't worry about it",
+        "Start wondering if you said something wrong",
+        "Feel relieved to have some space",
+        "Feel confused and don't know what to think"
+      ]
+    },
+    {
+      id: 3,
+      question: "How comfortable are you with emotional intimacy?",
+      options: [
+        "Very comfortable sharing and receiving emotions",
+        "Want it badly but fear being too much",
+        "Prefer to keep things light and not too deep",
+        "It feels overwhelming and confusing"
+      ]
+    }
+  ],
+  // Set B - Days 2, 5, 8, etc.
+  [
+    {
+      id: 1,
+      question: "In conflicts with your partner, you tend to:",
+      options: [
+        "Work together to find a solution",
+        "Worry excessively about the relationship ending",
+        "Shut down or withdraw from the conversation",
+        "Feel overwhelmed and react inconsistently"
+      ]
+    },
+    {
+      id: 2,
+      question: "Your ideal relationship would be:",
+      options: [
+        "A balanced partnership with mutual support",
+        "Very close and connected, almost inseparable",
+        "Independent but committed, with plenty of personal space",
+        "I'm not sure what I want in a relationship"
+      ]
+    },
+    {
+      id: 3,
+      question: "How do you handle your partner needing space?",
+      options: [
+        "Respect their need and trust they'll return",
+        "Feel anxious and worry about the relationship",
+        "Feel relieved and enjoy the independence",
+        "Feel confused about what it means"
+      ]
+    }
+  ],
+  // Set C - Days 3, 6, 9, etc.
+  [
+    {
+      id: 1,
+      question: "When you think about your childhood relationship with caregivers:",
+      options: [
+        "Generally felt secure and supported",
+        "Often felt anxious about their approval or availability",
+        "Learned to be self-reliant early on",
+        "It was unpredictable or chaotic"
+      ]
+    },
+    {
+      id: 2,
+      question: "Your approach to expressing needs in relationships:",
+      options: [
+        "Communicate them clearly and directly",
+        "Worry about being too needy or demanding",
+        "Prefer to handle things myself rather than ask",
+        "Struggle to identify what I actually need"
+      ]
+    },
+    {
+      id: 3,
+      question: "How do you typically respond to relationship uncertainty?",
+      options: [
+        "Stay calm and communicate about it",
+        "Feel very anxious and seek constant reassurance",
+        "Mentally prepare for the worst outcome",
+        "Feel paralyzed and don't know how to react"
+      ]
+    }
+  ]
 ];
 
+const getDailyQuestions = (): QuizQuestion[] => {
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+  const setIndex = dayOfYear % 3;
+  return questionSets[setIndex];
+};
+
 export const AttachmentStyleQuiz = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string>("");
+  const [attachmentStyle, setAttachmentStyle] = useState<string>("");
+  const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [pastResults, setPastResults] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  
+  const quizQuestions = getDailyQuestions();
+
+  useEffect(() => {
+    fetchPastResults();
+  }, [user]);
+
+  const fetchPastResults = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_attachment_results')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+      setPastResults(data || []);
+    } catch (error) {
+      console.error('Error fetching past results:', error);
+    }
+  };
 
   const handleAnswer = () => {
     if (selectedAnswer) {
@@ -140,23 +245,58 @@ export const AttachmentStyleQuiz = () => {
       if (currentQuestion < quizQuestions.length - 1) {
         setCurrentQuestion(currentQuestion + 1);
       } else {
-        setShowResults(true);
+        analyzeResults(newAnswers);
       }
     }
   };
 
-  const calculateResult = () => {
-    const scores = [0, 0, 0, 0]; // secure, anxious, avoidant, disorganized
+  const analyzeResults = async (finalAnswers: number[]) => {
+    setIsAnalyzing(true);
     
-    answers.forEach(answer => {
-      scores[answer]++;
-    });
-    
-    const maxScore = Math.max(...scores);
-    const dominantStyle = scores.indexOf(maxScore);
-    const styleKeys = ['secure', 'anxious', 'avoidant', 'disorganized'];
-    
-    return styleKeys[dominantStyle];
+    try {
+      // Convert answers to text for analysis
+      const answerTexts = finalAnswers.map((answerIndex, questionIndex) => 
+        quizQuestions[questionIndex].options[answerIndex]
+      );
+
+      const { data, error } = await supabase.functions.invoke('analyze-attachment-style', {
+        body: {
+          answers: answerTexts,
+          userId: user?.id,
+        },
+      });
+
+      if (error) throw error;
+
+      setAttachmentStyle(data.attachmentStyle);
+      setAnalysis(data.analysis);
+      setShowResults(true);
+      fetchPastResults(); // Refresh past results
+
+      toast({
+        title: "Analysis Complete!",
+        description: "Your personalized attachment style report is ready.",
+      });
+
+    } catch (error) {
+      console.error('Analysis error:', error);
+      // Fallback to simple calculation
+      const styleKeys = ['secure', 'anxious', 'avoidant', 'disorganized'];
+      const scores = [0, 0, 0, 0];
+      finalAnswers.forEach(answer => scores[answer]++);
+      const dominantStyle = styleKeys[scores.indexOf(Math.max(...scores))];
+      
+      setAttachmentStyle(dominantStyle);
+      setShowResults(true);
+      
+      toast({
+        title: "Quiz Complete",
+        description: "Basic results available. Full analysis requires internet connection.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const resetQuiz = () => {
@@ -164,64 +304,214 @@ export const AttachmentStyleQuiz = () => {
     setAnswers([]);
     setShowResults(false);
     setSelectedAnswer("");
+    setAttachmentStyle("");
+    setAnalysis(null);
   };
 
-  if (showResults) {
-    const resultStyle = calculateResult();
-    const style = attachmentStyles[resultStyle];
-    const IconComponent = style.icon;
-
+  if (isAnalyzing) {
     return (
-      <Card className="border-2 border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <IconComponent className={`w-5 h-5 ${style.color}`} />
-            Attachment Style Quiz Results
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="text-center">
-            <Badge variant="secondary" className="text-lg px-4 py-2 mb-4">
-              {style.name}
-            </Badge>
-            <p className="text-muted-foreground mb-6">{style.description}</p>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-3">Key Characteristics:</h4>
-            <ul className="space-y-2">
-              {style.characteristics.map((characteristic, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                  <span className="text-sm">{characteristic}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-secondary/20 p-4 rounded-lg">
-            <h4 className="font-semibold mb-2">💡 Growth Tips:</h4>
-            <p className="text-sm text-muted-foreground">
-              Understanding your attachment style is the first step towards healthier relationships. 
-              Consider discussing these insights with a therapist or trusted friend to explore how 
-              your attachment patterns might be influencing your current healing journey.
-            </p>
-          </div>
-
-          <div className="flex justify-center">
-            <Button onClick={resetQuiz} variant="outline">
-              Take Quiz Again
-            </Button>
-          </div>
+      <Card className="max-w-2xl mx-auto">
+        <CardContent className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Analyzing Your Responses</h3>
+          <p className="text-muted-foreground text-center">
+            Our AI is creating your personalized attachment style report...
+          </p>
         </CardContent>
       </Card>
+    );
+  }
+
+  if (showResults && attachmentStyle) {
+    const style = attachmentStyles[attachmentStyle];
+    const IconComponent = style.icon;
+    
+    return (
+      <div className="space-y-6 max-w-4xl mx-auto">
+        {/* Main Results Card */}
+        <Card>
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className={`p-4 rounded-full ${style.color}`}>
+                <IconComponent className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl">Your Attachment Style</CardTitle>
+            <Badge variant="secondary" className="text-lg px-4 py-2">
+              {style.name}
+            </Badge>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <p className="text-muted-foreground text-center">{style.description}</p>
+          </CardContent>
+        </Card>
+
+        {/* Enhanced Results with AI Analysis */}
+        {analysis && (
+          <>
+            {/* Detailed Breakdown */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  🔍 Full Breakdown of Your Style
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div>
+                    <h4 className="font-medium mb-2 text-green-700">Strengths</h4>
+                    <ul className="space-y-1">
+                      {analysis.detailedBreakdown.strengths.map((strength, index) => (
+                        <li key={index} className="text-sm text-muted-foreground">• {strength}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2 text-orange-700">Challenges</h4>
+                    <ul className="space-y-1">
+                      {analysis.detailedBreakdown.challenges.map((challenge, index) => (
+                        <li key={index} className="text-sm text-muted-foreground">• {challenge}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2 text-blue-700">Relationship Patterns</h4>
+                    <ul className="space-y-1">
+                      {analysis.detailedBreakdown.relationshipPatterns.map((pattern, index) => (
+                        <li key={index} className="text-sm text-muted-foreground">• {pattern}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Healing Path */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  📖 Your Personalized Healing Path
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground leading-relaxed">{analysis.healingPath}</p>
+              </CardContent>
+            </Card>
+
+            {/* Triggers & Coping */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    🎯 Triggers to Watch For
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {analysis.triggers.map((trigger, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0" />
+                        <span className="text-sm text-muted-foreground">{trigger}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    🛠 Coping Techniques
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {analysis.copingTechniques.map((technique, index) => (
+                      <div key={index} className="border rounded p-3">
+                        <h5 className="font-medium text-sm mb-1">{technique.technique}</h5>
+                        <p className="text-xs text-muted-foreground mb-1">{technique.description}</p>
+                        <p className="text-xs italic text-primary">Example: {technique.example}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        )}
+
+        {/* Basic characteristics for fallback */}
+        {!analysis && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Key Characteristics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {style.characteristics.map((characteristic, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-primary"></div>
+                    <span className="text-sm">{characteristic}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Past Results & Actions */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Button onClick={resetQuiz} variant="outline" className="flex-1">
+            Take Today's Quiz Again
+          </Button>
+          <Button 
+            onClick={() => setShowHistory(!showHistory)} 
+            variant="outline" 
+            className="flex-1"
+          >
+            <Calendar className="w-4 h-4 mr-2" />
+            View Past Results ({pastResults.length})
+          </Button>
+        </div>
+
+        {/* Past Results History */}
+        {showHistory && pastResults.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5" />
+                Your Attachment Style History
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {pastResults.map((result, index) => (
+                  <div key={result.id} className="flex items-center justify-between p-3 border rounded">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">{result.attachment_style}</Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {new Date(result.quiz_date).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     );
   }
 
   return (
     <Card className="border-2 border-primary/20">
       <CardHeader>
-        <CardTitle>Attachment Style Quiz</CardTitle>
+        <div className="flex items-center justify-between mb-2">
+          <CardTitle>Daily Attachment Style Quiz</CardTitle>
+          <Badge variant="outline">Today's Questions</Badge>
+        </div>
         <div className="flex items-center gap-2">
           <Progress value={((currentQuestion + 1) / quizQuestions.length) * 100} className="flex-1" />
           <span className="text-sm text-muted-foreground">
@@ -250,7 +540,7 @@ export const AttachmentStyleQuiz = () => {
             disabled={!selectedAnswer}
             className="min-w-24"
           >
-            {currentQuestion < quizQuestions.length - 1 ? "Next" : "Get Results"}
+            {currentQuestion < quizQuestions.length - 1 ? "Next" : "Get AI Analysis"}
           </Button>
         </div>
       </CardContent>
