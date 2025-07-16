@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      conversation_analyses: {
+        Row: {
+          analysis_date: string
+          conversation_text: string
+          created_at: string
+          emotional_tone: Json | null
+          id: string
+          miscommunication_patterns: Json | null
+          suggestions: Json | null
+          user_id: string
+        }
+        Insert: {
+          analysis_date?: string
+          conversation_text: string
+          created_at?: string
+          emotional_tone?: Json | null
+          id?: string
+          miscommunication_patterns?: Json | null
+          suggestions?: Json | null
+          user_id: string
+        }
+        Update: {
+          analysis_date?: string
+          conversation_text?: string
+          created_at?: string
+          emotional_tone?: Json | null
+          id?: string
+          miscommunication_patterns?: Json | null
+          suggestions?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       conversation_history: {
         Row: {
           coach_id: string
@@ -362,6 +395,45 @@ export type Database = {
           subscription_tier?: string | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_attachment_results: {
+        Row: {
+          attachment_style: string
+          coping_techniques: Json | null
+          created_at: string
+          detailed_breakdown: Json | null
+          healing_path: string | null
+          id: string
+          quiz_date: string
+          triggers: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attachment_style: string
+          coping_techniques?: Json | null
+          created_at?: string
+          detailed_breakdown?: Json | null
+          healing_path?: string | null
+          id?: string
+          quiz_date?: string
+          triggers?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attachment_style?: string
+          coping_techniques?: Json | null
+          created_at?: string
+          detailed_breakdown?: Json | null
+          healing_path?: string | null
+          id?: string
+          quiz_date?: string
+          triggers?: Json | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
