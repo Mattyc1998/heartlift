@@ -16,10 +16,10 @@ const plans = [
     description: "Perfect for getting started on your healing journey",
     features: [
       "Basic AI relationship advice",
-      "3 messages per day",
+      "10 messages per day",
       "Daily mood check-ins",
-      "Simple break-up tracker",
-      "Community support"
+      "Access to all coaches",
+      "Email support"
     ],
     buttonText: "Start Free",
     variant: "gentle" as const,
@@ -33,12 +33,13 @@ const plans = [
     description: "Unlimited support for your relationship growth",
     features: [
       "Unlimited AI coach conversations",
-      "All coach personas available",
       "Advanced mood analytics",
       "Personalized insights & reports",
       "Text conversation helpers",
-      "Priority support",
-      "Export your data"
+      "Daily attachment style quiz with AI analysis",
+      "Conversation analyzer with AI insights",
+      "Text suggestion helper for all scenarios",
+      "Email support"
     ],
     buttonText: "Go Premium",
     variant: "warm" as const,
@@ -52,11 +53,12 @@ const plans = [
     description: "Complete break-up recovery package",
     features: [
       "30-day healing plan",
-      "Guided meditations",
       "Daily affirmations",
-      "No-contact tracker premium",
+      "Guided meditations",
+      "No-contact tracker",
       "Journal prompts",
-      "Recovery milestone rewards"
+      "Recovery milestone rewards",
+      "Email support"
     ],
     buttonText: "Get Healing Kit",
     variant: "healing" as const,
