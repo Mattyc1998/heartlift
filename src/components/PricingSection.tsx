@@ -33,7 +33,7 @@ const plans = [
     description: "Unlimited support for your relationship growth",
     features: [
       "Unlimited AI coach conversations",
-      "Advanced mood analytics",
+      "Recovery milestone rewards",
       "Personalized insights & reports",
       "Text conversation helpers",
       "Daily attachment style quiz with AI analysis",
@@ -57,7 +57,6 @@ const plans = [
       "Guided meditations",
       "No-contact tracker",
       "Journal prompts",
-      "Recovery milestone rewards",
       "Email support"
     ],
     buttonText: "Get Healing Kit",
