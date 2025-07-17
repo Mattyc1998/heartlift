@@ -323,30 +323,42 @@ export type Database = {
       recovery_milestones: {
         Row: {
           badge_name: string | null
+          celebration_message: string | null
           created_at: string | null
           day_number: number
           description: string | null
           id: string
+          reward_content: Json | null
+          reward_description: string | null
           reward_type: string | null
           title: string
+          unlock_message: string | null
         }
         Insert: {
           badge_name?: string | null
+          celebration_message?: string | null
           created_at?: string | null
           day_number: number
           description?: string | null
           id?: string
+          reward_content?: Json | null
+          reward_description?: string | null
           reward_type?: string | null
           title: string
+          unlock_message?: string | null
         }
         Update: {
           badge_name?: string | null
+          celebration_message?: string | null
           created_at?: string | null
           day_number?: number
           description?: string | null
           id?: string
+          reward_content?: Json | null
+          reward_description?: string | null
           reward_type?: string | null
           title?: string
+          unlock_message?: string | null
         }
         Relationships: []
       }
@@ -478,6 +490,47 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      user_milestone_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          milestone_id: string
+          reward_claimed: boolean | null
+          reward_claimed_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          milestone_id: string
+          reward_claimed?: boolean | null
+          reward_claimed_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          milestone_id?: string
+          reward_claimed?: boolean | null
+          reward_claimed_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_milestone_progress_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "recovery_milestones"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_usage: {
         Row: {
