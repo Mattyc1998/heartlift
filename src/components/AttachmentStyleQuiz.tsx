@@ -90,9 +90,9 @@ const attachmentStyles: Record<string, AttachmentStyle> = {
   }
 };
 
-// Daily rotating questions - 3 sets of questions
+// Daily rotating questions - 7 sets of 5 questions each (rotates weekly)
 const questionSets = [
-  // Set A - Days 1, 4, 7, etc.
+  // Set A - Day 1
   [
     {
       id: 1,
@@ -123,9 +123,29 @@ const questionSets = [
         "Prefer to keep things light and not too deep",
         "It feels overwhelming and confusing"
       ]
+    },
+    {
+      id: 4,
+      question: "When someone gets too close emotionally, you tend to:",
+      options: [
+        "Welcome the closeness and feel secure",
+        "Feel both excited and terrified at the same time",
+        "Create distance to maintain your independence",
+        "Feel unpredictable emotions that confuse you"
+      ]
+    },
+    {
+      id: 5,
+      question: "Your past relationships have taught you that:",
+      options: [
+        "Love can be secure and lasting when both people commit",
+        "People you love often leave or hurt you",
+        "Getting too attached leads to disappointment",
+        "Relationships are confusing and unpredictable"
+      ]
     }
   ],
-  // Set B - Days 2, 5, 8, etc.
+  // Set B - Day 2
   [
     {
       id: 1,
@@ -156,9 +176,29 @@ const questionSets = [
         "Feel relieved and enjoy the independence",
         "Feel confused about what it means"
       ]
+    },
+    {
+      id: 4,
+      question: "When you're upset, you prefer to:",
+      options: [
+        "Talk it through with your partner openly",
+        "Seek immediate comfort and reassurance",
+        "Process your feelings alone first",
+        "Sometimes seek comfort, sometimes withdraw"
+      ]
+    },
+    {
+      id: 5,
+      question: "Trust in relationships comes:",
+      options: [
+        "Naturally to me with the right person",
+        "Hard - I want to trust but fear being disappointed",
+        "Very slowly - I need to see consistent proof",
+        "In waves - sometimes I trust, sometimes I don't"
+      ]
     }
   ],
-  // Set C - Days 3, 6, 9, etc.
+  // Set C - Day 3
   [
     {
       id: 1,
@@ -189,13 +229,246 @@ const questionSets = [
         "Mentally prepare for the worst outcome",
         "Feel paralyzed and don't know how to react"
       ]
+    },
+    {
+      id: 4,
+      question: "When your partner is stressed or distant:",
+      options: [
+        "Give them support while respecting their process",
+        "Assume it's about you and try to fix it immediately",
+        "Give them space and focus on your own life",
+        "Feel confused about how to respond appropriately"
+      ]
+    },
+    {
+      id: 5,
+      question: "Your biggest fear in relationships is:",
+      options: [
+        "Growing apart due to lack of communication",
+        "Being abandoned or rejected",
+        "Losing your sense of self or independence",
+        "Not knowing if the relationship is real or stable"
+      ]
+    }
+  ],
+  // Set D - Day 4
+  [
+    {
+      id: 1,
+      question: "When making important decisions, you:",
+      options: [
+        "Consider your partner's input while trusting your judgment",
+        "Constantly seek reassurance from your partner",
+        "Prefer to decide independently without outside influence",
+        "Feel torn between different approaches and get paralyzed"
+      ]
+    },
+    {
+      id: 2,
+      question: "Physical affection in relationships feels:",
+      options: [
+        "Natural and comforting",
+        "Amazing but sometimes I crave more",
+        "Nice but I need my personal space too",
+        "Complicated - sometimes I want it, sometimes I don't"
+      ]
+    },
+    {
+      id: 3,
+      question: "When your partner shares their problems with you:",
+      options: [
+        "Listen supportively and offer help if asked",
+        "Feel anxious and responsible for fixing everything",
+        "Listen but maintain some emotional distance",
+        "Feel overwhelmed by their emotions"
+      ]
+    },
+    {
+      id: 4,
+      question: "Your view of yourself in relationships is:",
+      options: [
+        "I'm a good partner who deserves love",
+        "I need to work hard to be worthy of love",
+        "I'm fine on my own and don't need anyone",
+        "I'm unsure of my worth and role in relationships"
+      ]
+    },
+    {
+      id: 5,
+      question: "When relationships end, you typically:",
+      options: [
+        "Grieve the loss but maintain hope for future love",
+        "Feel devastated and struggle to imagine moving on",
+        "Feel relief and focus on the benefits of being single",
+        "Experience confusing mix of relief, sadness, and fear"
+      ]
+    }
+  ],
+  // Set E - Day 5
+  [
+    {
+      id: 1,
+      question: "Your communication style in relationships is:",
+      options: [
+        "Direct and honest while being considerate",
+        "Sometimes too emotional or reactive",
+        "Logical and measured, sometimes distant",
+        "Inconsistent - varies with my mood and fears"
+      ]
+    },
+    {
+      id: 2,
+      question: "When planning a future with someone:",
+      options: [
+        "Exciting and feels natural to discuss openly",
+        "Desperately want it but fear they'll change their mind",
+        "Prefer to keep options open and not get too committed",
+        "Feels overwhelming and brings up conflicting emotions"
+      ]
+    },
+    {
+      id: 3,
+      question: "Your partner's friends and family:",
+      options: [
+        "I enjoy getting to know them and building relationships",
+        "I worry about whether they like me and approve",
+        "I'm polite but prefer to keep some distance",
+        "I have mixed feelings and find social situations stressful"
+      ]
+    },
+    {
+      id: 4,
+      question: "When you feel jealous in relationships:",
+      options: [
+        "I communicate my concerns openly and work through them",
+        "I feel intense fear and need constant reassurance",
+        "I rarely feel jealous or I handle it internally",
+        "I feel jealous but don't know how to handle it appropriately"
+      ]
+    },
+    {
+      id: 5,
+      question: "The idea of living with a partner:",
+      options: [
+        "Sounds wonderful when it's the right person",
+        "Exciting but also terrifying - what if it goes wrong?",
+        "Concerning - I value my independence and space",
+        "Brings up conflicting desires for closeness and freedom"
+      ]
+    }
+  ],
+  // Set F - Day 6
+  [
+    {
+      id: 1,
+      question: "When you notice red flags in early dating:",
+      options: [
+        "Address them directly or end things if necessary",
+        "Worry but hope they'll change or it will work out",
+        "End things quickly to avoid potential drama",
+        "Feel confused about whether they're actually red flags"
+      ]
+    },
+    {
+      id: 2,
+      question: "Your approach to personal boundaries is:",
+      options: [
+        "Clear and consistently maintained with kindness",
+        "Struggle to set them for fear of pushing people away",
+        "Very rigid to protect myself from getting hurt",
+        "Inconsistent - sometimes too rigid, sometimes nonexistent"
+      ]
+    },
+    {
+      id: 3,
+      question: "When your partner needs emotional support:",
+      options: [
+        "Naturally provide comfort while maintaining balance",
+        "Drop everything to be there, even at my own expense",
+        "Offer practical help but feel awkward with emotions",
+        "Want to help but feel overwhelmed by their pain"
+      ]
+    },
+    {
+      id: 4,
+      question: "Your relationship with social media and your partner:",
+      options: [
+        "Share appropriately without needing constant validation",
+        "Worry about posting too much or not enough",
+        "Keep relationship details private - it's nobody's business",
+        "Inconsistent - sometimes overshare, sometimes hide everything"
+      ]
+    },
+    {
+      id: 5,
+      question: "When thinking about your 'type' in partners:",
+      options: [
+        "Attracted to emotionally available, genuine people",
+        "Often drawn to people who seem out of reach",
+        "Prefer independent people who won't be too clingy",
+        "Confused about what I want - my type seems to change"
+      ]
+    }
+  ],
+  // Set G - Day 7
+  [
+    {
+      id: 1,
+      question: "Your relationship with self-soothing is:",
+      options: [
+        "I have healthy ways to comfort myself when upset",
+        "I struggle to self-soothe and often need others",
+        "I'm very good at handling things alone",
+        "Inconsistent - sometimes I can, sometimes I can't"
+      ]
+    },
+    {
+      id: 2,
+      question: "When your partner wants to discuss relationship issues:",
+      options: [
+        "Welcome the conversation and work toward solutions",
+        "Feel anxious but engage because I want things to work",
+        "Feel defensive or want to avoid the conversation",
+        "Have mixed reactions depending on the issue"
+      ]
+    },
+    {
+      id: 3,
+      question: "Your comfort level with vulnerability is:",
+      options: [
+        "Comfortable being vulnerable with the right person",
+        "Crave vulnerability but fear being too much",
+        "Find vulnerability uncomfortable and risky",
+        "Varies wildly - sometimes open, sometimes completely closed"
+      ]
+    },
+    {
+      id: 4,
+      question: "When single, you feel:",
+      options: [
+        "Content but open to love when it comes naturally",
+        "Incomplete and actively searching for someone",
+        "Relief and freedom from relationship complications",
+        "Conflicted between wanting connection and fearing it"
+      ]
+    },
+    {
+      id: 5,
+      question: "Your biggest relationship strength is:",
+      options: [
+        "My ability to love deeply while maintaining myself",
+        "My loyalty and dedication to making things work",
+        "My independence and low maintenance nature",
+        "My awareness that relationships are complex and nuanced"
+      ]
     }
   ]
 ];
 
 const getDailyQuestions = (): QuizQuestion[] => {
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
-  const setIndex = dayOfYear % 3;
+  // Get days since epoch, this ensures consistent daily rotation
+  const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+  const setIndex = daysSinceEpoch % questionSets.length;
   return questionSets[setIndex];
 };
 
@@ -462,7 +735,8 @@ export const AttachmentStyleQuiz = () => {
         {/* Past Results & Actions */}
         <div className="flex flex-col sm:flex-row gap-4">
           <Button onClick={resetQuiz} variant="outline" className="flex-1">
-            Take Today's Quiz Again
+            <Target className="w-4 h-4 mr-2" />
+            Take Today's Quiz Again (5 Questions)
           </Button>
           <Button 
             onClick={() => setShowHistory(!showHistory)} 
