@@ -31,6 +31,8 @@ export const TextSuggestionHelper = () => {
 
   const relationships = [
     { value: "romantic", label: "Ex-Partner" },
+    { value: "boyfriend", label: "Boyfriend" },
+    { value: "girlfriend", label: "Girlfriend" },
     { value: "dating", label: "Someone You Dated" },
     { value: "friend", label: "Ex-Friend" },
     { value: "situationship", label: "Situationship" },
