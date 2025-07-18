@@ -1,41 +1,19 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Crown, Settings, ExternalLink, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 export const PremiumManagement = () => {
-  const [isLoading, setIsLoading] = useState(false);
   const { isPremium, subscriptionStatus, checkSubscription } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleManageSubscription = async () => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('customer-portal', {
-        headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-        },
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        window.open(data.url, '_blank');
-      }
-    } catch (error) {
-      console.error('Error opening customer portal:', error);
-      toast({
-        title: "Error",
-        description: "Failed to open subscription management. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  const handleManageSubscription = () => {
+    navigate('/subscription');
   };
 
   const handleRefreshStatus = async () => {
@@ -86,16 +64,10 @@ export const PremiumManagement = () => {
             variant="outline" 
             size="sm"
             onClick={handleManageSubscription}
-            disabled={isLoading}
             className="flex-1"
           >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Settings className="w-4 h-4 mr-2" />
-            )}
+            <Settings className="w-4 h-4 mr-2" />
             Manage Subscription
-            <ExternalLink className="w-3 h-3 ml-1" />
           </Button>
           <Button 
             variant="ghost" 
