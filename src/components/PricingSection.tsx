@@ -88,15 +88,38 @@ export const PricingSection = () => {
 
   const handleHealingKitPurchase = async () => {
     try {
+      console.log('Starting healing kit purchase...');
       toast.info("Redirecting to Stripe checkout...");
-      const { data, error } = await supabase.functions.invoke("purchase-healing-kit");
       
-      if (error) throw error;
+      // Get the current session token
+      const session = await supabase.auth.getSession();
+      console.log('Session data:', { hasSession: !!session.data.session, hasAccessToken: !!session.data.session?.access_token });
       
-      if (data.url) {
+      if (!session.data.session?.access_token) {
+        throw new Error('No authentication token found. Please sign in again.');
+      }
+
+      const { data, error } = await supabase.functions.invoke("purchase-healing-kit", {
+        headers: {
+          Authorization: `Bearer ${session.data.session.access_token}`,
+        },
+      });
+      
+      console.log('Function response:', { data, error });
+      
+      if (error) {
+        console.error('Function error details:', error);
+        throw error;
+      }
+      
+      if (data?.url) {
+        console.log('Opening Stripe checkout URL:', data.url);
         window.open(data.url, '_blank');
+      } else {
+        throw new Error('No checkout URL received from server');
       }
     } catch (error: any) {
+      console.error('Purchase error:', error);
       toast.error("Purchase Error: " + (error.message || "Failed to start purchase process"));
     }
   };
