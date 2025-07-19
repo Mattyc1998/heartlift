@@ -73,20 +73,13 @@ serve(async (req) => {
       logStep("Found existing Stripe customer", { customerId });
     }
 
-    // Create Stripe checkout session
+    // Create Stripe checkout session using your existing price
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price_data: {
-            currency: "gbp",
-            product_data: { 
-              name: "Healing Kit - 30-Day Recovery Program",
-              description: "Complete healing program with 30-day plan, guided meditations, journal prompts, and premium features"
-            },
-            unit_amount: 399, // £3.99 in pence
-          },
+          price: "price_1Rks7fBlYWGwqdnUTyuQWb9K", // Your £3.99 healing kit price
           quantity: 1,
         },
       ],

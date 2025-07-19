@@ -8,9 +8,10 @@ import { PremiumManagement } from "@/components/PremiumManagement";
 import { SubscriptionStatusBanner } from "@/components/SubscriptionStatusBanner";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, MessageCircle, TrendingUp, CreditCard, Crown } from "lucide-react";
+import { Heart, MessageCircle, TrendingUp, CreditCard, Crown, LogOut, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const coachData = {
   flirty: { name: "Luna Love", personality: "flirty", greeting: "Hey gorgeous! Ready to turn heads? ✨" },
@@ -22,7 +23,7 @@ const coachData = {
 const Index = () => {
   const [selectedCoach, setSelectedCoach] = useState<string>("therapist");
   const [currentTab, setCurrentTab] = useState("home");
-  const { isPremium, hasHealingKit } = useAuth();
+  const { isPremium, hasHealingKit, user, signOut } = useAuth();
 
   const handleGetStarted = () => {
     setCurrentTab("chat");
@@ -75,15 +76,38 @@ const Index = () => {
             <h1 className="text-xl sm:text-2xl font-bold">HeartWise</h1>
           </div>
           
-          <Button 
-            variant="gentle" 
-            size="sm"
-            onClick={() => setCurrentTab("home")}
-            className="text-xs sm:text-sm"
-          >
-            <span className="hidden sm:inline">Back to Home</span>
-            <span className="sm:hidden">Home</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="gentle" 
+              size="sm"
+              onClick={() => setCurrentTab("home")}
+              className="text-xs sm:text-sm"
+            >
+              <span className="hidden sm:inline">Back to Home</span>
+              <span className="sm:hidden">Home</span>
+            </Button>
+            
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline">Account</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem disabled className="opacity-60">
+                    {user.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="text-red-600 cursor-pointer">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
         </div>
 
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-4 sm:space-y-6">

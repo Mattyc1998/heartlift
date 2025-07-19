@@ -99,10 +99,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    // Auto-refresh subscription status every 30 seconds when user is logged in
+    // Auto-refresh subscription status every 10 seconds when user is logged in
+    // This ensures subscription/healing kit access persists through login/logout
     if (!user) return;
 
-    const interval = setInterval(checkSubscription, 30000);
+    const interval = setInterval(checkSubscription, 10000);
     return () => clearInterval(interval);
   }, [user]);
 
