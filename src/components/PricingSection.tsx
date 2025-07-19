@@ -81,8 +81,23 @@ export const PricingSection = () => {
         window.location.href = '/auth';
         return;
       }
-      // For now, show info about healing kit
-      toast.info("Healing Kit purchase coming soon! Use the TEST button for now.");
+      // Call the actual purchase function
+      handleHealingKitPurchase();
+    }
+  };
+
+  const handleHealingKitPurchase = async () => {
+    try {
+      toast.info("Redirecting to Stripe checkout...");
+      const { data, error } = await supabase.functions.invoke("purchase-healing-kit");
+      
+      if (error) throw error;
+      
+      if (data.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error: any) {
+      toast.error("Purchase Error: " + (error.message || "Failed to start purchase process"));
     }
   };
   return (
