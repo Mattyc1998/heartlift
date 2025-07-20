@@ -51,12 +51,17 @@ serve(async (req) => {
     );
 
     // Check if user already has healing kit
-    const { data: existingPurchase } = await supabaseClient
+    const { data: existingPurchase, error: purchaseCheckError } = await supabaseClient
       .from("healing_kit_purchases")
       .select("*")
       .eq("user_id", user.id)
       .eq("status", "completed")
-      .single();
+      .maybeSingle();
+
+    if (purchaseCheckError) {
+      logStep("Error checking existing purchase", { error: purchaseCheckError });
+      throw new Error(`Failed to check existing purchase: ${purchaseCheckError.message}`);
+    }
 
     if (existingPurchase) {
       logStep("User already has healing kit");
@@ -64,7 +69,7 @@ serve(async (req) => {
         error: "You already own the Healing Kit! Check your premium features." 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
+        status: 200, // Changed to 200 instead of 400
       });
     }
 
