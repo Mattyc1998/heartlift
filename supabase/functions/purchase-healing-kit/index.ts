@@ -85,34 +85,46 @@ serve(async (req) => {
     }
 
     // Create Stripe checkout session
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
-      customer_email: customerId ? undefined : user.email,
-      line_items: [
-        {
-          price_data: {
-            currency: "gbp",
-            product_data: {
-              name: "Healing Kit - 30-Day Breakup Recovery Package",
-              description: "Complete break-up recovery package with healing plan, affirmations, meditations, and more."
+    logStep("Creating Stripe checkout session");
+    let session;
+    try {
+      session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        customer_email: customerId ? undefined : user.email,
+        line_items: [
+          {
+            price_data: {
+              currency: "gbp",
+              product_data: {
+                name: "Healing Kit - 30-Day Breakup Recovery Package",
+                description: "Complete break-up recovery package with healing plan, affirmations, meditations, and more."
+              },
+              unit_amount: 399, // £3.99 in pence
             },
-            unit_amount: 399, // £3.99 in pence
+            quantity: 1,
           },
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      success_url: `${req.headers.get("origin")}/healing-kit-success`,
-      cancel_url: `${req.headers.get("origin")}/`,
-      metadata: {
-        user_id: user.id,
-        product: "healing_kit"
-      }
-    });
+        ],
+        mode: "payment",
+        success_url: `${req.headers.get("origin")}/healing-kit-success`,
+        cancel_url: `${req.headers.get("origin")}/`,
+        metadata: {
+          user_id: user.id,
+          product: "healing_kit"
+        }
+      });
+      logStep("Stripe session created successfully", { sessionId: session.id, url: session.url });
+    } catch (stripeError) {
+      logStep("Stripe session creation failed", { error: stripeError });
+      throw new Error(`Stripe checkout session creation failed: ${stripeError.message}`);
+    }
 
-    logStep("Stripe session created", { sessionId: session.id });
+    if (!session || !session.url) {
+      logStep("Session created but no URL", { session });
+      throw new Error("Stripe session created but no checkout URL was returned");
+    }
 
     // Record the purchase in our database
+    logStep("Recording purchase in database");
     const { error: insertError } = await supabaseClient
       .from("healing_kit_purchases")
       .insert({
@@ -128,7 +140,7 @@ serve(async (req) => {
       throw new Error(`Failed to record purchase: ${insertError.message}`);
     }
 
-    logStep("Purchase recorded successfully");
+    logStep("Purchase recorded successfully, returning URL", { url: session.url });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
