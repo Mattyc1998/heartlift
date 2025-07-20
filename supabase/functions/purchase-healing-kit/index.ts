@@ -84,13 +84,20 @@ serve(async (req) => {
       logStep("Found existing Stripe customer", { customerId });
     }
 
-    // Create Stripe checkout session using your existing price
+    // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price: "price_1Rks7fBlYWGwqdnUTyuQWb9K", // Your £3.99 healing kit price
+          price_data: {
+            currency: "gbp",
+            product_data: {
+              name: "Healing Kit - 30-Day Breakup Recovery Package",
+              description: "Complete break-up recovery package with healing plan, affirmations, meditations, and more."
+            },
+            unit_amount: 399, // £3.99 in pence
+          },
           quantity: 1,
         },
       ],
