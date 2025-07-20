@@ -58,12 +58,37 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
     }
   }, [isPremium]);
 
-  // Load conversation history when coach changes
+  // Load conversation history when coach changes or on daily refresh
   useEffect(() => {
     if (user && coachPersonality) {
+      checkForDailyRefresh();
       loadConversationHistory();
     }
   }, [user, coachPersonality]);
+
+  const checkForDailyRefresh = async () => {
+    if (!user) return;
+    
+    const lastRefreshKey = `lastRefresh_${user.id}_${coachPersonality}`;
+    const lastRefresh = localStorage.getItem(lastRefreshKey);
+    const today = new Date().toDateString();
+    
+    if (lastRefresh !== today) {
+      // New day detected, refresh conversation
+      try {
+        await supabase
+          .from('conversation_history')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('coach_id', coachPersonality);
+        
+        localStorage.setItem(lastRefreshKey, today);
+        console.log('Daily conversation refresh completed for', coachPersonality);
+      } catch (error) {
+        console.error('Error during daily refresh:', error);
+      }
+    }
+  };
 
   const loadConversationHistory = async () => {
     if (!user) return;

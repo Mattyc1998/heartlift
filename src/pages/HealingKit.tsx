@@ -6,6 +6,7 @@ import { HealingPlan } from "@/components/HealingPlan";
 import { DailyAffirmations } from "@/components/DailyAffirmations";
 import { GuidedMeditations } from "@/components/GuidedMeditations";
 import { NoContactTracker } from "@/components/NoContactTracker";
+import { JournalPrompts } from "@/components/JournalPrompts";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, ArrowLeft } from "lucide-react";
@@ -49,6 +50,8 @@ export default function HealingKit() {
         return <GuidedMeditations />;
       case "tracker":
         return <NoContactTracker />;
+      case "journal":
+        return <JournalPrompts />;
       default:
         return <HealingPlan />;
     }

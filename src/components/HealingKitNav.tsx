@@ -1,4 +1,4 @@
-import { Heart, BookOpen, Target, Calendar, Award } from "lucide-react";
+import { Heart, BookOpen, Target, Calendar, Award, PenTool } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -13,6 +13,7 @@ export const HealingKitNav = ({ activeSection, onSectionChange }: HealingKitNavP
     { id: "affirmations", label: "Daily Affirmations", icon: Heart },
     { id: "meditations", label: "Guided Meditations", icon: BookOpen },
     { id: "tracker", label: "No Contact Tracker", icon: Calendar },
+    { id: "journal", label: "Journal Prompts", icon: PenTool },
   ];
 
   return (

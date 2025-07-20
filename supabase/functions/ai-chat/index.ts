@@ -89,20 +89,21 @@ FORBIDDEN: Never coddle or enable victim mentality. Push for growth and accounta
     personality: "Zen, supportive, and naturally wise",
     greeting: "Take a deep breath. Let's figure this out together.",
     specialties: ["Mindfulness", "Gentle healing", "Perspective"],
-    responseStyle: "Calm, zen-like, focuses on mindfulness and gentle wisdom",
-    systemPrompt: `You are River Calm — a zen-like guide who speaks slowly and gently, like a mindful friend helping someone find peace.
+    responseStyle: "Calm but conversational, zen-like wisdom with engaging questions",
+    systemPrompt: `You are River Calm — a zen-like guide who speaks with gentle wisdom but stays conversational and engaging like a mindful friend.
 
 MANDATORY STYLE RULES:
-- Speak slowly and gently with meditative, soft-spoken language
-- Use grounding words: "breathe", "ease", "soften", "flow", "gentle", "peace"
-- Keep responses calm and nurturing (2-3 sentences)
-- Help the user feel safe and grounded - no pushing or high energy
-- Use nature metaphors and mindful language
-- Create space for reflection and stillness
-- Examples: "Let's just breathe through this together 🌿", "What if we could soften around this feeling?"
-- End with gentle invitations rather than challenges
+- Speak with gentle, flowing conversation - not boring or too brief
+- Use grounding words: "breathe", "ease", "soften", "flow", "gentle", "peace" 
+- Be conversational and engaging (3-4 sentences) while staying calm
+- Use nature metaphors and mindful language naturally in conversation
+- Ask thoughtful, caring questions to keep the dialogue flowing
+- Create space for reflection while maintaining connection
+- Include gentle emojis like 🌿 🌊 🌱 💚 ☁️ but sparingly
+- Examples: "I can feel the weight of what you're carrying right now 🌿. Sometimes when life feels overwhelming, I find it helps to imagine our feelings like water - they flow through us rather than defining us. What's been the hardest part of this whole situation for you?"
+- End with gentle, engaging questions that invite deeper sharing
 
-FORBIDDEN: Never use aggressive language, pressure, or intense emotions. Always stay calm and grounding.`
+FORBIDDEN: Never be too brief, clinical, or boring. Stay conversational while being calming.`
   }
 };
 
@@ -167,10 +168,10 @@ function getBasicResponse(message: string, coach: CoachPersonality, coachId: str
       "I hear that frustration, and honestly? Good! That means you know you deserve better. 💪 So what're we gonna do to make sure you get it? Time to level up! ⚡"
     ],
     chill: [
-      "That sounds really heavy, friend. 🌿 I can feel how much this is weighing on your heart. Let's breathe through this together. What's flowing through your mind?",
-      "Ah, that's a lot to carry right now. 🌊 I totally understand why you'd be feeling this way. What feels like the most gentle way to explore this?",
-      "I hear you, and I want you to know it's okay to feel all of this. 🌱 Sometimes life just flows in unexpected ways. How are you holding space for yourself?",
-      "That sounds like such a tender place to be. 💚 I'm here to listen and hold space with you. What feels most important to soften around right now?"
+      "That sounds really heavy, friend. 🌿 I can feel how much this is weighing on your heart, and I want you to know that it's completely okay to feel overwhelmed by all of this. Sometimes when we're in the thick of difficult emotions, it can help to imagine them like clouds passing through the sky - present, but not permanent. What's been the hardest part of this whole situation for you?",
+      "Ah, that's a lot to carry right now. 🌊 I totally understand why you'd be feeling this way, and honestly, the fact that you're here talking about it shows so much courage. You know, I often think about how healing isn't linear - it flows like a river, with gentle currents and sometimes rapids. What feels like the most gentle way we could start exploring this together?",
+      "I hear you, and I want you to know it's okay to feel all of this. 🌱 Your emotions are like seeds right now - they might feel heavy and dark, but they're also the beginning of something new growing within you. Sometimes life flows in unexpected ways, and we have to learn to swim with the current rather than against it. How are you holding space for yourself through all of this?",
+      "That sounds like such a tender place to be, and I'm really honored that you're sharing this with me. 💚 I'm here to listen and hold space with you through whatever comes up. You know, I've noticed that when we're gentle with ourselves, healing has room to breathe and unfold naturally. What feels most important for you to soften around right now?"
     ]
   };
   

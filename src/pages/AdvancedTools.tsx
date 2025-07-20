@@ -5,10 +5,11 @@ import { AttachmentStyleQuiz } from "@/components/AttachmentStyleQuiz";
 import { RecoveryMilestones } from "@/components/RecoveryMilestones";
 import { ConversationAnalyzer } from "@/components/ConversationAnalyzer";
 import { TextSuggestionHelper } from "@/components/TextSuggestionHelper";
+import { PersonalizedInsights } from "@/components/PersonalizedInsights";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Crown, Heart, Target, ArrowLeft, MessageSquare, Bot } from "lucide-react";
+import { Crown, Heart, Target, ArrowLeft, MessageSquare, Bot, Brain } from "lucide-react";
 
 export default function AdvancedTools() {
   const { user, isPremium } = useAuth();
@@ -102,6 +103,14 @@ export default function AdvancedTools() {
               <Bot className="w-4 h-4" />
               Text Helper
             </Button>
+            <Button
+              variant={activeSection === "insights" ? "default" : "outline"}
+              onClick={() => setActiveSection("insights")}
+              className="flex items-center gap-2"
+            >
+              <Brain className="w-4 h-4" />
+              Insights & Reports
+            </Button>
           </div>
         </Card>
 
@@ -110,6 +119,7 @@ export default function AdvancedTools() {
           {activeSection === "milestones" && <RecoveryMilestones />}
           {activeSection === "analyzer" && <ConversationAnalyzer />}
           {activeSection === "suggestions" && <TextSuggestionHelper />}
+          {activeSection === "insights" && <PersonalizedInsights />}
         </div>
       </div>
     </div>
