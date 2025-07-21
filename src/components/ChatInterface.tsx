@@ -306,7 +306,11 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
         .eq('user_id', user.id)
         .eq('coach_id', coachPersonality);
 
-      // Reset to default greeting
+      // Clear local storage for this coach
+      const lastRefreshKey = `lastRefresh_${user.id}_${coachPersonality}`;
+      localStorage.removeItem(lastRefreshKey);
+
+      // Reset to default greeting and clear all messages
       const greeting = coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`;
       setMessages([{
         id: '1',
@@ -314,6 +318,10 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
         sender: 'coach',
         timestamp: new Date()
       }]);
+
+      // Reset conversation loaded state
+      setConversationLoaded(false);
+      setTimeout(() => setConversationLoaded(true), 100);
 
       toast({
         title: "Conversation refreshed",

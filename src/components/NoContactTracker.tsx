@@ -16,6 +16,7 @@ export const NoContactTracker = () => {
   useEffect(() => {
     if (user) {
       fetchProgress();
+      calculateStreak();
     }
   }, [user]);
 
@@ -23,7 +24,7 @@ export const NoContactTracker = () => {
     try {
       const { data, error } = await supabase
         .from("user_healing_progress")
-        .select("no_contact_start_date, no_contact_streak_days")
+        .select("no_contact_start_date, no_contact_streak_days, last_contact_date")
         .eq("user_id", user?.id)
         .single();
 
@@ -35,6 +36,72 @@ export const NoContactTracker = () => {
       }
     } catch (error: any) {
       console.error("Error fetching progress:", error);
+    }
+  };
+
+  const calculateStreak = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("user_healing_progress")
+        .select("no_contact_start_date, last_contact_date")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') return;
+      
+      if (data?.no_contact_start_date && !data.last_contact_date) {
+        // Calculate days since start date
+        const startDate = new Date(data.no_contact_start_date);
+        const today = new Date();
+        const daysDiff = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        // Update streak if it's different
+        if (daysDiff !== streakDays) {
+          await supabase
+            .from("user_healing_progress")
+            .update({ no_contact_streak_days: daysDiff })
+            .eq("user_id", user.id);
+          
+          setStreakDays(daysDiff);
+        }
+      }
+    } catch (error) {
+      console.error("Error calculating streak:", error);
+    }
+  };
+
+  const startNoContact = async () => {
+    if (!user) return;
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      
+      const { error } = await supabase
+        .from("user_healing_progress")
+        .upsert({
+          user_id: user.id,
+          no_contact_start_date: today,
+          no_contact_streak_days: 1,
+          last_contact_date: null
+        }, { onConflict: 'user_id' });
+
+      if (error) throw error;
+
+      setStartDate(today);
+      setStreakDays(1);
+      
+      toast({
+        title: "No Contact Started! 🌟",
+        description: "You've taken the first brave step. We're here to support you!",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
     }
   };
 
@@ -90,15 +157,27 @@ export const NoContactTracker = () => {
           </div>
         )}
         
-        <div className="flex justify-center">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={resetStreak}
-            className="text-destructive hover:text-destructive"
-          >
-            Reset Streak
-          </Button>
+        <div className="flex justify-center gap-2">
+          {streakDays === 0 ? (
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={startNoContact}
+              className="bg-primary text-primary-foreground"
+            >
+              <Target className="w-4 h-4 mr-2" />
+              Start No Contact
+            </Button>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={resetStreak}
+              className="text-destructive hover:text-destructive"
+            >
+              Reset Streak
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
