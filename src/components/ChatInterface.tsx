@@ -83,6 +83,17 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
           .eq('coach_id', coachPersonality);
         
         localStorage.setItem(lastRefreshKey, today);
+        
+        // Clear messages immediately for daily refresh
+        setMessages([
+          {
+            id: '1',
+            content: coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`,
+            sender: 'coach',
+            timestamp: new Date()
+          }
+        ]);
+        
         console.log('Daily conversation refresh completed for', coachPersonality);
       } catch (error) {
         console.error('Error during daily refresh:', error);
@@ -92,6 +103,34 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
 
   const loadConversationHistory = async () => {
     if (!user) return;
+
+    // Check if this coach was manually refreshed recently
+    const manualRefreshKey = `manualRefresh_${user.id}_${coachPersonality}`;
+    const manualRefresh = localStorage.getItem(manualRefreshKey);
+    
+    if (manualRefresh) {
+      const refreshTime = new Date(manualRefresh);
+      const now = new Date();
+      const timeDiff = now.getTime() - refreshTime.getTime();
+      const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
+      
+      // If manually refreshed in the last 5 minutes, don't load history
+      if (timeDiff < fiveMinutes) {
+        setMessages([
+          {
+            id: '1',
+            content: coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`,
+            sender: 'coach',
+            timestamp: new Date()
+          }
+        ]);
+        setConversationLoaded(true);
+        return;
+      } else {
+        // Clear the manual refresh flag after 5 minutes
+        localStorage.removeItem(manualRefreshKey);
+      }
+    }
 
     try {
       const { data: history, error } = await supabase
@@ -309,6 +348,10 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
       // Clear local storage for this coach
       const lastRefreshKey = `lastRefresh_${user.id}_${coachPersonality}`;
       localStorage.removeItem(lastRefreshKey);
+      
+      // Mark this coach as manually refreshed to prevent reload
+      const manualRefreshKey = `manualRefresh_${user.id}_${coachPersonality}`;
+      localStorage.setItem(manualRefreshKey, new Date().toISOString());
 
       // Reset to default greeting and clear all messages
       const greeting = coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`;

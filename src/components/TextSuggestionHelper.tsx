@@ -26,6 +26,14 @@ export const TextSuggestionHelper = () => {
     { value: "no_contact", label: "No-Contact Replies" },
     { value: "boundary", label: "Boundary-Setting Texts" },
     { value: "miss_you_response", label: '"I Miss You" Responses' },
+    { value: "apologetic", label: "Apologetic Messages" },
+    { value: "rejection", label: "Rejection Messages" },
+    { value: "reconciliation", label: "Reconciliation Attempts" },
+    { value: "angry_response", label: "Angry/Upset Responses" },
+    { value: "moving_on", label: "Moving On Messages" },
+    { value: "check_in", label: "Check-In Messages" },
+    { value: "birthday_holiday", label: "Birthday/Holiday Messages" },
+    { value: "neutral_reply", label: "Neutral Responses" },
     { value: "custom", label: "Improve My Message" },
   ];
 
@@ -34,8 +42,11 @@ export const TextSuggestionHelper = () => {
     { value: "boyfriend", label: "Boyfriend" },
     { value: "girlfriend", label: "Girlfriend" },
     { value: "dating", label: "Someone You Dated" },
+    { value: "talking_stage", label: "Talking Stage" },
     { value: "friend", label: "Ex-Friend" },
     { value: "situationship", label: "Situationship" },
+    { value: "fwb", label: "Friends with Benefits" },
+    { value: "hookup", label: "Hookup/Casual" },
   ];
 
   const generateSuggestions = async () => {
