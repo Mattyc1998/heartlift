@@ -21,7 +21,7 @@ serve(async (req) => {
     Conversation:
     "${conversationText}"
 
-    Provide analysis in this JSON format:
+    Provide analysis in this EXACT JSON format (no markdown, no code blocks, just raw JSON):
     {
       "emotionalTone": {
         "user": "description of user's emotional tone",
@@ -57,7 +57,7 @@ serve(async (req) => {
         messages: [
           { 
             role: 'system', 
-            content: 'You are a relationship counselor specializing in communication analysis. Be empathetic but honest in your assessment.' 
+            content: 'You are a relationship counselor specializing in communication analysis. Be empathetic but honest in your assessment. IMPORTANT: Respond with ONLY valid JSON, no markdown formatting, no code blocks, no explanatory text.' 
           },
           { role: 'user', content: analysisPrompt }
         ],
@@ -66,7 +66,14 @@ serve(async (req) => {
     });
 
     const aiData = await response.json();
-    const analysis = JSON.parse(aiData.choices[0].message.content);
+    let aiResponse = aiData.choices[0].message.content;
+    
+    // Clean up response - remove markdown code blocks if present
+    aiResponse = aiResponse.replace(/```json\n?/, '').replace(/```\n?$/, '').trim();
+    
+    console.log('Cleaned AI response:', aiResponse);
+    
+    const analysis = JSON.parse(aiResponse);
 
     // Save analysis to database
     const supabase = createClient(

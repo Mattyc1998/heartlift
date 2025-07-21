@@ -12,38 +12,56 @@ serve(async (req) => {
   }
 
   try {
-    const { context, messageType, relationship, userMessage } = await req.json();
+    const { messageType, relationship, userMessage } = await req.json();
 
     const relationshipContext = getRelationshipContext(relationship);
     
+    // Create more specific prompts based on message type and relationship
     const prompts = {
-      closure: `Generate a mature, dignified closure message for someone ending a relationship with their ${relationshipContext}. The message should be respectful, clear, and provide emotional closure without blame.`,
+      closure: `Generate 3 mature, dignified closure messages for someone ending things with their ${relationshipContext}. Each should be respectful, clear, and provide emotional closure without blame. Match the formality to the relationship type.`,
       
-      no_contact: `Generate a polite but firm no-contact message for someone who needs boundaries with their ${relationshipContext}. Should be kind but clear about the boundary.`,
+      no_contact: `Generate 3 polite but firm no-contact messages for someone who needs boundaries with their ${relationshipContext}. Should be kind but absolutely clear about the boundary.`,
       
-      boundary: `Generate a message that sets healthy boundaries with ${relationshipContext}. Should be respectful but firm about limits and expectations.`,
+      boundary: `Generate 3 messages that set healthy boundaries with ${relationshipContext}. Should be respectful but firm about limits and expectations for this specific relationship type.`,
       
-      miss_you_response: `Generate a thoughtful response to "I miss you" from ${relationshipContext}. Should acknowledge the feeling while maintaining appropriate boundaries based on the situation.`,
+      miss_you_response: `Generate 3 thoughtful responses to "I miss you" from ${relationshipContext}. Should acknowledge the feeling while maintaining appropriate boundaries for this relationship stage.`,
       
-      custom: `Help rewrite this message to be more emotionally intelligent and effective in a ${relationshipContext} context: "${userMessage}"`
+      apologetic: `Generate 3 sincere apology messages for ${relationshipContext}. Should take responsibility without being overly dramatic or manipulative.`,
+      
+      rejection: `Generate 3 kind but clear rejection messages for ${relationshipContext}. Should be honest while preserving dignity for both parties.`,
+      
+      reconciliation: `Generate 3 thoughtful reconciliation attempt messages for ${relationshipContext}. Should be genuine and acknowledge what went wrong without being desperate.`,
+      
+      angry_response: `Generate 3 messages for responding when upset with ${relationshipContext}. Should express feelings without being destructive or hurtful.`,
+      
+      moving_on: `Generate 3 messages expressing that you're moving on from ${relationshipContext}. Should be mature and final without being cruel.`,
+      
+      check_in: `Generate 3 casual check-in messages for ${relationshipContext}. Should be friendly but appropriate for the current relationship status.`,
+      
+      birthday_holiday: `Generate 3 birthday/holiday messages for ${relationshipContext}. Should be warm but respect current boundaries and relationship status.`,
+      
+      neutral_reply: `Generate 3 neutral response messages for ${relationshipContext}. Should acknowledge their message without escalating or encouraging further contact.`,
+      
+      custom: `Help rewrite this message to be more emotionally intelligent and effective in a ${relationshipContext} context: "${userMessage}". Provide 3 different versions with different tones.`
     };
 
-    const systemPrompt = `You are a relationship communication expert. Generate messages that are:
+    const systemPrompt = `You are a relationship communication expert specializing in ${relationshipContext} dynamics. Generate messages that are:
     - Emotionally mature and self-aware
+    - Appropriate for the specific relationship type and stage
     - Clear and direct but kind
     - Focused on healthy boundaries
     - Non-manipulative and honest
-    - Appropriate for the relationship context
+    - Contextually appropriate (formal for exes, casual for talking stage, etc.)
     
-    IMPORTANT: Always provide exactly 3 different message options with the following format:
+    CRITICAL: Respond with EXACTLY this format (no extra text, no explanations):
     
-    Gentle: [gentle tone message here]
+    Gentle: [Complete message here]
     
-    Neutral: [neutral tone message here]
+    Neutral: [Complete message here]
     
-    Firm: [firm tone message here]
+    Firm: [Complete message here]
     
-    Make sure each message is complete and practical to send.`;
+    Each message must be complete, practical, and ready to send. Match the tone and formality to the relationship type.`;
 
     const selectedPrompt = prompts[messageType as keyof typeof prompts] || prompts.custom;
     
@@ -134,10 +152,13 @@ function getRelationshipContext(relationship: string): string {
   switch (relationship) {
     case 'romantic': return 'ex-partner';
     case 'boyfriend': return 'boyfriend';
-    case 'girlfriend': return 'girlfriend';
+    case 'girlfriend': return 'girlfriend'; 
     case 'dating': return 'someone you dated';
+    case 'talking_stage': return 'someone in the talking stage';
     case 'friend': return 'ex-friend';
     case 'situationship': return 'situationship partner';
+    case 'fwb': return 'friends with benefits';
+    case 'hookup': return 'casual hookup';
     default: return 'ex-partner';
   }
 }
@@ -145,33 +166,47 @@ function getRelationshipContext(relationship: string): string {
 function generateFallbackMessages(messageType: string, relationship: string): Array<{tone: string, message: string}> {
   const relationshipContext = getRelationshipContext(relationship);
   
-  const fallbacks = {
-    closure: [
-      { tone: 'gentle', message: `I wanted to reach out to let you know that I've been doing some thinking about us. I believe it's best for both of us if we part ways here. I wish you all the best.` },
-      { tone: 'neutral', message: `After careful consideration, I think it's time for us to go our separate ways. I appreciate the time we shared together.` },
-      { tone: 'firm', message: `I've decided that this relationship isn't working for me anymore. I think it's best if we end things here.` }
-    ],
-    no_contact: [
-      { tone: 'gentle', message: `I appreciate you reaching out, but I think it's best if we don't communicate for now. I need some space to heal and move forward.` },
-      { tone: 'neutral', message: `I've decided to take some time for myself and won't be responding to messages. Please respect this boundary.` },
-      { tone: 'firm', message: `Please stop contacting me. I need space and this communication isn't helpful for either of us.` }
-    ],
-    boundary: [
-      { tone: 'gentle', message: `I care about you, but I need to set some boundaries for my own wellbeing. Please respect my need for space.` },
-      { tone: 'neutral', message: `I need to establish some clear boundaries between us. Please respect these limits going forward.` },
-      { tone: 'firm', message: `I'm setting a clear boundary: please stop contacting me. This is what I need right now.` }
-    ],
-    miss_you_response: [
-      { tone: 'gentle', message: `I understand that feeling, and part of me misses what we had too. But I think it's important we both focus on moving forward.` },
-      { tone: 'neutral', message: `I appreciate you sharing that with me. I think it's best if we both focus on our own healing right now.` },
-      { tone: 'firm', message: `I understand you miss me, but reaching out like this isn't helpful for either of us. Please respect my boundaries.` }
-    ],
-    custom: [
-      { tone: 'gentle', message: `I hear what you're saying and I want to respond thoughtfully. Let me take some time to process this.` },
-      { tone: 'neutral', message: `Thank you for sharing that with me. I appreciate your honesty.` },
-      { tone: 'firm', message: `I need to be direct with you about how I'm feeling right now.` }
-    ]
+  // More specific fallbacks based on relationship type
+  const getMessages = (type: string) => {
+    const baseMessages = {
+      closure: {
+        boyfriend: [
+          { tone: 'gentle', message: `I've been thinking a lot about us, and I think it's time we end our relationship. You mean a lot to me, but I don't think we're right for each other anymore.` },
+          { tone: 'neutral', message: `I think we need to break up. This relationship isn't working for me anymore, and I believe it's best for both of us.` },
+          { tone: 'firm', message: `I'm ending our relationship. This isn't working for me, and I don't want to continue dating.` }
+        ],
+        girlfriend: [
+          { tone: 'gentle', message: `I care about you deeply, but I think we should end our relationship. We want different things, and I think it's better if we both move on.` },
+          { tone: 'neutral', message: `I think we should break up. I don't see this working long-term, and I think it's better to end things now.` },
+          { tone: 'firm', message: `I'm breaking up with you. This relationship isn't what I want anymore.` }
+        ],
+        talking_stage: [
+          { tone: 'gentle', message: `Hey, I've enjoyed getting to know you, but I don't think we're a romantic match. I wish you the best!` },
+          { tone: 'neutral', message: `I've been thinking, and I don't see this developing into something more. Take care!` },
+          { tone: 'firm', message: `I don't think we should continue talking romantically. Good luck with everything.` }
+        ]
+      },
+      no_contact: {
+        boyfriend: [
+          { tone: 'gentle', message: `I need some space to process everything. Please don't contact me for a while - I'll reach out when I'm ready.` },
+          { tone: 'neutral', message: `I'm going no contact for now. Please respect this boundary and don't message me.` },
+          { tone: 'firm', message: `Stop contacting me. I need space and this isn't helping either of us.` }
+        ],
+        talking_stage: [
+          { tone: 'gentle', message: `I think it's best if we stop talking. I need to focus on other things right now.` },
+          { tone: 'neutral', message: `I'm not interested in continuing our conversations. Please don't message me anymore.` },
+          { tone: 'firm', message: `Please stop messaging me. I'm not interested in talking anymore.` }
+        ]
+      }
+    };
+
+    const relationshipKey = relationship === 'romantic' ? 'boyfriend' : relationship;
+    return baseMessages[type]?.[relationshipKey] || baseMessages[type]?.['boyfriend'] || [
+      { tone: 'gentle', message: `I appreciate you reaching out, but I think it's best if we don't communicate right now.` },
+      { tone: 'neutral', message: `I need some space. Please respect this boundary.` },
+      { tone: 'firm', message: `Please stop contacting me. I need space right now.` }
+    ];
   };
-  
-  return fallbacks[messageType as keyof typeof fallbacks] || fallbacks.custom;
+
+  return getMessages(messageType);
 }
