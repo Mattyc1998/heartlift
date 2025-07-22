@@ -108,7 +108,9 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
                 {user ? (
                   <>
                     <Heart className="w-5 h-5 group-hover:animate-pulse-warm" />
-                    Continue Your Journey
+                    {user.created_at && new Date().getTime() - new Date(user.created_at).getTime() < 24 * 60 * 60 * 1000 
+                      ? "Start Your Journey" 
+                      : "Continue Your Journey"}
                   </>
                 ) : (
                   <>

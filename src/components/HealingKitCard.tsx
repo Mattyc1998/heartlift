@@ -146,10 +146,6 @@ export const HealingKitCard = () => {
             </div>
           </div>
           
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Heart className="w-3 h-3" />
-            <span>30-day money-back guarantee</span>
-          </div>
         </div>
       </CardContent>
     </Card>

@@ -304,7 +304,7 @@ export const PricingSection = () => {
             All plans include our core emotional support features
           </p>
           <p className="text-xs text-muted-foreground">
-            30-day money-back guarantee • Cancel anytime • Secure payments
+            Cancel anytime • Secure payments
           </p>
         </div>
 
