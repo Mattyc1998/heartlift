@@ -75,52 +75,86 @@ export const PricingSection = () => {
         window.location.href = '/auth';
         return;
       }
-      setShowUpgradeModal(true);
+      // For Premium, use in-app activation
+      handlePremiumPurchase();
     } else if (planName === "Healing Kit") {
       if (!user) {
         window.location.href = '/auth';
         return;
       }
-      // Call the actual purchase function
       handleHealingKitPurchase();
+    }
+  };
+
+  const handlePremiumPurchase = async () => {
+    try {
+      console.log('Starting premium purchase...');
+      toast.info("Processing your premium subscription...");
+      
+      // Get the current session token
+      const session = await supabase.auth.getSession();
+      
+      if (!session.data.session?.access_token) {
+        throw new Error('No authentication token found. Please sign in again.');
+      }
+
+      // Simulate in-app purchase processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // For now, directly activate premium
+      const { data, error } = await supabase.functions.invoke('test-premium', {
+        headers: { Authorization: `Bearer ${session.data.session.access_token}` }
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (data?.success) {
+        toast.success("✅ Premium subscription activated!");
+        await checkSubscription(); // Refresh subscription status
+      } else {
+        throw new Error('Failed to activate premium subscription');
+      }
+    } catch (error: any) {
+      console.error('Purchase error:', error);
+      toast.error("Purchase Error: " + (error.message || "Failed to process purchase"));
     }
   };
 
   const handleHealingKitPurchase = async () => {
     try {
       console.log('Starting healing kit purchase...');
-      toast.info("Redirecting to Stripe checkout...");
+      toast.info("Processing your purchase...");
       
       // Get the current session token
       const session = await supabase.auth.getSession();
-      console.log('Session data:', { hasSession: !!session.data.session, hasAccessToken: !!session.data.session?.access_token });
       
       if (!session.data.session?.access_token) {
         throw new Error('No authentication token found. Please sign in again.');
       }
 
-      const { data, error } = await supabase.functions.invoke("purchase-healing-kit", {
-        headers: {
-          Authorization: `Bearer ${session.data.session.access_token}`,
-        },
+      // Simulate in-app purchase processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // For now, directly activate the healing kit
+      const { data, error } = await supabase.functions.invoke('test-healing-kit', {
+        headers: { Authorization: `Bearer ${session.data.session.access_token}` }
       });
       
-      console.log('Function response:', { data, error });
-      
       if (error) {
-        console.error('Function error details:', error);
         throw error;
       }
       
-      if (data?.url) {
-        console.log('Opening Stripe checkout URL:', data.url);
-        window.open(data.url, '_blank');
+      if (data?.success) {
+        toast.success("✅ Healing Kit purchased successfully!");
+        await checkSubscription(); // Refresh subscription status
       } else {
-        throw new Error('No checkout URL received from server');
+        throw new Error('Failed to activate healing kit');
       }
     } catch (error: any) {
       console.error('Purchase error:', error);
-      toast.error("Purchase Error: " + (error.message || "Failed to start purchase process"));
+      toast.error("Purchase Error: " + (error.message || "Failed to process purchase"));
     }
   };
   return (
