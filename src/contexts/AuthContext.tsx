@@ -33,6 +33,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [hasHealingKit, setHasHealingKit] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<'free' | 'premium'>('free');
 
+  const clearAllConversations = async (userId: string) => {
+    try {
+      // Clear all conversation history from database
+      await supabase
+        .from('conversation_history')
+        .delete()
+        .eq('user_id', userId);
+      
+      console.log('[AuthContext] Cleared all conversations for user on login');
+    } catch (error) {
+      console.error('[AuthContext] Error clearing conversations:', error);
+    }
+  };
+
   const checkSubscription = async () => {
     if (!user) return;
 
@@ -75,6 +89,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Check subscription when user logs in
         if (session?.user && event === 'SIGNED_IN') {
           await checkSubscription();
+          // Clear all coach conversations when user logs in
+          await clearAllConversations(session.user.id);
         } else if (event === 'SIGNED_OUT') {
           setIsPremium(false);
           setHasHealingKit(false);

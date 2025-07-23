@@ -152,6 +152,81 @@ export const JournalPrompts = () => {
         prompt: "Write about forgiveness - either forgiving someone else or forgiving yourself. What would that process look like?",
         category: "Forgiveness",
         emotional_theme: "Release"
+      },
+      {
+        prompt: "What does self-compassion mean to you? How can you practice being kinder to yourself during difficult times?",
+        category: "Self-Love",
+        emotional_theme: "Kindness"
+      },
+      {
+        prompt: "Write about a time when you felt truly confident and secure. What internal and external factors contributed to that feeling?",
+        category: "Confidence",
+        emotional_theme: "Security"
+      },
+      {
+        prompt: "What toxic patterns are you ready to release? Write about why you're committed to breaking these cycles.",
+        category: "Transformation",
+        emotional_theme: "Liberation"
+      },
+      {
+        prompt: "Describe your emotional support system. Who are the people that truly see and understand you?",
+        category: "Support",
+        emotional_theme: "Connection"
+      },
+      {
+        prompt: "What would you want to tell your future self about the journey you're on now? What hopes do you have?",
+        category: "Future Visioning",
+        emotional_theme: "Optimism"
+      },
+      {
+        prompt: "Write about a moment when you stood up for yourself. How did it feel, and what did you learn about your own strength?",
+        category: "Self-Advocacy",
+        emotional_theme: "Empowerment"
+      },
+      {
+        prompt: "What does vulnerability look like in healthy relationships? How comfortable are you with being truly seen?",
+        category: "Intimacy",
+        emotional_theme: "Authenticity"
+      },
+      {
+        prompt: "Reflect on your relationship with solitude. How do you feel when you're alone with your thoughts?",
+        category: "Self-Reflection",
+        emotional_theme: "Independence"
+      },
+      {
+        prompt: "What childhood experiences shaped your understanding of love? How do these influences show up in your adult relationships?",
+        category: "Origins",
+        emotional_theme: "Understanding"
+      },
+      {
+        prompt: "Write about a time when you felt deeply grateful for a difficult experience. What did it teach you?",
+        category: "Gratitude",
+        emotional_theme: "Wisdom"
+      },
+      {
+        prompt: "What does emotional safety feel like to you? How can you create this for yourself and others?",
+        category: "Safety",
+        emotional_theme: "Security"
+      },
+      {
+        prompt: "Describe your relationship with trust. What helps you feel safe to be vulnerable with someone?",
+        category: "Trust",
+        emotional_theme: "Safety"
+      },
+      {
+        prompt: "What would unconditional self-acceptance look like in your life? What would change if you fully embraced who you are?",
+        category: "Self-Love",
+        emotional_theme: "Acceptance"
+      },
+      {
+        prompt: "Write about the difference between being alone and being lonely. How has your relationship with solitude evolved?",
+        category: "Independence",
+        emotional_theme: "Self-Sufficiency"
+      },
+      {
+        prompt: "What legacy do you want to leave in terms of how you love and how you allow yourself to be loved?",
+        category: "Legacy",
+        emotional_theme: "Purpose"
       }
     ];
 
@@ -278,7 +353,7 @@ export const JournalPrompts = () => {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-4">
-            Healing Kit feature - Access 15 powerful journal prompts designed to guide your emotional healing journey.
+            Healing Kit feature - Access 30 powerful journal prompts designed to guide your emotional healing journey.
           </p>
           <Button variant="healing" disabled>
             Get Healing Kit
@@ -326,7 +401,16 @@ export const JournalPrompts = () => {
     "Self-Advocacy": Target,
     "Values": Target,
     "Peace": Heart,
-    "Forgiveness": Heart
+    "Forgiveness": Heart,
+    "Confidence": Target,
+    "Transformation": Lightbulb,
+    "Support": Heart,
+    "Intimacy": Heart,
+    "Origins": BookOpen,
+    "Safety": Target,
+    "Trust": Heart,
+    "Independence": Target,
+    "Legacy": Lightbulb
   };
 
   const IconComponent = categoryIcon[currentPrompt?.category as keyof typeof categoryIcon] || BookOpen;
