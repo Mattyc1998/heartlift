@@ -26,35 +26,14 @@ export const JournalPrompts = () => {
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [userResponse, setUserResponse] = useState("");
   const [savedEntries, setSavedEntries] = useState<UserJournalEntry[]>([]);
-  const [hasHealingKit, setHasHealingKit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
-      checkHealingKitAccess();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (hasHealingKit) {
       loadPrompts();
       loadSavedEntries();
     }
-  }, [hasHealingKit]);
-
-  const checkHealingKitAccess = async () => {
-    if (!user) return;
-    
-    try {
-      const { data: hasKit } = await supabase
-        .rpc("user_has_healing_kit", { user_uuid: user.id })
-        .single();
-      
-      setHasHealingKit(hasKit || false);
-    } catch (error) {
-      console.error('Error checking healing kit access:', error);
-    }
-  };
+  }, [user]);
 
   const loadPrompts = async () => {
     try {
@@ -338,30 +317,6 @@ export const JournalPrompts = () => {
       setUserResponse(savedEntry?.response || "");
     }
   }, [currentPromptIndex, prompts, savedEntries]);
-
-  if (!hasHealingKit) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5" />
-            Journal Prompts
-          </CardTitle>
-          <CardDescription>
-            Deep-dive prompts for self-discovery and healing
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground mb-4">
-            Healing Kit feature - Access 30 powerful journal prompts designed to guide your emotional healing journey.
-          </p>
-          <Button variant="healing" disabled>
-            Get Healing Kit
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
 
   if (prompts.length === 0) {
     return (

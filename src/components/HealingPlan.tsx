@@ -48,6 +48,11 @@ export const HealingPlan = () => {
 
       if (error) throw error;
       setHealingDays(data || []);
+      
+      // Create default healing plan if none exists
+      if (!data || data.length === 0) {
+        await createDefaultHealingPlan();
+      }
     } catch (error: any) {
       toast({
         title: "Error loading healing plan",
@@ -110,6 +115,11 @@ export const HealingPlan = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const createDefaultHealingPlan = async () => {
+    // This will be handled by a database migration
+    console.log('Creating default healing plan...');
   };
 
   const progressPercentage = (userProgress.completed_days.length / 30) * 100;
