@@ -89,9 +89,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Check subscription when user logs in
         if (session?.user && event === 'SIGNED_IN') {
           await checkSubscription();
-          // Clear all coach conversations when user logs in
-          await clearAllConversations(session.user.id);
         } else if (event === 'SIGNED_OUT') {
+          // Clear all conversations when user logs out
+          if (user) {
+            await clearAllConversations(user.id);
+          }
           setIsPremium(false);
           setHasHealingKit(false);
           setSubscriptionStatus('free');
