@@ -89,7 +89,7 @@ export const PricingSection = () => {
   const handlePremiumPurchase = async () => {
     try {
       console.log('Starting premium purchase...');
-      toast.info("Processing your premium subscription...");
+      toast.info("Redirecting to secure checkout...");
       
       // Get the current session token
       const session = await supabase.auth.getSession();
@@ -98,11 +98,8 @@ export const PricingSection = () => {
         throw new Error('No authentication token found. Please sign in again.');
       }
 
-      // Simulate in-app purchase processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // For now, directly activate premium
-      const { data, error } = await supabase.functions.invoke('test-premium', {
+      // Create Stripe checkout session
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
         headers: { Authorization: `Bearer ${session.data.session.access_token}` }
       });
       
@@ -110,11 +107,11 @@ export const PricingSection = () => {
         throw error;
       }
       
-      if (data?.success) {
-        toast.success("✅ Premium subscription activated!");
-        await checkSubscription(); // Refresh subscription status
+      if (data?.url) {
+        // Open Stripe checkout in a new tab
+        window.open(data.url, '_blank');
       } else {
-        throw new Error('Failed to activate premium subscription');
+        throw new Error('No checkout URL received');
       }
     } catch (error: any) {
       console.error('Purchase error:', error);
@@ -125,7 +122,7 @@ export const PricingSection = () => {
   const handleHealingKitPurchase = async () => {
     try {
       console.log('Starting healing kit purchase...');
-      toast.info("Processing your purchase...");
+      toast.info("Redirecting to secure checkout...");
       
       // Get the current session token
       const session = await supabase.auth.getSession();
@@ -134,11 +131,8 @@ export const PricingSection = () => {
         throw new Error('No authentication token found. Please sign in again.');
       }
 
-      // Simulate in-app purchase processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // For now, directly activate the healing kit
-      const { data, error } = await supabase.functions.invoke('test-healing-kit', {
+      // Create Stripe checkout session for healing kit
+      const { data, error } = await supabase.functions.invoke('purchase-healing-kit', {
         headers: { Authorization: `Bearer ${session.data.session.access_token}` }
       });
       
@@ -146,11 +140,11 @@ export const PricingSection = () => {
         throw error;
       }
       
-      if (data?.success) {
-        toast.success("✅ Healing Kit purchased successfully!");
-        await checkSubscription(); // Refresh subscription status
+      if (data?.url) {
+        // Open Stripe checkout in a new tab
+        window.open(data.url, '_blank');
       } else {
-        throw new Error('Failed to activate healing kit');
+        throw new Error('No checkout URL received');
       }
     } catch (error: any) {
       console.error('Purchase error:', error);
