@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Crown, Check, Home, MessageSquare } from "lucide-react";
@@ -9,42 +9,63 @@ import { useToast } from "@/hooks/use-toast";
 
 export const PremiumSuccess = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, checkSubscription } = useAuth();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const [isVerifying, setIsVerifying] = useState(true);
 
   useEffect(() => {
     const verifySubscription = async () => {
       if (!user) return;
 
-      try {
-        // Wait a moment for Stripe to process
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        
-        // Check subscription status
-        const { data, error } = await supabase.functions.invoke('check-subscription', {
-          headers: {
-            Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-          },
-        });
-
-        if (error) throw error;
-
-        if (data?.subscribed) {
+      const sessionId = searchParams.get('session_id');
+      if (!sessionId) {
+        // If no session ID, just check subscription status
+        try {
+          await checkSubscription();
           toast({
             title: "Welcome to Premium! 🎉",
             description: "Your subscription is now active. Enjoy unlimited conversations!",
           });
+        } catch (error) {
+          console.error('Error checking subscription:', error);
         }
-      } catch (error) {
+        setIsVerifying(false);
+        return;
+      }
+
+      try {
+        // Verify the premium subscription with Stripe
+        const { data, error } = await supabase.functions.invoke('verify-premium-subscription', {
+          body: { session_id: sessionId },
+        });
+
+        if (error) throw error;
+
+        if (data?.success) {
+          // Refresh auth context to update subscription status
+          await checkSubscription();
+          toast({
+            title: "Welcome to Premium! 🎉",
+            description: "Your subscription is now active. Enjoy unlimited conversations!",
+          });
+        } else {
+          throw new Error(data?.message || "Subscription verification failed");
+        }
+      } catch (error: any) {
         console.error('Error verifying subscription:', error);
+        toast({
+          title: "Verification Error",
+          description: error.message || "Failed to verify subscription. Please contact support.",
+          variant: "destructive",
+        });
       } finally {
         setIsVerifying(false);
       }
     };
 
     verifySubscription();
-  }, [user, toast]);
+  }, [user, searchParams, toast, checkSubscription]);
 
   const premiumFeatures = [
     "💬 Unlimited AI conversations with all coaches",
