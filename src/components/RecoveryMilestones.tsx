@@ -101,12 +101,12 @@ export const RecoveryMilestones = () => {
   };
 
   const isMilestoneUnlocked = (dayNumber: number) => {
-    // Day 0 is always unlocked, then each subsequent day unlocks after completing the previous
-    if (dayNumber === 0) return true;
+    // Day 0 and Day 1 are always unlocked
+    if (dayNumber === 0 || dayNumber === 1) return true;
     
-    // Check if the previous milestone is completed
+    // For subsequent days, check if previous day is completed
     const previousMilestone = milestones.find(m => m.day_number === dayNumber - 1);
-    if (!previousMilestone) return dayNumber === 1; // If no previous milestone, unlock day 1
+    if (!previousMilestone) return false;
     
     const previousProgress = getMilestoneProgress(previousMilestone.id);
     return !!previousProgress?.completed_at;

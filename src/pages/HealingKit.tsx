@@ -63,7 +63,7 @@ export default function HealingKit() {
         <div className="flex items-center justify-between mb-8">
           <Button
             variant="outline"
-            onClick={() => navigate("/?tab=coaches")}
+            onClick={() => navigate("/?tab=coaches", { replace: true })}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />

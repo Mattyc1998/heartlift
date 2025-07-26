@@ -22,7 +22,10 @@ const coachData = {
 
 const Index = () => {
   const [selectedCoach, setSelectedCoach] = useState<string>("therapist");
-  const [currentTab, setCurrentTab] = useState("home");
+  const [currentTab, setCurrentTab] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('tab') || 'home';
+  });
   const { isPremium, hasHealingKit, user, signOut } = useAuth();
 
   const handleGetStarted = () => {
