@@ -46,7 +46,7 @@ export default function AdvancedTools() {
         <div className="flex items-center justify-between mb-8">
           <Button
             variant="outline"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/?tab=coaches")}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
