@@ -59,9 +59,9 @@ export const WelcomeToPremiumModal = ({ isOpen, onClose, userName = "there" }: W
       bgColor: "from-indigo-50 to-indigo-100"
     },
     {
-      icon: Headphones,
-      title: "Priority Support",
-      description: "Fast-track support and exclusive content access",
+      icon: Sparkles,
+      title: "Recovery Milestones",
+      description: "Track your healing journey with rewards and achievement badges",
       gradient: "from-teal-400 to-teal-500",
       bgColor: "from-teal-50 to-teal-100"
     }

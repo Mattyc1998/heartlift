@@ -77,8 +77,8 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
     },
     {
       icon: Sparkles,
-      title: "💌 Priority Support",
-      description: "Priority badge, faster responses, and exclusive content",
+      title: "📊 Data Export",
+      description: "Export conversations, insights, and progress as PDF or CSV",
       gradient: "from-purple-400 to-purple-500"
     }
   ];
@@ -158,7 +158,7 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
                   </div>
                   <div className="flex items-center gap-1">
                     <Check className="w-4 h-4 text-green-500" />
-                    <span>Priority support</span>
+                    <span>Data export & insights</span>
                   </div>
                 </div>
               </div>
