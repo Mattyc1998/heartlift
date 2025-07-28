@@ -53,8 +53,8 @@ export const WelcomeToPremiumModal = ({ isOpen, onClose, userName = "there" }: W
     },
     {
       icon: Download,
-      title: "Data Export",
-      description: "Export your conversations, mood logs, and insights as PDF or CSV",
+      title: "Text Helpers",
+      description: "Message suggestions, rewriting tools, and conversation analysis",
       gradient: "from-indigo-400 to-indigo-500",
       bgColor: "from-indigo-50 to-indigo-100"
     },

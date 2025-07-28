@@ -71,7 +71,7 @@ export const PremiumSuccess = () => {
     "💬 Unlimited AI conversations with all coaches",
     "🧠 Personalized coaching and text suggestions", 
     "🛠 Advanced tools and healing plans",
-    "📊 Export your data and personalized insights"
+    "💬 Text helpers & conversation analyzer"
   ];
 
   return (

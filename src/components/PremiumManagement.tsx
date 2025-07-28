@@ -55,7 +55,7 @@ export const PremiumManagement = () => {
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span>📊 Data export & insights</span>
+            <span>💬 Text helpers & conversation analyzer</span>
           </div>
         </div>
 

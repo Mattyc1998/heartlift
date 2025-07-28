@@ -77,8 +77,8 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
     },
     {
       icon: Sparkles,
-      title: "📊 Data Export",
-      description: "Export conversations, insights, and progress as PDF or CSV",
+      title: "💬 Text Helpers",
+      description: "Message suggestions and conversation analysis tools",
       gradient: "from-purple-400 to-purple-500"
     }
   ];
@@ -158,7 +158,7 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
                   </div>
                   <div className="flex items-center gap-1">
                     <Check className="w-4 h-4 text-green-500" />
-                    <span>Data export & insights</span>
+                    <span>Text helpers & conversation analyzer</span>
                   </div>
                 </div>
               </div>
