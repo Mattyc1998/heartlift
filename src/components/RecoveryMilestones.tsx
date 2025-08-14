@@ -370,7 +370,7 @@ export const RecoveryMilestones = () => {
                 </TabsList>
                 
                 <TabsContent value="content" className="space-y-4">
-                  {selectedMilestone.reward_type === 'inspirational' && (
+                  {(selectedMilestone.reward_type === 'inspirational' || selectedMilestone.reward_type === 'badge') && (
                     <div className="space-y-4">
                       {selectedMilestone.reward_content?.quotes && (
                         <div>
@@ -406,8 +406,48 @@ export const RecoveryMilestones = () => {
                     </div>
                   )}
                   
-                  {selectedMilestone.reward_type === 'practical' && (
+                  {(selectedMilestone.reward_type === 'practical' || selectedMilestone.reward_type === 'practical_tool') && (
                     <div className="space-y-4">
+                      {selectedMilestone.reward_content?.checklists && (
+                        <div>
+                          <h4 className="font-semibold mb-2 flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4" />
+                            Daily Checklists
+                          </h4>
+                          {selectedMilestone.reward_content.checklists.map((checklist: any, checklistIndex: number) => (
+                            <Card key={checklistIndex} className="p-4 mb-3">
+                              <h5 className="font-medium mb-2">{checklist.title}</h5>
+                              <ul className="space-y-2">
+                                {checklist.items?.map((item: string, index: number) => (
+                                  <li key={index} className="flex items-center gap-2">
+                                    <CheckCircle className="w-4 h-4 text-primary" />
+                                    <span>{item}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+
+                      {selectedMilestone.reward_content?.worksheets && (
+                        <div>
+                          <h4 className="font-semibold mb-2 flex items-center gap-2">
+                            <FileText className="w-4 h-4" />
+                            Healing Worksheets
+                          </h4>
+                          {selectedMilestone.reward_content.worksheets.map((worksheet: any, worksheetIndex: number) => (
+                            <Card key={worksheetIndex} className="p-4 mb-3">
+                              <h5 className="font-medium mb-2">{worksheet.title}</h5>
+                              <p className="text-sm text-muted-foreground mb-3">{worksheet.description}</p>
+                              <div className="bg-muted/50 p-3 rounded-md">
+                                <pre className="text-sm whitespace-pre-wrap">{worksheet.content}</pre>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                      
                       {selectedMilestone.reward_content?.checklist && (
                         <div>
                           <h4 className="font-semibold mb-2 flex items-center gap-2">
