@@ -7,6 +7,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import { Auth } from "./pages/Auth";
 import { PremiumSuccess } from "./pages/PremiumSuccess";
+import { PremiumPurchase } from "./pages/PremiumPurchase";
+import { HealingKitPurchase } from "./pages/HealingKitPurchase";
 import { SubscriptionManagement } from "./pages/SubscriptionManagement";
 import HealingKit from "./pages/HealingKit";
 import AdvancedTools from "./pages/AdvancedTools";
@@ -25,6 +27,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/premium-success" element={<PremiumSuccess />} />
+            <Route path="/premium-purchase" element={<PremiumPurchase />} />
+            <Route path="/healing-kit-purchase" element={<HealingKitPurchase />} />
             <Route path="/subscription" element={<SubscriptionManagement />} />
             <Route path="/healing-kit" element={<HealingKit />} />
             <Route path="/advanced-tools" element={<AdvancedTools />} />

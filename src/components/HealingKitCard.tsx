@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,35 +12,19 @@ export const HealingKitCard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
-  const handlePurchase = async () => {
+  const handlePurchase = () => {
     if (!user) {
       toast({
         title: "Please sign in",
         description: "You need to be signed in to purchase the Healing Kit",
         variant: "destructive"
       });
+      navigate('/auth');
       return;
     }
-
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("purchase-healing-kit");
-      
-      if (error) throw error;
-      
-      if (data.url) {
-        window.open(data.url, '_blank');
-      }
-    } catch (error: any) {
-      toast({
-        title: "Purchase Error",
-        description: error.message || "Failed to start purchase process",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    navigate('/healing-kit-purchase');
   };
 
   const features = [
