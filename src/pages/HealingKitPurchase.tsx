@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,103 +7,87 @@ import { ArrowLeft, Heart, Calendar, Headphones, BookOpen, Target, Award, Sparkl
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { loadStripe, Stripe } from "@stripe/stripe-js";
 
-export const HealingKitPurchase = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const { user, checkSubscription } = useAuth();
+function HealingKitPaymentForm({ onSuccess }: { onSuccess: (piId?: string) => void }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [submitting, setSubmitting] = useState(false);
 
-  const handlePurchase = async () => {
-    if (!user) {
-      toast.error("Please sign in to continue");
-      navigate('/auth');
+  const handleSubmit = async () => {
+    if (!stripe || !elements) return;
+    setSubmitting(true);
+    const result = await stripe.confirmPayment({ elements, redirect: 'if_required' });
+    if (result.error) {
+      toast.error(result.error.message || 'Payment failed');
+      setSubmitting(false);
       return;
     }
-
-    setIsLoading(true);
-    try {
-      toast.info("Creating secure checkout session...");
-      
-      const session = await supabase.auth.getSession();
-      
-      if (!session.data.session?.access_token) {
-        throw new Error('No authentication token found. Please sign in again.');
-      }
-
-      const { data, error } = await supabase.functions.invoke('purchase-healing-kit', {
-        headers: { Authorization: `Bearer ${session.data.session.access_token}` }
-      });
-      
-      if (error) {
-        throw error;
-      }
-      
-      if (data?.url) {
-        window.open(data.url, '_blank');
-        toast.success("Checkout opened in new tab");
-      } else {
-        throw new Error('No checkout URL received');
-      }
-    } catch (error: any) {
-      console.error('Purchase error:', error);
-      toast.error("Purchase Error: " + (error.message || "Failed to process purchase"));
-    } finally {
-      setIsLoading(false);
+    const pi = result.paymentIntent;
+    if (pi && pi.id && (pi.status === 'succeeded' || pi.status === 'processing' || pi.status === 'requires_capture')) {
+      onSuccess(pi.id);
+    } else {
+      toast.info('Additional authentication may be required.');
     }
+    setSubmitting(false);
   };
 
-  const handleTestHealingKit = async () => {
-    try {
-      toast.info("Activating test healing kit...");
-      const { data, error } = await supabase.functions.invoke('test-healing-kit', {
-        headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
-      });
-      
-      if (error) throw error;
-      
-      if (data?.success) { 
-        toast.success("✅ Test Healing Kit Activated! Redirecting...");
-        await checkSubscription();
-        setTimeout(() => navigate('/healing-kit'), 1500);
-      }
-    } catch (error: any) {
-      console.error('Test healing kit error:', error);
-      toast.error("❌ Error activating test kit: " + error.message);
-    }
-  };
+  return (
+    <div className="space-y-4">
+      <PaymentElement options={{ layout: 'tabs' }} />
+      <Button onClick={handleSubmit} disabled={!stripe || submitting} className="w-full">
+        {submitting ? 'Processing…' : 'Get Healing Kit'}
+      </Button>
+    </div>
+  );
+}
 
-  const features = [
-    {
-      icon: Calendar,
-      title: "30-Day Healing Plan",
-      description: "Daily content, prompts, and challenges to guide your recovery"
-    },
-    {
-      icon: Headphones,
-      title: "Guided Meditations",
-      description: "5 professional meditations for letting go and inner peace"
-    },
-    {
-      icon: Sparkles,
-      title: "Daily Affirmations",
-      description: "Powerful affirmations to rebuild your self-worth"
-    },
-    {
-      icon: Target,
-      title: "No-Contact Tracker",
-      description: "Track your progress and maintain healthy boundaries"
-    },
-    {
-      icon: BookOpen,
-      title: "Journal Prompts",
-      description: "15 deep-dive prompts for self-discovery and healing"
-    },
-    {
-      icon: Award,
-      title: "Recovery Milestones",
-      description: "Celebrate your progress with badges and achievements"
-    }
-  ];
+export const HealingKitPurchase = () => {
+  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    (async () => {
+      try {
+        if (!user) {
+          navigate('/auth');
+          return;
+        }
+        const session = await supabase.auth.getSession();
+        const token = session.data.session?.access_token;
+        if (!token) throw new Error('Missing auth token');
+
+        const [{ data: cfg, error: cfgErr }, { data: intent, error: intentErr }] = await Promise.all([
+          supabase.functions.invoke('stripe-config', { headers: { Authorization: `Bearer ${token}` } }),
+          supabase.functions.invoke('create-healing-kit-intent', { headers: { Authorization: `Bearer ${token}` } }),
+        ]);
+        if (cfgErr) throw cfgErr;
+        if (intentErr) throw intentErr;
+        if (!cfg?.publishableKey) throw new Error('Missing publishable key');
+        if (!intent?.client_secret) throw new Error('Missing client secret');
+
+        setStripePromise(loadStripe(cfg.publishableKey));
+        setClientSecret(intent.client_secret);
+      } catch (e: any) {
+        toast.error(e.message || 'Failed to initialize payment');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [user, navigate]);
+
+  const features = useMemo(() => [
+    { icon: Calendar, title: '30-Day Healing Plan', description: 'Daily content, prompts, and challenges to guide your recovery' },
+    { icon: Headphones, title: 'Guided Meditations', description: '5 professional meditations for letting go and inner peace' },
+    { icon: Sparkles, title: 'Daily Affirmations', description: 'Powerful affirmations to rebuild your self-worth' },
+    { icon: Target, title: 'No-Contact Tracker', description: 'Track your progress and maintain healthy boundaries' },
+    { icon: BookOpen, title: 'Journal Prompts', description: '15 deep-dive prompts for self-discovery and healing' },
+    { icon: Award, title: 'Recovery Milestones', description: 'Celebrate your progress with badges and achievements' },
+  ], []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary/30 to-accent/30 p-4">
@@ -162,24 +146,28 @@ export const HealingKitPurchase = () => {
             </div>
 
             <div className="border-t pt-6 space-y-4">
-              <div className="flex gap-3">
-                <Button 
-                  variant="outline"
-                  onClick={handleTestHealingKit}
-                  className="flex-1"
-                >
-                  🧪 Try Test Version
-                </Button>
-                <Button 
-                  onClick={handlePurchase}
-                  disabled={isLoading}
-                  className="flex-2 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-semibold text-lg py-6"
-                  size="lg"
-                >
-                  {isLoading ? "Processing..." : "Get Healing Kit"}
-                </Button>
-              </div>
-              
+              {loading && <div className="text-center text-muted-foreground">Loading secure payment…</div>}
+              {!loading && stripePromise && clientSecret && (
+                <Elements stripe={stripePromise} options={{ clientSecret }}>
+                  <HealingKitPaymentForm onSuccess={async (piId) => {
+                    if (!piId) return;
+                    const session = await supabase.auth.getSession();
+                    const token = session.data.session?.access_token;
+                    const { data, error } = await supabase.functions.invoke('complete-healing-kit-payment', {
+                      body: { payment_intent_id: piId },
+                      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+                    });
+                    if (error) {
+                      toast.error(error.message);
+                      return;
+                    }
+                    if (data?.success) {
+                      toast.success('Healing Kit unlocked!');
+                      setTimeout(() => navigate('/healing-kit'), 800);
+                    }
+                  }} />
+                </Elements>
+              )}
               <div className="text-center space-y-2">
                 <p className="text-sm text-muted-foreground">
                   Secure payment processed by Stripe
