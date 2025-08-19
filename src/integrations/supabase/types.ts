@@ -568,24 +568,21 @@ export type Database = {
       visitors: {
         Row: {
           created_at: string
-          "Email Address": string | null
+          email_address: string | null
           id: number
           Name: string | null
-          Password: string | null
         }
         Insert: {
           created_at?: string
-          "Email Address"?: string | null
+          email_address?: string | null
           id?: number
           Name?: string | null
-          Password?: string | null
         }
         Update: {
           created_at?: string
-          "Email Address"?: string | null
+          email_address?: string | null
           id?: number
           Name?: string | null
-          Password?: string | null
         }
         Relationships: []
       }
