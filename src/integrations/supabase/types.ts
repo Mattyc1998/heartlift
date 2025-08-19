@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -595,22 +595,22 @@ export type Database = {
     }
     Functions: {
       get_user_daily_usage: {
-        Args: { user_uuid: string; coach_id?: string }
+        Args: { coach_id?: string; user_uuid: string }
         Returns: {
-          message_count: number
-          last_message_at: string
           can_send_message: boolean
           hours_until_reset: number
+          last_message_at: string
+          message_count: number
         }[]
       }
       increment_user_usage: {
         Args:
+          | { input_coach_id?: string; user_uuid: string }
           | { user_uuid: string }
-          | { user_uuid: string; input_coach_id?: string }
         Returns: boolean
       }
       track_premium_feature_usage: {
-        Args: { user_uuid: string; feature_name: string }
+        Args: { feature_name: string; user_uuid: string }
         Returns: undefined
       }
       user_has_healing_kit: {
