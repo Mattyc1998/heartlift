@@ -15,6 +15,22 @@ serve(async (req) => {
   try {
     const { answers, userId } = await req.json();
 
+    // Input validation for security
+    if (!answers || !Array.isArray(answers) || answers.length > 50) {
+      throw new Error('Answers must be an array and cannot exceed 50 items');
+    }
+
+    // Validate each answer
+    for (const answer of answers) {
+      if (typeof answer !== 'string' || answer.length > 500) {
+        throw new Error('Each answer must be a string and cannot exceed 500 characters');
+      }
+    }
+
+    if (!userId || typeof userId !== 'string') {
+      throw new Error('Valid user ID is required');
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''

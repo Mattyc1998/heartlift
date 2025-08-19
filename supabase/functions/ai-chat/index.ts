@@ -255,6 +255,15 @@ serve(async (req) => {
     const user = userData.user;
     const { message, coachId = "chill", conversationHistory = [], requestRegenerate = false } = await req.json() as ChatRequest;
 
+    // Input validation for security
+    if (!message || typeof message !== 'string' || message.length > 5000) {
+      throw new Error('Message must be a string and cannot exceed 5000 characters');
+    }
+
+    if (typeof coachId !== 'string' || coachId.length > 50) {
+      throw new Error('Invalid coach ID format');
+    }
+
     // Retrieve conversation history from database to ensure context
     const { data: dbHistory, error: historyError } = await supabase
       .from('conversation_history')

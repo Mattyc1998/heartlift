@@ -15,6 +15,15 @@ serve(async (req) => {
   try {
     const { conversationText, userId } = await req.json();
 
+    // Input validation for security
+    if (!conversationText || typeof conversationText !== 'string' || conversationText.length > 10000) {
+      throw new Error('Conversation text must be a string and cannot exceed 10000 characters');
+    }
+
+    if (!userId || typeof userId !== 'string') {
+      throw new Error('Valid user ID is required');
+    }
+
     const analysisPrompt = `
     Analyze this conversation between two people in a relationship context. Focus on communication patterns, emotional dynamics, and areas for improvement.
 
