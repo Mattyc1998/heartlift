@@ -57,13 +57,6 @@ export const WelcomeToPremiumModal = ({ isOpen, onClose, userName = "there" }: W
       description: "Message suggestions, rewriting tools, and conversation analysis",
       gradient: "from-indigo-400 to-indigo-500",
       bgColor: "from-indigo-50 to-indigo-100"
-    },
-    {
-      icon: Sparkles,
-      title: "Recovery Milestones",
-      description: "Track your healing journey with rewards and achievement badges",
-      gradient: "from-teal-400 to-teal-500",
-      bgColor: "from-teal-50 to-teal-100"
     }
   ];
 

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useNavigate } from "react-router-dom";
 import { AttachmentStyleQuiz } from "@/components/AttachmentStyleQuiz";
-import { RecoveryMilestones } from "@/components/RecoveryMilestones";
+
 import { ConversationAnalyzer } from "@/components/ConversationAnalyzer";
 import { TextSuggestionHelper } from "@/components/TextSuggestionHelper";
 import { PersonalizedInsights } from "@/components/PersonalizedInsights";
@@ -80,14 +80,6 @@ export default function AdvancedTools() {
               Attachment Quiz
             </Button>
             <Button
-              variant={activeSection === "milestones" ? "default" : "outline"}
-              onClick={() => setActiveSection("milestones")}
-              className="flex items-center gap-2"
-            >
-              <Target className="w-4 h-4" />
-              Recovery Milestones
-            </Button>
-            <Button
               variant={activeSection === "analyzer" ? "default" : "outline"}
               onClick={() => setActiveSection("analyzer")}
               className="flex items-center gap-2"
@@ -116,7 +108,7 @@ export default function AdvancedTools() {
 
         <div className="max-w-4xl mx-auto">
           {activeSection === "quiz" && <AttachmentStyleQuiz />}
-          {activeSection === "milestones" && <RecoveryMilestones />}
+          
           {activeSection === "analyzer" && <ConversationAnalyzer />}
           {activeSection === "suggestions" && <TextSuggestionHelper />}
           {activeSection === "insights" && <PersonalizedInsights />}

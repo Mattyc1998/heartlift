@@ -86,7 +86,6 @@ export const HealingKitPurchase = () => {
     { icon: Sparkles, title: 'Daily Affirmations', description: 'Powerful affirmations to rebuild your self-worth' },
     { icon: Target, title: 'No-Contact Tracker', description: 'Track your progress and maintain healthy boundaries' },
     { icon: BookOpen, title: 'Journal Prompts', description: '15 deep-dive prompts for self-discovery and healing' },
-    { icon: Award, title: 'Recovery Milestones', description: 'Celebrate your progress with badges and achievements' },
   ], []);
 
   return (
