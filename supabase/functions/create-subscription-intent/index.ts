@@ -47,21 +47,28 @@ serve(async (req) => {
       log("Found existing customer", { customerId });
     }
 
+    // Ensure price exists (retrieve by lookup_key or create)
+    let priceId: string | undefined;
+    const prices = await stripe.prices.list({ lookup_keys: ["premium_monthly_gbp"], active: true, limit: 1 } as any);
+    if (prices.data.length > 0) {
+      priceId = prices.data[0].id;
+      log("Found existing price", { priceId });
+    } else {
+      const price = await stripe.prices.create({
+        currency: "gbp",
+        unit_amount: 1199,
+        recurring: { interval: "month" },
+        lookup_key: "premium_monthly_gbp",
+        product_data: { name: "Premium Subscription" },
+      } as any);
+      priceId = price.id;
+      log("Created new price", { priceId });
+    }
+
     // Create subscription in incomplete state and return PI client secret
     const subscription = await stripe.subscriptions.create({
       customer: customerId,
-      items: [
-        {
-        price_data: {
-          currency: "gbp",
-          product_data: {
-            name: "Premium Subscription",
-          },
-          unit_amount: 1199,
-          recurring: { interval: "month" },
-        },
-        },
-      ],
+      items: [ { price: priceId! } ],
       payment_behavior: "default_incomplete",
       payment_settings: { save_default_payment_method: "on_subscription" },
       expand: ["latest_invoice.payment_intent"],
