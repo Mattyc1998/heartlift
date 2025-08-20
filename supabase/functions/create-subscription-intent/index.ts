@@ -52,15 +52,14 @@ serve(async (req) => {
       customer: customerId,
       items: [
         {
-          price_data: {
-            currency: "gbp",
-            product_data: {
-              name: "Premium Subscription",
-              description: "Unlimited AI conversations, personalized coaching, and advanced tools",
-            },
-            unit_amount: 1199,
-            recurring: { interval: "month" },
+        price_data: {
+          currency: "gbp",
+          product_data: {
+            name: "Premium Subscription",
           },
+          unit_amount: 1199,
+          recurring: { interval: "month" },
+        },
         },
       ],
       payment_behavior: "default_incomplete",
