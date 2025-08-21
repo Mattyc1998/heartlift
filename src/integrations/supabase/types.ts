@@ -488,6 +488,57 @@ export type Database = {
         }
         Relationships: []
       }
+      user_insights_reports: {
+        Row: {
+          analysis_period_end: string | null
+          analysis_period_start: string | null
+          attachment_style: string | null
+          conversation_count: number | null
+          created_at: string
+          healing_progress_score: number | null
+          id: string
+          insights: Json
+          key_patterns: Json | null
+          mood_entries_analyzed: number | null
+          recommendations: Json | null
+          report_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis_period_end?: string | null
+          analysis_period_start?: string | null
+          attachment_style?: string | null
+          conversation_count?: number | null
+          created_at?: string
+          healing_progress_score?: number | null
+          id?: string
+          insights?: Json
+          key_patterns?: Json | null
+          mood_entries_analyzed?: number | null
+          recommendations?: Json | null
+          report_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis_period_end?: string | null
+          analysis_period_start?: string | null
+          attachment_style?: string | null
+          conversation_count?: number | null
+          created_at?: string
+          healing_progress_score?: number | null
+          id?: string
+          insights?: Json
+          key_patterns?: Json | null
+          mood_entries_analyzed?: number | null
+          recommendations?: Json | null
+          report_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_milestone_progress: {
         Row: {
           completed_at: string | null
