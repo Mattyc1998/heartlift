@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
           return new Response('Not a password recovery email', { status: 200, headers: corsHeaders })
         }
 
-        const resetLink = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${token_hash}&type=recovery&redirect_to=${redirect_to}`
+        const resetLink = `${redirect_to}password-reset?token=${token_hash}&type=recovery`
 
         const html = await renderAsync(
           React.createElement(PasswordResetEmail, {

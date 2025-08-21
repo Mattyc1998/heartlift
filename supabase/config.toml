@@ -1,1 +1,12 @@
 project_id = "hmmimemzznsyilxqakty"
+
+[auth.email.recovery]
+enabled = true
+
+[auth.email.recovery.webhook]
+enabled = true
+url = "https://hmmimemzznsyilxqakty.supabase.co/functions/v1/send-password-reset"
+events = ["recovery"]
+
+[functions.send-password-reset]
+verify_jwt = false

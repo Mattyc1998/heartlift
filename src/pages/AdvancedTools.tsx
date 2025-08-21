@@ -2,14 +2,14 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useNavigate } from "react-router-dom";
 import { AttachmentStyleQuiz } from "@/components/AttachmentStyleQuiz";
-
+import { RecoveryMilestones } from "@/components/RecoveryMilestones";
 import { ConversationAnalyzer } from "@/components/ConversationAnalyzer";
 import { TextSuggestionHelper } from "@/components/TextSuggestionHelper";
 import { PersonalizedInsights } from "@/components/PersonalizedInsights";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Crown, Heart, Target, ArrowLeft, MessageSquare, Bot, Brain } from "lucide-react";
+import { Crown, Heart, Target, ArrowLeft, MessageSquare, Bot, Brain, Trophy } from "lucide-react";
 
 export default function AdvancedTools() {
   const { user, isPremium } = useAuth();
@@ -103,6 +103,14 @@ export default function AdvancedTools() {
               <Brain className="w-4 h-4" />
               Insights & Reports
             </Button>
+            <Button
+              variant={activeSection === "milestones" ? "default" : "outline"}
+              onClick={() => setActiveSection("milestones")}
+              className="flex items-center gap-2"
+            >
+              <Trophy className="w-4 h-4" />
+              Recovery Milestones
+            </Button>
           </div>
         </Card>
 
@@ -112,6 +120,7 @@ export default function AdvancedTools() {
           {activeSection === "analyzer" && <ConversationAnalyzer />}
           {activeSection === "suggestions" && <TextSuggestionHelper />}
           {activeSection === "insights" && <PersonalizedInsights />}
+          {activeSection === "milestones" && <RecoveryMilestones />}
         </div>
       </div>
     </div>

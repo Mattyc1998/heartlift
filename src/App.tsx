@@ -12,6 +12,7 @@ import { HealingKitPurchase } from "./pages/HealingKitPurchase";
 import { SubscriptionManagement } from "./pages/SubscriptionManagement";
 import HealingKit from "./pages/HealingKit";
 import AdvancedTools from "./pages/AdvancedTools";
+import PasswordReset from "./pages/PasswordReset";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/subscription" element={<SubscriptionManagement />} />
             <Route path="/healing-kit" element={<HealingKit />} />
             <Route path="/advanced-tools" element={<AdvancedTools />} />
+            <Route path="/password-reset" element={<PasswordReset />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
