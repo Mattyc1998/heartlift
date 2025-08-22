@@ -13,13 +13,15 @@ import {
 import * as React from 'npm:react@18.3.1'
 
 interface PasswordResetEmailProps {
-  resetLink: string
+  resetLink?: string
   userEmail: string
+  code?: string
 }
 
 export const PasswordResetEmail = ({
   resetLink,
   userEmail,
+  code,
 }: PasswordResetEmailProps) => (
   <Html>
     <Head />
@@ -41,36 +43,46 @@ export const PasswordResetEmail = ({
           </Text>
           
           <Text style={text}>
-            We received a request to reset the password for your HeartWise account ({userEmail}). 
-            If you made this request, click the button below to set a new password:
+            We received a request to reset the password for your HeartWise account ({userEmail}).
           </Text>
 
-          <Section style={buttonSection}>
-            <Link
-              href={resetLink}
-              style={button}
-            >
-              Reset My Password
-            </Link>
-          </Section>
+          {code && (
+            <>
+              <Text style={text}>Use this 6-digit verification code to continue:</Text>
+              <Section style={codeBoxSection}>
+                <div style={codeBox}>{code}</div>
+              </Section>
+              <Text style={smallText}>Enter this code on the password reset page. The code expires shortly for your security.</Text>
+              <Hr style={hr} />
+            </>
+          )}
 
-          <Text style={text}>
-            This link will expire in 24 hours for your security.
-          </Text>
+          {resetLink && (
+            <>
+              <Text style={text}>
+                Alternatively, you can click the button below to set a new password:
+              </Text>
+              <Section style={buttonSection}>
+                <Link
+                  href={resetLink}
+                  style={button}
+                >
+                  Reset My Password
+                </Link>
+              </Section>
+              <Text style={smallText}>
+                If the button doesn't work, copy and paste this URL into your browser:
+              </Text>
+              <Text style={linkText}>
+                {resetLink}
+              </Text>
+            </>
+          )}
 
           <Hr style={hr} />
 
           <Text style={smallText}>
-            If you didn't request a password reset, you can safely ignore this email. 
-            Your password will remain unchanged.
-          </Text>
-
-          <Text style={smallText}>
-            If you're having trouble clicking the button, copy and paste this URL into your browser:
-          </Text>
-          
-          <Text style={linkText}>
-            {resetLink}
+            If you didn't request a password reset, you can safely ignore this email.
           </Text>
         </Section>
 
@@ -183,6 +195,22 @@ const linkText = {
   lineHeight: '22px',
   wordBreak: 'break-all' as const,
   margin: '12px 0',
+}
+
+const codeBoxSection = {
+  textAlign: 'center' as const,
+  margin: '16px 0 8px',
+}
+
+const codeBox = {
+  display: 'inline-block',
+  padding: '12px 16px',
+  fontSize: '24px',
+  letterSpacing: '6px',
+  backgroundColor: '#f4f4f4',
+  borderRadius: '8px',
+  border: '1px solid #eee',
+  color: '#333',
 }
 
 const footerSection = {

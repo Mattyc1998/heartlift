@@ -32,12 +32,13 @@ Deno.serve(async (req) => {
       try {
         const {
           user,
-          email_data: { token_hash, redirect_to, email_action_type },
+          email_data: { token, token_hash, redirect_to, email_action_type },
         } = wh.verify(payload, headers) as {
           user: {
             email: string
           }
           email_data: {
+            token: string
             token_hash: string
             redirect_to: string
             email_action_type: string
@@ -49,12 +50,11 @@ Deno.serve(async (req) => {
           return new Response('Not a password recovery email', { status: 200, headers: corsHeaders })
         }
 
-        const resetLink = `${redirect_to}password-reset?token=${token_hash}&type=recovery`
-
+        // Build email with code-only flow
         const html = await renderAsync(
           React.createElement(PasswordResetEmail, {
-            resetLink,
             userEmail: user.email,
+            code: token,
           })
         )
 
@@ -93,11 +93,11 @@ Deno.serve(async (req) => {
     } else {
       // If no webhook secret is set, handle as a direct API call
       const body = JSON.parse(payload)
-      const { email, resetLink } = body
+      const { email, resetLink, code } = body
 
-      if (!email || !resetLink) {
+      if (!email || (!resetLink && !code)) {
         return new Response(
-          JSON.stringify({ error: 'Email and resetLink are required' }),
+          JSON.stringify({ error: 'Email and either resetLink or code are required' }),
           {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -109,6 +109,7 @@ Deno.serve(async (req) => {
         React.createElement(PasswordResetEmail, {
           resetLink,
           userEmail: email,
+          code,
         })
       )
 
