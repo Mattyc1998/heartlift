@@ -81,7 +81,7 @@ export const Auth = () => {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
-        redirectTo: `${window.location.origin}/auth`
+        redirectTo: `${window.location.origin}/password-reset`
       });
       
       if (error) {
@@ -92,11 +92,13 @@ export const Auth = () => {
         });
       } else {
         toast({
-          title: "Password reset email sent!",
-          description: "Check your email for a link to reset your password.",
+          title: "Reset code sent!",
+          description: "Check your email for a 6-digit verification code.",
         });
         setShowForgotPassword(false);
         setForgotPasswordEmail('');
+        // Navigate to password reset page with email
+        setTimeout(() => navigate(`/password-reset?email=${encodeURIComponent(forgotPasswordEmail)}`), 1000);
       }
     } catch (error) {
       toast({
@@ -260,7 +262,7 @@ export const Auth = () => {
             <CardHeader>
               <CardTitle>Reset Your Password</CardTitle>
               <CardDescription>
-                Enter your email and we'll send you a reset link
+                Enter your email and we'll send you a verification code
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -283,7 +285,7 @@ export const Auth = () => {
                     className="flex-1"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Sending..." : "Send Reset Link"}
+                    {isLoading ? "Sending..." : "Send Code"}
                   </Button>
                   <Button 
                     type="button" 
