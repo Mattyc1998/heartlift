@@ -1,7 +1,7 @@
 project_id = "hmmimemzznsyilxqakty"
 
 [auth.email.recovery]
-enabled = true
+enabled = false
 
 [auth.email.recovery.webhook]
 enabled = true
