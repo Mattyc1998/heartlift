@@ -91,13 +91,62 @@ Deno.serve(async (req) => {
         )
       }
     } else {
-      // If no webhook secret is set, handle as a direct API call
-      const body = JSON.parse(payload)
-      const { email, resetLink, code } = body
+      // If no webhook secret is set, try to handle gracefully
+      // 1) Accept unverified webhook payload shape (best-effort)
+      // 2) Accept direct API payload with { email, code } or { email, resetLink }
+      let body: any
+      try {
+        body = JSON.parse(payload)
+      } catch (_) {
+        body = null
+      }
+
+      // Unverified webhook fallback (no secret configured)
+      if (body && body.user && body.email_data) {
+        const { user, email_data } = body as {
+          user: { email: string }
+          email_data: { token: string; email_action_type: string }
+        }
+
+        if (email_data.email_action_type === 'recovery') {
+          const html = await renderAsync(
+            React.createElement(PasswordResetEmail, {
+              userEmail: user.email,
+              code: email_data.token,
+            })
+          )
+
+          const { error } = await resend.emails.send({
+            from: 'HeartWise <noreply@resend.dev>',
+            to: [user.email],
+            subject: 'Reset your HeartWise password',
+            html,
+          })
+
+          if (error) {
+            console.error('Resend error:', error)
+            throw error
+          }
+
+          console.log('[fallback] Password reset code sent to:', user.email)
+          return new Response(JSON.stringify({ success: true }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
+
+        return new Response('Ignored non-recovery email action', {
+          status: 200,
+          headers: corsHeaders,
+        })
+      }
+
+      // Direct API payload
+      const { email, resetLink, code } = body || {}
 
       if (!email || (!resetLink && !code)) {
         return new Response(
-          JSON.stringify({ error: 'Email and either resetLink or code are required' }),
+          JSON.stringify({ error: 'Invalid payload. Provide { email, code } or webhook payload.' }),
           {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
