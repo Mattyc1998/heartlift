@@ -50,14 +50,14 @@ Deno.serve(async (req) => {
           return new Response('Not a password recovery email', { status: 200, headers: corsHeaders })
         }
 
-        // Generate 6-digit code from token (first 6 digits)
-        const code = token.substring(0, 6).toUpperCase()
+        // Build reset link that points to our app
+        const resetLink = `${redirect_to || 'https://id-preview--c286f1f4-22ee-4ea1-97f0-ce26599be25f.lovable.app'}/reset-password?access_token=${token}&refresh_token=${token_hash}&type=recovery`
 
-        // Build email with code-only flow
+        // Build email with reset link
         const html = await renderAsync(
           React.createElement(PasswordResetEmail, {
             userEmail: user.email,
-            code: code,
+            resetLink: resetLink,
           })
         )
 
@@ -103,13 +103,13 @@ Deno.serve(async (req) => {
       }
 
       if (email_data.email_action_type === 'recovery') {
-        // Generate 6-digit code from token
-        const code = email_data.token.substring(0, 6).toUpperCase()
+        // Build reset link for fallback scenario
+        const resetLink = `https://id-preview--c286f1f4-22ee-4ea1-97f0-ce26599be25f.lovable.app/reset-password?access_token=${email_data.token}&type=recovery`
 
         const html = await renderAsync(
           React.createElement(PasswordResetEmail, {
             userEmail: user.email,
-            code: code,
+            resetLink: resetLink,
           })
         )
 
@@ -125,7 +125,7 @@ Deno.serve(async (req) => {
           throw error
         }
 
-        console.log('[unverified] Password reset code sent to:', user.email)
+        console.log('[unverified] Password reset link sent to:', user.email)
         return new Response(JSON.stringify({ success: true }), {
           status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -155,10 +155,12 @@ Deno.serve(async (req) => {
         }
 
         if (email_data.email_action_type === 'recovery') {
+          const resetLink = `https://id-preview--c286f1f4-22ee-4ea1-97f0-ce26599be25f.lovable.app/reset-password?access_token=${email_data.token}&type=recovery`
+          
           const html = await renderAsync(
             React.createElement(PasswordResetEmail, {
               userEmail: user.email,
-              code: email_data.token,
+              resetLink: resetLink,
             })
           )
 
@@ -174,7 +176,7 @@ Deno.serve(async (req) => {
             throw error
           }
 
-          console.log('[fallback] Password reset code sent to:', user.email)
+          console.log('[fallback] Password reset link sent to:', user.email)
           return new Response(JSON.stringify({ success: true }), {
             status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -188,11 +190,11 @@ Deno.serve(async (req) => {
       }
 
       // Direct API payload
-      const { email, resetLink, code } = body || {}
+      const { email, resetLink } = body || {}
 
-      if (!email || (!resetLink && !code)) {
+      if (!email || !resetLink) {
         return new Response(
-          JSON.stringify({ error: 'Invalid payload. Provide { email, code } or webhook payload.' }),
+          JSON.stringify({ error: 'Invalid payload. Provide { email, resetLink } or webhook payload.' }),
           {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -204,7 +206,6 @@ Deno.serve(async (req) => {
         React.createElement(PasswordResetEmail, {
           resetLink,
           userEmail: email,
-          code,
         })
       )
 

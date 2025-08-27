@@ -15,13 +15,11 @@ import * as React from 'npm:react@18.3.1'
 interface PasswordResetEmailProps {
   resetLink?: string
   userEmail: string
-  code?: string
 }
 
 export const PasswordResetEmail = ({
   resetLink,
   userEmail,
-  code,
 }: PasswordResetEmailProps) => (
   <Html>
     <Head />
@@ -46,21 +44,10 @@ export const PasswordResetEmail = ({
             We received a request to reset the password for your HeartWise account ({userEmail}).
           </Text>
 
-          {code && (
-            <>
-              <Text style={text}>Use this 6-digit verification code to continue:</Text>
-              <Section style={codeBoxSection}>
-                <div style={codeBox}>{code}</div>
-              </Section>
-              <Text style={smallText}>Enter this code on the password reset page. The code expires shortly for your security.</Text>
-              <Hr style={hr} />
-            </>
-          )}
-
           {resetLink && (
             <>
               <Text style={text}>
-                Alternatively, you can click the button below to set a new password:
+                Click the button below to set a new password:
               </Text>
               <Section style={buttonSection}>
                 <Link
@@ -195,22 +182,6 @@ const linkText = {
   lineHeight: '22px',
   wordBreak: 'break-all' as const,
   margin: '12px 0',
-}
-
-const codeBoxSection = {
-  textAlign: 'center' as const,
-  margin: '16px 0 8px',
-}
-
-const codeBox = {
-  display: 'inline-block',
-  padding: '12px 16px',
-  fontSize: '24px',
-  letterSpacing: '6px',
-  backgroundColor: '#f4f4f4',
-  borderRadius: '8px',
-  border: '1px solid #eee',
-  color: '#333',
 }
 
 const footerSection = {
