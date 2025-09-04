@@ -120,12 +120,6 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
               </span>
             </Button>
             
-            {!user && (
-              <p className="text-sm text-muted-foreground flex items-center gap-1">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                No email verification needed
-              </p>
-            )}
           </div>
           
           <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
