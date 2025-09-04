@@ -86,6 +86,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
         
+        // If Supabase logs the user in immediately after signup and email isn't verified, force sign out
+        if (event === 'SIGNED_IN' && session?.user && !session.user.email_confirmed_at) {
+          await supabase.auth.signOut();
+          return;
+        }
+        
         // Check subscription when user logs in
         if (session?.user && event === 'SIGNED_IN') {
           await checkSubscription();
@@ -148,7 +154,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -158,6 +164,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
       },
     });
+
+    // If Supabase auto-signs in after signup, immediately sign out until email is verified
+    if (data?.user && !data.user.email_confirmed_at) {
+      await supabase.auth.signOut();
+    }
+
     return { error };
   };
 
