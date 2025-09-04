@@ -71,6 +71,9 @@ export default function PasswordResetForm() {
         throw updateError;
       }
 
+      // Sign out the user so they must sign in with their new password
+      await supabase.auth.signOut();
+
       setSuccess(true);
       toast.success("Password updated successfully!");
       
