@@ -14,6 +14,7 @@ import HealingKit from "./pages/HealingKit";
 import AdvancedTools from "./pages/AdvancedTools";
 import PasswordReset from "./pages/PasswordReset";
 import PasswordResetForm from "./pages/PasswordResetForm";
+import EmailVerification from "./pages/EmailVerification";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/advanced-tools" element={<AdvancedTools />} />
             <Route path="/password-reset" element={<PasswordReset />} />
             <Route path="/reset-password" element={<PasswordResetForm />} />
+            <Route path="/verify-email" element={<EmailVerification />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -42,11 +42,11 @@ export const Auth = () => {
       });
     } else {
       toast({
-        title: "Welcome to HeartWise!",
-        description: "Your account has been created successfully!",
+        title: "Check your email!",
+        description: "We've sent you a 6-digit verification code to complete your registration.",
       });
-      // Auto-navigate to main app after successful signup
-      navigate('/');
+      // Navigate to email verification page
+      navigate(`/verify-email?email=${encodeURIComponent(signUpData.email)}`);
     }
     
     setIsLoading(false);

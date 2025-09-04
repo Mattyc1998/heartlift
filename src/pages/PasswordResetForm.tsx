@@ -74,9 +74,8 @@ export default function PasswordResetForm() {
       setSuccess(true);
       toast.success("Password updated successfully!");
       
-      // Sign out and redirect to auth page after 2 seconds
-      setTimeout(async () => {
-        await supabase.auth.signOut();
+      // Redirect to auth page after 2 seconds
+      setTimeout(() => {
         navigate("/auth");
       }, 2000);
 
