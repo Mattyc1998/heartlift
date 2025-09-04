@@ -8,5 +8,16 @@ enabled = true
 url = "https://hmmimemzznsyilxqakty.supabase.co/functions/v1/send-password-reset"
 events = ["recovery"]
 
+[auth.email.signup]
+enabled = true
+
+[auth.email.signup.webhook]
+enabled = true
+url = "https://hmmimemzznsyilxqakty.supabase.co/functions/v1/send-signup-verification"
+events = ["signup"]
+
 [functions.send-password-reset]
+verify_jwt = false
+
+[functions.send-signup-verification]
 verify_jwt = false
