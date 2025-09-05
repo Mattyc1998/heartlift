@@ -97,7 +97,10 @@ export const PremiumPurchase = () => {
       <div className="max-w-2xl mx-auto pt-8">
         <Button 
           variant="ghost" 
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            if (window.history.length > 1) navigate(-1);
+            else navigate('/advanced-tools');
+          }}
           className="mb-6 hover:bg-secondary/20"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
