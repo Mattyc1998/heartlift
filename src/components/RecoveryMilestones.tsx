@@ -78,17 +78,29 @@ export const RecoveryMilestones = () => {
 
   const fetchUserProgress = async () => {
     try {
-      const { data, error } = await supabase
-        .from('user_milestone_progress')
-        .select('milestone_id, completed_at, reward_claimed, reward_claimed_at')
-        .eq('user_id', user?.id);
+      const [progressData, healingData] = await Promise.all([
+        supabase
+          .from('user_milestone_progress')
+          .select('milestone_id, completed_at, reward_claimed, reward_claimed_at')
+          .eq('user_id', user?.id),
+        supabase
+          .from('user_healing_progress')
+          .select('current_day, completed_days')
+          .eq('user_id', user?.id)
+          .single()
+      ]);
 
-      if (error) throw error;
-      setUserProgress(data || []);
+      if (progressData.error) throw progressData.error;
+      setUserProgress(progressData.data || []);
       
-      // Calculate current day based on progress
-      const completedDays = data?.filter(p => p.completed_at).length || 0;
-      setCurrentDay(completedDays + 1);
+      // Use healing plan progress to determine current day
+      if (healingData.data) {
+        setCurrentDay(healingData.data.current_day || 1);
+      } else {
+        // Fallback to milestone progress if no healing progress exists
+        const completedDays = progressData.data?.filter(p => p.completed_at).length || 0;
+        setCurrentDay(completedDays + 1);
+      }
     } catch (error) {
       console.error('Error fetching user progress:', error);
     } finally {
@@ -104,12 +116,9 @@ export const RecoveryMilestones = () => {
     // Day 0 and Day 1 are always unlocked
     if (dayNumber === 0 || dayNumber === 1) return true;
     
-    // For subsequent days, check if previous day is completed
-    const previousMilestone = milestones.find(m => m.day_number === dayNumber - 1);
-    if (!previousMilestone) return false;
-    
-    const previousProgress = getMilestoneProgress(previousMilestone.id);
-    return !!previousProgress?.completed_at;
+    // Unlock milestones based on healing plan progress
+    // User can access milestones up to their current day in the healing plan
+    return dayNumber <= currentDay;
   };
 
   const completeMilestone = async (milestone: Milestone) => {

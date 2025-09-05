@@ -93,11 +93,11 @@ export const HealingKitPurchase = () => {
       <div className="max-w-2xl mx-auto pt-8">
         <Button 
           variant="ghost" 
-          onClick={() => navigate('/')}
+          onClick={() => navigate(-1)}
           className="mb-6 hover:bg-secondary/20"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Home
+          Back
         </Button>
 
         <Card className="relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5">
