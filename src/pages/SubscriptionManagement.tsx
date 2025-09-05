@@ -25,12 +25,12 @@ export const SubscriptionManagement = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isPremium) {
-      navigate('/');
-      return;
+    if (isPremium) {
+      fetchSubscriptionData();
+    } else {
+      setLoading(false);
     }
-    fetchSubscriptionData();
-  }, [isPremium, navigate]);
+  }, [isPremium]);
 
   const fetchSubscriptionData = async () => {
     try {
@@ -166,27 +166,165 @@ export const SubscriptionManagement = () => {
     );
   }
 
-  if (!subscriptionData) {
+  // Show account management for both free and premium users
+  const renderSubscriptionInfo = () => {
+    if (!isPremium) {
+      return (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Crown className="w-6 h-6 text-gray-500" />
+              Account Management
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                <Crown className="w-6 h-6 text-gray-500" />
+              </div>
+              <div>
+                <h3 className="font-semibold">Free Plan</h3>
+                <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
+                  Active
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <h4 className="font-medium">Current Benefits</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span>10 messages per day</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span>Basic coaching support</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-primary/5 to-secondary/5 border border-primary/20 rounded-lg p-4">
+              <h4 className="font-medium text-primary mb-2">Upgrade to Premium</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                Get unlimited conversations, advanced tools, and personalized coaching
+              </p>
+              <Button 
+                onClick={() => navigate('/premium-purchase')}
+                className="w-full"
+              >
+                <Crown className="w-4 h-4 mr-2" />
+                Upgrade Now
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (!subscriptionData) {
+      return (
+        <Card className="mb-6">
+          <CardContent className="p-8 text-center">
+            <p>Loading subscription data...</p>
+          </CardContent>
+        </Card>
+      );
+    }
+
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 p-4">
-        <div className="container mx-auto max-w-4xl pt-8">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate('/')}
-            className="mb-6"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Button>
-          <Card>
-            <CardContent className="p-8 text-center">
-              <p>No subscription data found.</p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Crown className="w-6 h-6 text-yellow-600" />
+            Subscription Management
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <Crown className="w-6 h-6 text-yellow-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Premium Plan</h3>
+                  <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+                    Active
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="w-4 h-4 text-gray-500" />
+                  <span>Started: {formatDate(subscriptionData.premium_start_date || subscriptionData.created_at)}</span>
+                </div>
+                
+                {subscriptionData.subscription_end && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Calendar className="w-4 h-4 text-gray-500" />
+                    <span>Next billing: {formatDate(subscriptionData.subscription_end)}</span>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2 text-sm">
+                  <CreditCard className="w-4 h-4 text-gray-500" />
+                  <span>Status: {subscriptionData.payment_status}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="font-medium">Premium Benefits</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>💬 Unlimited conversations</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>🧠 Personalized coaching</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>🛠 Advanced tools</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>🏆 Recovery milestone rewards</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>💬 Text helpers & conversation analyzer</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t pt-6">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+              <h4 className="font-medium text-amber-800 mb-2">Cancellation Policy</h4>
+              <p className="text-sm text-amber-700">
+                You can cancel your subscription at any time. Your access will continue until the end of your current billing period. 
+                No refunds are provided for partial periods.
+              </p>
+            </div>
+
+            <Button 
+              variant="outline" 
+              onClick={handleCancelSubscription}
+              disabled={cancelling}
+              className="w-full md:w-auto"
+            >
+              <X className="w-4 h-4 mr-2" />
+              {cancelling ? "Opening..." : "Manage Billing & Cancellation"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     );
-  }
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -208,96 +346,7 @@ export const SubscriptionManagement = () => {
           Back to Home
         </Button>
 
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Crown className="w-6 h-6 text-yellow-600" />
-              Subscription Management
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                    <Crown className="w-6 h-6 text-yellow-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Premium Plan</h3>
-                    <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
-                      Active
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="w-4 h-4 text-gray-500" />
-                    <span>Started: {formatDate(subscriptionData.premium_start_date || subscriptionData.created_at)}</span>
-                  </div>
-                  
-                  {subscriptionData.subscription_end && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="w-4 h-4 text-gray-500" />
-                      <span>Next billing: {formatDate(subscriptionData.subscription_end)}</span>
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-2 text-sm">
-                    <CreditCard className="w-4 h-4 text-gray-500" />
-                    <span>Status: {subscriptionData.payment_status}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h4 className="font-medium">Premium Benefits</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>💬 Unlimited conversations</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>🧠 Personalized coaching</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>🛠 Advanced tools</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>🏆 Recovery milestone rewards</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>💬 Text helpers & conversation analyzer</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t pt-6">
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-                <h4 className="font-medium text-amber-800 mb-2">Cancellation Policy</h4>
-                <p className="text-sm text-amber-700">
-                  You can cancel your subscription at any time. Your access will continue until the end of your current billing period. 
-                  No refunds are provided for partial periods.
-                </p>
-              </div>
-
-              <Button 
-                variant="outline" 
-                onClick={handleCancelSubscription}
-                disabled={cancelling}
-                className="w-full md:w-auto"
-              >
-                <X className="w-4 h-4 mr-2" />
-                {cancelling ? "Opening..." : "Manage Billing & Cancellation"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {renderSubscriptionInfo()}
 
         {/* Account Security Section */}
         <Card className="mb-6">
