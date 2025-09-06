@@ -13,7 +13,7 @@ export const PremiumManagement = () => {
   const navigate = useNavigate();
 
   const handleManageSubscription = () => {
-    navigate('/subscription');
+    navigate('/subscription-management');
   };
 
   const handleRefreshStatus = async () => {
