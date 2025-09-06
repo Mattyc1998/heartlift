@@ -339,11 +339,11 @@ export const SubscriptionManagement = () => {
       <div className="container mx-auto max-w-4xl pt-8">
         <Button 
           variant="ghost" 
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/?tab=coaches')}
           className="mb-6"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Home
+          Back to Coaches
         </Button>
 
         {renderSubscriptionInfo()}

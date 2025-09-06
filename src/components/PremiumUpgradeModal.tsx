@@ -30,30 +30,10 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-        },
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        // Open Stripe checkout in a new tab
-        window.open(data.url, '_blank');
-      }
-    } catch (error) {
-      console.error('Error creating checkout:', error);
-      toast({
-        title: "Error",
-        description: "Failed to start checkout. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    // Close the modal and navigate to premium purchase page
+    onClose();
+    // Navigate to premium purchase page instead of external Stripe checkout
+    window.location.href = '/premium-purchase';
   };
 
   const premiumFeatures = [
@@ -174,29 +154,6 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
             >
               <X className="w-4 h-4 mr-2" />
               Maybe later
-            </Button>
-            <Button 
-              variant="ghost" 
-              onClick={async () => {
-                try {
-                  const { data, error } = await supabase.functions.invoke('test-premium', {
-                    headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
-                  });
-                  if (error) throw error;
-                  if (data?.success) { 
-                    toast({ title: "✅ Test Premium Activated!" });
-                    onClose();
-                    setTimeout(() => window.location.reload(), 1000);
-                  }
-                } catch (error) {
-                  console.error('Test premium error:', error);
-                  toast({ title: "❌ Error activating test premium", variant: "destructive" });
-                }
-              }}
-              className="flex-1"
-              size="sm"
-            >
-              🧪 TEST Premium
             </Button>
             <Button 
               variant="warm" 
