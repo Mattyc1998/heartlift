@@ -48,11 +48,11 @@ export default function EmailVerification() {
       }
 
       setSuccess(true);
-      toast.success("Email verified successfully!");
+      toast.success("Email verified successfully! You're now signed in.");
       
-      // Redirect to sign in after 2 seconds
+      // Redirect to home after 2 seconds since user is now automatically signed in
       setTimeout(() => {
-        navigate("/auth");
+        navigate("/");
       }, 2000);
 
     } catch (error: any) {
@@ -100,7 +100,7 @@ export default function EmailVerification() {
             </div>
             <CardTitle className="text-2xl font-bold">Email Verified!</CardTitle>
             <CardDescription>
-              Your email has been successfully verified. You can now sign in to your account.
+              Your email has been successfully verified and you're now signed in!
             </CardDescription>
           </CardHeader>
         </Card>

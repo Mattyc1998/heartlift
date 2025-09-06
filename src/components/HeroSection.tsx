@@ -51,7 +51,7 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
           </h1>
           
           <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
-            Your pocket relationship therapist with personality 💖
+            Your pocket relationship wellbeing coach with personality 💖
             <br className="hidden sm:block" />
             <span className="text-base sm:text-lg">Navigate love, heartbreak, and communication with AI coaches who truly get you</span>
           </p>

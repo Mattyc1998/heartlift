@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, MessageCircle, TrendingUp, CreditCard, Crown, LogOut, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const coachData = {
@@ -27,6 +27,7 @@ const Index = () => {
     return params.get('tab') || 'home';
   });
   const { isPremium, hasHealingKit, user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const handleGetStarted = () => {
     // Set flag to indicate user is navigating from home to chat
@@ -107,6 +108,10 @@ const Index = () => {
                     {user.email}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/subscription-management')} className="cursor-pointer">
+                    <User className="w-4 h-4 mr-2" />
+                    Manage Account
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={signOut} className="text-red-600 cursor-pointer">
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign out

@@ -22,7 +22,7 @@ const coaches = [
     name: "Dr. Sage",
     icon: Brain,
     emoji: "🧠",
-    description: "Licensed therapist specializing in attachment and relationship patterns",
+    description: "Licensed relationship wellbeing coach specializing in attachment and relationship patterns",
     personality: "Compassionate, insightful, and evidence-based",
     specialties: ["Attachment styles", "Communication", "Healing trauma"],
     greeting: "I'm here to help you understand yourself better.",
