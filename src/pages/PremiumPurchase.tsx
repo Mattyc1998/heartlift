@@ -89,7 +89,7 @@ export const PremiumPurchase = () => {
     "Daily attachment style quiz with AI analysis",
     "Conversation analyzer with AI insights",
     "Text suggestion helper for all scenarios",
-    "Email support",
+    "Priority support",
   ], []);
 
   return (

@@ -40,7 +40,7 @@ const plans = [
       "Daily attachment style quiz with AI analysis",
       "Conversation analyzer with AI insights",
       "Text suggestion helper for all scenarios",
-      "Email support"
+      "Priority support"
     ],
     buttonText: "Go Premium",
     variant: "warm" as const,
@@ -58,7 +58,7 @@ const plans = [
       "Guided meditations",
       "No-contact tracker",
       "Journal prompts",
-      "Email support"
+      "Priority support"
     ],
     buttonText: "Get Healing Kit",
     variant: "healing" as const,
@@ -208,86 +208,15 @@ export const PricingSection = () => {
                     ))}
                   </ul>
 
-                   <div className="flex gap-2">
-                     {plan.name === "Premium" && (
-                       <Button 
-                         variant="outline"
-                         size="sm"
-                         onClick={async () => {
-                           console.log('Test Premium button clicked');
-                           toast.info("Activating test premium...");
-                           try {
-                             console.log('Calling test-premium function...');
-                             const { data, error } = await supabase.functions.invoke('test-premium', {
-                               headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
-                             });
-                             console.log('Response:', { data, error });
-                             if (error) {
-                               console.error('Function error:', error);
-                               toast.error("Error: " + error.message);
-                               return;
-                             }
-                             if (data?.success) { 
-                               console.log('Success! Showing toast...');
-                               toast.success("✅ Test Premium Activated! Refreshing status...");
-                               await checkSubscription(); // Refresh subscription status
-                               setTimeout(() => {
-                                 console.log('Status refreshed');
-                               }, 1000);
-                             }
-                           } catch (error) {
-                             console.error('Test premium error:', error);
-                             toast.error("❌ Error activating test premium: " + error.message);
-                           }
-                         }}
-                       >
-                         🧪 TEST
-                       </Button>
-                     )}
-                     {plan.name === "Healing Kit" && (
-                       <Button 
-                         variant="outline"
-                         size="sm"
-                         onClick={async () => {
-                           console.log('Test Healing Kit button clicked');
-                           toast.info("Activating test healing kit...");
-                           try {
-                             console.log('Calling test-healing-kit function...');
-                             const { data, error } = await supabase.functions.invoke('test-healing-kit', {
-                               headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
-                             });
-                             console.log('Response:', { data, error });
-                             if (error) {
-                               console.error('Function error:', error);
-                               toast.error("Error: " + error.message);
-                               return;
-                             }
-                             if (data?.success) { 
-                               console.log('Success! Showing toast...');
-                               toast.success("✅ Test Healing Kit Activated! Refreshing status...");
-                               await checkSubscription(); // Refresh subscription status
-                               setTimeout(() => {
-                                 console.log('Status refreshed');
-                               }, 1000);
-                             }
-                           } catch (error) {
-                             console.error('Test healing kit error:', error);
-                             toast.error("❌ Error activating test kit: " + error.message);
-                           }
-                         }}
-                       >
-                         🧪 TEST
-                       </Button>
-                     )}
-                     <Button 
-                       variant={plan.variant} 
-                       className="flex-1"
-                       size="lg"
-                       onClick={() => handlePlanClick(plan.name)}
-                     >
-                       {plan.buttonText}
-                     </Button>
-                   </div>
+                   
+                      <Button 
+                        variant={plan.variant} 
+                        className="w-full"
+                        size="lg"
+                        onClick={() => handlePlanClick(plan.name)}
+                      >
+                        {plan.buttonText}
+                      </Button>
                 </CardContent>
               </Card>
             );

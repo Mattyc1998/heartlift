@@ -40,6 +40,29 @@ serve(async (req) => {
     
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // Special case: Give automatic premium access only to matthew.crawford23@aol.com
+    if (user.email === "matthew.crawford23@aol.com") {
+      logStep("Granting automatic premium access to matthew.crawford23@aol.com");
+      await supabaseClient.from("subscribers").upsert({
+        email: user.email,
+        user_id: user.id,
+        stripe_customer_id: null,
+        subscribed: true,
+        plan_type: 'premium',
+        payment_status: 'active',
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' });
+      
+      return new Response(JSON.stringify({ 
+        subscribed: true, 
+        plan_type: 'premium',
+        payment_status: 'active'
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     // First, check if there's already a local database record (from test functions)
     const { data: existingSubscriber } = await supabaseClient
       .from("subscribers")
