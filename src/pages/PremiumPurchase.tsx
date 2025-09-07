@@ -7,78 +7,16 @@ import { ArrowLeft, Check, Sparkles, Crown, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { loadStripe, Stripe } from "@stripe/stripe-js";
-
-function PremiumPaymentForm({ onSuccess }: { onSuccess: (piId?: string) => void }) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleSubmit = async () => {
-    if (!stripe || !elements) return;
-    setSubmitting(true);
-    const result = await stripe.confirmPayment({ elements, redirect: 'if_required' });
-    if (result.error) {
-      toast.error(result.error.message || 'Payment failed');
-      setSubmitting(false);
-      return;
-    }
-    const pi = result.paymentIntent;
-    if (pi && (pi.status === 'succeeded' || pi.status === 'processing' || pi.status === 'requires_capture')) {
-      toast.success('Subscription activated!');
-      onSuccess(pi.id);
-    } else {
-      toast.info('Additional authentication may be required.');
-    }
-    setSubmitting(false);
-  };
-
-  return (
-    <div className="space-y-4">
-      <PaymentElement options={{ layout: 'tabs' }} />
-      <Button onClick={handleSubmit} disabled={!stripe || submitting} className="w-full">
-        {submitting ? 'Processing…' : 'Subscribe Now'}
-      </Button>
-    </div>
-  );
-}
 
 export const PremiumPurchase = () => {
-  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { user, checkSubscription } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
-    (async () => {
-      try {
-        if (!user) {
-          navigate('/auth');
-          return;
-        }
-        const session = await supabase.auth.getSession();
-        const token = session.data.session?.access_token;
-        if (!token) throw new Error('Missing auth token');
-
-        const [{ data: cfg, error: cfgErr }, { data: intent, error: intentErr }] = await Promise.all([
-          supabase.functions.invoke('stripe-config', { headers: { Authorization: `Bearer ${token}` } }),
-          supabase.functions.invoke('create-subscription-intent', { headers: { Authorization: `Bearer ${token}` } }),
-        ]);
-        if (cfgErr) throw cfgErr;
-        if (intentErr) throw intentErr;
-        if (!cfg?.publishableKey) throw new Error('Missing publishable key');
-        if (!intent?.client_secret) throw new Error('Missing client secret');
-
-        setStripePromise(loadStripe(cfg.publishableKey));
-        setClientSecret(intent.client_secret);
-      } catch (e: any) {
-        toast.error(e.message || 'Failed to initialize payment');
-      } finally {
-        setLoading(false);
-      }
-    })();
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
   }, [user, navigate]);
 
   const features = useMemo(() => [
@@ -150,18 +88,12 @@ export const PremiumPurchase = () => {
             </div>
 
             <div className="border-t pt-6 space-y-4">
-              {loading && <div className="text-center text-muted-foreground">Loading secure payment…</div>}
-              {!loading && stripePromise && clientSecret && (
-                <Elements stripe={stripePromise} options={{ clientSecret }}>
-                  <PremiumPaymentForm onSuccess={async () => { await checkSubscription(); navigate('/premium-success'); }} />
-                </Elements>
-              )}
               <div className="text-center space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  Secure payment processed by Stripe
+                <p className="text-lg font-medium text-foreground">
+                  To activate your Premium subscription, please contact support
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  Cancel anytime • No setup fees • Instant access
+                <p className="text-sm text-muted-foreground">
+                  Email us at support@example.com to get your Premium access activated
                 </p>
               </div>
             </div>
