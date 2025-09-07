@@ -34,7 +34,7 @@ export const HealingKitPurchase = () => {
           variant="ghost" 
           onClick={() => {
             if (window.history.length > 1) navigate(-1);
-            else navigate('/advanced-tools');
+            else navigate('/?tab=coaches');
           }}
           className="mb-6 hover:bg-secondary/20"
         >
