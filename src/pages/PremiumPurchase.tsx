@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,8 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export const PremiumPurchase = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as any)?.from as string | undefined;
   const { user } = useAuth();
 
   useEffect(() => {
@@ -36,7 +38,8 @@ export const PremiumPurchase = () => {
         <Button 
           variant="ghost" 
           onClick={() => {
-            if (window.history.length > 1) navigate(-1);
+            if (from) navigate(from, { replace: true });
+            else if (window.history.length > 1) navigate(-1);
             else navigate('/?tab=coaches');
           }}
           className="mb-6 hover:bg-secondary/20"

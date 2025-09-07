@@ -7,7 +7,7 @@ import { Crown, MessageSquare, Heart, Zap, Check, X, Sparkles } from "lucide-rea
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
+import { useNavigate, useLocation } from "react-router-dom";
 interface PremiumUpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -19,6 +19,8 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleUpgrade = async () => {
     if (!user) {

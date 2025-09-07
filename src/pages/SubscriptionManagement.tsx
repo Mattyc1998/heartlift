@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,7 @@ export const SubscriptionManagement = () => {
   const { isPremium, subscriptionStatus, checkSubscription, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (isPremium) {
@@ -210,7 +211,7 @@ export const SubscriptionManagement = () => {
                 Get unlimited conversations, advanced tools, and personalized coaching
               </p>
               <Button 
-                onClick={() => navigate('/premium-purchase')}
+                onClick={() => navigate('/premium-purchase', { state: { from: location.pathname + location.search } })}
                 className="w-full"
               >
                 <Crown className="w-4 h-4 mr-2" />
