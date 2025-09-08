@@ -18,11 +18,11 @@ export const PremiumSuccess = () => {
     const verifySubscription = async () => {
       if (!user) return;
 
-      // Always check and refresh subscription status
+      // Always check and refresh subscription status for immediate access
       try {
         await checkSubscription();
         toast({
-          title: "Welcome to Premium! 🎉",
+          title: "Premium Activated! 🎉",
           description: "Your subscription is now active. Enjoy unlimited conversations!",
         });
       } catch (error) {

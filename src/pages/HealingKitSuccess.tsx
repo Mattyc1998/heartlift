@@ -28,7 +28,7 @@ export const HealingKitSuccess = () => {
         await checkSubscription();
         setVerified(true);
         toast({
-          title: "Healing Kit Purchased! 🎉",
+          title: "Healing Kit Activated! 🎉",
           description: "Your 30-day healing journey begins now.",
         });
       } catch (error: any) {
