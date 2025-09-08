@@ -17,53 +17,34 @@ export const HealingKitSuccess = () => {
 
   useEffect(() => {
     const verifyPurchase = async () => {
-      if (!user) return;
-
-      const sessionId = searchParams.get('session_id');
-      if (!sessionId) {
-        toast({
-          title: "Error",
-          description: "No session ID found. Please try again.",
-          variant: "destructive",
-        });
-        navigate('/');
+      if (!user) {
+        navigate('/auth');
         return;
       }
 
+      // Always refresh subscription status to grant immediate access
       try {
-        // Verify the purchase with Stripe
-        const { data, error } = await supabase.functions.invoke('verify-healing-kit-purchase', {
-          body: { session_id: sessionId },
+        setIsVerifying(true);
+        await checkSubscription();
+        setVerified(true);
+        toast({
+          title: "Healing Kit Purchased! 🎉",
+          description: "Your 30-day healing journey begins now.",
         });
-
-        if (error) throw error;
-
-        if (data?.success) {
-          setVerified(true);
-          // Refresh auth context to update subscription status
-          await checkSubscription();
-          toast({
-            title: "Healing Kit Activated! 🌟",
-            description: "Your 30-day healing journey starts now!",
-          });
-        } else {
-          throw new Error(data?.message || "Purchase verification failed");
-        }
       } catch (error: any) {
         console.error('Error verifying purchase:', error);
         toast({
-          title: "Verification Error",
+          title: "Verification Error", 
           description: error.message || "Failed to verify purchase. Please contact support.",
           variant: "destructive",
         });
-        navigate('/');
       } finally {
         setIsVerifying(false);
       }
     };
 
     verifyPurchase();
-  }, [user, searchParams, toast, navigate, checkSubscription]);
+  }, [user, navigate, toast, checkSubscription]);
 
   if (isVerifying) {
     return (

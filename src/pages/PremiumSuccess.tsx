@@ -18,54 +18,22 @@ export const PremiumSuccess = () => {
     const verifySubscription = async () => {
       if (!user) return;
 
-      const sessionId = searchParams.get('session_id');
-      if (!sessionId) {
-        // If no session ID, just check subscription status
-        try {
-          await checkSubscription();
-          toast({
-            title: "Welcome to Premium! 🎉",
-            description: "Your subscription is now active. Enjoy unlimited conversations!",
-          });
-        } catch (error) {
-          console.error('Error checking subscription:', error);
-        }
-        setIsVerifying(false);
-        return;
-      }
-
+      // Always check and refresh subscription status
       try {
-        // Verify the premium subscription with Stripe
-        const { data, error } = await supabase.functions.invoke('verify-premium-subscription', {
-          body: { session_id: sessionId },
-        });
-
-        if (error) throw error;
-
-        if (data?.success) {
-          // Refresh auth context to update subscription status
-          await checkSubscription();
-          toast({
-            title: "Welcome to Premium! 🎉",
-            description: "Your subscription is now active. Enjoy unlimited conversations!",
-          });
-        } else {
-          throw new Error(data?.message || "Subscription verification failed");
-        }
-      } catch (error: any) {
-        console.error('Error verifying subscription:', error);
+        await checkSubscription();
         toast({
-          title: "Verification Error",
-          description: error.message || "Failed to verify subscription. Please contact support.",
-          variant: "destructive",
+          title: "Welcome to Premium! 🎉",
+          description: "Your subscription is now active. Enjoy unlimited conversations!",
         });
+      } catch (error) {
+        console.error('Error checking subscription:', error);
       } finally {
         setIsVerifying(false);
       }
     };
 
     verifySubscription();
-  }, [user, searchParams, toast, checkSubscription]);
+  }, [user, toast, checkSubscription]);
 
   const premiumFeatures = [
     "💬 Unlimited AI conversations with all coaches",
