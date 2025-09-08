@@ -40,7 +40,7 @@ serve(async (req) => {
       });
     }
 
-    // Update purchase status
+    // Update purchase status to completed automatically
     await supabaseAdmin
       .from('healing_kit_purchases')
       .update({ status: 'completed', purchased_at: new Date().toISOString() })
