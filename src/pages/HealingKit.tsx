@@ -4,7 +4,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { HealingKitNav } from "@/components/HealingKitNav";
 import { HealingPlan } from "@/components/HealingPlan";
 import { DailyAffirmations } from "@/components/DailyAffirmations";
-import { GuidedMeditations } from "@/components/GuidedMeditations";
+import { VisualisationPractices } from "@/components/VisualisationPractices";
 import { NoContactTracker } from "@/components/NoContactTracker";
 import { JournalPrompts } from "@/components/JournalPrompts";
 import { Card } from "@/components/ui/card";
@@ -46,8 +46,8 @@ export default function HealingKit() {
         return <HealingPlan />;
       case "affirmations":
         return <DailyAffirmations />;
-      case "meditations":
-        return <GuidedMeditations />;
+      case "visualisations":
+        return <VisualisationPractices />;
       case "tracker":
         return <NoContactTracker />;
       case "journal":

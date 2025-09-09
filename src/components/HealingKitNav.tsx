@@ -11,7 +11,7 @@ export const HealingKitNav = ({ activeSection, onSectionChange }: HealingKitNavP
   const sections = [
     { id: "plan", label: "Healing Plan", icon: Target },
     { id: "affirmations", label: "Daily Affirmations", icon: Heart },
-    { id: "meditations", label: "Guided Meditations", icon: BookOpen },
+    { id: "visualisations", label: "Visualisation Practices", icon: BookOpen },
     { id: "tracker", label: "No Contact Tracker", icon: Calendar },
     { id: "journal", label: "Journal Prompts", icon: PenTool },
   ];
