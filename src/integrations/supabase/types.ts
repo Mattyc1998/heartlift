@@ -98,36 +98,6 @@ export type Database = {
         }
         Relationships: []
       }
-      guided_meditations: {
-        Row: {
-          audio_url: string | null
-          category: string | null
-          created_at: string | null
-          description: string | null
-          duration_minutes: number | null
-          id: string
-          title: string
-        }
-        Insert: {
-          audio_url?: string | null
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          duration_minutes?: number | null
-          id?: string
-          title: string
-        }
-        Update: {
-          audio_url?: string | null
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          duration_minutes?: number | null
-          id?: string
-          title?: string
-        }
-        Relationships: []
-      }
       healing_kit_purchases: {
         Row: {
           amount: number
@@ -613,6 +583,41 @@ export type Database = {
         }
         Relationships: []
       }
+      user_visualisation_progress: {
+        Row: {
+          completed_at: string
+          created_at: string
+          exercise_id: string
+          id: string
+          reflection_notes: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          exercise_id: string
+          id?: string
+          reflection_notes?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          exercise_id?: string
+          id?: string
+          reflection_notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_visualisation_progress_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "visualisation_exercises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       visitors: {
         Row: {
           created_at: string
@@ -631,6 +636,45 @@ export type Database = {
           email_address?: string | null
           id?: number
           Name?: string | null
+        }
+        Relationships: []
+      }
+      visualisation_exercises: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          duration_minutes: number
+          id: string
+          reflection_prompts: string[]
+          steps: string[]
+          title: string
+          updated_at: string
+          variation_number: number
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          duration_minutes?: number
+          id?: string
+          reflection_prompts: string[]
+          steps: string[]
+          title: string
+          updated_at?: string
+          variation_number?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          duration_minutes?: number
+          id?: string
+          reflection_prompts?: string[]
+          steps?: string[]
+          title?: string
+          updated_at?: string
+          variation_number?: number
         }
         Relationships: []
       }

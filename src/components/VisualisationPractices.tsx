@@ -48,13 +48,13 @@ export const VisualisationPractices = () => {
   const fetchExercises = async () => {
     try {
       const { data, error } = await supabase
-        .from("visualisation_exercises")
+        .from("visualisation_exercises" as any)
         .select("*")
         .order("category", { ascending: true })
         .order("variation_number", { ascending: true });
 
       if (error) throw error;
-      setExercises(data || []);
+      setExercises((data as any[]) || []);
     } catch (error: any) {
       toast({
         title: "Error loading exercises",
@@ -71,12 +71,12 @@ export const VisualisationPractices = () => {
     
     try {
       const { data, error } = await supabase
-        .from("user_visualisation_progress")
+        .from("user_visualisation_progress" as any)
         .select("*")
         .eq("user_id", user.id);
 
       if (error) throw error;
-      setUserProgress(data || []);
+      setUserProgress((data as any[]) || []);
     } catch (error: any) {
       console.error("Error fetching progress:", error);
     }
@@ -87,7 +87,7 @@ export const VisualisationPractices = () => {
 
     try {
       const { error } = await supabase
-        .from("user_visualisation_progress")
+        .from("user_visualisation_progress" as any)
         .insert({
           user_id: user.id,
           exercise_id: exerciseId,
