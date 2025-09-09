@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Calendar, Headphones, BookOpen, Target, Award, Sparkles } from "lucide-react";
+import { Heart, Calendar, BookOpen, Target, Award, Sparkles, PenTool } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -34,9 +34,9 @@ export const HealingKitCard = () => {
       description: "Daily content, prompts, and challenges to guide your recovery"
     },
     {
-      icon: Headphones,
-      title: "Guided Meditations",
-      description: "5 professional meditations for letting go and inner peace"
+      icon: BookOpen,
+      title: "Visualisation Practices",
+      description: "Step-by-step mental imagery exercises for healing and growth"
     },
     {
       icon: Sparkles,
@@ -49,7 +49,7 @@ export const HealingKitCard = () => {
       description: "Track your progress and maintain healthy boundaries"
     },
     {
-      icon: BookOpen,
+      icon: PenTool,
       title: "Journal Prompts",
       description: "15 deep-dive prompts for self-discovery and healing"
     }
