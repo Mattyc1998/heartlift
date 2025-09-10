@@ -369,27 +369,3 @@ async function generateFallbackInsights(supabase, userId, conversationSummary, m
     { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
   );
 }
-
-  } catch (error) {
-    console.error('Error in generate-insights function:', error);
-    
-    // If we encounter an error, try to provide fallback insights
-    if (error.message?.includes('quota') || error.message?.includes('429')) {
-      try {
-        console.log('Attempting fallback insights due to quota issue');
-        return await generateFallbackInsights(supabase, userId, conversationSummary, moodSummary, attachmentStyle, attachmentDetails, analysisStart, analysisEnd);
-      } catch (fallbackError) {
-        console.error('Fallback insights also failed:', fallbackError);
-        return new Response(
-          JSON.stringify({ error: 'Service temporarily unavailable. Please try again later.' }),
-          { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-    }
-    
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
-});
