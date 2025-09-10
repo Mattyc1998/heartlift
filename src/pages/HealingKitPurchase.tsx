@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Heart, Calendar, Headphones, BookOpen, Target, Award, Sparkles } from "lucide-react";
+import { ArrowLeft, Heart, Calendar, BookOpen, Target, Award, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,10 +23,10 @@ export const HealingKitPurchase = () => {
 
   const features = useMemo(() => [
     { icon: Calendar, title: '30-Day Healing Plan', description: 'Daily content, prompts, and challenges to guide your recovery' },
-    { icon: Headphones, title: 'Guided Meditations', description: '5 professional meditations for letting go and inner peace' },
+    { icon: BookOpen, title: 'Visualisation Practices', description: 'Step-by-step mental imagery exercises for healing and growth' },
     { icon: Sparkles, title: 'Daily Affirmations', description: 'Powerful affirmations to rebuild your self-worth' },
     { icon: Target, title: 'No-Contact Tracker', description: 'Track your progress and maintain healthy boundaries' },
-    { icon: BookOpen, title: 'Journal Prompts', description: '15 deep-dive prompts for self-discovery and healing' },
+    { icon: Award, title: 'Journal Prompts', description: '15 deep-dive prompts for self-discovery and healing' },
   ], []);
 
   return (

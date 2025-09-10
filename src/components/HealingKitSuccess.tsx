@@ -116,7 +116,7 @@ export const HealingKitSuccess = () => {
                 <h4 className="font-semibold text-primary mb-1">Your Healing Journey Starts Now</h4>
                 <p className="text-sm text-muted-foreground mb-3">
                   You now have lifetime access to all premium features including your 30-day plan, 
-                  guided meditations, journal prompts, and recovery tracking tools.
+                  visualisation practices, journal prompts, and recovery tracking tools.
                 </p>
                 <p className="text-sm font-medium">
                   Ready to begin Day 1 of your healing journey?

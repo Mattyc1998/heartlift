@@ -55,7 +55,7 @@ const plans = [
     features: [
       "30-day healing plan",
       "Daily affirmations",
-      "Guided meditations",
+      "Visualisation practices",
       "No-contact tracker",
       "Journal prompts",
       "Priority support"
