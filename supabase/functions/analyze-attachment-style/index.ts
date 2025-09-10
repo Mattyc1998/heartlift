@@ -97,6 +97,7 @@ serve(async (req) => {
         healing_path: analysis.healingPath,
         triggers: analysis.triggers,
         coping_techniques: analysis.copingTechniques,
+        quiz_date: new Date().toISOString().slice(0, 10),
       });
 
     if (error) {

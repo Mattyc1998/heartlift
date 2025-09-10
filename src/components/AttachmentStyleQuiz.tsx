@@ -356,7 +356,7 @@ export const AttachmentStyleQuiz = () => {
   const checkTodayCompletion = async () => {
     if (!user) return;
     
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().slice(0, 10); // UTC date
     
     try {
       const { data, error } = await supabase
@@ -445,6 +445,22 @@ export const AttachmentStyleQuiz = () => {
       setAttachmentStyle(dominantStyle);
       setShowResults(true);
       setHasCompletedToday(true);
+
+      // Save a minimal result so it appears in history
+      if (user?.id) {
+        try {
+          await supabase
+            .from('user_attachment_results')
+            .insert({
+              user_id: user.id,
+              attachment_style: dominantStyle,
+              quiz_date: new Date().toISOString().slice(0, 10)
+            });
+          await fetchPastResults();
+        } catch (saveErr) {
+          console.error('Failed to save fallback result:', saveErr);
+        }
+      }
       
       toast({
         title: "Quiz Complete",
@@ -507,9 +523,6 @@ export const AttachmentStyleQuiz = () => {
             <div className="flex gap-3 justify-center">
               <Button onClick={() => setShowHistory(true)} variant="outline">
                 View Past Results
-              </Button>
-              <Button onClick={resetQuiz} variant="ghost">
-                Retake Today's Quiz
               </Button>
             </div>
           </CardContent>
@@ -613,10 +626,7 @@ export const AttachmentStyleQuiz = () => {
             </div>
 
             <div className="flex gap-3 justify-center">
-              <Button onClick={resetQuiz} variant="outline">
-                Take Quiz Again
-              </Button>
-              <Button onClick={() => setShowHistory(true)} variant="ghost">
+              <Button onClick={() => setShowHistory(true)} variant="outline">
                 View History
               </Button>
             </div>
@@ -775,6 +785,11 @@ export const AttachmentStyleQuiz = () => {
           <p className="text-muted-foreground mt-2">
             Questions change daily to give you deeper insights into your attachment patterns
           </p>
+          <div className="mt-3 flex justify-center">
+            <Button variant="ghost" onClick={() => setShowHistory(true)}>
+              View Past Results
+            </Button>
+          </div>
         </CardHeader>
       </Card>
 
