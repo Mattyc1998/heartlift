@@ -25,7 +25,6 @@ export const PremiumPurchase = () => {
     "Unlimited AI coach conversations",
     "Guided Programmes",
     "Personalized insights & reports",
-    "Text conversation helpers",
     "Daily attachment style quiz with AI analysis",
     "Conversation analyzer with AI insights",
     "Text suggestion helper for all scenarios",
