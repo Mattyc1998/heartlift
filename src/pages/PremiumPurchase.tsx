@@ -23,7 +23,7 @@ export const PremiumPurchase = () => {
 
   const features = useMemo(() => [
     "Unlimited AI coach conversations",
-    "Recovery milestone rewards",
+    "Guided Programmes",
     "Personalized insights & reports",
     "Text conversation helpers",
     "Daily attachment style quiz with AI analysis",
