@@ -98,6 +98,71 @@ export type Database = {
         }
         Relationships: []
       }
+      guided_program_modules: {
+        Row: {
+          created_at: string
+          id: string
+          module_number: number
+          program_id: string
+          reflection_prompt: string
+          teaching_content: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          module_number: number
+          program_id: string
+          reflection_prompt: string
+          teaching_content: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          module_number?: number
+          program_id?: string
+          reflection_prompt?: string
+          teaching_content?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guided_program_modules_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "guided_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guided_programs: {
+        Row: {
+          created_at: string
+          description: string
+          emoji: string | null
+          id: string
+          program_key: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          emoji?: string | null
+          id?: string
+          program_key: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          emoji?: string | null
+          id?: string
+          program_key?: string
+          title?: string
+        }
+        Relationships: []
+      }
       healing_kit_purchases: {
         Row: {
           amount: number
@@ -415,6 +480,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_guided_program_progress: {
+        Row: {
+          completed_at: string | null
+          completed_modules: number[] | null
+          created_at: string
+          current_module: number | null
+          id: string
+          program_completed: boolean | null
+          program_id: string
+          reflection_answers: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_modules?: number[] | null
+          created_at?: string
+          current_module?: number | null
+          id?: string
+          program_completed?: boolean | null
+          program_id: string
+          reflection_answers?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_modules?: number[] | null
+          created_at?: string
+          current_module?: number | null
+          id?: string
+          program_completed?: boolean | null
+          program_id?: string
+          reflection_answers?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_guided_program_progress_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "guided_programs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_healing_progress: {
         Row: {
