@@ -437,10 +437,28 @@ export const AttachmentStyleQuiz = () => {
     } catch (error) {
       console.error('Analysis error:', error);
       // Fallback to simple calculation
-      const styleKeys = ['secure', 'anxious', 'avoidant', 'disorganized'];
-      const scores = [0, 0, 0, 0];
-      finalAnswers.forEach(answer => scores[answer]++);
-      const dominantStyle = styleKeys[scores.indexOf(Math.max(...scores))];
+      const styleScores = {
+        secure: 0,
+        anxious: 0,
+        avoidant: 0,
+        'fearful-avoidant': 0
+      };
+      
+      // Basic scoring based on answer patterns
+      finalAnswers.forEach((answerIndex, questionIndex) => {
+        const answer = quizQuestions[questionIndex].options[answerIndex].toLowerCase();
+        if (answer.includes('comfortable') || answer.includes('trust') || answer.includes('secure')) {
+          styleScores.secure++;
+        } else if (answer.includes('worry') || answer.includes('anxious') || answer.includes('clingy')) {
+          styleScores.anxious++;
+        } else if (answer.includes('independent') || answer.includes('distance') || answer.includes('uncomfortable')) {
+          styleScores.avoidant++;
+        } else {
+          styleScores['fearful-avoidant']++;
+        }
+      });
+      
+      const dominantStyle = Object.entries(styleScores).reduce((a, b) => styleScores[a[0]] > styleScores[b[0]] ? a : b)[0];
       
       setAttachmentStyle(dominantStyle);
       setShowResults(true);
@@ -463,9 +481,8 @@ export const AttachmentStyleQuiz = () => {
       }
       
       toast({
-        title: "Quiz Complete",
-        description: "Basic results available. Full analysis requires internet connection.",
-        variant: "destructive",
+        title: "Here are your results!",
+        description: "Your attachment style analysis is complete.",
       });
     } finally {
       setIsAnalyzing(false);

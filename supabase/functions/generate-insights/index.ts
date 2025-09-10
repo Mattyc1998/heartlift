@@ -178,6 +178,8 @@ serve(async (req) => {
       // Handle quota exceeded specifically
       if (response.status === 429) {
         console.log('OpenAI quota exceeded, providing fallback insights');
+        const analysisEnd = new Date();
+        const analysisStart = thirtyDaysAgo;
         return await generateFallbackInsights(supabase, userId, conversationSummary, moodSummary, attachmentStyle, attachmentDetails, analysisStart, analysisEnd);
       }
       
@@ -247,6 +249,8 @@ serve(async (req) => {
     if (error.message?.includes('quota') || error.message?.includes('429')) {
       try {
         console.log('Attempting fallback insights due to quota issue');
+        const analysisEnd = new Date();
+        const analysisStart = thirtyDaysAgo;
         return await generateFallbackInsights(supabase, userId, conversationSummary, moodSummary, attachmentStyle, attachmentDetails, analysisStart, analysisEnd);
       } catch (fallbackError) {
         console.error('Fallback insights also failed:', fallbackError);
