@@ -174,6 +174,13 @@ serve(async (req) => {
     
     if (!response.ok) {
       console.error('OpenAI error:', aiResponse);
+      
+      // Handle quota exceeded specifically
+      if (response.status === 429) {
+        console.log('OpenAI quota exceeded, providing fallback insights');
+        return await generateFallbackInsights(supabase, userId, conversationSummary, moodSummary, attachmentStyle, attachmentDetails, analysisStart, analysisEnd);
+      }
+      
       throw new Error(`OpenAI API error: ${aiResponse.error?.message || 'Unknown error'}`);
     }
 
@@ -235,6 +242,151 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in generate-insights function:', error);
+    
+    // If we encounter an error, try to provide fallback insights
+    if (error.message?.includes('quota') || error.message?.includes('429')) {
+      try {
+        console.log('Attempting fallback insights due to quota issue');
+        return await generateFallbackInsights(supabase, userId, conversationSummary, moodSummary, attachmentStyle, attachmentDetails, analysisStart, analysisEnd);
+      } catch (fallbackError) {
+        console.error('Fallback insights also failed:', fallbackError);
+        return new Response(
+          JSON.stringify({ error: 'Service temporarily unavailable. Please try again later.' }),
+          { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+    
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+});
+
+// Fallback insights function when OpenAI is unavailable
+async function generateFallbackInsights(supabase, userId, conversationSummary, moodSummary, attachmentStyle, attachmentDetails, analysisStart, analysisEnd) {
+  console.log('Generating fallback insights');
+  
+  // Generate basic insights based on available data
+  const insights = {
+    emotionalPatterns: [
+      "Shows engagement in personal growth through coach conversations",
+      "Demonstrates commitment to healing journey",
+      "Active participation in mood tracking and self-reflection"
+    ],
+    communicationStyle: "Engaged and seeking guidance from coaches",
+    relationshipGoals: [
+      "Improving emotional well-being",
+      "Building healthier relationship patterns",
+      "Developing better self-awareness"
+    ],
+    healingProgressScore: Math.min(75, Math.max(25, (conversationSummary.length * 5) + (moodSummary.length * 3))),
+    keyInsights: {
+      strengths: [
+        "Actively seeking help and guidance",
+        "Committed to personal growth",
+        "Willing to engage in self-reflection"
+      ],
+      areasForGrowth: [
+        "Continue building emotional awareness",
+        "Practice implementing coaching advice",
+        "Maintain consistency in healing practices"
+      ],
+      progressSigns: [
+        "Regular engagement with coaches",
+        "Consistent mood tracking",
+        "Growing self-awareness"
+      ]
+    },
+    personalizedRecommendations: [
+      {
+        category: "Communication",
+        recommendation: "Continue regular check-ins with coaches to maintain momentum",
+        why: "Consistent guidance helps reinforce positive changes"
+      },
+      {
+        category: "Emotional Regulation",
+        recommendation: "Use daily mood tracking to identify patterns",
+        why: "Awareness of emotional patterns is the first step to managing them"
+      },
+      {
+        category: "Relationship Building",
+        recommendation: "Practice applying insights from coach conversations in daily life",
+        why: "Real-world application helps integrate new relationship skills"
+      }
+    ],
+    moodTrends: {
+      pattern: moodSummary.length > 0 ? "Regular mood tracking shows commitment to self-awareness" : "Consider starting regular mood tracking",
+      triggers: ["Relationship challenges", "Personal growth moments"],
+      improvements: ["Increased self-awareness", "Better emotional vocabulary"]
+    },
+    nextSteps: [
+      "Continue regular coach conversations",
+      "Implement one new insight from recent coaching sessions",
+      "Maintain consistent mood tracking"
+    ]
+  };
+
+  // Save fallback insights to database
+  const { data: savedInsight, error: saveError } = await supabase
+    .from('user_insights_reports')
+    .insert({
+      user_id: userId,
+      report_type: 'conversation_analysis',
+      insights: insights,
+      conversation_count: conversationSummary.length,
+      mood_entries_analyzed: moodSummary.length,
+      attachment_style: attachmentStyle,
+      healing_progress_score: insights.healingProgressScore,
+      key_patterns: insights.emotionalPatterns,
+      recommendations: insights.personalizedRecommendations,
+      analysis_period_start: analysisStart.toISOString(),
+      analysis_period_end: analysisEnd.toISOString()
+    })
+    .select()
+    .single();
+
+  if (saveError) {
+    console.error('Error saving fallback insights:', saveError);
+    throw saveError;
+  }
+
+  // Track premium feature usage
+  await supabase.rpc('track_premium_feature_usage', {
+    user_uuid: userId,
+    feature_name: 'personalized_insights'
+  });
+
+  return new Response(
+    JSON.stringify({ 
+      success: true, 
+      insights: insights,
+      reportId: savedInsight.id,
+      analysisDate: analysisEnd.toISOString(),
+      fallback: true
+    }),
+    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
+}
+
+  } catch (error) {
+    console.error('Error in generate-insights function:', error);
+    
+    // If we encounter an error, try to provide fallback insights
+    if (error.message?.includes('quota') || error.message?.includes('429')) {
+      try {
+        console.log('Attempting fallback insights due to quota issue');
+        return await generateFallbackInsights(supabase, userId, conversationSummary, moodSummary, attachmentStyle, attachmentDetails, analysisStart, analysisEnd);
+      } catch (fallbackError) {
+        console.error('Fallback insights also failed:', fallbackError);
+        return new Response(
+          JSON.stringify({ error: 'Service temporarily unavailable. Please try again later.' }),
+          { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+    
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

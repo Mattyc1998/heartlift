@@ -100,7 +100,11 @@ export const PersonalizedInsights = () => {
       
     } catch (error) {
       console.error('Error generating insights:', error);
-      toast.error("Failed to generate insights. Please try again.");
+      if (error.message?.includes('quota') || error.message?.includes('503')) {
+        toast.error("AI insights are temporarily unavailable due to high demand. Please try again later.");
+      } else {
+        toast.error("Failed to generate insights. Please try again.");
+      }
     } finally {
       setIsGenerating(false);
     }

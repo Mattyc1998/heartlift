@@ -5,7 +5,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Heart, Users, Shield, Lightbulb, Calendar, BookOpen, Target, Loader2 } from "lucide-react";
+import { Heart, Users, Shield, Lightbulb, Calendar, BookOpen, Target, Loader2, Clock, CheckCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -313,11 +313,22 @@ const questionSets = [
   ]
 ];
 
-const getDailyQuestions = (): QuizQuestion[] => {
+const getDailyQuestions = (): { questions: QuizQuestion[], setNumber: number, nextChangeTime: Date } => {
   // Get days since epoch, this ensures consistent daily rotation
-  const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+  const now = new Date();
+  const daysSinceEpoch = Math.floor(now.getTime() / (1000 * 60 * 60 * 24));
   const setIndex = daysSinceEpoch % questionSets.length;
-  return questionSets[setIndex];
+  
+  // Calculate next change time (midnight tomorrow)
+  const nextChange = new Date(now);
+  nextChange.setDate(nextChange.getDate() + 1);
+  nextChange.setHours(0, 0, 0, 0);
+  
+  return {
+    questions: questionSets[setIndex],
+    setNumber: setIndex + 1,
+    nextChangeTime: nextChange
+  };
 };
 
 export const AttachmentStyleQuiz = () => {
@@ -332,12 +343,35 @@ export const AttachmentStyleQuiz = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [pastResults, setPastResults] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [hasCompletedToday, setHasCompletedToday] = useState(false);
   
-  const quizQuestions = getDailyQuestions();
+  const dailyQuizData = getDailyQuestions();
+  const quizQuestions = dailyQuizData.questions;
 
   useEffect(() => {
     fetchPastResults();
+    checkTodayCompletion();
   }, [user]);
+
+  const checkTodayCompletion = async () => {
+    if (!user) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_attachment_results')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('quiz_date', today)
+        .limit(1);
+
+      if (error) throw error;
+      setHasCompletedToday(data && data.length > 0);
+    } catch (error) {
+      console.error('Error checking today completion:', error);
+    }
+  };
 
   const fetchPastResults = async () => {
     if (!user) return;
@@ -392,6 +426,7 @@ export const AttachmentStyleQuiz = () => {
       setAttachmentStyle(data.attachmentStyle);
       setAnalysis(data.analysis);
       setShowResults(true);
+      setHasCompletedToday(true);
       fetchPastResults(); // Refresh past results
 
       toast({
@@ -409,6 +444,7 @@ export const AttachmentStyleQuiz = () => {
       
       setAttachmentStyle(dominantStyle);
       setShowResults(true);
+      setHasCompletedToday(true);
       
       toast({
         title: "Quiz Complete",
@@ -428,6 +464,94 @@ export const AttachmentStyleQuiz = () => {
     setAttachmentStyle("");
     setAnalysis(null);
   };
+
+  const formatTimeUntilNext = (nextTime: Date): string => {
+    const now = new Date();
+    const diff = nextTime.getTime() - now.getTime();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  };
+
+  // Show completion status if user has completed today's quiz
+  if (hasCompletedToday && !showResults) {
+    return (
+      <div className="space-y-6 max-w-4xl mx-auto">
+        <Card>
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className="p-4 rounded-full bg-green-100">
+                <CheckCircle className="w-8 h-8 text-green-600" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl">Daily Quiz Completed!</CardTitle>
+            <div className="flex items-center justify-center gap-4 mt-4">
+              <Badge variant="outline" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Today's Set #{dailyQuizData.setNumber}
+              </Badge>
+              <Badge variant="secondary" className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                Next: {formatTimeUntilNext(dailyQuizData.nextChangeTime)}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4 text-center">
+            <p className="text-muted-foreground">
+              You've completed today's attachment style quiz. Check back tomorrow for new questions!
+            </p>
+            <div className="flex gap-3 justify-center">
+              <Button onClick={() => setShowHistory(true)} variant="outline">
+                View Past Results
+              </Button>
+              <Button onClick={resetQuiz} variant="ghost">
+                Retake Today's Quiz
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Show history modal */}
+        {showHistory && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Quiz History</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {pastResults.length > 0 ? (
+                <div className="space-y-4">
+                  {pastResults.map((result, index) => (
+                    <div key={result.id} className="flex justify-between items-center p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">{result.attachment_style}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(result.quiz_date).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <Badge variant="outline">{result.attachment_style}</Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground">No past results available.</p>
+              )}
+              <Button 
+                onClick={() => setShowHistory(false)} 
+                variant="outline" 
+                className="mt-4 w-full"
+              >
+                Close
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  }
 
   if (isAnalyzing) {
     return (
@@ -461,9 +585,41 @@ export const AttachmentStyleQuiz = () => {
             <Badge variant="secondary" className="text-lg px-4 py-2">
               {style.name}
             </Badge>
+            <div className="flex items-center justify-center gap-4 mt-4">
+              <Badge variant="outline" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Set #{dailyQuizData.setNumber}
+              </Badge>
+              <Badge variant="secondary" className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                Next: {formatTimeUntilNext(dailyQuizData.nextChangeTime)}
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent className="space-y-6">
             <p className="text-muted-foreground text-center">{style.description}</p>
+            
+            {/* Core Characteristics */}
+            <div>
+              <h4 className="font-medium mb-3">Key Characteristics</h4>
+              <div className="grid md:grid-cols-2 gap-2">
+                {style.characteristics.map((char, index) => (
+                  <div key={index} className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
+                    {char}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-center">
+              <Button onClick={resetQuiz} variant="outline">
+                Take Quiz Again
+              </Button>
+              <Button onClick={() => setShowHistory(true)} variant="ghost">
+                View History
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -507,33 +663,18 @@ export const AttachmentStyleQuiz = () => {
               </CardContent>
             </Card>
 
-            {/* Healing Path */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  📖 Your Personalized Healing Path
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground leading-relaxed">{analysis.healingPath}</p>
-              </CardContent>
-            </Card>
-
-            {/* Triggers & Coping */}
+            {/* Triggers and Coping */}
             <div className="grid md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    🎯 Triggers to Watch For
+                    ⚡ Common Triggers
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
                     {analysis.triggers.map((trigger, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0" />
-                        <span className="text-sm text-muted-foreground">{trigger}</span>
-                      </li>
+                      <li key={index} className="text-sm">• {trigger}</li>
                     ))}
                   </ul>
                 </CardContent>
@@ -542,84 +683,68 @@ export const AttachmentStyleQuiz = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    🛠 Coping Techniques
+                    🛠️ Coping Techniques
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {analysis.copingTechniques.map((technique, index) => (
-                      <div key={index} className="border rounded p-3">
-                        <h5 className="font-medium text-sm mb-1">{technique.technique}</h5>
+                      <div key={index} className="border-l-2 border-primary pl-3">
+                        <h5 className="font-medium text-sm">{technique.technique}</h5>
                         <p className="text-xs text-muted-foreground mb-1">{technique.description}</p>
-                        <p className="text-xs italic text-primary">Example: {technique.example}</p>
+                        <p className="text-xs italic">Example: {technique.example}</p>
                       </div>
                     ))}
                   </div>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Healing Path */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  🌱 Your Personalized Healing Path
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm leading-relaxed">{analysis.healingPath}</p>
+              </CardContent>
+            </Card>
           </>
         )}
 
-        {/* Basic characteristics for fallback */}
-        {!analysis && (
+        {/* Show history modal */}
+        {showHistory && (
           <Card>
             <CardHeader>
-              <CardTitle>Key Characteristics</CardTitle>
+              <CardTitle>Your Quiz History</CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2">
-                {style.characteristics.map((characteristic, index) => (
-                  <li key={index} className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-primary"></div>
-                    <span className="text-sm">{characteristic}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Past Results & Actions */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Button onClick={resetQuiz} variant="outline" className="flex-1">
-            <Target className="w-4 h-4 mr-2" />
-            Take Today's Quiz Again (5 Questions)
-          </Button>
-          <Button 
-            onClick={() => setShowHistory(!showHistory)} 
-            variant="outline" 
-            className="flex-1"
-          >
-            <Calendar className="w-4 h-4 mr-2" />
-            View Past Results ({pastResults.length})
-          </Button>
-        </div>
-
-        {/* Past Results History */}
-        {showHistory && pastResults.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5" />
-                Your Attachment Style History
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {pastResults.map((result, index) => (
-                  <div key={result.id} className="flex items-center justify-between p-3 border rounded">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">{result.attachment_style}</Badge>
-                        <span className="text-sm text-muted-foreground">
+              {pastResults.length > 0 ? (
+                <div className="space-y-4">
+                  {pastResults.map((result, index) => (
+                    <div key={result.id} className="flex justify-between items-center p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">{result.attachment_style}</p>
+                        <p className="text-sm text-muted-foreground">
                           {new Date(result.quiz_date).toLocaleDateString()}
-                        </span>
+                        </p>
                       </div>
+                      <Badge variant="outline">{result.attachment_style}</Badge>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground">No past results available.</p>
+              )}
+              <Button 
+                onClick={() => setShowHistory(false)} 
+                variant="outline" 
+                className="mt-4 w-full"
+              >
+                Close
+              </Button>
             </CardContent>
           </Card>
         )}
@@ -627,45 +752,72 @@ export const AttachmentStyleQuiz = () => {
     );
   }
 
+  // Show the quiz
   return (
-    <Card className="border-2 border-primary/20">
-      <CardHeader>
-        <div className="flex items-center justify-between mb-2">
-          <CardTitle>Daily Attachment Style Quiz</CardTitle>
-          <Badge variant="outline">Today's Questions</Badge>
-        </div>
-        <div className="flex items-center gap-2">
-          <Progress value={((currentQuestion + 1) / quizQuestions.length) * 100} className="flex-1" />
-          <span className="text-sm text-muted-foreground">
-            {currentQuestion + 1} of {quizQuestions.length}
-          </span>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div>
-          <h3 className="font-semibold mb-4">{quizQuestions[currentQuestion].question}</h3>
-          <RadioGroup value={selectedAnswer} onValueChange={setSelectedAnswer}>
-            {quizQuestions[currentQuestion].options.map((option, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-                <Label htmlFor={`option-${index}`} className="text-sm cursor-pointer">
-                  {option}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
-        </div>
+    <div className="space-y-6 max-w-2xl mx-auto">
+      {/* Quiz Header */}
+      <Card>
+        <CardHeader className="text-center">
+          <CardTitle className="flex items-center justify-center gap-2">
+            <Heart className="w-6 h-6 text-primary" />
+            Daily Attachment Style Quiz
+          </CardTitle>
+          <div className="flex items-center justify-center gap-4 mt-4">
+            <Badge variant="outline" className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Today's Set #{dailyQuizData.setNumber}
+            </Badge>
+            <Badge variant="secondary" className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              New questions in {formatTimeUntilNext(dailyQuizData.nextChangeTime)}
+            </Badge>
+          </div>
+          <p className="text-muted-foreground mt-2">
+            Questions change daily to give you deeper insights into your attachment patterns
+          </p>
+        </CardHeader>
+      </Card>
 
-        <div className="flex justify-center">
+      {/* Quiz Progress */}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">
+              Question {currentQuestion + 1} of {quizQuestions.length}
+            </span>
+            <Badge variant="outline">
+              {Math.round(((currentQuestion + 1) / quizQuestions.length) * 100)}%
+            </Badge>
+          </div>
+          <Progress value={((currentQuestion + 1) / quizQuestions.length) * 100} className="mt-2" />
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <h3 className="text-xl font-semibold mb-4">
+              {quizQuestions[currentQuestion].question}
+            </h3>
+            
+            <RadioGroup value={selectedAnswer} onValueChange={setSelectedAnswer}>
+              {quizQuestions[currentQuestion].options.map((option, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <RadioGroupItem value={index.toString()} id={`option-${index}`} />
+                  <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">
+                    {option}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+          
           <Button 
             onClick={handleAnswer} 
             disabled={!selectedAnswer}
-            className="min-w-24"
+            className="w-full"
           >
-            {currentQuestion < quizQuestions.length - 1 ? "Next" : "Get AI Analysis"}
+            {currentQuestion < quizQuestions.length - 1 ? 'Next Question' : 'Complete Quiz'}
           </Button>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
