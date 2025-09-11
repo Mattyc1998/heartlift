@@ -337,7 +337,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
           message: userMessage.content,
-          coachId: coachPersonality,
+          coachId: coachName,
           conversationHistory: messages.slice(0, messageIndex - 1).map(m => ({
             role: m.sender === 'user' ? 'user' : 'assistant',
             content: m.content
