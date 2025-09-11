@@ -63,9 +63,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       // Check premium status
+      const session = await supabase.auth.getSession();
+      if (!session.data.session?.access_token) {
+        console.log('[AuthContext] No valid session token for subscription check');
+        return;
+      }
+      
       const { data, error } = await supabase.functions.invoke('check-subscription', {
         headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          Authorization: `Bearer ${session.data.session.access_token}`,
         },
       });
 
