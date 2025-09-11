@@ -173,7 +173,7 @@ const Index = () => {
               </div>
               <div className="lg:col-span-2 lg:order-2">
                 <ChatInterface 
-                  coachName={selectedCoach}
+                  coachName={coachData[selectedCoach as keyof typeof coachData]?.name || "Dr. Sage"}
                   coachPersonality={coachData[selectedCoach as keyof typeof coachData]?.personality || "therapist"}
                   coachGreeting={coachData[selectedCoach as keyof typeof coachData]?.greeting || "I'm here to help you understand yourself better."}
                 />
