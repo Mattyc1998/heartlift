@@ -41,27 +41,51 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
   const premiumFeatures = [
     {
       icon: MessageSquare,
-      title: "💬 Unlimited AI Conversations",
-      description: "Remove message limits and switch between all coaches freely",
+      title: "Unlimited AI coach conversations",
+      description: "Remove message limits and chat freely with all your coaches",
       gradient: "from-blue-400 to-blue-500"
     },
     {
       icon: Heart,
-      title: "🔄 Regenerate AI Responses",
+      title: "Regenerate AI responses",
       description: "Get new responses from your coach if you want a different perspective",
       gradient: "from-emerald-400 to-emerald-500"
     },
     {
       icon: Zap,
-      title: "🛠 Advanced Tools",
-      description: "Break-up healing plan, attachment style quiz, and recovery timeline",
+      title: "Guided Programmes",
+      description: "Access structured healing programs and recovery plans",
       gradient: "from-orange-400 to-orange-500"
     },
     {
       icon: Sparkles,
-      title: "💬 Text Helpers & Analysis",
-      description: "Message suggestions, conversation analysis, and personalized insights",
+      title: "Personalized insights & reports",
+      description: "Get detailed analysis and custom reports on your progress",
       gradient: "from-purple-400 to-purple-500"
+    },
+    {
+      icon: Crown,
+      title: "Daily attachment style quiz with AI analysis",
+      description: "Take daily quizzes with personalized AI insights on your attachment patterns",
+      gradient: "from-pink-400 to-pink-500"
+    },
+    {
+      icon: MessageSquare,
+      title: "Conversation analyzer with AI insights",
+      description: "Get AI-powered analysis of your conversations and relationships",
+      gradient: "from-indigo-400 to-indigo-500"
+    },
+    {
+      icon: Heart,
+      title: "Text suggestion helper for all scenarios",
+      description: "Get AI-powered text suggestions for difficult conversations",
+      gradient: "from-green-400 to-green-500"
+    },
+    {
+      icon: Zap,
+      title: "Priority support",
+      description: "Get faster response times and priority customer support",
+      gradient: "from-yellow-400 to-yellow-500"
     }
   ];
 
@@ -85,7 +109,7 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh]">
+      <DialogContent className="max-w-4xl max-h-[85vh]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
             <Crown className="w-6 h-6 text-yellow-500" />
@@ -101,7 +125,7 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
             </Badge>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {premiumFeatures.map((feature, index) => (
               <Card key={index} className="border-0 shadow-card hover:shadow-warm transition-all duration-300 group">
                 <CardHeader className="pb-3">
@@ -109,13 +133,13 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
                     <div className={`p-2 rounded-lg bg-gradient-to-r ${feature.gradient}`}>
                       <feature.icon className="w-5 h-5 text-white" />
                     </div>
-                    <CardTitle className="text-base group-hover:text-primary transition-colors">
+                    <CardTitle className="text-sm group-hover:text-primary transition-colors">
                       {feature.title}
                     </CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  <p className="text-xs text-muted-foreground">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -129,18 +153,22 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
                   <p className="text-sm text-muted-foreground">Cancel anytime • No hidden fees</p>
                 </div>
                 
-                <div className="flex items-center justify-center gap-6 text-sm">
+                <div className="flex items-center justify-center gap-4 text-sm flex-wrap">
                   <div className="flex items-center gap-1">
                     <Check className="w-4 h-4 text-green-500" />
-                    <span>Unlimited messages</span>
+                    <span>Unlimited conversations</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Check className="w-4 h-4 text-green-500" />
-                    <span>Advanced tools</span>
+                    <span>AI insights & analysis</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Check className="w-4 h-4 text-green-500" />
-                    <span>Text helpers & conversation analyzer</span>
+                    <span>Guided programmes</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Check className="w-4 h-4 text-green-500" />
+                    <span>Priority support</span>
                   </div>
                 </div>
               </div>
