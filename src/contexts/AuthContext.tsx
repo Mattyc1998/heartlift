@@ -29,9 +29,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isPremium, setIsPremium] = useState(false);
-  const [hasHealingKit, setHasHealingKit] = useState(false);
-  const [subscriptionStatus, setSubscriptionStatus] = useState<'free' | 'premium'>('free');
+  // Initialize with cached values to eliminate delays
+  const [isPremium, setIsPremium] = useState(() => {
+    const cached = localStorage.getItem('isPremium');
+    return cached ? JSON.parse(cached) : false;
+  });
+  const [hasHealingKit, setHasHealingKit] = useState(() => {
+    const cached = localStorage.getItem('hasHealingKit');
+    return cached ? JSON.parse(cached) : false;
+  });
+  const [subscriptionStatus, setSubscriptionStatus] = useState<'free' | 'premium'>(() => {
+    const cached = localStorage.getItem('subscriptionStatus');
+    return cached ? JSON.parse(cached) : 'free';
+  });
 
   const clearAllConversations = async (userId: string) => {
     try {
@@ -59,8 +69,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (!error && data) {
-        setIsPremium(data.subscribed || false);
-        setSubscriptionStatus(data.plan_type || 'free');
+        const premiumStatus = data.subscribed || false;
+        const planType = data.plan_type || 'free';
+        setIsPremium(premiumStatus);
+        setSubscriptionStatus(planType);
+        // Cache premium status for immediate access
+        localStorage.setItem('isPremium', JSON.stringify(premiumStatus));
+        localStorage.setItem('subscriptionStatus', JSON.stringify(planType));
       }
 
       // Check healing kit access using the database function
@@ -69,7 +84,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (!healingKitError) {
         console.log('[AuthContext] Healing kit status:', healingKitData);
-        setHasHealingKit(healingKitData || false);
+        const healingKitStatus = healingKitData || false;
+        setHasHealingKit(healingKitStatus);
+        // Cache healing kit status for immediate access
+        localStorage.setItem('hasHealingKit', JSON.stringify(healingKitStatus));
       } else {
         console.error('[AuthContext] Error checking healing kit:', healingKitError);
       }
@@ -103,6 +121,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setIsPremium(false);
           setHasHealingKit(false);
           setSubscriptionStatus('free');
+          // Clear cached status
+          localStorage.removeItem('isPremium');
+          localStorage.removeItem('hasHealingKit');
+          localStorage.removeItem('subscriptionStatus');
         }
       }
     );

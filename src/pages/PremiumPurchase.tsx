@@ -98,6 +98,18 @@ export const PremiumPurchase = () => {
                 </p>
               </div>
             </div>
+
+            {/* Additional Purchase Options */}
+            <div className="border-t pt-6 space-y-4">
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button variant="outline" className="flex-1 sm:flex-none">
+                  Buy Premium
+                </Button>
+                <Button variant="outline" className="flex-1 sm:flex-none">
+                  Buy Healing Kit
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

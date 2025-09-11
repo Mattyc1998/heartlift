@@ -61,13 +61,21 @@ export const GuidedPrograms = () => {
   const [showCompletion, setShowCompletion] = useState(false);
   const [completedProgram, setCompletedProgram] = useState<GuidedProgram | null>(null);
   const [loading, setLoading] = useState(true);
+  const [autoSaveTimer, setAutoSaveTimer] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (user && isPremium) {
       fetchPrograms();
       fetchUserProgress();
     }
-  }, [user, isPremium]);
+    
+    // Cleanup auto-save timer on unmount
+    return () => {
+      if (autoSaveTimer) {
+        clearTimeout(autoSaveTimer);
+      }
+    };
+  }, [user, isPremium, autoSaveTimer]);
 
   const fetchPrograms = async () => {
     try {
@@ -166,7 +174,7 @@ export const GuidedPrograms = () => {
     }
   };
 
-  const saveReflection = async () => {
+  const saveReflection = async (showToast = true) => {
     if (!currentModule || !selectedProgram || !user) return;
 
     const progress = userProgress[selectedProgram.id];
@@ -185,20 +193,43 @@ export const GuidedPrograms = () => {
 
       if (error) throw error;
       
-      toast({
-        title: "Reflection Saved",
-        description: "Your reflection has been saved successfully"
-      });
+      if (showToast) {
+        toast({
+          title: "Reflection Saved",
+          description: "Your reflection has been saved successfully"
+        });
+      }
       
       await fetchUserProgress();
     } catch (error) {
       console.error('Error saving reflection:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save reflection",
-        variant: "destructive"
-      });
+      if (showToast) {
+        toast({
+          title: "Error",
+          description: "Failed to save reflection",
+          variant: "destructive"
+        });
+      }
     }
+  };
+
+  // Auto-save reflection when user types
+  const handleReflectionChange = (value: string) => {
+    setReflectionAnswer(value);
+    
+    // Clear existing timer
+    if (autoSaveTimer) {
+      clearTimeout(autoSaveTimer);
+    }
+    
+    // Set new timer to auto-save after 2 seconds of inactivity
+    const newTimer = setTimeout(() => {
+      if (value.trim()) {
+        saveReflection(false); // Don't show toast for auto-save
+      }
+    }, 2000);
+    
+    setAutoSaveTimer(newTimer);
   };
 
   const completeModule = async () => {
@@ -397,7 +428,12 @@ export const GuidedPrograms = () => {
       <div className="flex items-center gap-4">
         <Button
           variant="outline"
-          onClick={() => {
+          onClick={async () => {
+            // Auto-save current reflection before going back
+            if (reflectionAnswer.trim() && currentModule) {
+              await saveReflection(false);
+            }
+            
             setSelectedProgram(null);
             setCurrentModule(null);
             setReflectionAnswer("");
@@ -432,7 +468,12 @@ export const GuidedPrograms = () => {
                     className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
                       isCurrent ? 'bg-primary/10 border border-primary/20' : 'hover:bg-muted/50'
                     }`}
-                    onClick={() => {
+                    onClick={async () => {
+                      // Auto-save current reflection before switching modules
+                      if (reflectionAnswer.trim() && currentModule) {
+                        await saveReflection(false);
+                      }
+                      
                       setCurrentModule(module);
                       const progress = userProgress[selectedProgram.id];
                       const existingAnswer = progress?.reflection_answers[module.id] || "";
@@ -483,12 +524,12 @@ export const GuidedPrograms = () => {
                   <Textarea
                     placeholder="Share your thoughts and reflections here..."
                     value={reflectionAnswer}
-                    onChange={(e) => setReflectionAnswer(e.target.value)}
+                    onChange={(e) => handleReflectionChange(e.target.value)}
                     className="min-h-[120px]"
                   />
                   
                   <div className="flex gap-2">
-                    <Button onClick={saveReflection} variant="outline" size="sm">
+                    <Button onClick={() => saveReflection(true)} variant="outline" size="sm">
                       Save Reflection
                     </Button>
                     <Button 
