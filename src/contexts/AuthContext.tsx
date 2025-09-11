@@ -30,17 +30,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  // Initialize with cached values to eliminate delays
+  // Initialize with cached values but use user-specific keys to prevent conflicts
   const [isPremium, setIsPremium] = useState(() => {
-    const cached = localStorage.getItem('isPremium');
+    // Try to get user-specific cache first, fallback to general cache
+    const userEmail = localStorage.getItem('lastUserEmail');
+    const cacheKey = userEmail ? `isPremium_${userEmail}` : 'isPremium';
+    const cached = localStorage.getItem(cacheKey);
     return cached ? JSON.parse(cached) : false;
   });
   const [hasHealingKit, setHasHealingKit] = useState(() => {
-    const cached = localStorage.getItem('hasHealingKit');
+    const userEmail = localStorage.getItem('lastUserEmail');
+    const cacheKey = userEmail ? `hasHealingKit_${userEmail}` : 'hasHealingKit';
+    const cached = localStorage.getItem(cacheKey);
     return cached ? JSON.parse(cached) : false;
   });
   const [subscriptionStatus, setSubscriptionStatus] = useState<'free' | 'premium'>(() => {
-    const cached = localStorage.getItem('subscriptionStatus');
+    const userEmail = localStorage.getItem('lastUserEmail');
+    const cacheKey = userEmail ? `subscriptionStatus_${userEmail}` : 'subscriptionStatus';
+    const cached = localStorage.getItem(cacheKey);
     return cached ? JSON.parse(cached) : 'free';
   });
 
@@ -62,41 +69,51 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!user) return;
 
     try {
-      // Check premium status
+      // Check premium status immediately with parallel calls
       const session = await supabase.auth.getSession();
       if (!session.data.session?.access_token) {
         console.log('[AuthContext] No valid session token for subscription check');
         return;
       }
       
-      const { data, error } = await supabase.functions.invoke('check-subscription', {
-        headers: {
-          Authorization: `Bearer ${session.data.session.access_token}`,
-        },
-      });
+      // Run both checks in parallel for faster response
+      const [subscriptionResponse, healingKitResponse] = await Promise.all([
+        supabase.functions.invoke('check-subscription', {
+          headers: {
+            Authorization: `Bearer ${session.data.session.access_token}`,
+          },
+        }),
+        supabase.rpc('user_has_healing_kit', { user_uuid: user.id })
+      ]);
 
-      if (!error && data) {
-        const premiumStatus = data.subscribed || false;
-        const planType = data.plan_type || 'free';
+      // Update premium status
+      if (!subscriptionResponse.error && subscriptionResponse.data) {
+        const premiumStatus = subscriptionResponse.data.subscribed || false;
+        const planType = subscriptionResponse.data.plan_type || 'free';
         setIsPremium(premiumStatus);
         setSubscriptionStatus(planType);
-        // Cache premium status for immediate access
+        // Cache premium status with user-specific keys
+        const userEmail = user.email;
+        localStorage.setItem('lastUserEmail', userEmail || '');
+        localStorage.setItem(`isPremium_${userEmail}`, JSON.stringify(premiumStatus));
+        localStorage.setItem(`subscriptionStatus_${userEmail}`, JSON.stringify(planType));
+        // Keep general cache for backwards compatibility
         localStorage.setItem('isPremium', JSON.stringify(premiumStatus));
         localStorage.setItem('subscriptionStatus', JSON.stringify(planType));
       }
 
-      // Check healing kit access using the database function
-      const { data: healingKitData, error: healingKitError } = await supabase
-        .rpc('user_has_healing_kit', { user_uuid: user.id });
-
-      if (!healingKitError) {
-        console.log('[AuthContext] Healing kit status:', healingKitData);
-        const healingKitStatus = healingKitData || false;
+      // Update healing kit status
+      if (!healingKitResponse.error) {
+        console.log('[AuthContext] Healing kit status:', healingKitResponse.data);
+        const healingKitStatus = healingKitResponse.data || false;
         setHasHealingKit(healingKitStatus);
-        // Cache healing kit status for immediate access
+        // Cache healing kit status with user-specific keys
+        const userEmail = user.email;
+        localStorage.setItem(`hasHealingKit_${userEmail}`, JSON.stringify(healingKitStatus));
+        // Keep general cache for backwards compatibility
         localStorage.setItem('hasHealingKit', JSON.stringify(healingKitStatus));
       } else {
-        console.error('[AuthContext] Error checking healing kit:', healingKitError);
+        console.error('[AuthContext] Error checking healing kit:', healingKitResponse.error);
       }
     } catch (error) {
       console.error('Error checking subscription:', error);
