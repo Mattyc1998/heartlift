@@ -60,7 +60,7 @@ export const WelcomeToPremiumModal = ({ isOpen, onClose, userName = "there" }: W
     }
   ];
 
-  const currentFeature = features[currentStep];
+  const currentFeature = features[currentStep] || features[0];
 
   const handleNext = () => {
     if (currentStep < features.length - 1) {
