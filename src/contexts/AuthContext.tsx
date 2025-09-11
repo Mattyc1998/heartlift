@@ -110,7 +110,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // If Supabase logs the user in immediately after signup and email isn't verified, force sign out
         if (event === 'SIGNED_IN' && session?.user && !session.user.email_confirmed_at) {
           console.log('[AuthContext] Forcing sign out - email not verified');
-          await supabase.auth.signOut({ scope: 'local' });
+          await supabase.auth.signOut();
           return;
         }
         
@@ -128,11 +128,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setIsPremium(false);
           setHasHealingKit(false);
           setSubscriptionStatus('free');
-          // Clear all cached status and auth tokens
+          // Clear cached status
           localStorage.removeItem('isPremium');
           localStorage.removeItem('hasHealingKit');
           localStorage.removeItem('subscriptionStatus');
-          localStorage.removeItem('supabase.auth.token');
         }
       }
     );
@@ -248,23 +247,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       localStorage.removeItem('isPremium');
       localStorage.removeItem('hasHealingKit');
       localStorage.removeItem('subscriptionStatus');
-      localStorage.removeItem('supabase.auth.token');
       
       // Clear all conversations if user exists
       if (user) {
         await clearAllConversations(user.id);
       }
       
-      // Sign out from Supabase with scope 'local' to clear session
-      await supabase.auth.signOut({ scope: 'local' });
+      // Standard sign out - don't force scope to avoid session validation issues
+      await supabase.auth.signOut();
       
-      // Force a hard refresh to clear any remaining state
-      window.location.replace('/');
+      // Navigate to home page
+      window.location.href = '/';
     } catch (error) {
       console.error('Error during sign out:', error);
       // Even if there's an error, clear local state and redirect
       localStorage.clear();
-      window.location.replace('/');
+      window.location.href = '/';
     }
   };
 
@@ -283,17 +281,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       localStorage.clear();
       sessionStorage.clear();
       
-      // Force sign out with both local and global scope
-      await supabase.auth.signOut({ scope: 'global' });
+      // Force sign out with global scope only if really needed
+      await supabase.auth.signOut();
       
       // Force a complete page reload to clear any remaining state
-      window.location.replace('/');
+      window.location.href = '/';
     } catch (error) {
       console.error('Error during force sign out:', error);
       // Clear everything and reload anyway
       localStorage.clear();
       sessionStorage.clear();
-      window.location.replace('/');
+      window.location.href = '/';
     }
   };
 
