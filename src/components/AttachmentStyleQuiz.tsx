@@ -441,7 +441,7 @@ export const AttachmentStyleQuiz = () => {
         secure: 0,
         anxious: 0,
         avoidant: 0,
-        'fearful-avoidant': 0
+        disorganized: 0
       };
       
       // Basic scoring based on answer patterns
@@ -454,7 +454,7 @@ export const AttachmentStyleQuiz = () => {
         } else if (answer.includes('independent') || answer.includes('distance') || answer.includes('uncomfortable')) {
           styleScores.avoidant++;
         } else {
-          styleScores['fearful-avoidant']++;
+          styleScores.disorganized++;
         }
       });
       
@@ -599,6 +599,19 @@ export const AttachmentStyleQuiz = () => {
 
   if (showResults && attachmentStyle) {
     const style = attachmentStyles[attachmentStyle];
+    if (!style) {
+      console.error('Unknown attachment style:', attachmentStyle);
+      return (
+        <Card className="max-w-2xl mx-auto">
+          <CardContent className="text-center py-8">
+            <p className="text-destructive">Unable to display results. Please try again.</p>
+            <Button onClick={() => window.location.reload()} className="mt-4">
+              Reload Page
+            </Button>
+          </CardContent>
+        </Card>
+      );
+    }
     const IconComponent = style.icon;
     
     return (
