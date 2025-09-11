@@ -105,9 +105,6 @@ export const PremiumPurchase = () => {
                 <Button variant="outline" className="flex-1 sm:flex-none">
                   Buy Premium
                 </Button>
-                <Button variant="outline" className="flex-1 sm:flex-none">
-                  Buy Healing Kit
-                </Button>
               </div>
             </div>
           </CardContent>
