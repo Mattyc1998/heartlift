@@ -65,16 +65,15 @@ const plans = [
   }
 ];
 
-export const PricingSection = () => {
+export const PricingSection = ({ backTo = 'home' }: { backTo?: 'home' | 'coaches' } = {}) => {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { user, checkSubscription } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const handlePlanClick = (planName: string) => {
-    // Force home indicator when PricingSection is on home page or pricing tab
-    const isFromHome = location.pathname === '/' && (!location.search || location.search.includes('tab=home') || location.search.includes('tab=pricing'));
-    const from = isFromHome ? 'home' : (location.pathname + location.search);
+    // Use the backTo prop to determine where to go back to
+    const from = backTo;
     
     if (planName === "Premium") {
       if (!user) {

@@ -49,7 +49,7 @@ const Index = () => {
     return (
       <div className="min-h-screen">
         <HeroSection onGetStarted={handleGetStarted} />
-        <PricingSection />
+        <PricingSection backTo="home" />
       </div>
     );
   }
@@ -197,7 +197,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="pricing" className="space-y-6">
-            <PricingSection />
+            <PricingSection backTo="home" />
           </TabsContent>
         </Tabs>
       </div>

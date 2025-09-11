@@ -36,7 +36,7 @@ export const HealingKitPurchase = () => {
           variant="ghost" 
           onClick={() => {
             // If coming from home page
-            if (from === 'home' || !from || from === '/') {
+            if (from === 'home') {
               navigate('/');
             } else {
               // Otherwise go to coaches
@@ -46,7 +46,7 @@ export const HealingKitPurchase = () => {
           className="mb-6 hover:bg-secondary/20"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          {(from === 'home' || !from || from === '/') ? 'Back to Home' : 'Back to Coaches'}
+          {from === 'home' ? 'Back to Home' : 'Back to Coaches'}
         </Button>
 
         <Card className="relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5">
