@@ -350,7 +350,9 @@ serve(async (req) => {
       }
     }
 
+    console.log('Received coachId:', coachId, 'Available coaches:', Object.keys(coaches));
     const coach = coaches[coachId];
+    console.log('Found coach:', coach?.name || 'UNDEFINED');
     let response: string;
 
     if (!requestRegenerate) {
