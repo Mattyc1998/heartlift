@@ -189,6 +189,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       },
     });
 
+    // Check if the user already exists (Supabase returns existing user data)
+    if (data?.user && data.user.identities && data.user.identities.length === 0) {
+      return { 
+        error: { 
+          message: "An account with this email already exists. Please sign in instead." 
+        } 
+      };
+    }
+
     // If Supabase auto-signs in after signup, immediately sign out until email is verified
     if (data?.user && !data.user.email_confirmed_at) {
       await supabase.auth.signOut();
