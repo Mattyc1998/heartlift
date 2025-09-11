@@ -197,7 +197,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="pricing" className="space-y-6">
-            <PricingSection backTo="home" />
+            <PricingSection backTo="coaches" />
           </TabsContent>
         </Tabs>
       </div>
