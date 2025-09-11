@@ -353,13 +353,15 @@ serve(async (req) => {
     const coach = coaches[coachId];
     let response: string;
 
-    // Save user message to conversation history
-    await supabase.from('conversation_history').insert({
-      user_id: user.id,
-      coach_id: coachId,
-      message_content: message,
-      sender: 'user'
-    });
+    if (!requestRegenerate) {
+      // Save user message to conversation history only if not regenerating
+      await supabase.from('conversation_history').insert({
+        user_id: user.id,
+        coach_id: coachId,
+        message_content: message,
+        sender: 'user'
+      });
+    }
 
     if (isPremium) {
       // Premium users get full AI responses with conversation history
@@ -375,13 +377,15 @@ serve(async (req) => {
       response = await generateAIResponse(message, coach, formattedHistory);
     }
 
-    // Save coach response to conversation history
-    await supabase.from('conversation_history').insert({
-      user_id: user.id,
-      coach_id: coachId,
-      message_content: response,
-      sender: 'coach'
-    });
+    if (!requestRegenerate) {
+      // Save coach response to conversation history only if not regenerating
+      await supabase.from('conversation_history').insert({
+        user_id: user.id,
+        coach_id: coachId,
+        message_content: response,
+        sender: 'coach'
+      });
+    }
 
     // Get current usage after increment - force refresh
     const { data: currentUsage, error: usageError } = await supabase
