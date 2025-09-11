@@ -72,7 +72,10 @@ export const PricingSection = () => {
   const location = useLocation();
 
   const handlePlanClick = (planName: string) => {
-    const from = location.pathname + location.search;
+    // Force home indicator when PricingSection is on home page or pricing tab
+    const isFromHome = location.pathname === '/' && (!location.search || location.search.includes('tab=home') || location.search.includes('tab=pricing'));
+    const from = isFromHome ? 'home' : (location.pathname + location.search);
+    
     if (planName === "Premium") {
       if (!user) {
         navigate('/auth');

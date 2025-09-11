@@ -35,8 +35,8 @@ export const HealingKitPurchase = () => {
         <Button 
           variant="ghost" 
           onClick={() => {
-            // If coming from home page (no tab param, tab=home, or tab=pricing), go to home
-            if (!from || from === '/' || from === '/?tab=home' || from === '/?tab=pricing' || from.includes('tab=home') || from.includes('tab=pricing') || (!from.includes('tab='))) {
+            // If coming from home page
+            if (from === 'home' || !from || from === '/') {
               navigate('/');
             } else {
               // Otherwise go to coaches
@@ -46,7 +46,7 @@ export const HealingKitPurchase = () => {
           className="mb-6 hover:bg-secondary/20"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          {(!from || from === '/' || from === '/?tab=home' || from === '/?tab=pricing' || from.includes('tab=home') || from.includes('tab=pricing') || (!from.includes('tab='))) ? 'Back to Home' : 'Back to Coaches'}
+          {(from === 'home' || !from || from === '/') ? 'Back to Home' : 'Back to Coaches'}
         </Button>
 
         <Card className="relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5">
