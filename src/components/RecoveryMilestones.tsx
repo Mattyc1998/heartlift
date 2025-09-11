@@ -189,7 +189,15 @@ export const RecoveryMilestones = () => {
         <p className="text-muted-foreground mb-4">
           Unlock meaningful rewards and track your healing progress with Premium
         </p>
-        <Button variant="warm">Upgrade to Premium</Button>
+        <Button 
+          variant="warm" 
+          onClick={() => {
+            const from = window.location.pathname + window.location.search;
+            window.location.href = `/premium-purchase?from=${encodeURIComponent(from)}`;
+          }}
+        >
+          Upgrade to Premium
+        </Button>
       </Card>
     );
   }

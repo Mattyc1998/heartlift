@@ -26,15 +26,26 @@ export default function AdvancedTools() {
         <Card className="p-8 text-center max-w-md mx-auto">
           <Crown className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
           <h1 className="text-2xl font-bold mb-4">Premium Required</h1>
-          <p className="text-muted-foreground mb-4">
+          <p className="text-muted-foreground mb-6">
             Upgrade to premium to access advanced psychological tools and insights.
           </p>
-          <button 
-            onClick={() => window.location.href = '/'}
-            className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90"
-          >
-            Return to Home
-          </button>
+          <div className="flex gap-3">
+            <Button 
+              variant="outline"
+              onClick={() => window.location.href = '/'}
+            >
+              Return to Home
+            </Button>
+            <Button 
+              variant="warm"
+              onClick={() => {
+                const from = window.location.pathname + window.location.search;
+                window.location.href = `/premium-purchase?from=${encodeURIComponent(from)}`;
+              }}
+            >
+              Upgrade to Premium
+            </Button>
+          </div>
         </Card>
       </div>
     );

@@ -34,8 +34,8 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
 
     // Close the modal and navigate to premium purchase page
     onClose();
-    // Navigate to premium purchase page instead of external Stripe checkout
-    window.location.href = '/premium-purchase';
+    const from = location.pathname + location.search;
+    navigate('/premium-purchase', { state: { from } });
   };
 
   const premiumFeatures = [

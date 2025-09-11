@@ -344,9 +344,18 @@ export const GuidedPrograms = () => {
       <Card className="p-8 text-center">
         <BookOpen className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
         <h2 className="text-2xl font-bold mb-4">Premium Required</h2>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground mb-6">
           Upgrade to premium to access guided programs for growth and healing.
         </p>
+        <Button 
+          variant="warm" 
+          onClick={() => {
+            const from = window.location.pathname + window.location.search;
+            window.location.href = `/premium-purchase?from=${encodeURIComponent(from)}`;
+          }}
+        >
+          Upgrade to Premium
+        </Button>
       </Card>
     );
   }

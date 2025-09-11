@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HeroSection } from "@/components/HeroSection";
 import { CoachPersonas } from "@/components/CoachPersonas";
 import { ChatInterface } from "@/components/ChatInterface";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, MessageCircle, TrendingUp, CreditCard, Crown, LogOut, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const coachData = {
@@ -28,6 +28,14 @@ const Index = () => {
   });
   const { isPremium, hasHealingKit, user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Update tab when URL changes
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabFromUrl = params.get('tab') || 'home';
+    setCurrentTab(tabFromUrl);
+  }, [location.search]);
 
   const handleGetStarted = () => {
     // Set flag to indicate user is navigating from home to chat
