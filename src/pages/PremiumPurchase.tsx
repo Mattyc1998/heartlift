@@ -37,8 +37,8 @@ export const PremiumPurchase = () => {
         <Button 
           variant="ghost" 
           onClick={() => {
-            // If coming from home page (no tab param or tab=home), go to home
-            if (!from || from === '/' || from.includes('tab=home') || from.includes('tab=pricing')) {
+            // If coming from home page (no tab param, tab=home, or tab=pricing), go to home
+            if (!from || from === '/' || from === '/?tab=home' || from === '/?tab=pricing' || from.includes('tab=home') || from.includes('tab=pricing') || (!from.includes('tab='))) {
               navigate('/');
             } else {
               // Otherwise go to coaches
@@ -48,7 +48,7 @@ export const PremiumPurchase = () => {
           className="mb-6 hover:bg-secondary/20"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          {(!from || from === '/' || from.includes('tab=home') || from.includes('tab=pricing')) ? 'Back to Home' : 'Back to Coaches'}
+          {(!from || from === '/' || from === '/?tab=home' || from === '/?tab=pricing' || from.includes('tab=home') || from.includes('tab=pricing') || (!from.includes('tab='))) ? 'Back to Home' : 'Back to Coaches'}
         </Button>
 
         <Card className="relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5">
