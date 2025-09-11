@@ -47,9 +47,9 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
     },
     {
       icon: Heart,
-      title: "🧠 Personalized Coaching",
-      description: "Text suggestion helper, custom insights, and relationship pattern recognition",
-      gradient: "from-pink-400 to-pink-500"
+      title: "🔄 Regenerate AI Responses",
+      description: "Get new responses from your coach if you want a different perspective",
+      gradient: "from-emerald-400 to-emerald-500"
     },
     {
       icon: Zap,
@@ -59,8 +59,8 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
     },
     {
       icon: Sparkles,
-      title: "💬 Text Helpers",
-      description: "Message suggestions and conversation analysis tools",
+      title: "💬 Text Helpers & Analysis",
+      description: "Message suggestions, conversation analysis, and personalized insights",
       gradient: "from-purple-400 to-purple-500"
     }
   ];
