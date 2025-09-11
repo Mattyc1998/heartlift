@@ -122,11 +122,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return;
         }
         
-        // Check subscription when user logs in - but don't wait for it
-        if (session?.user && event === 'SIGNED_IN') {
-          console.log('[AuthContext] User signed in, checking subscription');
-          // Call checkSubscription immediately without awaiting to avoid delays
-          checkSubscription();
+        // Check subscription when user logs in OR when we detect an existing session
+        if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+          console.log('[AuthContext] User session detected, checking subscription immediately');
+          // Call checkSubscription synchronously to ensure immediate update
+          setTimeout(() => checkSubscription(), 0);
         } else if (event === 'SIGNED_OUT') {
           console.log('[AuthContext] User signed out, clearing state');
           // Clear all conversations when user logs out
@@ -161,11 +161,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(session?.user ?? null);
       setLoading(false);
       
-      // Check subscription for existing session - but don't wait for it
+      // Check subscription for existing session immediately
       if (session?.user) {
         console.log('[AuthContext] Found existing session for:', session.user.email);
-        // Call checkSubscription immediately without awaiting to avoid delays
-        checkSubscription();
+        // Force immediate subscription check for existing sessions
+        setTimeout(() => checkSubscription(), 0);
       } else {
         console.log('[AuthContext] No existing session found');
       }
@@ -183,12 +183,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    // Auto-refresh subscription status every 30 seconds when user is logged in
-    // Reduced frequency to prevent overwhelming the system
+    // Only check subscription once on mount when user exists - no polling
     if (!user) return;
 
-    const interval = setInterval(checkSubscription, 30000);
-    return () => clearInterval(interval);
+    // Single subscription check when user is detected
+    checkSubscription();
   }, [user]);
 
   const signIn = async (email: string, password: string) => {

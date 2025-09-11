@@ -58,14 +58,23 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
     }
   }, [isPremium]);
 
-  // Load conversation history when coach changes or on daily refresh
+  // Load conversation history when coach changes - ensure greeting is always present
   useEffect(() => {
     if (user && coachPersonality) {
+      // Always start with greeting to prevent disappearing first message
+      const greeting = coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`;
+      setMessages([{
+        id: '1',
+        content: greeting,
+        sender: 'coach',
+        timestamp: new Date()
+      }]);
+      
       checkForNavigationRefresh();
       checkForDailyRefresh();
       loadConversationHistory();
     }
-  }, [user, coachPersonality]);
+  }, [user, coachPersonality, coachName, coachGreeting]);
 
   const checkForNavigationRefresh = () => {
     if (!user) return;
@@ -190,31 +199,28 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
           timestamp: new Date(msg.created_at)
         }));
         
-        setMessages(loadedMessages);
-      } else {
-        // No history found, show default greeting
-        setMessages([
-          {
+        // Ensure the first message is always the greeting if it's not already there
+        const hasGreeting = loadedMessages.length > 0 && loadedMessages[0].sender === 'coach';
+        if (!hasGreeting) {
+          const greeting = {
             id: '1',
             content: coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`,
-            sender: 'coach',
+            sender: 'coach' as const,
             timestamp: new Date()
-          }
-        ]);
+          };
+          setMessages([greeting, ...loadedMessages]);
+        } else {
+          setMessages(loadedMessages);
+        }
+      } else {
+        // No history found, greeting should already be set from useEffect
+        // Don't overwrite it here
       }
       
       setConversationLoaded(true);
     } catch (error) {
       console.error("Error loading conversation history:", error);
-      // Fallback to default greeting
-      setMessages([
-        {
-          id: '1',
-          content: coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`,
-          sender: 'coach',
-          timestamp: new Date()
-        }
-      ]);
+      // Don't overwrite the greeting that was already set in useEffect
       setConversationLoaded(true);
     }
   };
