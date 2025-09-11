@@ -34,6 +34,7 @@ const plans = [
     description: "Unlimited support for your relationship growth",
     features: [
       "Unlimited AI coach conversations",
+      "Regenerate AI responses",
       "Guided Programmes",
       "Personalized insights & reports",
       "Daily attachment style quiz with AI analysis",
