@@ -36,11 +36,19 @@ export const PremiumPurchase = () => {
       <div className="max-w-2xl mx-auto pt-8">
         <Button 
           variant="ghost" 
-          onClick={() => navigate('/?tab=coaches')}
+          onClick={() => {
+            // If coming from home page (no tab param or tab=home), go to home
+            if (!from || from === '/' || from.includes('tab=home') || from.includes('tab=pricing')) {
+              navigate('/');
+            } else {
+              // Otherwise go to coaches
+              navigate('/?tab=coaches');
+            }
+          }}
           className="mb-6 hover:bg-secondary/20"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Coaches
+          {(!from || from === '/' || from.includes('tab=home') || from.includes('tab=pricing')) ? 'Back to Home' : 'Back to Coaches'}
         </Button>
 
         <Card className="relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5">
