@@ -30,24 +30,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  // Initialize with cached values but use user-specific keys to prevent conflicts
+  // Initialize with cached values for immediate loading
   const [isPremium, setIsPremium] = useState(() => {
-    // Try to get user-specific cache first, fallback to general cache
-    const userEmail = localStorage.getItem('lastUserEmail');
-    const cacheKey = userEmail ? `isPremium_${userEmail}` : 'isPremium';
-    const cached = localStorage.getItem(cacheKey);
+    const cached = localStorage.getItem('isPremium');
     return cached ? JSON.parse(cached) : false;
   });
   const [hasHealingKit, setHasHealingKit] = useState(() => {
-    const userEmail = localStorage.getItem('lastUserEmail');
-    const cacheKey = userEmail ? `hasHealingKit_${userEmail}` : 'hasHealingKit';
-    const cached = localStorage.getItem(cacheKey);
+    const cached = localStorage.getItem('hasHealingKit');
     return cached ? JSON.parse(cached) : false;
   });
   const [subscriptionStatus, setSubscriptionStatus] = useState<'free' | 'premium'>(() => {
-    const userEmail = localStorage.getItem('lastUserEmail');
-    const cacheKey = userEmail ? `subscriptionStatus_${userEmail}` : 'subscriptionStatus';
-    const cached = localStorage.getItem(cacheKey);
+    const cached = localStorage.getItem('subscriptionStatus');
     return cached ? JSON.parse(cached) : 'free';
   });
 
@@ -92,12 +85,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const planType = subscriptionResponse.data.plan_type || 'free';
         setIsPremium(premiumStatus);
         setSubscriptionStatus(planType);
-        // Cache premium status with user-specific keys
-        const userEmail = user.email;
-        localStorage.setItem('lastUserEmail', userEmail || '');
-        localStorage.setItem(`isPremium_${userEmail}`, JSON.stringify(premiumStatus));
-        localStorage.setItem(`subscriptionStatus_${userEmail}`, JSON.stringify(planType));
-        // Keep general cache for backwards compatibility
+        // Cache premium status for immediate access
         localStorage.setItem('isPremium', JSON.stringify(premiumStatus));
         localStorage.setItem('subscriptionStatus', JSON.stringify(planType));
       }
@@ -107,10 +95,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('[AuthContext] Healing kit status:', healingKitResponse.data);
         const healingKitStatus = healingKitResponse.data || false;
         setHasHealingKit(healingKitStatus);
-        // Cache healing kit status with user-specific keys
-        const userEmail = user.email;
-        localStorage.setItem(`hasHealingKit_${userEmail}`, JSON.stringify(healingKitStatus));
-        // Keep general cache for backwards compatibility
+        // Cache healing kit status for immediate access
         localStorage.setItem('hasHealingKit', JSON.stringify(healingKitStatus));
       } else {
         console.error('[AuthContext] Error checking healing kit:', healingKitResponse.error);
@@ -198,11 +183,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    // Auto-refresh subscription status every 5 seconds when user is logged in
-    // This ensures subscription/healing kit access persists through login/logout
+    // Auto-refresh subscription status every 30 seconds when user is logged in
+    // Reduced frequency to prevent overwhelming the system
     if (!user) return;
 
-    const interval = setInterval(checkSubscription, 5000);
+    const interval = setInterval(checkSubscription, 30000);
     return () => clearInterval(interval);
   }, [user]);
 
