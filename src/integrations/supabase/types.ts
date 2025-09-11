@@ -805,9 +805,7 @@ export type Database = {
         }[]
       }
       increment_user_usage: {
-        Args:
-          | { input_coach_id?: string; user_uuid: string }
-          | { user_uuid: string }
+        Args: { input_coach_id?: string; user_uuid: string }
         Returns: boolean
       }
       track_premium_feature_usage: {
