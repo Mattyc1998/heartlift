@@ -8,6 +8,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  forceSignOut: () => Promise<void>;
   loading: boolean;
   isPremium: boolean;
   hasHealingKit: boolean;
@@ -100,21 +101,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('[AuthContext] Auth state change:', event, session?.user?.email);
+        
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
         
         // If Supabase logs the user in immediately after signup and email isn't verified, force sign out
         if (event === 'SIGNED_IN' && session?.user && !session.user.email_confirmed_at) {
-          await supabase.auth.signOut();
+          console.log('[AuthContext] Forcing sign out - email not verified');
+          await supabase.auth.signOut({ scope: 'local' });
           return;
         }
         
         // Check subscription when user logs in - but don't wait for it
         if (session?.user && event === 'SIGNED_IN') {
+          console.log('[AuthContext] User signed in, checking subscription');
           // Call checkSubscription immediately without awaiting to avoid delays
           checkSubscription();
         } else if (event === 'SIGNED_OUT') {
+          console.log('[AuthContext] User signed out, clearing state');
           // Clear all conversations when user logs out
           if (user) {
             await clearAllConversations(user.id);
@@ -122,25 +128,48 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setIsPremium(false);
           setHasHealingKit(false);
           setSubscriptionStatus('free');
-          // Clear cached status
+          // Clear all cached status and auth tokens
           localStorage.removeItem('isPremium');
           localStorage.removeItem('hasHealingKit');
           localStorage.removeItem('subscriptionStatus');
+          localStorage.removeItem('supabase.auth.token');
         }
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    // Check for existing session with error handling
+    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
+      if (error) {
+        console.error('[AuthContext] Error getting session:', error);
+        // If there's an error getting session, clear everything
+        await supabase.auth.signOut({ scope: 'local' });
+        localStorage.clear();
+        setSession(null);
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+      
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
       
       // Check subscription for existing session - but don't wait for it
       if (session?.user) {
+        console.log('[AuthContext] Found existing session for:', session.user.email);
         // Call checkSubscription immediately without awaiting to avoid delays
         checkSubscription();
+      } else {
+        console.log('[AuthContext] No existing session found');
       }
+    }).catch(async (error) => {
+      console.error('[AuthContext] Failed to get session:', error);
+      // Clear everything on error
+      await supabase.auth.signOut({ scope: 'local' });
+      localStorage.clear();
+      setSession(null);
+      setUser(null);
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -207,8 +236,65 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    window.location.href = '/';
+    try {
+      // Clear all local state first
+      setUser(null);
+      setSession(null);
+      setIsPremium(false);
+      setHasHealingKit(false);
+      setSubscriptionStatus('free');
+      
+      // Clear all localStorage items
+      localStorage.removeItem('isPremium');
+      localStorage.removeItem('hasHealingKit');
+      localStorage.removeItem('subscriptionStatus');
+      localStorage.removeItem('supabase.auth.token');
+      
+      // Clear all conversations if user exists
+      if (user) {
+        await clearAllConversations(user.id);
+      }
+      
+      // Sign out from Supabase with scope 'local' to clear session
+      await supabase.auth.signOut({ scope: 'local' });
+      
+      // Force a hard refresh to clear any remaining state
+      window.location.replace('/');
+    } catch (error) {
+      console.error('Error during sign out:', error);
+      // Even if there's an error, clear local state and redirect
+      localStorage.clear();
+      window.location.replace('/');
+    }
+  };
+
+  const forceSignOut = async () => {
+    try {
+      console.log('[AuthContext] Force sign out initiated');
+      
+      // Immediately clear all local state
+      setUser(null);
+      setSession(null);
+      setIsPremium(false);
+      setHasHealingKit(false);
+      setSubscriptionStatus('free');
+      
+      // Clear all localStorage and sessionStorage
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Force sign out with both local and global scope
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Force a complete page reload to clear any remaining state
+      window.location.replace('/');
+    } catch (error) {
+      console.error('Error during force sign out:', error);
+      // Clear everything and reload anyway
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.replace('/');
+    }
   };
 
   const value = {
@@ -217,6 +303,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signIn,
     signUp,
     signOut,
+    forceSignOut,
     loading,
     isPremium,
     hasHealingKit,
