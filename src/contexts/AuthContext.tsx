@@ -110,9 +110,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return;
         }
         
-        // Check subscription when user logs in
+        // Check subscription when user logs in - but don't wait for it
         if (session?.user && event === 'SIGNED_IN') {
-          await checkSubscription();
+          // Call checkSubscription immediately without awaiting to avoid delays
+          checkSubscription();
         } else if (event === 'SIGNED_OUT') {
           // Clear all conversations when user logs out
           if (user) {
@@ -135,9 +136,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(session?.user ?? null);
       setLoading(false);
       
-      // Check subscription for existing session
+      // Check subscription for existing session - but don't wait for it
       if (session?.user) {
-        await checkSubscription();
+        // Call checkSubscription immediately without awaiting to avoid delays
+        checkSubscription();
       }
     });
 
@@ -145,11 +147,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    // Auto-refresh subscription status every 10 seconds when user is logged in
+    // Auto-refresh subscription status every 5 seconds when user is logged in
     // This ensures subscription/healing kit access persists through login/logout
     if (!user) return;
 
-    const interval = setInterval(checkSubscription, 10000);
+    const interval = setInterval(checkSubscription, 5000);
     return () => clearInterval(interval);
   }, [user]);
 

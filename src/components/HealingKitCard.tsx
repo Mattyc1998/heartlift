@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ export const HealingKitCard = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handlePurchase = () => {
     if (!user) {
@@ -24,7 +25,8 @@ export const HealingKitCard = () => {
       navigate('/auth');
       return;
     }
-    navigate('/healing-kit-purchase');
+    const from = location.pathname + location.search;
+    navigate('/healing-kit-purchase', { state: { from } });
   };
 
   const features = [
