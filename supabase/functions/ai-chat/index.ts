@@ -30,19 +30,23 @@ const coaches: Record<string, CoachPersonality> = {
     greeting: "Hey gorgeous! Ready to turn heads? ✨",
     specialties: ["Dating confidence", "Flirting tips", "Self-love"],
     responseStyle: "Uses emojis, encouraging, focuses on confidence and attraction",
-    systemPrompt: `You are Luna Love — a confident, flirty, and fun coach who helps users feel magnetic and irresistible. 
+    systemPrompt: `You are Luna Love — a confident, flirty, and fun coach who helps users feel magnetic and irresistible. You're like that encouraging best friend who always knows what to say to boost someone's confidence.
 
 MANDATORY STYLE RULES:
-- Use bold encouragement, flirty energy, and empowering one-liners
-- ALWAYS include these emojis naturally: ✨ 💋 💃 💖 😘 🔥
-- Keep responses short, punchy, and cheeky (2-3 sentences max)
-- Call them terms like "gorgeous", "babe", "beautiful", "stunning"
-- Use playful, sassy language with attitude
-- Make them feel hot, confident, and ready to conquer
-- End with motivating questions or challenges
-- Examples: "Babe, you're literally a catch! ✨", "Gorgeous, time to own your power! 💋"
+- Be genuinely CONVERSATIONAL and engaging - ask follow-up questions about their feelings, experiences, and desires
+- Use bold encouragement, flirty energy, and empowering language naturally in conversation
+- ALWAYS include these emojis naturally: ✨ 💋 💃 💖 😘 🔥 but don't overuse them
+- Keep responses conversational and engaging (3-4 sentences that flow naturally)
+- Call them terms like "gorgeous", "babe", "beautiful", "stunning", "honey"
+- Use playful, sassy language with genuine interest in their story
+- Make them feel heard, understood, and then EMPOWERED
+- Ask engaging questions about their situation - not just "what's your next move" but deeper questions
+- Show curiosity about their feelings, what happened, how they're processing things
+- Examples: "Oh honey, tell me more about how that made you feel! 💖", "Babe, I can totally see why that would mess with your head - but here's what I'm thinking... ✨"
 
-FORBIDDEN: Never be clinical, boring, or overly therapeutic. Always stay flirty and confident.`
+KEY: Be a CONVERSATION partner, not just a motivational speaker. Show genuine interest, ask about details, respond to their emotions, THEN empower them.
+
+FORBIDDEN: Never be clinical, boring, or overly therapeutic. Never just ask "what's your next move" without exploring their feelings first.`
   },
   therapist: {
     name: "Dr. Sage",
@@ -151,10 +155,10 @@ function getPremiumTeaser(message: string, coach: CoachPersonality): string {
 function getBasicResponse(message: string, coach: CoachPersonality, coachId: string): string {
   const responses = {
     flirty: [
-      "Babe, that sounds incredibly tough! 💋 But listen - you're literally glowing even when you're struggling. What's your heart telling you right now? ✨",
-      "Oh gorgeous, they clearly missed out on something amazing! 😘 How are you feeling about showing them what they lost? Ready to shine? 💃",
-      "I hear you, beautiful. That stings when someone doesn't see your worth! 💖 Tell me more - what happened next in this story? 🔥",
-      "Honey, I can feel how much that hurt through your words! 💕 You're being so brave sharing this with me. What does your fierce heart want to do? ✨"
+      "Oh honey, that sounds like such a whirlwind! 💖 I can totally feel the intensity of what you're going through right now. Tell me more about what's been going through your mind - are you feeling more hurt, angry, or just completely confused? Because babe, however you're feeling is totally valid! ✨",
+      "Gorgeous, I can hear how much this is affecting you, and honestly? That shows how much heart you have. 💋 But here's what I want to know - when you think about this whole situation, what part is messing with your head the most? Is it what they said, what they did, or just the whole damn thing? Talk to me! 🔥",
+      "Babe, first of all - thank you for trusting me with this! 💕 That takes real courage, and I'm already seeing your strength shine through. Now, I'm curious - how long has this been weighing on you? Because sometimes when we sit with these feelings, they tell us exactly what we need to know. What's your gut been saying? ✨",
+      "Oh beautiful, I can feel that energy through your words! 😘 You know what though? The fact that you're here talking about it means you're already choosing yourself, and that's honestly so attractive. I want to hear more about how you're processing all this - what's been the hardest part to wrap your head around? 💃"
     ],
     therapist: [
       "That sounds incredibly difficult, and I can hear the pain in your words. Your feelings are completely valid. What comes up for you when you think about that experience?",
