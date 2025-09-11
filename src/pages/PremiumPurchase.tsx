@@ -93,16 +93,6 @@ export const PremiumPurchase = () => {
               </ul>
             </div>
 
-            <div className="border-t pt-6 space-y-4">
-              <div className="text-center space-y-2">
-                <p className="text-lg font-medium text-foreground">
-                  To activate your Premium subscription, please contact support
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Email us at support@example.com to get your Premium access activated
-                </p>
-              </div>
-            </div>
 
             {/* Additional Purchase Options */}
             <div className="border-t pt-6 space-y-4">
