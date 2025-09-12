@@ -23,6 +23,51 @@ interface CoachPersonality {
   systemPrompt: string;
 }
 
+// Crisis detection keywords
+const crisisKeywords = {
+  suicide: [
+    "kill myself", "end my life", "suicide", "suicidal", "want to die", "better off dead",
+    "no point living", "can't go on", "end it all", "take my own life", "hurt myself badly"
+  ],
+  selfHarm: [
+    "cut myself", "hurt myself", "self harm", "self-harm", "cutting", "burning myself",
+    "harming myself", "self injury", "self-injury", "want to hurt myself"
+  ],
+  domesticAbuse: [
+    "hitting me", "beats me", "abusing me", "domestic violence", "domestic abuse",
+    "physically hurts me", "threatens to hurt me", "afraid of my partner", "partner hits me",
+    "scared of going home", "controlling everything I do", "won't let me leave"
+  ]
+};
+
+function detectCrisisSituation(message: string): { isCrisis: boolean; type?: string } {
+  const lowerMessage = message.toLowerCase();
+  
+  for (const [type, keywords] of Object.entries(crisisKeywords)) {
+    if (keywords.some(keyword => lowerMessage.includes(keyword))) {
+      return { isCrisis: true, type };
+    }
+  }
+  
+  return { isCrisis: false };
+}
+
+function getCrisisResponse(type: string): string {
+  switch (type) {
+    case 'suicide':
+      return "I'm really concerned about your safety. If you're thinking about harming yourself, please know you're not alone. I can't provide the help you need, but I strongly encourage you to call your local emergency number right now, or reach out to a suicide prevention hotline (for example, Samaritans at 116 123 in the UK, or find your local hotline at https://findahelpline.com).";
+    
+    case 'selfHarm':
+      return "I hear that you're struggling with thoughts of self-harm. This is serious, and I want you to get proper support. Please reach out to a crisis helpline or trusted professional right away (for example, Samaritans at 116 123 in the UK, or find your local hotline at https://findahelpline.com). If you're in immediate danger, please call emergency services.";
+    
+    case 'domesticAbuse':
+      return "I hear how difficult this is. I can't provide the right kind of support for this situation, but it's really important to talk to someone who can help you stay safe. If you're in immediate danger, please call emergency services. You can also reach out to a domestic violence hotline (for example, the National Domestic Abuse Helpline at 0808 2000 247 in the UK, or find your local resource at https://findahelpline.com).";
+    
+    default:
+      return "I'm concerned about what you're sharing. Please reach out to a crisis helpline or trusted professional who can provide proper support (for example, find your local helpline at https://findahelpline.com). If you're in immediate danger, please call emergency services.";
+  }
+}
+
 const coaches: Record<string, CoachPersonality> = {
   flirty: {
     name: "Luna Love",
@@ -263,6 +308,30 @@ serve(async (req) => {
     // Input validation for security
     if (!message || typeof message !== 'string' || message.length > 5000) {
       throw new Error('Message must be a string and cannot exceed 5000 characters');
+    }
+
+    // Crisis detection - handle immediately before any other processing
+    const crisisDetection = detectCrisisSituation(message);
+    if (crisisDetection.isCrisis) {
+      const crisisResponse = getCrisisResponse(crisisDetection.type!);
+      
+      // Save the user message and crisis response to conversation history
+      await supabase.from('conversation_history').insert([
+        { user_id: user.id, coach_id: coachId, message_content: message, sender: 'user' },
+        { user_id: user.id, coach_id: coachId, message_content: crisisResponse, sender: 'assistant' }
+      ]);
+      
+      return new Response(JSON.stringify({
+        response: crisisResponse,
+        isPremium: false,
+        usageCount: 0,
+        canSendMessage: true,
+        coachName: coaches[coachId]?.name || "Your Coach",
+        isCrisisResponse: true
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200
+      });
     }
 
     if (typeof coachId !== 'string' || coachId.length > 50) {
