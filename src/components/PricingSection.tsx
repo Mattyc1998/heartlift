@@ -22,7 +22,7 @@ const plans = [
       "Access to all coaches",
       "Email support"
     ],
-    buttonText: "Start Free",
+    buttonText: "Get Started",
     variant: "gentle" as const,
     popular: false
   },
@@ -42,7 +42,7 @@ const plans = [
       "Text suggestion helper for all scenarios",
       "Priority support"
     ],
-    buttonText: "Go Premium",
+    buttonText: "Get Started",
     variant: "warm" as const,
     popular: true
   },
@@ -60,7 +60,7 @@ const plans = [
       "Journal prompts",
       "Priority support"
     ],
-    buttonText: "Get Healing Kit",
+    buttonText: "Get Started",
     variant: "healing" as const,
     popular: false
   }
@@ -73,22 +73,8 @@ export const PricingSection = ({ backTo = 'home' }: { backTo?: 'home' | 'coaches
   const location = useLocation();
 
   const handlePlanClick = (planName: string) => {
-    // Use the backTo prop to determine where to go back to
-    const from = backTo;
-    
-    if (planName === "Premium") {
-      if (!user) {
-        navigate('/auth');
-        return;
-      }
-      navigate('/premium-purchase', { state: { from } });
-    } else if (planName === "Healing Kit") {
-      if (!user) {
-        navigate('/auth');
-        return;
-      }
-      navigate('/healing-kit-purchase', { state: { from } });
-    }
+    // Navigate to auth page for all plans
+    navigate('/auth');
   };
 
   const handlePremiumPurchase = async () => {
