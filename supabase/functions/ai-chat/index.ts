@@ -37,6 +37,17 @@ const crisisKeywords = {
     "hitting me", "beats me", "abusing me", "domestic violence", "domestic abuse",
     "physically hurts me", "threatens to hurt me", "afraid of my partner", "partner hits me",
     "scared of going home", "controlling everything I do", "won't let me leave"
+  ],
+  abuse: [
+    "being abused", "someone is abusing me", "sexually abused", "physically abused",
+    "emotionally abused", "verbally abused", "childhood abuse", "being molested",
+    "inappropriate touching", "sexual assault", "being raped", "family member abusing me"
+  ],
+  drugAbuse: [
+    "addicted to", "drug addiction", "can't stop using", "overdosed", "overdosing",
+    "drug problem", "substance abuse", "drinking too much", "alcoholic", "drug abuse",
+    "using drugs", "taking pills", "cocaine", "heroin", "meth", "abusing alcohol",
+    "chemical dependency", "withdrawal", "need drugs", "can't quit"
   ]
 };
 
@@ -62,6 +73,12 @@ function getCrisisResponse(type: string): string {
     
     case 'domesticAbuse':
       return "I hear how difficult this is. I can't provide the right kind of support for this situation, but it's really important to talk to someone who can help you stay safe. If you're in immediate danger, please call emergency services. You can also reach out to a domestic violence hotline (for example, the National Domestic Abuse Helpline at 0808 2000 247 in the UK, or find your local resource at https://findahelpline.com).";
+    
+    case 'abuse':
+      return "I'm deeply concerned about what you're experiencing. Abuse is never okay, and you deserve support and safety. I can't provide the specialized help you need, but please reach out to professionals who can help you. If you're in immediate danger, call emergency services. You can also contact an abuse helpline (for example, NSPCC at 0808 800 5000 in the UK, or find your local resource at https://findahelpline.com).";
+    
+    case 'drugAbuse':
+      return "I hear that you're struggling with substance use. This takes courage to share, and I want you to know that help is available. I can't provide the medical and specialized support you need, but please reach out to addiction services or your healthcare provider. You can contact a substance abuse helpline (for example, Frank at 0300 123 6600 in the UK, or find your local resource at https://findahelpline.com).";
     
     default:
       return "I'm concerned about what you're sharing. Please reach out to a crisis helpline or trusted professional who can provide proper support (for example, find your local helpline at https://findahelpline.com). If you're in immediate danger, please call emergency services.";
