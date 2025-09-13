@@ -12,9 +12,12 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Text-to-speech function called')
     const { text, voice = 'nova' } = await req.json()
+    console.log('Request parsed, text length:', text?.length, 'voice:', voice)
 
     if (!text) {
+      console.log('No text provided')
       return new Response(
         JSON.stringify({ error: 'Text is required' }),
         { 
@@ -26,6 +29,7 @@ serve(async (req) => {
 
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')
     if (!OPENAI_API_KEY) {
+      console.log('OpenAI API key not found')
       return new Response(
         JSON.stringify({ error: 'OpenAI API key not configured' }),
         { 
@@ -35,6 +39,7 @@ serve(async (req) => {
       )
     }
 
+    console.log('Making request to OpenAI API...')
     // Generate speech from text using OpenAI
     const response = await fetch('https://api.openai.com/v1/audio/speech', {
       method: 'POST',
@@ -50,11 +55,19 @@ serve(async (req) => {
       }),
     })
 
+    console.log('OpenAI response status:', response.status)
+
     if (!response.ok) {
-      const error = await response.json()
-      console.error('OpenAI API error:', error)
+      const errorText = await response.text()
+      console.error('OpenAI API error:', errorText)
+      let errorData
+      try {
+        errorData = JSON.parse(errorText)
+      } catch {
+        errorData = { message: errorText }
+      }
       return new Response(
-        JSON.stringify({ error: 'Failed to generate speech' }),
+        JSON.stringify({ error: `OpenAI API error: ${errorData.error?.message || errorText}` }),
         { 
           status: response.status, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -62,11 +75,15 @@ serve(async (req) => {
       )
     }
 
+    console.log('Converting audio to base64...')
     // Convert audio buffer to base64
     const arrayBuffer = await response.arrayBuffer()
+    console.log('Audio buffer size:', arrayBuffer.byteLength)
+    
     const base64Audio = btoa(
       String.fromCharCode(...new Uint8Array(arrayBuffer))
     )
+    console.log('Base64 audio length:', base64Audio.length)
 
     return new Response(
       JSON.stringify({ audio: base64Audio }),
@@ -78,7 +95,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Text-to-speech error:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: `Internal server error: ${error.message}` }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
