@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Eye, Clock, Sparkles, Heart, ArrowRight, ChevronRight, PenTool, CheckCircle } from "lucide-react";
+import { Eye, Clock, Sparkles, Heart, ArrowRight, ChevronRight, PenTool, CheckCircle, Volume2, VolumeX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -35,6 +35,9 @@ export const VisualisationPractices = () => {
   const [isReflecting, setIsReflecting] = useState(false);
   const [reflectionNotes, setReflectionNotes] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -160,6 +163,58 @@ export const VisualisationPractices = () => {
       setSelectedExercise(null);
       setIsReflecting(false);
       setReflectionNotes("");
+    }
+  };
+
+  const playStepAudio = async (text: string) => {
+    if (isPlayingAudio) {
+      // Stop current audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      setIsPlayingAudio(false);
+      return;
+    }
+
+    setIsLoadingAudio(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('text-to-speech', {
+        body: { text, voice: 'nova' } // Nova is peaceful for meditation
+      });
+
+      if (error) throw error;
+
+      if (data.audio) {
+        const audio = new Audio(`data:audio/mp3;base64,${data.audio}`);
+        audioRef.current = audio;
+        
+        audio.onplay = () => setIsPlayingAudio(true);
+        audio.onended = () => {
+          setIsPlayingAudio(false);
+          audioRef.current = null;
+        };
+        audio.onerror = () => {
+          setIsPlayingAudio(false);
+          audioRef.current = null;
+          toast({
+            title: "Audio Error",
+            description: "Failed to play audio",
+            variant: "destructive"
+          });
+        };
+
+        await audio.play();
+      }
+    } catch (error: any) {
+      toast({
+        title: "Audio Error",
+        description: error.message || "Failed to generate audio",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingAudio(false);
     }
   };
 
@@ -296,9 +351,28 @@ export const VisualisationPractices = () => {
               </div>
               
               <div className="bg-primary/5 rounded-lg p-6 border border-primary/20">
-                <p className="text-foreground leading-relaxed">
-                  {selectedExercise.steps[currentStep]}
-                </p>
+                <div className="flex items-start gap-4">
+                  <div className="flex-1">
+                    <p className="text-foreground leading-relaxed">
+                      {selectedExercise.steps[currentStep]}
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => playStepAudio(selectedExercise.steps[currentStep])}
+                    disabled={isLoadingAudio}
+                    className="shrink-0"
+                  >
+                    {isLoadingAudio ? (
+                      <div className="w-4 h-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                    ) : isPlayingAudio ? (
+                      <VolumeX className="w-4 h-4" />
+                    ) : (
+                      <Volume2 className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
               </div>
               
               <div className="flex justify-between">
