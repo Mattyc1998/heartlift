@@ -28,12 +28,12 @@ serve(async (req) => {
     }
 
     // OpenAI TTS has a 4096 character limit
-    const maxLength = 4000
+    const maxLength = 3000 // Even more conservative limit
     let processedText = text
     
     if (text.length > maxLength) {
       console.log('Text too long, truncating from', text.length, 'to', maxLength)
-      processedText = text.substring(0, maxLength) + '...'
+      processedText = text.substring(0, maxLength) + '.'
     }
 
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')
@@ -49,6 +49,15 @@ serve(async (req) => {
     }
 
     console.log('Making request to OpenAI API...')
+    
+    const requestBody = {
+      model: 'tts-1',
+      input: processedText,
+      voice: voice,
+      response_format: 'mp3',
+    }
+    console.log('Request body:', JSON.stringify(requestBody))
+
     // Generate speech from text using OpenAI
     const response = await fetch('https://api.openai.com/v1/audio/speech', {
       method: 'POST',
@@ -56,12 +65,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: 'tts-1',
-        input: processedText,
-        voice: voice,
-        response_format: 'mp3',
-      }),
+      body: JSON.stringify(requestBody),
     })
 
     console.log('OpenAI response status:', response.status)
@@ -69,14 +73,8 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text()
       console.error('OpenAI API error:', errorText)
-      let errorData
-      try {
-        errorData = JSON.parse(errorText)
-      } catch {
-        errorData = { message: errorText }
-      }
       return new Response(
-        JSON.stringify({ error: `OpenAI API error: ${errorData.error?.message || errorText}` }),
+        JSON.stringify({ error: `OpenAI API error: ${errorText}` }),
         { 
           status: response.status, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -85,21 +83,45 @@ serve(async (req) => {
     }
 
     console.log('Converting audio to base64...')
-    // Convert audio buffer to base64
-    const arrayBuffer = await response.arrayBuffer()
-    console.log('Audio buffer size:', arrayBuffer.byteLength)
     
-    const base64Audio = btoa(
-      String.fromCharCode(...new Uint8Array(arrayBuffer))
-    )
-    console.log('Base64 audio length:', base64Audio.length)
-
-    return new Response(
-      JSON.stringify({ audio: base64Audio }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    try {
+      // Convert audio buffer to base64
+      const arrayBuffer = await response.arrayBuffer()
+      console.log('Audio buffer size:', arrayBuffer.byteLength)
+      
+      if (arrayBuffer.byteLength === 0) {
+        throw new Error('Empty audio buffer received')
       }
-    )
+      
+      // Use a more memory-efficient approach for base64 conversion
+      const uint8Array = new Uint8Array(arrayBuffer)
+      let binaryString = ''
+      const chunkSize = 32768 // Process in chunks to avoid memory issues
+      
+      for (let i = 0; i < uint8Array.length; i += chunkSize) {
+        const chunk = uint8Array.slice(i, i + chunkSize)
+        binaryString += String.fromCharCode(...chunk)
+      }
+      
+      const base64Audio = btoa(binaryString)
+      console.log('Base64 audio length:', base64Audio.length)
+
+      return new Response(
+        JSON.stringify({ audio: base64Audio }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    } catch (conversionError) {
+      console.error('Audio conversion error:', conversionError)
+      return new Response(
+        JSON.stringify({ error: `Audio conversion failed: ${conversionError.message}` }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
 
   } catch (error) {
     console.error('Text-to-speech error:', error)
