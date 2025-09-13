@@ -31,7 +31,6 @@ export const VisualisationPractices = () => {
   const [exercises, setExercises] = useState<VisualisationExercise[]>([]);
   const [userProgress, setUserProgress] = useState<UserExerciseProgress[]>([]);
   const [selectedExercise, setSelectedExercise] = useState<VisualisationExercise | null>(null);
-  const [currentStep, setCurrentStep] = useState(0);
   const [isReflecting, setIsReflecting] = useState(false);
   const [reflectionNotes, setReflectionNotes] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -144,17 +143,8 @@ export const VisualisationPractices = () => {
 
   const startExercise = (exercise: VisualisationExercise) => {
     setSelectedExercise(exercise);
-    setCurrentStep(0);
     setIsReflecting(false);
     setReflectionNotes("");
-  };
-
-  const nextStep = () => {
-    if (selectedExercise && currentStep < selectedExercise.steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      setIsReflecting(true);
-    }
   };
 
   const completeExercise = async () => {
@@ -166,7 +156,9 @@ export const VisualisationPractices = () => {
     }
   };
 
-  const playStepAudio = async (text: string) => {
+  const playFullPracticeAudio = async () => {
+    if (!selectedExercise) return;
+    
     if (isPlayingAudio) {
       // Stop current audio
       if (audioRef.current) {
@@ -177,11 +169,14 @@ export const VisualisationPractices = () => {
       return;
     }
 
+    // Combine all steps into one continuous text
+    const fullText = selectedExercise.steps.join(' ');
+    
     setIsLoadingAudio(true);
     
     try {
       const { data, error } = await supabase.functions.invoke('text-to-speech', {
-        body: { text, voice: 'nova' } // Nova is peaceful for meditation
+        body: { text: fullText, voice: 'nova' }
       });
 
       if (error) throw error;
@@ -343,7 +338,7 @@ export const VisualisationPractices = () => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">
-                  Step {currentStep + 1} of {selectedExercise.steps.length}
+                  Full Practice • {selectedExercise.duration_minutes} minutes
                 </span>
                 <Badge variant="outline">
                   {getCategoryInfo(selectedExercise.category).name}
@@ -353,14 +348,14 @@ export const VisualisationPractices = () => {
               <div className="bg-primary/5 rounded-lg p-6 border border-primary/20">
                 <div className="flex items-start gap-4">
                   <div className="flex-1">
-                    <p className="text-foreground leading-relaxed">
-                      {selectedExercise.steps[currentStep]}
+                    <p className="text-foreground leading-relaxed whitespace-pre-line">
+                      {selectedExercise.steps.join('\n\n')}
                     </p>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => playStepAudio(selectedExercise.steps[currentStep])}
+                    onClick={playFullPracticeAudio}
                     disabled={isLoadingAudio}
                     className="shrink-0"
                   >
@@ -382,8 +377,8 @@ export const VisualisationPractices = () => {
                 >
                   Close
                 </Button>
-                <Button onClick={nextStep} className="flex items-center gap-2">
-                  {currentStep < selectedExercise.steps.length - 1 ? 'Next Step' : 'Complete'}
+                <Button onClick={() => setIsReflecting(true)} className="flex items-center gap-2">
+                  Complete Practice
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
