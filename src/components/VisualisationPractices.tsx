@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Eye, Clock, Sparkles, Heart, ArrowRight, ChevronRight, PenTool, CheckCircle, Volume2, VolumeX } from "lucide-react";
+import { Eye, Sparkles, Heart, ArrowRight, ChevronRight, PenTool, CheckCircle, Volume2, VolumeX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -292,10 +292,6 @@ export const VisualisationPractices = () => {
                             {categoryInfo.name} #{exercise.variation_number}
                           </Badge>
                         </div>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4" />
-                          <span>{exercise.duration_minutes} min</span>
-                        </div>
                       </div>
                     </CardHeader>
                     
@@ -338,7 +334,7 @@ export const VisualisationPractices = () => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">
-                  Full Practice • {selectedExercise.duration_minutes} minutes
+                  Full Practice
                 </span>
                 <Badge variant="outline">
                   {getCategoryInfo(selectedExercise.category).name}
