@@ -22,7 +22,7 @@ const plans = [
       "Access to all coaches",
       "Email support"
     ],
-    buttonText: "Get Started",
+    buttonText: "Start Free",
     variant: "gentle" as const,
     popular: false
   },
@@ -42,7 +42,7 @@ const plans = [
       "Text suggestion helper for all scenarios",
       "Priority support"
     ],
-    buttonText: "Get Started",
+    buttonText: "Go Premium",
     variant: "warm" as const,
     popular: true
   },
@@ -60,7 +60,7 @@ const plans = [
       "Journal prompts",
       "Priority support"
     ],
-    buttonText: "Get Started",
+    buttonText: "Get Healing Kit",
     variant: "healing" as const,
     popular: false
   }
@@ -73,8 +73,27 @@ export const PricingSection = ({ backTo = 'home' }: { backTo?: 'home' | 'coaches
   const location = useLocation();
 
   const handlePlanClick = (planName: string) => {
-    // Navigate to auth page for all plans
-    navigate('/auth');
+    // Use the backTo prop to determine where to go back to
+    const from = backTo;
+    
+    if (planName === "Premium") {
+      if (!user) {
+        navigate('/auth');
+        return;
+      }
+      navigate('/premium-purchase', { state: { from } });
+    } else if (planName === "Healing Kit") {
+      if (!user) {
+        navigate('/auth');
+        return;
+      }
+      navigate('/healing-kit-purchase', { state: { from } });
+    } else if (planName === "Free") {
+      // For home page, go to auth. For coaches page, stay on coaches page
+      if (backTo === 'home') {
+        navigate('/auth');
+      }
+    }
   };
 
   const handlePremiumPurchase = async () => {
@@ -205,7 +224,7 @@ export const PricingSection = ({ backTo = 'home' }: { backTo?: 'home' | 'coaches
                         size="lg"
                         onClick={() => handlePlanClick(plan.name)}
                       >
-                        {plan.buttonText}
+                        {backTo === 'home' && plan.name === 'Free' ? 'Get Started' : plan.buttonText}
                       </Button>
                 </CardContent>
               </Card>
