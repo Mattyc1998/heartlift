@@ -76,6 +76,13 @@ export const PricingSection = ({ backTo = 'home' }: { backTo?: 'home' | 'coaches
     // Use the backTo prop to determine where to go back to
     const from = backTo;
     
+    // If on home page, all plans go to auth
+    if (backTo === 'home') {
+      navigate('/auth');
+      return;
+    }
+    
+    // If on coaches page, use original functionality
     if (planName === "Premium") {
       if (!user) {
         navigate('/auth');
@@ -88,11 +95,6 @@ export const PricingSection = ({ backTo = 'home' }: { backTo?: 'home' | 'coaches
         return;
       }
       navigate('/healing-kit-purchase', { state: { from } });
-    } else if (planName === "Free") {
-      // For home page, go to auth. For coaches page, stay on coaches page
-      if (backTo === 'home') {
-        navigate('/auth');
-      }
     }
   };
 
@@ -224,7 +226,7 @@ export const PricingSection = ({ backTo = 'home' }: { backTo?: 'home' | 'coaches
                         size="lg"
                         onClick={() => handlePlanClick(plan.name)}
                       >
-                        {backTo === 'home' && plan.name === 'Free' ? 'Get Started' : plan.buttonText}
+                        {backTo === 'home' ? 'Get Started' : plan.buttonText}
                       </Button>
                 </CardContent>
               </Card>
