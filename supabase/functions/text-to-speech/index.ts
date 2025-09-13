@@ -27,6 +27,15 @@ serve(async (req) => {
       )
     }
 
+    // OpenAI TTS has a 4096 character limit
+    const maxLength = 4000
+    let processedText = text
+    
+    if (text.length > maxLength) {
+      console.log('Text too long, truncating from', text.length, 'to', maxLength)
+      processedText = text.substring(0, maxLength) + '...'
+    }
+
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')
     if (!OPENAI_API_KEY) {
       console.log('OpenAI API key not found')
@@ -49,8 +58,8 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'tts-1',
-        input: text,
-        voice: voice, // nova is peaceful for visualization
+        input: processedText,
+        voice: voice,
         response_format: 'mp3',
       }),
     })
