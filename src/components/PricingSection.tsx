@@ -73,29 +73,28 @@ export const PricingSection = ({ backTo = 'home' }: { backTo?: 'home' | 'coaches
   const location = useLocation();
 
   const handlePlanClick = (planName: string) => {
+    // Use the backTo prop to determine where to go back to
+    const from = backTo;
+    
     // If on home page, all plans go to auth
     if (backTo === 'home') {
       navigate('/auth');
       return;
     }
     
-    // If on coaches page, navigate to pricing section at top of page
+    // If on coaches page, use original functionality
     if (planName === "Premium") {
       if (!user) {
         navigate('/auth');
         return;
       }
-      // Navigate to pricing tab and scroll to top
-      navigate('/?tab=pricing');
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+      navigate('/premium-purchase', { state: { from } });
     } else if (planName === "Healing Kit") {
       if (!user) {
         navigate('/auth');
         return;
       }
-      // Navigate to pricing tab and scroll to top
-      navigate('/?tab=pricing');
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+      navigate('/healing-kit-purchase', { state: { from } });
     }
   };
 
@@ -220,27 +219,14 @@ export const PricingSection = ({ backTo = 'home' }: { backTo?: 'home' | 'coaches
                   </ul>
 
                    
-                  <Button 
-                    variant={plan.variant} 
-                    className="w-full min-h-[44px]"
-                    size="lg"
-                    onClick={() => {
-                      if (backTo === 'home') {
-                        handlePlanClick(plan.name);
-                      } else {
-                        // When on pricing tab, handle actual purchases
-                        if (plan.name === "Premium") {
-                          handlePremiumPurchase();
-                        } else if (plan.name === "Healing Kit") {
-                          handleHealingKitPurchase();
-                        } else {
-                          handlePlanClick(plan.name);
-                        }
-                      }
-                    }}
-                  >
-                    {backTo === 'home' ? 'Get Started' : plan.buttonText}
-                  </Button>
+                      <Button 
+                        variant={plan.variant} 
+                        className="w-full min-h-[44px]"
+                        size="lg"
+                        onClick={() => handlePlanClick(plan.name)}
+                      >
+                        {backTo === 'home' ? 'Get Started' : plan.buttonText}
+                      </Button>
                 </CardContent>
               </Card>
             );
