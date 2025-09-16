@@ -65,19 +65,28 @@ export default function AdvancedTools() {
           </Button>
         </div>
         
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Crown className="w-8 h-8 text-primary" />
+        <div className="text-center mb-8 space-y-4">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="p-3 rounded-full bg-gradient-to-r from-primary to-primary-glow shadow-warm">
+              <Crown className="w-8 h-8 text-primary-foreground" />
+            </div>
+          </div>
+          <div className="flex items-center justify-center gap-3 mb-4">
             <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               Advanced Tools
             </h1>
-            <Badge variant="default" className="bg-gradient-to-r from-primary to-primary-glow">
+            <Badge variant="default" className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
               Premium
             </Badge>
           </div>
-          <p className="text-muted-foreground">
-            Professional-grade psychological assessments and recovery tracking
-          </p>
+          <div className="max-w-2xl mx-auto space-y-3">
+            <p className="text-lg font-semibold text-foreground">
+              Unlock deeper insights into your relationship patterns
+            </p>
+            <p className="text-muted-foreground">
+              Discover your attachment style, analyze conversations, get personalized text suggestions, and access guided programs designed to help you build healthier, more fulfilling relationships.
+            </p>
+          </div>
         </div>
 
         <Card className="p-4 mb-6">

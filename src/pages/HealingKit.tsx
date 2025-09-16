@@ -71,13 +71,37 @@ export default function HealingKit() {
           </Button>
         </div>
         
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
+        <div className="text-center mb-8 space-y-4">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="p-3 rounded-full bg-gradient-to-r from-healing to-healing-glow shadow-warm">
+              <Heart className="w-8 h-8 text-healing-foreground" />
+            </div>
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-healing to-healing-glow bg-clip-text text-transparent mb-4">
             Your Healing Kit
           </h1>
-          <p className="text-muted-foreground">
-            Your personalized toolkit for emotional recovery and growth
-          </p>
+          <div className="max-w-2xl mx-auto space-y-3">
+            <p className="text-lg font-semibold text-foreground">
+              Your personalized toolkit for emotional recovery and growth 💚
+            </p>
+            <p className="text-muted-foreground">
+              Navigate through heartbreak and emotional challenges with proven techniques. Track your progress, practice daily affirmations, and build the foundation for healthier relationships ahead.
+            </p>
+            <div className="flex items-center justify-center gap-6 pt-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="w-2 h-2 bg-healing rounded-full"></div>
+                <span>30-Day Structured Plan</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="w-2 h-2 bg-healing rounded-full"></div>
+                <span>Daily Practices</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="w-2 h-2 bg-healing rounded-full"></div>
+                <span>Progress Tracking</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <HealingKitNav activeSection={activeSection} onSectionChange={setActiveSection} />
