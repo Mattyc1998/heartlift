@@ -127,9 +127,9 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
           
           {/* Free to start highlight - moved below CTA */}
           <div className="flex justify-center">
-            <div className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-full border-2 border-emerald-200 shadow-sm">
-              <span className="text-2xl">🆓</span>
-              <span className="font-bold text-emerald-700 text-lg sm:text-xl">Free to start</span>
+            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-50 to-green-50 rounded-full border border-emerald-200 shadow-sm">
+              <span className="text-lg">🆓</span>
+              <span className="font-semibold text-emerald-700 text-sm sm:text-base">Free to start</span>
             </div>
           </div>
         </div>
