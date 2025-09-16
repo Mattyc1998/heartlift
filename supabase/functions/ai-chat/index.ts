@@ -47,7 +47,10 @@ const crisisKeywords = {
     "addicted to", "drug addiction", "can't stop using", "overdosed", "overdosing",
     "drug problem", "substance abuse", "drinking too much", "alcoholic", "drug abuse",
     "using drugs", "taking pills", "cocaine", "heroin", "meth", "abusing alcohol",
-    "chemical dependency", "withdrawal", "need drugs", "can't quit"
+    "chemical dependency", "withdrawal", "need drugs", "can't quit", "took drugs",
+    "taking drugs", "doing drugs", "on drugs", "high on", "getting high", "drug use",
+    "substance use", "pills", "weed", "marijuana", "ecstasy", "molly", "acid", "lsd",
+    "taking substances", "using substances", "recreational drugs", "party drugs"
   ]
 };
 
@@ -78,7 +81,7 @@ function getCrisisResponse(type: string): string {
       return "I'm deeply concerned about what you're experiencing. Abuse is never okay, and you deserve support and safety. I can't provide the specialized help you need, but please reach out to professionals who can help you. If you're in immediate danger, call emergency services. You can also contact an abuse helpline (for example, NSPCC at 0808 800 5000 in the UK, or find your local resource at https://findahelpline.com).";
     
     case 'drugAbuse':
-      return "I hear that you're struggling with substance use. This takes courage to share, and I want you to know that help is available. I can't provide the medical and specialized support you need, but please reach out to addiction services or your healthcare provider. You can contact a substance abuse helpline (for example, Frank at 0300 123 6600 in the UK, or find your local resource at https://findahelpline.com).";
+      return "I'm concerned about what you're sharing regarding substance use. I can't provide the specialized help you need, but please reach out to professionals who can help you. If you're in immediate danger, call emergency services. You can contact a substance abuse helpline (for example, Frank at 0300 123 6600 in the UK, or SAMHSA's helpline at 1-800-662-4357 in the US, or find your local resource at https://findahelpline.com).";
     
     default:
       return "I'm concerned about what you're sharing. Please reach out to a crisis helpline or trusted professional who can provide proper support (for example, find your local helpline at https://findahelpline.com). If you're in immediate danger, please call emergency services.";
