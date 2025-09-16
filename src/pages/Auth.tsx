@@ -130,7 +130,7 @@ export const Auth = () => {
             </div>
           </div>
           <h1 className="text-3xl font-bold text-foreground">
-            Join Heart<span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Wise</span>
+            Join Heart<span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Lift</span>
           </h1>
           <p className="text-muted-foreground">
             Start your healing journey today
