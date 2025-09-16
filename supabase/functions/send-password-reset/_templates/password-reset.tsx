@@ -23,13 +23,13 @@ export const PasswordResetEmail = ({
 }: PasswordResetEmailProps) => (
   <Html>
     <Head />
-    <Preview>Reset your HeartWise password</Preview>
+    <Preview>Reset your HeartLift password</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={headerSection}>
           <div style={logoContainer}>
             <div style={heartIcon}>💝</div>
-            <Heading style={title}>HeartWise</Heading>
+            <Heading style={title}>HeartLift</Heading>
           </div>
         </Section>
 
@@ -41,7 +41,7 @@ export const PasswordResetEmail = ({
           </Text>
           
           <Text style={text}>
-            We received a request to reset the password for your HeartWise account ({userEmail}).
+            We received a request to reset the password for your HeartLift account ({userEmail}).
           </Text>
 
           {resetLink && (
@@ -76,7 +76,7 @@ export const PasswordResetEmail = ({
         <Section style={footerSection}>
           <Text style={footer}>
             With love and support,<br />
-            The HeartWise Team
+            The HeartLift Team
           </Text>
           <Text style={subfooter}>
             Helping you heal, one step at a time 💚

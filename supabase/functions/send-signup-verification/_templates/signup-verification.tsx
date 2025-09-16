@@ -21,18 +21,18 @@ export const SignupVerificationEmail = ({
 }: SignupVerificationEmailProps) => (
   <Html>
     <Head />
-    <Preview>Verify your HeartWise account</Preview>
+    <Preview>Verify your HeartLift account</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Text style={logo}>💖 HeartWise</Text>
+          <Text style={logo}>💖 HeartLift</Text>
         </Section>
         
         <Section style={content}>
           <Heading style={h1}>Verify Your Email</Heading>
           
           <Text style={text}>
-            Hi there! Welcome to HeartWise. To complete your account setup and start your healing journey, please verify your email address using the code below:
+            Hi there! Welcome to HeartLift. To complete your account setup and start your healing journey, please verify your email address using the code below:
           </Text>
           
           <Section style={codeContainer}>
@@ -44,14 +44,14 @@ export const SignupVerificationEmail = ({
           </Text>
           
           <Text style={text}>
-            This code will expire in 24 hours. If you didn't create an account with HeartWise, you can safely ignore this email.
+            This code will expire in 24 hours. If you didn't create an account with HeartLift, you can safely ignore this email.
           </Text>
         </Section>
         
         <Section style={footer}>
           <Text style={footerText}>
             With love,<br />
-            The HeartWise Team
+            The HeartLift Team
           </Text>
         </Section>
       </Container>

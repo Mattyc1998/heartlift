@@ -67,7 +67,7 @@ export const Auth = () => {
     } else {
       toast({
         title: "Welcome back!",
-        description: "You're now signed in to HeartWise.",
+        description: "You're now signed in to HeartLift.",
       });
       navigate('/');
     }

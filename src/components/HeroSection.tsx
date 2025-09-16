@@ -46,7 +46,7 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
           <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold text-foreground tracking-tight leading-tight">
             Heart
             <span className="bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent animate-glow">
-              Wise
+              Lift
             </span>
           </h1>
           

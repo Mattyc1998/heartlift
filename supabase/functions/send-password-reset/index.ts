@@ -62,9 +62,9 @@ Deno.serve(async (req) => {
         )
 
         const { error } = await resend.emails.send({
-          from: 'HeartWise <noreply@resend.dev>',
+          from: 'HeartLift <noreply@resend.dev>',
           to: [user.email],
-          subject: 'Reset your HeartWise password',
+          subject: 'Reset your HeartLift password',
           html,
         })
 
@@ -114,9 +114,9 @@ Deno.serve(async (req) => {
         )
 
         const { error } = await resend.emails.send({
-          from: 'HeartWise <noreply@resend.dev>',
+          from: 'HeartLift <noreply@resend.dev>',
           to: [user.email],
-          subject: 'Reset your HeartWise password',
+          subject: 'Reset your HeartLift password',
           html,
         })
 
@@ -165,9 +165,9 @@ Deno.serve(async (req) => {
           )
 
           const { error } = await resend.emails.send({
-            from: 'HeartWise <noreply@resend.dev>',
+            from: 'HeartLift <noreply@resend.dev>',
             to: [user.email],
-            subject: 'Reset your HeartWise password',
+            subject: 'Reset your HeartLift password',
             html,
           })
 
@@ -210,9 +210,9 @@ Deno.serve(async (req) => {
       )
 
       const { error } = await resend.emails.send({
-        from: 'HeartWise <noreply@resend.dev>',
+        from: 'HeartLift <noreply@resend.dev>',
         to: [email],
-        subject: 'Reset your HeartWise password',
+        subject: 'Reset your HeartLift password',
         html,
       })
 

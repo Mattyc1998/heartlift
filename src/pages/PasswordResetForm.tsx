@@ -127,7 +127,7 @@ export default function PasswordResetForm() {
               <Heart className="w-8 h-8 text-primary" />
             </div>
             <CardTitle className="text-2xl font-bold">
-              HeartWise
+              HeartLift
             </CardTitle>
             <CardDescription>
               Create your new password

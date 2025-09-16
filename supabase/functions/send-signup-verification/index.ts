@@ -57,9 +57,9 @@ Deno.serve(async (req) => {
         )
 
         const { error } = await resend.emails.send({
-          from: 'HeartWise <noreply@resend.dev>',
+          from: 'HeartLift <noreply@resend.dev>',
           to: [user.email],
-          subject: 'Verify your HeartWise email',
+          subject: 'Verify your HeartLift email',
           html,
         })
 
@@ -106,9 +106,9 @@ Deno.serve(async (req) => {
         )
 
         const { error } = await resend.emails.send({
-          from: 'HeartWise <noreply@resend.dev>',
+          from: 'HeartLift <noreply@resend.dev>',
           to: [user.email],
-          subject: 'Verify your HeartWise email',
+          subject: 'Verify your HeartLift email',
           html,
         })
 
