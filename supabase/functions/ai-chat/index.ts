@@ -50,19 +50,28 @@ const crisisKeywords = {
     "chemical dependency", "withdrawal", "need drugs", "can't quit", "took drugs",
     "taking drugs", "doing drugs", "on drugs", "high on", "getting high", "drug use",
     "substance use", "pills", "weed", "marijuana", "ecstasy", "molly", "acid", "lsd",
-    "taking substances", "using substances", "recreational drugs", "party drugs"
+    "taking substances", "using substances", "recreational drugs", "party drugs",
+    "im taking drugs", "i'm taking drugs", "im doing drugs", "i'm doing drugs",
+    "im using drugs", "i'm using drugs", "im on drugs", "i'm on drugs",
+    "take drugs", "do drugs", "use drugs", "smoke weed", "smoking weed",
+    "drunk", "drinking", "getting drunk", "been drinking", "had drinks"
   ]
 };
 
 function detectCrisisSituation(message: string): { isCrisis: boolean; type?: string } {
   const lowerMessage = message.toLowerCase();
+  console.log('Checking message for crisis keywords:', lowerMessage);
   
   for (const [type, keywords] of Object.entries(crisisKeywords)) {
-    if (keywords.some(keyword => lowerMessage.includes(keyword))) {
-      return { isCrisis: true, type };
+    for (const keyword of keywords) {
+      if (lowerMessage.includes(keyword)) {
+        console.log(`Crisis detected! Type: ${type}, Keyword: ${keyword}`);
+        return { isCrisis: true, type };
+      }
     }
   }
   
+  console.log('No crisis detected');
   return { isCrisis: false };
 }
 
