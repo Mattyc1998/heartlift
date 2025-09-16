@@ -41,28 +41,39 @@ serve(async (req) => {
     
     // Generate detailed analysis using OpenAI
     const analysisPrompt = `
-    Based on the attachment style quiz results showing ${attachmentStyle} attachment style, provide a detailed psychological analysis including:
+    Based on the attachment style quiz results showing ${attachmentStyle} attachment style, provide a detailed psychological analysis.
+    
+    IMPORTANT: The calculated attachment style is ${attachmentStyle}. Your analysis must be consistent with this specific style.
+    
+    Attachment Style Definitions:
+    - secure: Comfortable with intimacy and autonomy
+    - anxious: Seeks closeness but fears abandonment
+    - avoidant: Values independence, uncomfortable with closeness
+    - fearful-avoidant: Wants close relationships but fears getting hurt
+    - disorganized: Chaotic, unpredictable relationship patterns, often from trauma
+    
+    Provide analysis for ${attachmentStyle} attachment style including:
 
-    1. Full breakdown of their attachment style patterns
+    1. Full breakdown of their ${attachmentStyle} attachment style patterns
     2. Specific triggers they should watch out for in relationships
-    3. Personalized healing path recommendations
-    4. Practical coping techniques for their style
-    5. How this affects their relationship patterns
+    3. Personalized healing path recommendations for ${attachmentStyle} style
+    4. Practical coping techniques specifically for ${attachmentStyle} attachment
+    5. How ${attachmentStyle} attachment affects their relationship patterns
 
-    Format the response as JSON with this structure:
+    Format the response as valid JSON only (no markdown formatting) with this structure:
     {
       "detailedBreakdown": {
-        "strengths": ["list of strengths"],
-        "challenges": ["list of challenges"],
-        "relationshipPatterns": ["list of patterns"]
+        "strengths": ["list of strengths specific to ${attachmentStyle}"],
+        "challenges": ["list of challenges specific to ${attachmentStyle}"],
+        "relationshipPatterns": ["list of patterns specific to ${attachmentStyle}"]
       },
-      "healingPath": "Detailed personalized healing path text",
-      "triggers": ["list of specific triggers to watch for"],
+      "healingPath": "Detailed personalized healing path text for ${attachmentStyle} attachment",
+      "triggers": ["list of specific triggers to watch for with ${attachmentStyle} attachment"],
       "copingTechniques": [
         {
           "technique": "technique name",
-          "description": "how to apply it",
-          "example": "practical example"
+          "description": "how to apply it for ${attachmentStyle} attachment",
+          "example": "practical example for someone with ${attachmentStyle} attachment"
         }
       ]
     }
@@ -77,7 +88,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: 'You are a licensed therapist specializing in attachment theory. Provide detailed, empathetic, and scientifically-backed analysis.' },
+          { role: 'system', content: `You are a licensed therapist specializing in attachment theory. Provide detailed, empathetic, and scientifically-backed analysis. Always ensure your analysis is consistent with the calculated attachment style. Return only valid JSON without any markdown formatting or code blocks.` },
           { role: 'user', content: analysisPrompt }
         ],
         temperature: 0.7,
@@ -85,7 +96,14 @@ serve(async (req) => {
     });
 
     const aiData = await response.json();
-    const analysis = JSON.parse(aiData.choices[0].message.content);
+    let analysisContent = aiData.choices[0].message.content;
+    
+    // Clean up markdown formatting if present
+    if (analysisContent.includes('```json')) {
+      analysisContent = analysisContent.replace(/```json\n?/g, '').replace(/\n?```/g, '');
+    }
+    
+    const analysis = JSON.parse(analysisContent);
 
     // Save results to database
     const { error } = await supabase
@@ -126,21 +144,87 @@ function calculateAttachmentStyle(answers: string[]): string {
     secure: 0,
     anxious: 0,
     avoidant: 0,
+    'fearful-avoidant': 0,
     disorganized: 0
   };
 
-  // Simple scoring logic based on answer patterns
+  // More sophisticated scoring based on attachment theory research
   answers.forEach((answer, index) => {
-    if (answer.includes('comfortable') || answer.includes('trust') || answer.includes('open')) {
-      styleScores.secure++;
-    } else if (answer.includes('worry') || answer.includes('anxious') || answer.includes('clingy')) {
-      styleScores.anxious++;
-    } else if (answer.includes('independent') || answer.includes('distance') || answer.includes('uncomfortable')) {
-      styleScores.avoidant++;
-    } else {
-      styleScores.disorganized++;
+    const lowerAnswer = answer.toLowerCase();
+    
+    // Secure attachment indicators
+    if (lowerAnswer.includes('comfortable') || lowerAnswer.includes('trust') || 
+        lowerAnswer.includes('open') || lowerAnswer.includes('easy') ||
+        lowerAnswer.includes('confident') || lowerAnswer.includes('positive') ||
+        lowerAnswer.includes('supportive') || lowerAnswer.includes('stable')) {
+      styleScores.secure += 2;
+    }
+    
+    // Anxious attachment indicators
+    if (lowerAnswer.includes('worry') || lowerAnswer.includes('anxious') || 
+        lowerAnswer.includes('clingy') || lowerAnswer.includes('need') ||
+        lowerAnswer.includes('fear') && lowerAnswer.includes('abandon') ||
+        lowerAnswer.includes('jealous') || lowerAnswer.includes('insecure')) {
+      styleScores.anxious += 2;
+    }
+    
+    // Dismissive-avoidant indicators
+    if (lowerAnswer.includes('independent') || lowerAnswer.includes('self-reliant') ||
+        lowerAnswer.includes('distance') || lowerAnswer.includes('space') ||
+        lowerAnswer.includes('uncomfortable') && lowerAnswer.includes('close') ||
+        lowerAnswer.includes('prefer') && lowerAnswer.includes('alone')) {
+      styleScores.avoidant += 2;
+    }
+    
+    // Fearful-avoidant indicators (wants closeness but fears it)
+    if ((lowerAnswer.includes('want') || lowerAnswer.includes('need')) && 
+        (lowerAnswer.includes('fear') || lowerAnswer.includes('afraid') || lowerAnswer.includes('scared')) ||
+        lowerAnswer.includes('conflicted') || lowerAnswer.includes('mixed feelings') ||
+        (lowerAnswer.includes('close') && lowerAnswer.includes('hurt')) ||
+        lowerAnswer.includes('push away') && lowerAnswer.includes('want')) {
+      styleScores['fearful-avoidant'] += 3;
+    }
+    
+    // Disorganized indicators (chaotic, unpredictable patterns)
+    if (lowerAnswer.includes('unpredictable') || lowerAnswer.includes('chaotic') ||
+        lowerAnswer.includes('confused') || lowerAnswer.includes('inconsistent') ||
+        lowerAnswer.includes('explosive') || lowerAnswer.includes('trauma') ||
+        (lowerAnswer.includes('hot') && lowerAnswer.includes('cold')) ||
+        lowerAnswer.includes('doesn\'t make sense')) {
+      styleScores.disorganized += 2;
+    }
+    
+    // Context-based scoring adjustments
+    if (index < 5) { // Early questions about general relationship comfort
+      if (lowerAnswer.includes('difficult') || lowerAnswer.includes('hard')) {
+        if (lowerAnswer.includes('trust') || lowerAnswer.includes('open')) {
+          styleScores['fearful-avoidant'] += 1;
+        } else {
+          styleScores.avoidant += 1;
+        }
+      }
     }
   });
 
-  return Object.entries(styleScores).reduce((a, b) => styleScores[a[0]] > styleScores[b[0]] ? a : b)[0];
+  // Find the highest scoring style
+  const maxScore = Math.max(...Object.values(styleScores));
+  const topStyles = Object.entries(styleScores).filter(([style, score]) => score === maxScore);
+  
+  // If there's a tie, use specific logic to break it
+  if (topStyles.length > 1) {
+    // Prioritize fearful-avoidant over disorganized if both are high
+    if (styleScores['fearful-avoidant'] === styleScores.disorganized && 
+        styleScores['fearful-avoidant'] >= styleScores.anxious && 
+        styleScores['fearful-avoidant'] >= styleScores.avoidant) {
+      return 'fearful-avoidant';
+    }
+    
+    // If anxious and avoidant are tied and high, it's likely fearful-avoidant
+    if (styleScores.anxious === styleScores.avoidant && 
+        styleScores.anxious > 0) {
+      return 'fearful-avoidant';
+    }
+  }
+  
+  return topStyles[0][0];
 }
