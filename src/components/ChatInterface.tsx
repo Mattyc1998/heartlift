@@ -61,6 +61,10 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
   // Load conversation history when coach changes - ensure greeting is always present
   useEffect(() => {
     if (user && coachPersonality) {
+      // Clear any existing input and reset states when coach changes
+      setInputMessage('');
+      setIsTyping(false);
+      
       // Always start with greeting to prevent disappearing first message
       const greeting = coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`;
       setMessages([{

@@ -222,6 +222,7 @@ const Index = () => {
               </div>
               <div className="lg:col-span-2 lg:order-2">
                 <ChatInterface 
+                  key={selectedCoach} // Force remount when coach changes
                   coachName={coachData[selectedCoach as keyof typeof coachData]?.name || "Dr. Sage"}
                   coachPersonality={coachData[selectedCoach as keyof typeof coachData]?.personality || "therapist"}
                   coachGreeting={coachData[selectedCoach as keyof typeof coachData]?.greeting || "I'm here to help you understand yourself better."}
