@@ -45,7 +45,7 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
           
           <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-8xl font-bold text-foreground tracking-tight leading-tight px-4 sm:px-0">
             Heart
-            <span className="bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent animate-glow">
+            <span className="bg-gradient-to-r from-primary via-primary to-primary bg-clip-text text-transparent font-black drop-shadow-sm">
               Lift
             </span>
           </h1>
@@ -83,15 +83,19 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
           ].map((feature, index) => (
             <div 
               key={feature.title}
-              className={`group p-3 sm:p-4 lg:p-6 xl:p-8 bg-card/80 backdrop-blur-sm rounded-2xl shadow-card border border-border hover:shadow-warm transition-all duration-500 hover:scale-[1.02] animate-slide-up bg-gradient-to-br ${feature.gradient}`}
+              className={`group p-3 sm:p-4 lg:p-6 xl:p-8 bg-card backdrop-blur-sm rounded-2xl border border-border/40 hover:border-primary/20 hover:shadow-warm transition-all duration-500 hover:scale-[1.02] animate-slide-up relative overflow-hidden`}
               style={{ animationDelay: `${index * 200}ms` }}
             >
-              <div className="relative mb-4">
-                <feature.icon className="w-10 h-10 text-primary mb-3 mx-auto group-hover:animate-bounce-gentle" />
-                <div className="absolute -top-1 -right-8 text-lg">{feature.emoji}</div>
+              {/* Subtle background gradient based on feature type */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-40`} />
+              <div className="relative z-10">
+                <div className="relative mb-4">
+                  <feature.icon className="w-10 h-10 text-primary mb-3 mx-auto group-hover:animate-bounce-gentle" />
+                  <div className="absolute -top-1 -right-8 text-lg">{feature.emoji}</div>
+                </div>
+                <h3 className="font-bold text-base sm:text-lg mb-2 sm:mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
               </div>
-              <h3 className="font-bold text-base sm:text-lg mb-2 sm:mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
-              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>
@@ -101,7 +105,7 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
               <Button 
                 variant="warm" 
                 size="lg" 
-                className="px-6 sm:px-10 py-4 sm:py-4 text-base sm:text-lg font-semibold group relative overflow-hidden w-full sm:w-auto min-h-[48px]"
+                className="px-6 sm:px-10 py-4 sm:py-4 text-base sm:text-lg font-bold group relative overflow-hidden w-full sm:w-auto min-h-[48px] bg-gradient-to-r from-primary to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
                 onClick={handleGetStarted}
               >
               <span className="relative z-10 flex items-center gap-2">
@@ -122,13 +126,15 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
             
           </div>
           
-          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1">
-              🆓 Free to start
-            </span>
-            <span className="w-1 h-1 bg-muted-foreground/50 rounded-full"></span>
-            <span className="flex items-center gap-1">
-              ⭐ Premium from £11.99/month
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm sm:text-base">
+            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-50 to-green-50 rounded-full border border-emerald-200">
+              <span className="text-xl">🆓</span>
+              <span className="font-bold text-emerald-700 text-base sm:text-lg">Free to start</span>
+            </div>
+            <span className="w-1 h-1 bg-muted-foreground/50 rounded-full hidden sm:block"></span>
+            <span className="flex items-center gap-2 text-muted-foreground">
+              <span className="text-lg">⭐</span>
+              <span>Premium from £11.99/month</span>
             </span>
           </div>
         </div>
