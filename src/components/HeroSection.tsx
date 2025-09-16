@@ -51,9 +51,9 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
           </h1>
           
           <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium px-4 sm:px-0">
-            Your pocket relationship wellbeing coach with personality 💖
-            <br className="hidden sm:block" />
-            <span className="text-sm sm:text-base lg:text-lg">Navigate love, heartbreak, and communication with AI coaches who truly get you</span>
+            Helping your heart heal, grow, and thrive.
+            <br className="block mb-2 sm:mb-3" />
+            <span className="text-sm sm:text-base lg:text-lg block sm:inline mt-2 sm:mt-0">Navigate love, heartbreak, and communication with AI coaches who truly understand you</span>
           </p>
         </div>
 
