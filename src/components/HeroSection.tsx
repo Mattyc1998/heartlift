@@ -105,7 +105,7 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
               <Button 
                 variant="warm" 
                 size="lg" 
-                className="px-6 sm:px-10 py-4 sm:py-4 text-base sm:text-lg font-bold group relative overflow-hidden w-full sm:w-auto min-h-[48px] bg-gradient-to-r from-primary to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
+                className="px-6 sm:px-10 py-4 sm:py-4 text-base sm:text-lg font-semibold group relative overflow-hidden w-full sm:w-auto min-h-[48px] shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
                 onClick={handleGetStarted}
               >
               <span className="relative z-10 flex items-center gap-2">
