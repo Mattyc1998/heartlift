@@ -89,9 +89,9 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
               {/* Subtle background gradient based on feature type */}
               <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-40`} />
               <div className="relative z-10">
-                <div className="relative mb-4">
-                  <feature.icon className="w-10 h-10 text-primary mb-3 mx-auto group-hover:animate-bounce-gentle" />
-                  <div className="absolute -top-1 -right-8 text-lg">{feature.emoji}</div>
+                <div className="relative mb-6">
+                  <feature.icon className="w-12 h-12 sm:w-14 sm:h-14 text-primary mb-4 mx-auto group-hover:animate-bounce-gentle stroke-[1.5]" />
+                  <div className="absolute -top-2 -right-6 text-xl sm:text-2xl">{feature.emoji}</div>
                 </div>
                 <h3 className="font-bold text-base sm:text-lg mb-2 sm:mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
@@ -100,7 +100,15 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
           ))}
         </div>
 
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-6 sm:space-y-8">
+            {/* Free to start highlight - moved above CTA */}
+            <div className="flex justify-center">
+              <div className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-full border-2 border-emerald-200 shadow-sm">
+                <span className="text-2xl">🆓</span>
+                <span className="font-bold text-emerald-700 text-lg sm:text-xl">Free to start - No risk!</span>
+              </div>
+            </div>
+            
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
               <Button 
                 variant="warm" 
@@ -126,13 +134,8 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
             
           </div>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm sm:text-base">
-            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-50 to-green-50 rounded-full border border-emerald-200">
-              <span className="text-xl">🆓</span>
-              <span className="font-bold text-emerald-700 text-base sm:text-lg">Free to start</span>
-            </div>
-            <span className="w-1 h-1 bg-muted-foreground/50 rounded-full hidden sm:block"></span>
-            <span className="flex items-center gap-2 text-muted-foreground">
+          <div className="flex items-center justify-center pt-8 pb-4">
+            <span className="flex items-center gap-2 text-muted-foreground text-sm">
               <span className="text-lg">⭐</span>
               <span>Premium from £11.99/month</span>
             </span>
