@@ -6,6 +6,7 @@ import { MoodTracker } from "@/components/MoodTracker";
 import { PricingSection } from "@/components/PricingSection";
 import { PremiumManagement } from "@/components/PremiumManagement";
 import { SubscriptionStatusBanner } from "@/components/SubscriptionStatusBanner";
+import { WelcomeOverlay } from "@/components/WelcomeOverlay";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, MessageCircle, TrendingUp, CreditCard, Crown, LogOut, User } from "lucide-react";
@@ -26,6 +27,7 @@ const Index = () => {
     const params = new URLSearchParams(window.location.search);
     return params.get('tab') || 'home';
   });
+  const [showWelcomeOverlay, setShowWelcomeOverlay] = useState(false);
   const { isPremium, hasHealingKit, user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,12 +46,49 @@ const Index = () => {
     }
   }, [currentTab]);
 
+  // Show welcome overlay for new users
+  useEffect(() => {
+    if (user && currentTab !== 'home') {
+      const hasSeenWelcome = localStorage.getItem(`welcomeShown_${user.id}`);
+      if (!hasSeenWelcome) {
+        setShowWelcomeOverlay(true);
+      }
+    }
+  }, [user, currentTab]);
+
   const handleGetStarted = () => {
     // Set flag to indicate user is navigating from home to chat
     if (user) {
       sessionStorage.setItem(`fromHome_${user.id}`, 'true');
     }
     setCurrentTab("chat");
+  };
+
+  const handleWelcomeStartChat = () => {
+    setCurrentTab("chat");
+  };
+
+  const handleCloseWelcome = () => {
+    setShowWelcomeOverlay(false);
+    if (user) {
+      localStorage.setItem(`welcomeShown_${user.id}`, 'true');
+    }
+  };
+
+  // Extract first name from user metadata or email
+  const getFirstName = () => {
+    if (!user) return '';
+    
+    // Try to get from user_metadata first
+    if (user.user_metadata?.full_name) {
+      const fullName = user.user_metadata.full_name;
+      const firstName = fullName.split(' ')[0];
+      return firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+    }
+    
+    // Fallback to email prefix
+    const emailPrefix = user.email?.split('@')[0] || '';
+    return emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1).toLowerCase();
   };
 
   if (currentTab === "home") {
@@ -63,6 +102,15 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-secondary/30">
+      {/* Welcome Overlay */}
+      {showWelcomeOverlay && (
+        <WelcomeOverlay
+          firstName={getFirstName()}
+          onStartChat={handleWelcomeStartChat}
+          onClose={handleCloseWelcome}
+        />
+      )}
+
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         
         {/* Subscription Status Banner */}
