@@ -101,14 +101,6 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
         </div>
 
           <div className="space-y-6 sm:space-y-8">
-            {/* Free to start highlight - moved above CTA */}
-            <div className="flex justify-center">
-              <div className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-full border-2 border-emerald-200 shadow-sm">
-                <span className="text-2xl">🆓</span>
-                <span className="font-bold text-emerald-700 text-lg sm:text-xl">Free to start - No risk!</span>
-              </div>
-            </div>
-            
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
               <Button 
                 variant="warm" 
@@ -131,12 +123,20 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
                 )}
               </span>
             </Button>
+            </div>
             
+            {/* Free to start highlight - moved below CTA */}
+            <div className="flex justify-center">
+              <div className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-full border-2 border-emerald-200 shadow-sm">
+                <span className="text-2xl">🆓</span>
+                <span className="font-bold text-emerald-700 text-lg sm:text-xl">Free to start</span>
+              </div>
+            </div>
           </div>
           
           <div className="flex items-center justify-center pt-8 pb-4">
-            <span className="flex items-center gap-2 text-muted-foreground text-sm">
-              <span className="text-lg">⭐</span>
+            <span className="flex items-center gap-2 text-muted-foreground text-base sm:text-lg">
+              <span className="text-xl">⭐</span>
               <span>Premium from £11.99/month</span>
             </span>
           </div>
