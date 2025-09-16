@@ -143,7 +143,12 @@ const Index = () => {
             <div className="p-1.5 sm:p-2 rounded-full bg-gradient-to-r from-primary to-primary-glow">
               <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold">HeartLift</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">
+              Heart
+              <span className="bg-gradient-to-r from-primary via-primary to-primary bg-clip-text text-transparent font-black">
+                Lift
+              </span>
+            </h1>
           </div>
           
           <div className="flex items-center gap-2">
