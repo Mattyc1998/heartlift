@@ -554,7 +554,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
                      : `Share what's on your heart... (${remainingMessages} left)`
                 }
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                className="flex-1 text-base sm:text-base py-6 px-5 sm:py-3 sm:px-4 min-h-[60px] sm:min-h-[48px] text-lg sm:text-base"
+                className="flex-1 text-lg sm:text-base py-8 px-6 sm:py-3 sm:px-4 min-h-[80px] sm:min-h-[48px]"
                 disabled={(!canSendMessage && !isPremium) || isTyping}
                 autoComplete="off"
                 autoCorrect="off"
