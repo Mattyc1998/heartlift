@@ -93,20 +93,20 @@ const Index = () => {
           </div>
           
           <div className="flex items-center gap-2">
-            <Button 
-              variant="gentle" 
-              size="sm"
-              onClick={() => setCurrentTab("home")}
-              className="text-xs sm:text-sm"
-            >
-              <span className="hidden sm:inline">Back to Home</span>
-              <span className="sm:hidden">Home</span>
-            </Button>
+              <Button 
+                variant="gentle" 
+                size="sm"
+                onClick={() => setCurrentTab("home")}
+                className="text-xs sm:text-sm min-h-[44px] px-4"
+              >
+                <span className="hidden sm:inline">Back to Home</span>
+                <span className="sm:hidden">Home</span>
+              </Button>
             
             {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" className="flex items-center gap-2 min-h-[44px]">
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">Account</span>
                   </Button>
@@ -132,22 +132,22 @@ const Index = () => {
 
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-4 sm:space-y-6">
           {/* Mobile-optimized tab navigation */}
-          <TabsList className="grid w-full max-w-sm sm:max-w-md mx-auto grid-cols-4 h-12 sm:h-10">
-            <TabsTrigger value="chat" className="flex flex-col sm:flex-row items-center justify-center sm:space-x-1 p-1 sm:p-2">
+          <TabsList className="grid w-full max-w-xs sm:max-w-md mx-auto grid-cols-4 h-14 sm:h-10 sticky top-0 z-10 backdrop-blur-sm">
+            <TabsTrigger value="chat" className="flex flex-col sm:flex-row items-center justify-center sm:space-x-1 p-2 min-h-[44px]">
               <MessageCircle className="w-4 h-4 sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-sm mt-0.5 sm:mt-0 sm:hidden lg:inline">Chat</span>
+              <span className="text-xs sm:text-sm mt-1 sm:mt-0 sm:hidden lg:inline">Chat</span>
             </TabsTrigger>
-            <TabsTrigger value="mood" className="flex flex-col sm:flex-row items-center justify-center sm:space-x-1 p-1 sm:p-2">
+            <TabsTrigger value="mood" className="flex flex-col sm:flex-row items-center justify-center sm:space-x-1 p-2 min-h-[44px]">
               <TrendingUp className="w-4 h-4 sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-sm mt-0.5 sm:mt-0 sm:hidden lg:inline">Mood</span>
+              <span className="text-xs sm:text-sm mt-1 sm:mt-0 sm:hidden lg:inline">Mood</span>
             </TabsTrigger>
-            <TabsTrigger value="coaches" className="flex flex-col sm:flex-row items-center justify-center sm:space-x-1 p-1 sm:p-2">
+            <TabsTrigger value="coaches" className="flex flex-col sm:flex-row items-center justify-center sm:space-x-1 p-2 min-h-[44px]">
               <Heart className="w-4 h-4 sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-sm mt-0.5 sm:mt-0 sm:hidden lg:inline">Coaches</span>
+              <span className="text-xs sm:text-sm mt-1 sm:mt-0 sm:hidden lg:inline">Coaches</span>
             </TabsTrigger>
-            <TabsTrigger value="pricing" className="flex flex-col sm:flex-row items-center justify-center sm:space-x-1 p-1 sm:p-2">
+            <TabsTrigger value="pricing" className="flex flex-col sm:flex-row items-center justify-center sm:space-x-1 p-2 min-h-[44px]">
               <CreditCard className="w-4 h-4 sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-sm mt-0.5 sm:mt-0 sm:hidden lg:inline">Plans</span>
+              <span className="text-xs sm:text-sm mt-1 sm:mt-0 sm:hidden lg:inline">Plans</span>
             </TabsTrigger>
           </TabsList>
 

@@ -436,7 +436,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
         isPremium={isPremium}
       />
 
-      <Card className="h-[500px] sm:h-[600px] flex flex-col shadow-gentle">
+      <Card className="h-[60vh] sm:h-[600px] max-h-[600px] flex flex-col shadow-gentle">
         <CardHeader className="pb-3 flex-shrink-0">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -468,7 +468,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
                   className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[85%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-2 ${
+                    className={`max-w-[90%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-3 ${
                       message.sender === 'user'
                         ? 'bg-primary text-primary-foreground'
                         : message.isPremiumTeaser
@@ -554,14 +554,18 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
                      : `Share what's on your heart... (${remainingMessages} left)`
                 }
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                className="flex-1"
+                className="flex-1 text-sm sm:text-base py-3 sm:py-2"
                 disabled={(!canSendMessage && !isPremium) || isTyping}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="sentences"
               />
               <Button 
                 onClick={sendMessage} 
                 disabled={!inputMessage.trim() || isTyping || (!canSendMessage && !isPremium)}
                 variant="warm"
                 size="icon"
+                className="min-h-[44px] min-w-[44px]"
               >
                 {(!canSendMessage && !isPremium) ? (
                   <Clock className="w-4 h-4" />

@@ -411,8 +411,8 @@ export const MoodTracker = () => {
               return (
                 <button
                   key={mood.id}
-                  onClick={() => setSelectedMood(mood.id)}
-                  className={`group relative p-4 sm:p-6 rounded-3xl border-2 transition-all duration-500 hover:scale-105 active:scale-95 animate-slide-up ${
+                   onClick={() => setSelectedMood(mood.id)}
+                  className={`group relative p-4 sm:p-6 rounded-3xl border-2 transition-all duration-500 hover:scale-105 active:scale-95 animate-slide-up min-h-[44px] min-w-[44px] ${
                     isSelected 
                       ? `border-primary shadow-float ${mood.lightBg} ring-2 ring-primary/20` 
                       : `border-border/50 hover:border-primary/30 bg-card/50 hover:bg-card backdrop-blur-sm`

@@ -162,10 +162,130 @@ All colors MUST be HSL.
     }
   }
 
+  /* Improve mobile text input */
+  input, textarea {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* Prevent zoom on input focus on iOS */
+  @media screen and (max-width: 768px) {
+    input[type="text"], 
+    input[type="email"], 
+    input[type="password"], 
+    textarea, 
+    select {
+      font-size: 16px;
+    }
+  }
+
   /* Smooth scrolling for mobile */
   @supports (-webkit-overflow-scrolling: touch) {
     .overflow-auto, .overflow-y-auto {
       -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  /* Better mobile scrolling behavior */
+  html {  
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Prevent horizontal scroll on mobile */
+  html, body {
+    overflow-x: hidden;
+  }
+
+  /* Mobile-optimized animations */
+  @keyframes bounce-gentle {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+
+  @keyframes pulse-warm {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+
+  @keyframes float-gentle {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes fade-in-scale {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes slide-up {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-bounce-gentle {
+    animation: bounce-gentle 2s ease-in-out infinite;
+  }
+
+  .animate-pulse-warm {
+    animation: pulse-warm 2s ease-in-out infinite;
+  }
+
+  .animate-float-gentle {
+    animation: float-gentle 3s ease-in-out infinite;
+  }
+
+  .animate-fade-in-scale {
+    animation: fade-in-scale 0.5s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.6s ease-out forwards;
+  }
+
+  .animate-fade-in {
+    animation: fade-in-scale 0.8s ease-out;
+  }
+
+  .animate-glow {
+    animation: pulse-warm 3s ease-in-out infinite;
+  }
+
+  /* Better mobile keyboard handling */
+  @media screen and (max-height: 600px) {
+    .min-h-screen {
+      min-height: 100vh;
+    }
+  }
+
+  /* Improve mobile viewport handling */
+  @supports (-webkit-touch-callout: none) {
+    .min-h-screen {
+      min-height: -webkit-fill-available;
     }
   }
 }

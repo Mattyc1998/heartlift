@@ -175,8 +175,7 @@ export const PricingSection = ({ backTo = 'home' }: { backTo?: 'home' | 'coaches
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {plans.map((plan) => {
+        <div className="grid md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">{plans.map((plan) => {
             const Icon = plan.icon;
             
             return (
@@ -197,20 +196,20 @@ export const PricingSection = ({ backTo = 'home' }: { backTo?: 'home' | 'coaches
                     <Icon className="w-6 h-6 text-primary" />
                   </div>
                   
-                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                  <CardTitle className="text-xl sm:text-2xl">{plan.name}</CardTitle>
                   <div className="space-y-1">
                     <div className="flex items-baseline justify-center space-x-1">
-                      <span className="text-3xl font-bold text-foreground">{plan.price}</span>
+                      <span className="text-2xl sm:text-3xl font-bold text-foreground">{plan.price}</span>
                       <span className="text-sm text-muted-foreground">/{plan.period}</span>
                     </div>
                   </div>
-                  <CardDescription className="text-center">
+                  <CardDescription className="text-center text-sm sm:text-base">
                     {plan.description}
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="space-y-6">
-                  <ul className="space-y-3">
+                <CardContent className="space-y-4 sm:space-y-6">
+                  <ul className="space-y-2 sm:space-y-3">
                     {plan.features.map((feature, index) => (
                       <li key={index} className="flex items-start space-x-3">
                         <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
@@ -222,7 +221,7 @@ export const PricingSection = ({ backTo = 'home' }: { backTo?: 'home' | 'coaches
                    
                       <Button 
                         variant={plan.variant} 
-                        className="w-full"
+                        className="w-full min-h-[44px]"
                         size="lg"
                         onClick={() => handlePlanClick(plan.name)}
                       >

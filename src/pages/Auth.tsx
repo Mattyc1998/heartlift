@@ -117,7 +117,7 @@ export const Auth = () => {
         <Button
           variant="gentle"
           onClick={() => navigate('/')}
-          className="mb-4"
+          className="mb-4 min-h-[44px]"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Home
@@ -166,31 +166,37 @@ export const Auth = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={signUpData.email}
-                      onChange={(e) => setSignUpData(prev => ({ ...prev, email: e.target.value }))}
-                      required
-                    />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={signUpData.email}
+                    onChange={(e) => setSignUpData(prev => ({ ...prev, email: e.target.value }))}
+                    required
+                    className="text-base"
+                    autoComplete="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                  />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Create a password"
-                      value={signUpData.password}
-                      onChange={(e) => setSignUpData(prev => ({ ...prev, password: e.target.value }))}
-                      required
-                      minLength={6}
-                    />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Create a password"
+                    value={signUpData.password}
+                    onChange={(e) => setSignUpData(prev => ({ ...prev, password: e.target.value }))}
+                    required
+                    minLength={6}
+                    className="text-base"
+                    autoComplete="new-password"
+                  />
                   </div>
                   <Button 
                     type="submit" 
                     variant="warm" 
-                    className="w-full"
+                    className="w-full min-h-[44px]"
                     disabled={isLoading}
                   >
                     {isLoading ? "Creating Account..." : "Start My Healing Journey"}
@@ -212,30 +218,36 @@ export const Auth = () => {
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signin-email">Email</Label>
-                    <Input
-                      id="signin-email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={signInData.email}
-                      onChange={(e) => setSignInData(prev => ({ ...prev, email: e.target.value }))}
-                      required
-                    />
+                  <Input
+                    id="signin-email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={signInData.email}
+                    onChange={(e) => setSignInData(prev => ({ ...prev, email: e.target.value }))}
+                    required
+                    className="text-base"
+                    autoComplete="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                  />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signin-password">Password</Label>
-                    <Input
-                      id="signin-password"
-                      type="password"
-                      placeholder="Enter your password"
-                      value={signInData.password}
-                      onChange={(e) => setSignInData(prev => ({ ...prev, password: e.target.value }))}
-                      required
-                    />
+                  <Input
+                    id="signin-password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={signInData.password}
+                    onChange={(e) => setSignInData(prev => ({ ...prev, password: e.target.value }))}
+                    required
+                    className="text-base"
+                    autoComplete="current-password"
+                  />
                   </div>
                   <Button 
                     type="submit" 
                     variant="warm" 
-                    className="w-full"
+                    className="w-full min-h-[44px]"
                     disabled={isLoading}
                   >
                     {isLoading ? "Signing In..." : "Continue Healing"}

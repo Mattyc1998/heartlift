@@ -43,21 +43,21 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
             </div>
           </div>
           
-          <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold text-foreground tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-8xl font-bold text-foreground tracking-tight leading-tight px-4 sm:px-0">
             Heart
             <span className="bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent animate-glow">
               Lift
             </span>
           </h1>
           
-          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium px-4 sm:px-0">
             Your pocket relationship wellbeing coach with personality 💖
             <br className="hidden sm:block" />
-            <span className="text-base sm:text-lg">Navigate love, heartbreak, and communication with AI coaches who truly get you</span>
+            <span className="text-sm sm:text-base lg:text-lg">Navigate love, heartbreak, and communication with AI coaches who truly get you</span>
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 max-w-4xl mx-auto px-4 sm:px-0">
           {[
             {
               icon: MessageCircle,
@@ -83,15 +83,15 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
           ].map((feature, index) => (
             <div 
               key={feature.title}
-              className={`group p-4 sm:p-6 lg:p-8 bg-card/80 backdrop-blur-sm rounded-2xl shadow-card border border-border hover:shadow-warm transition-all duration-500 hover:scale-[1.02] animate-slide-up bg-gradient-to-br ${feature.gradient}`}
+              className={`group p-3 sm:p-4 lg:p-6 xl:p-8 bg-card/80 backdrop-blur-sm rounded-2xl shadow-card border border-border hover:shadow-warm transition-all duration-500 hover:scale-[1.02] animate-slide-up bg-gradient-to-br ${feature.gradient}`}
               style={{ animationDelay: `${index * 200}ms` }}
             >
               <div className="relative mb-4">
                 <feature.icon className="w-10 h-10 text-primary mb-3 mx-auto group-hover:animate-bounce-gentle" />
                 <div className="absolute -top-1 -right-8 text-lg">{feature.emoji}</div>
               </div>
-              <h3 className="font-bold text-lg mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+              <h3 className="font-bold text-base sm:text-lg mb-2 sm:mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>
@@ -101,7 +101,7 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
               <Button 
                 variant="warm" 
                 size="lg" 
-                className="px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-semibold group relative overflow-hidden w-full sm:w-auto"
+                className="px-6 sm:px-10 py-4 sm:py-4 text-base sm:text-lg font-semibold group relative overflow-hidden w-full sm:w-auto min-h-[48px]"
                 onClick={handleGetStarted}
               >
               <span className="relative z-10 flex items-center gap-2">
