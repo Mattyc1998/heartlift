@@ -201,7 +201,7 @@ const Index = () => {
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-3xl">👋</span>
                   <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-                    Welcome{user?.email ? `, ${user.email.split('@')[0]}` : ''}!
+                    Welcome{user?.email ? `, ${user.email.split('@')[0].split('.')[0].charAt(0).toUpperCase() + user.email.split('@')[0].split('.')[0].slice(1)}` : ''}!
                   </h1>
                 </div>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
