@@ -188,29 +188,29 @@ export const CoachPersonas = ({ onSelectCoach, selectedCoach, compact = false }:
               {/* Floating background decoration */}
               <div className={`absolute -top-10 -right-10 w-20 h-20 bg-gradient-to-r ${coach.color} rounded-full opacity-10 group-hover:scale-150 transition-transform duration-700`} />
               
-              <CardHeader className={`pb-4 sm:pb-6 relative ${compact ? 'p-4 sm:p-8' : 'p-8'}`}>
-                <div className={`flex items-start ${compact ? 'flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-6' : 'space-x-6'}`}>
-                  <div className={`relative ${compact ? 'p-3 sm:p-4' : 'p-4'} rounded-2xl bg-gradient-to-r ${coach.color} shadow-lg group-hover:animate-bounce-gentle ${compact ? 'mx-auto sm:mx-0' : ''}`}>
-                    <Icon className={`${compact ? 'w-5 h-5 sm:w-8 sm:h-8' : 'w-8 h-8'} text-white`} />
-                    <div className={`absolute -top-1 -right-1 ${compact ? 'text-lg sm:text-2xl' : 'text-2xl'}`}>
+              <CardHeader className={`pb-6 sm:pb-6 relative ${compact ? 'p-6 sm:p-8' : 'p-8'}`}>
+                <div className={`flex items-start ${compact ? 'flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-6' : 'space-x-6'}`}>
+                  <div className={`relative ${compact ? 'p-4 sm:p-4' : 'p-4'} rounded-2xl bg-gradient-to-r ${coach.color} shadow-lg group-hover:animate-bounce-gentle ${compact ? 'mx-auto sm:mx-0' : ''}`}>
+                    <Icon className={`${compact ? 'w-7 h-7 sm:w-8 sm:h-8' : 'w-8 h-8'} text-white`} />
+                    <div className={`absolute -top-1 -right-1 ${compact ? 'text-xl sm:text-2xl' : 'text-2xl'}`}>
                       {coach.emoji}
                     </div>
                   </div>
                   <div className={`flex-1 ${compact ? 'text-center sm:text-left' : ''}`}>
-                    <CardTitle className={`${compact ? 'text-lg sm:text-2xl' : 'text-2xl'} mb-2 group-hover:text-primary transition-colors`}>
+                    <CardTitle className={`${compact ? 'text-xl sm:text-2xl' : 'text-2xl'} mb-2 group-hover:text-primary transition-colors`}>
                       {coach.name}
                     </CardTitle>
-                    <CardDescription className={`${compact ? 'text-sm sm:text-base hidden sm:block' : 'text-base'} font-medium ${coach.accent}`}>
+                    <CardDescription className={`${compact ? 'text-base sm:text-base' : 'text-base'} font-medium ${coach.accent}`}>
                       {coach.personality}
                     </CardDescription>
                   </div>
                   {isSelected && (
-                    <Star className={`${compact ? 'w-5 h-5 sm:w-6 sm:h-6' : 'w-6 h-6'} text-primary animate-pulse-warm`} />
+                    <Star className={`${compact ? 'w-6 h-6 sm:w-6 sm:h-6' : 'w-6 h-6'} text-primary animate-pulse-warm`} />
                   )}
                 </div>
               </CardHeader>
               
-              <CardContent className={`space-y-4 sm:space-y-6 ${compact ? 'p-4 sm:p-8' : 'p-8'}`}>
+              <CardContent className={`space-y-5 sm:space-y-6 ${compact ? 'p-6 sm:p-8' : 'p-8'}`}>
                 {!compact && (
                   <p className="text-base text-muted-foreground leading-relaxed">
                     {coach.description}
@@ -240,8 +240,8 @@ export const CoachPersonas = ({ onSelectCoach, selectedCoach, compact = false }:
                 
                 <Button 
                   variant={isSelected ? coach.id as any : "gentle"} 
-                  size={compact ? "default" : "lg"}
-                  className={`w-full transition-all duration-300 ${compact ? 'text-sm sm:text-base h-12' : 'h-14 text-lg'}`}
+                  size={compact ? "lg" : "lg"}
+                  className={`w-full transition-all duration-300 ${compact ? 'text-base sm:text-base h-14' : 'h-14 text-lg'}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     onSelectCoach(coach.id);
