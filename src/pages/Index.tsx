@@ -30,11 +30,16 @@ const Index = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Update tab when URL changes
+  // Update tab when URL changes and scroll to top
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabFromUrl = params.get('tab') || 'home';
     setCurrentTab(tabFromUrl);
+    
+    // Scroll to top when changing tabs (especially important for mobile)
+    if (tabFromUrl !== 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }, [location.search]);
 
   const handleGetStarted = () => {

@@ -794,29 +794,29 @@ export const AttachmentStyleQuiz = () => {
 
   // Show the quiz
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className="space-y-4 sm:space-y-6 max-w-2xl mx-auto px-4 sm:px-0">
       {/* Quiz Header */}
       <Card>
-        <CardHeader className="text-center">
-          <CardTitle className="flex items-center justify-center gap-2">
-            <Heart className="w-6 h-6 text-primary" />
+        <CardHeader className="text-center p-4 sm:p-6">
+          <CardTitle className="flex items-center justify-center gap-2 text-lg sm:text-xl">
+            <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
             Daily Attachment Style Quiz
           </CardTitle>
-          <div className="flex items-center justify-center gap-4 mt-4">
-            <Badge variant="outline" className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mt-3 sm:mt-4">
+            <Badge variant="outline" className="flex items-center gap-2 text-xs sm:text-sm">
+              <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
               Today's Set #{dailyQuizData.setNumber}
             </Badge>
-            <Badge variant="secondary" className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
+            <Badge variant="secondary" className="flex items-center gap-2 text-xs sm:text-sm">
+              <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
               New questions in {formatTimeUntilNext(dailyQuizData.nextChangeTime)}
             </Badge>
           </div>
-          <p className="text-muted-foreground mt-2">
+          <p className="text-muted-foreground mt-2 text-sm sm:text-base">
             Questions change daily to give you deeper insights into your attachment patterns
           </p>
           <div className="mt-3 flex justify-center">
-            <Button variant="ghost" onClick={() => setShowHistory(true)}>
+            <Button variant="ghost" onClick={() => setShowHistory(true)} size="sm">
               View Past Results
             </Button>
           </div>
@@ -825,28 +825,35 @@ export const AttachmentStyleQuiz = () => {
 
       {/* Quiz Progress */}
       <Card>
-        <CardHeader>
+        <CardHeader className="p-4 sm:p-6">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">
+            <span className="text-xs sm:text-sm text-muted-foreground">
               Question {currentQuestion + 1} of {quizQuestions.length}
             </span>
-            <Badge variant="outline">
+            <Badge variant="outline" className="text-xs sm:text-sm">
               {Math.round(((currentQuestion + 1) / quizQuestions.length) * 100)}%
             </Badge>
           </div>
           <Progress value={((currentQuestion + 1) / quizQuestions.length) * 100} className="mt-2" />
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6 pt-0">
           <div>
-            <h3 className="text-xl font-semibold mb-4">
+            <h3 className="text-lg sm:text-xl font-semibold mb-4 leading-tight">
               {quizQuestions[currentQuestion].question}
             </h3>
             
-            <RadioGroup value={selectedAnswer} onValueChange={setSelectedAnswer}>
+            <RadioGroup value={selectedAnswer} onValueChange={setSelectedAnswer} className="space-y-3 sm:space-y-2">
               {quizQuestions[currentQuestion].options.map((option, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-                  <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">
+                <div key={index} className="flex items-start space-x-3 p-3 rounded-lg border hover:bg-muted/30 transition-colors">
+                  <RadioGroupItem 
+                    value={index.toString()} 
+                    id={`option-${index}`} 
+                    className="mt-0.5 flex-shrink-0"
+                  />
+                  <Label 
+                    htmlFor={`option-${index}`} 
+                    className="flex-1 cursor-pointer text-sm sm:text-base leading-relaxed"
+                  >
                     {option}
                   </Label>
                 </div>
@@ -857,7 +864,8 @@ export const AttachmentStyleQuiz = () => {
           <Button 
             onClick={handleAnswer} 
             disabled={!selectedAnswer}
-            className="w-full"
+            className="w-full py-3 text-base font-medium"
+            size="lg"
           >
             {currentQuestion < quizQuestions.length - 1 ? 'Next Question' : 'Complete Quiz'}
           </Button>
