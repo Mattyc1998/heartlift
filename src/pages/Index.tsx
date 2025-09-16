@@ -195,11 +195,127 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="coaches" className="space-y-6">
-            <div className="max-w-4xl mx-auto">
-              <CoachPersonas 
-                onSelectCoach={setSelectedCoach}
-                selectedCoach={selectedCoach}
-              />
+            <div className="max-w-6xl mx-auto px-4">
+              {/* Welcome Section */}
+              <div className="text-center space-y-4 mb-8">
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-3xl">👋</span>
+                  <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+                    Welcome{user?.email ? `, ${user.email.split('@')[0]}` : ''}!
+                  </h1>
+                </div>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  We're here to support your growth and healing journey. Your personalized coaching experience awaits.
+                </p>
+              </div>
+
+              {/* Main CTA Card */}
+              <div className="mb-8">
+                <div 
+                  onClick={() => setCurrentTab("chat")}
+                  className="group cursor-pointer bg-gradient-to-br from-primary/10 via-primary-glow/5 to-secondary/10 border border-primary/20 rounded-2xl p-8 text-center hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/20"
+                >
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="p-4 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
+                      <MessageCircle className="w-8 h-8 text-primary" />
+                    </div>
+                  </div>
+                  <h2 className="text-2xl font-bold mb-2 text-foreground">Start Your Journey</h2>
+                  <p className="text-muted-foreground mb-4">Connect with your AI coach anytime. Your path to healing starts with a conversation.</p>
+                  <div className="inline-flex items-center gap-2 text-primary font-semibold group-hover:gap-3 transition-all">
+                    Start Chat Now
+                    <MessageCircle className="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Feature Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                {/* Track Mood Card */}
+                <div 
+                  onClick={() => setCurrentTab("mood")}
+                  className="cursor-pointer bg-card border border-border rounded-xl p-6 hover:border-primary/40 transition-all duration-300 hover:shadow-md group"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-lg">
+                      <TrendingUp className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <h3 className="font-semibold">Track Your Mood</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">Monitor your emotional journey and discover patterns in your healing process.</p>
+                  <span className="text-xs text-primary font-medium group-hover:underline">Explore Mood Tracker →</span>
+                </div>
+
+                {/* Meet Coaches Card */}
+                <div className="bg-card border border-border rounded-xl p-6 group">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-gradient-to-br from-pink-500/10 to-rose-500/10 rounded-lg">
+                      <Heart className="w-5 h-5 text-pink-600" />
+                    </div>
+                    <h3 className="font-semibold">Meet Your Coaches</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">Choose from specialized AI coaches, each with their unique approach to support you.</p>
+                  
+                  {/* Compact Coach Preview */}
+                  <div className="space-y-2">
+                    <CoachPersonas 
+                      onSelectCoach={setSelectedCoach}
+                      selectedCoach={selectedCoach}
+                      compact={true}
+                    />
+                  </div>
+                </div>
+
+                {/* Your Plans Card */}
+                <div 
+                  onClick={() => setCurrentTab("pricing")}
+                  className="cursor-pointer bg-card border border-border rounded-xl p-6 hover:border-primary/40 transition-all duration-300 hover:shadow-md group"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-lg">
+                      <CreditCard className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <h3 className="font-semibold">Your Growth Path</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">Unlock advanced features and premium coaching tools for deeper insights.</p>
+                  <span className="text-xs text-primary font-medium group-hover:underline">View Plans →</span>
+                </div>
+              </div>
+
+              {/* Progress Checklist */}
+              <div className="bg-gradient-to-r from-primary/5 to-primary-glow/5 border border-primary/20 rounded-xl p-6">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <span className="text-lg">🌱</span>
+                  Your Journey Progress
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+                      <span className="text-xs">✓</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">Start first chat</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-full border-2 border-primary/30 flex items-center justify-center">
+                      <span className="text-xs text-primary">2</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">Log today's mood</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-full border-2 border-muted flex items-center justify-center">
+                      <span className="text-xs text-muted-foreground">3</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">Explore your plan</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Premium Management - if user has subscriptions */}
+              {(isPremium || hasHealingKit) && (
+                <div className="mt-8">
+                  <PremiumManagement />
+                </div>
+              )}
             </div>
           </TabsContent>
 
