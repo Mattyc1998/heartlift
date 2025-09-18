@@ -240,6 +240,17 @@ export const PricingSection = ({ backTo = 'home' }: { backTo?: 'home' | 'coaches
           <p className="text-xs text-muted-foreground">
             Cancel anytime • Secure payments
           </p>
+          
+          {/* Support Contact */}
+          <p className="text-xs text-muted-foreground pt-4">
+            Need help? Contact us at{" "}
+            <a 
+              href="mailto:support@heart-lift.com"
+              className="text-primary hover:text-primary/80 underline transition-colors"
+            >
+              support@heart-lift.com
+            </a>
+          </p>
         </div>
 
         <PremiumUpgradeModal 
