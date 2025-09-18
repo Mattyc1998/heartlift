@@ -141,8 +141,8 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
           </span>
         </div>
         
-        {/* Support Contact */}
-        <div className="flex items-center justify-center pt-4 pb-8">
+        {/* Support Contact and Privacy Policy */}
+        <div className="flex flex-col items-center justify-center gap-2 pt-4 pb-8">
           <span className="text-muted-foreground text-sm">
             Need help? Contact us at{" "}
             <a 
@@ -152,6 +152,12 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
               support@heart-lift.com
             </a>
           </span>
+          <a 
+            href="/privacy-policy"
+            className="text-muted-foreground hover:text-primary text-xs underline transition-colors"
+          >
+            Privacy Policy
+          </a>
         </div>
       </div>
     </section>

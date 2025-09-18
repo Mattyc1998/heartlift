@@ -15,6 +15,7 @@ import AdvancedTools from "./pages/AdvancedTools";
 import PasswordReset from "./pages/PasswordReset";
 import PasswordResetForm from "./pages/PasswordResetForm";
 import EmailVerification from "./pages/EmailVerification";
+import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/password-reset" element={<PasswordReset />} />
             <Route path="/reset-password" element={<PasswordResetForm />} />
             <Route path="/verify-email" element={<EmailVerification />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
