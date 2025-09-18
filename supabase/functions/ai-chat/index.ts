@@ -43,6 +43,13 @@ const crisisKeywords = {
     "emotionally abused", "verbally abused", "childhood abuse", "being molested",
     "inappropriate touching", "sexual assault", "being raped", "family member abusing me"
   ],
+  childAbuse: [
+    "child abuse", "child is being abused", "abusing a child", "hurting a child",
+    "child being hurt", "child being molested", "child sexual abuse", "child neglect",
+    "child is in danger", "someone hurting my child", "child being mistreated",
+    "inappropriate behavior with child", "child safety concern", "worried about a child",
+    "child being harmed", "minor being abused", "kid is being hurt", "teenager being abused"
+  ],
   drugAbuse: [
     "addicted to", "drug addiction", "can't stop using", "overdosed", "overdosing",
     "drug problem", "substance abuse", "drinking too much", "alcoholic", "drug abuse",
@@ -88,6 +95,9 @@ function getCrisisResponse(type: string): string {
     
     case 'abuse':
       return "I'm deeply concerned about what you're experiencing. Abuse is never okay, and you deserve support and safety. I can't provide the specialized help you need, but please reach out to professionals who can help you. If you're in immediate danger, call emergency services. You can also contact an abuse helpline (for example, NSPCC at 0808 800 5000 in the UK, or find your local resource at https://findahelpline.com).";
+    
+    case 'childAbuse':
+      return "I'm extremely concerned about child safety. This is a matter that requires immediate attention from proper authorities. I cannot and will not provide advice on this topic. Please contact emergency services immediately if a child is in immediate danger (999 in the UK, 911 in the US). You can also contact child protection services: NSPCC Helpline at 0808 800 5000 in the UK, or Childline at 0800 1111. If you suspect child abuse, please report it to the appropriate authorities immediately.";
     
     case 'drugAbuse':
       return "I'm concerned about what you're sharing regarding substance use. I can't provide the specialized help you need, but please reach out to professionals who can help you. If you're in immediate danger, call emergency services. You can contact a substance abuse helpline (for example, Frank at 0300 123 6600 in the UK, or SAMHSA's helpline at 1-800-662-4357 in the US, or find your local resource at https://findahelpline.com).";
