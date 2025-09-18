@@ -248,19 +248,22 @@ const Index = () => {
                 onSelectCoach={setSelectedCoach}
                 selectedCoach={selectedCoach}
               />
-              
-              {/* Support Contact */}
-              <div className="flex items-center justify-center pt-8">
-                <span className="text-muted-foreground text-sm">
-                  Need help? Contact us at{" "}
-                  <a 
-                    href="mailto:support@heart-lift.com"
-                    className="text-primary hover:text-primary/80 underline transition-colors"
-                  >
-                    support@heart-lift.com
-                  </a>
-                </span>
-              </div>
+            </div>
+            
+            {/* Support Contact - Bottom of page */}
+            <div className="flex flex-col items-center justify-center pt-12 pb-8 space-y-2">
+              <p className="text-muted-foreground text-center">
+                All coaches provide personalized emotional support
+              </p>
+              <p className="text-muted-foreground text-sm">
+                Need help? Contact us at{" "}
+                <a 
+                  href="mailto:support@heart-lift.com"
+                  className="text-primary hover:text-primary/80 underline transition-colors"
+                >
+                  support@heart-lift.com
+                </a>
+              </p>
             </div>
           </TabsContent>
 
