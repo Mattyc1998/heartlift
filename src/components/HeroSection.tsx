@@ -140,6 +140,19 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
             <span>Premium from £11.99/month</span>
           </span>
         </div>
+        
+        {/* Support Contact */}
+        <div className="flex items-center justify-center pt-4 pb-8">
+          <span className="text-muted-foreground text-sm">
+            Need help? Contact us at{" "}
+            <a 
+              href="mailto:support@heart-lift.com"
+              className="text-primary hover:text-primary/80 underline transition-colors"
+            >
+              support@heart-lift.com
+            </a>
+          </span>
+        </div>
       </div>
     </section>
   );
