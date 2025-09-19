@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Heart, ArrowLeft } from 'lucide-react';
@@ -17,6 +18,7 @@ export const Auth = () => {
     email: '',
     password: '',
   });
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [signInData, setSignInData] = useState({
     email: '',
     password: '',
@@ -30,6 +32,16 @@ export const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!agreedToTerms) {
+      toast({
+        title: "Agreement required",
+        description: "You must agree to the Terms of Service and Privacy Policy to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsLoading(true);
 
     const { error } = await signUp(signUpData.email, signUpData.password, signUpData.fullName);
@@ -193,11 +205,44 @@ export const Auth = () => {
                     autoComplete="new-password"
                   />
                   </div>
+                  
+                  <div className="flex items-start space-x-3 p-4 bg-muted/50 rounded-lg">
+                    <Checkbox 
+                      id="terms-agreement"
+                      checked={agreedToTerms}
+                      onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+                      className="mt-1"
+                    />
+                    <Label 
+                      htmlFor="terms-agreement" 
+                      className="text-sm leading-relaxed cursor-pointer"
+                    >
+                      I agree to the{' '}
+                      <Link 
+                        to="/terms-of-service" 
+                        className="text-primary hover:underline font-medium"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Terms of Service
+                      </Link>
+                      {' '}and{' '}
+                      <Link 
+                        to="/privacy-policy" 
+                        className="text-primary hover:underline font-medium"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Privacy Policy
+                      </Link>
+                    </Label>
+                  </div>
+                  
                   <Button 
                     type="submit" 
                     variant="warm" 
                     className="w-full min-h-[44px]"
-                    disabled={isLoading}
+                    disabled={isLoading || !agreedToTerms}
                   >
                     {isLoading ? "Creating Account..." : "Start My Healing Journey"}
                   </Button>
