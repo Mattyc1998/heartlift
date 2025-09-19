@@ -81,8 +81,8 @@ export default function TermsOfService() {
             <section>
               <h2 className="text-xl font-semibold mb-3">5. Payment and Subscriptions</h2>
               <p>
-                Premium features require a paid subscription. Payments are processed securely through Stripe. 
-                You may cancel your subscription at any time through your account settings.
+                Premium features require a paid subscription. Payments are processed securely through Apple's In-App Purchase (IAP) system. 
+                You may cancel your subscription at any time through your device's App Store settings or account settings.
               </p>
             </section>
 
