@@ -221,8 +221,6 @@ export const Auth = () => {
                       <Link 
                         to="/terms-of-service" 
                         className="text-primary hover:underline font-medium"
-                        target="_blank"
-                        rel="noopener noreferrer"
                       >
                         Terms of Service
                       </Link>
@@ -230,8 +228,6 @@ export const Auth = () => {
                       <Link 
                         to="/privacy-policy" 
                         className="text-primary hover:underline font-medium"
-                        target="_blank"
-                        rel="noopener noreferrer"
                       >
                         Privacy Policy
                       </Link>
