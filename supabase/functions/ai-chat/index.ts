@@ -272,7 +272,9 @@ function getBasicResponse(message: string, coach: CoachPersonality, coachId: str
 async function generateAIResponse(
   message: string,
   coach: CoachPersonality,
-  conversationHistory: Array<{ role: string; content: string }> = []
+  conversationHistory: Array<{ role: string; content: string }> = [],
+  reflectionContext: string = "",
+  userId: string
 ): Promise<string> {
   const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
   if (!openAIApiKey) {
@@ -281,8 +283,18 @@ async function generateAIResponse(
   }
 
   try {
+    // Enhanced system prompt with memory context
+    let enhancedSystemPrompt = coach.systemPrompt;
+    
+    if (reflectionContext) {
+      enhancedSystemPrompt += `\n\nMEMORY CONTEXT - Previous reflections and conversations:
+${reflectionContext}
+
+IMPORTANT: Use this context to remember what the user has shared before and reference it naturally in your responses. Ask follow-up questions about things they mentioned previously. Show that you remember their journey.`;
+    }
+
     const messages = [
-      { role: 'system', content: coach.systemPrompt },
+      { role: 'system', content: enhancedSystemPrompt },
       ...conversationHistory.slice(-8), // Keep last 8 messages for context
       { role: 'user', content: message }
     ];
@@ -465,6 +477,30 @@ serve(async (req) => {
     console.log('Received coachId:', coachId, 'Available coaches:', Object.keys(coaches));
     const coach = coaches[coachId];
     console.log('Found coach:', coach?.name || 'UNDEFINED');
+    
+    // Load daily reflections context for coach memory
+    let reflectionContext = '';
+    try {
+      const { data: reflections, error: reflectionError } = await supabase
+        .from('daily_reflections')
+        .select('helpful_moments, areas_for_improvement, conversation_rating, coaches_chatted_with, reflection_date, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(7); // Get last week of reflections
+
+      if (reflections && reflections.length > 0) {
+        reflectionContext = reflections.map(r => {
+          const date = new Date(r.reflection_date).toLocaleDateString();
+          return `Reflection from ${date}: What was helpful: "${r.helpful_moments || 'Not specified'}". What user wants to explore: "${r.areas_for_improvement || 'Not specified'}". Rating: ${r.conversation_rating || 'Not rated'}/5. Coaches they talked to: ${r.coaches_chatted_with?.join(', ') || 'None specified'}`;
+        }).join('\n');
+      }
+      
+      console.log('Loaded reflection context:', reflectionContext ? reflectionContext.length : 0, 'characters');
+    } catch (error) {
+      console.error('Error loading reflection context:', error);
+      // Continue without reflection context if there's an error
+    }
+    
     let response: string;
 
     if (!requestRegenerate) {
@@ -478,8 +514,8 @@ serve(async (req) => {
     }
 
     if (isPremium) {
-      // Premium users get full AI responses with conversation history
-      response = await generateAIResponse(message, coach, formattedHistory);
+      // Premium users get full AI responses with conversation history and reflection context
+      response = await generateAIResponse(message, coach, formattedHistory, reflectionContext, user.id);
       
       // Track premium feature usage
       await supabase.rpc("track_premium_feature_usage", {
@@ -487,8 +523,8 @@ serve(async (req) => {
         feature_name: "unlimited_ai_chat"
       });
     } else {
-      // Free users also get AI responses, but with usage limits
-      response = await generateAIResponse(message, coach, formattedHistory);
+      // Free users also get AI responses with memory, but with usage limits
+      response = await generateAIResponse(message, coach, formattedHistory, reflectionContext, user.id);
     }
 
     if (!requestRegenerate) {

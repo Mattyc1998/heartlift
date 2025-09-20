@@ -98,6 +98,45 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_reflections: {
+        Row: {
+          areas_for_improvement: string | null
+          coaches_chatted_with: string[]
+          conversation_rating: number | null
+          created_at: string
+          helpful_moments: string | null
+          id: string
+          notes: string | null
+          reflection_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          areas_for_improvement?: string | null
+          coaches_chatted_with?: string[]
+          conversation_rating?: number | null
+          created_at?: string
+          helpful_moments?: string | null
+          id?: string
+          notes?: string | null
+          reflection_date?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          areas_for_improvement?: string | null
+          coaches_chatted_with?: string[]
+          conversation_rating?: number | null
+          created_at?: string
+          helpful_moments?: string | null
+          id?: string
+          notes?: string | null
+          reflection_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       guided_program_modules: {
         Row: {
           created_at: string

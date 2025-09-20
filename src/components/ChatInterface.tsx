@@ -11,6 +11,7 @@ import { PremiumUpgradeModal } from "./PremiumUpgradeModal";
 import { UsageCounter } from "./UsageCounter";
 import { WelcomeToPremiumModal } from "./WelcomeToPremiumModal";
 import { PremiumBadge } from "./PremiumBadge";
+import { DailyReflection } from "./DailyReflection";
 
 interface Message {
   id: string;
@@ -440,7 +441,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
         isPremium={isPremium}
       />
 
-      <Card className="h-[85vh] sm:h-[600px] max-h-[600px] flex flex-col shadow-gentle">
+      <Card className="h-[70vh] sm:h-[500px] max-h-[500px] flex flex-col shadow-gentle">
         <CardHeader className="pb-3 flex-shrink-0">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -610,6 +611,11 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
         onClose={() => setShowWelcomeModal(false)}
         userName={user?.user_metadata?.full_name || "there"}
       />
+      
+      {/* Daily Reflection Section */}
+      <div className="mt-6">
+        <DailyReflection />
+      </div>
     </div>
   );
 };
