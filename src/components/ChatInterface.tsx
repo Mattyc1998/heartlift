@@ -49,12 +49,14 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
   }, [user, coachPersonality]);
 
   useEffect(() => {
-    // Show welcome modal when user becomes premium
+    // Show welcome modal when user becomes premium (only once per session)
     if (isPremium && !showWelcomeModal) {
       const hasSeenWelcome = localStorage.getItem('hasSeenPremiumWelcome');
-      if (!hasSeenWelcome) {
+      const sessionWelcomeShown = sessionStorage.getItem('premiumWelcomeShownThisSession');
+      
+      if (!hasSeenWelcome && !sessionWelcomeShown) {
         setShowWelcomeModal(true);
-        localStorage.setItem('hasSeenPremiumWelcome', 'true');
+        sessionStorage.setItem('premiumWelcomeShownThisSession', 'true');
       }
     }
   }, [isPremium]);
@@ -608,7 +610,10 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
       
       <WelcomeToPremiumModal
         isOpen={showWelcomeModal}
-        onClose={() => setShowWelcomeModal(false)}
+        onClose={() => {
+          setShowWelcomeModal(false);
+          localStorage.setItem('hasSeenPremiumWelcome', 'true');
+        }}
         userName={user?.user_metadata?.full_name || "there"}
       />
       

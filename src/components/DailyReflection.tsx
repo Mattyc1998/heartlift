@@ -3,10 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { BookOpen, Star, ThumbsUp, MessageSquare } from "lucide-react";
+import { BookOpen, Star, ThumbsUp, MessageSquare, Calendar, History, ChevronDown, ChevronUp } from "lucide-react";
 
 const coachNames = {
   flirty: "Luna Love",
@@ -21,6 +23,8 @@ interface DailyReflectionData {
   conversation_rating: number | null;
   helpful_moments: string;
   areas_for_improvement: string;
+  reflection_date: string;
+  created_at?: string;
 }
 
 export const DailyReflection = () => {
@@ -28,11 +32,14 @@ export const DailyReflection = () => {
     coaches_chatted_with: [],
     conversation_rating: null,
     helpful_moments: "",
-    areas_for_improvement: ""
+    areas_for_improvement: "",
+    reflection_date: new Date().toISOString().split('T')[0]
   });
+  const [pastReflections, setPastReflections] = useState<DailyReflectionData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [hasReflectedToday, setHasReflectedToday] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -40,6 +47,28 @@ export const DailyReflection = () => {
   useEffect(() => {
     if (user) {
       loadTodayReflection();
+      loadPastReflections();
+      
+      // Check for midnight reset
+      const checkMidnight = setInterval(() => {
+        const now = new Date();
+        const today = now.toISOString().split('T')[0];
+        
+        if (reflection.reflection_date !== today) {
+          // It's a new day, reset reflection
+          setReflection({
+            coaches_chatted_with: [],
+            conversation_rating: null,
+            helpful_moments: "",
+            areas_for_improvement: "",
+            reflection_date: today
+          });
+          setHasReflectedToday(false);
+          loadPastReflections(); // Reload past reflections to include yesterday's
+        }
+      }, 60000); // Check every minute
+      
+      return () => clearInterval(checkMidnight);
     }
   }, [user]);
 
@@ -48,11 +77,12 @@ export const DailyReflection = () => {
     
     setIsLoading(true);
     try {
+      const today = new Date().toISOString().split('T')[0];
       const { data, error } = await supabase
         .from('daily_reflections')
         .select('*')
         .eq('user_id', user.id)
-        .eq('reflection_date', new Date().toISOString().split('T')[0])
+        .eq('reflection_date', today)
         .maybeSingle();
 
       if (error) throw error;
@@ -63,14 +93,47 @@ export const DailyReflection = () => {
           coaches_chatted_with: data.coaches_chatted_with || [],
           conversation_rating: data.conversation_rating,
           helpful_moments: data.helpful_moments || "",
-          areas_for_improvement: data.areas_for_improvement || ""
+          areas_for_improvement: data.areas_for_improvement || "",
+          reflection_date: data.reflection_date,
+          created_at: data.created_at
         });
         setHasReflectedToday(true);
+      } else {
+        // No reflection for today, reset to fresh state
+        setReflection({
+          coaches_chatted_with: [],
+          conversation_rating: null,
+          helpful_moments: "",
+          areas_for_improvement: "",
+          reflection_date: today
+        });
+        setHasReflectedToday(false);
       }
     } catch (error) {
       console.error("Error loading reflection:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadPastReflections = async () => {
+    if (!user) return;
+    
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const { data, error } = await supabase
+        .from('daily_reflections')
+        .select('*')
+        .eq('user_id', user.id)
+        .neq('reflection_date', today) // Exclude today's reflection
+        .order('reflection_date', { ascending: false })
+        .limit(30); // Last 30 days
+
+      if (error) throw error;
+
+      setPastReflections(data || []);
+    } catch (error) {
+      console.error("Error loading past reflections:", error);
     }
   };
 
@@ -103,7 +166,7 @@ export const DailyReflection = () => {
     try {
       const reflectionData = {
         user_id: user.id,
-        reflection_date: new Date().toISOString().split('T')[0],
+        reflection_date: reflection.reflection_date,
         coaches_chatted_with: reflection.coaches_chatted_with,
         conversation_rating: reflection.conversation_rating,
         helpful_moments: reflection.helpful_moments,
@@ -119,6 +182,7 @@ export const DailyReflection = () => {
       if (error) throw error;
 
       setHasReflectedToday(true);
+      loadPastReflections(); // Refresh past reflections in case this was an update
       toast({
         title: "Reflection saved!",
         description: "Your daily reflection has been recorded. This helps your coaches remember your journey better."
@@ -135,6 +199,16 @@ export const DailyReflection = () => {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
   if (isLoading) {
     return (
       <Card className="w-full">
@@ -146,111 +220,191 @@ export const DailyReflection = () => {
   }
 
   return (
-    <Card className="w-full shadow-gentle">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BookOpen className="w-5 h-5" />
-          Daily Reflection
-          {hasReflectedToday && (
-            <Badge variant="secondary" className="ml-2">
-              <ThumbsUp className="w-3 h-3 mr-1" />
-              Complete
-            </Badge>
+    <div className="space-y-4">
+      {/* Today's Reflection */}
+      <Card className="w-full shadow-gentle">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="w-5 h-5" />
+            Today's Reflection
+            {hasReflectedToday && (
+              <Badge variant="secondary" className="ml-2">
+                <ThumbsUp className="w-3 h-3 mr-1" />
+                Complete
+              </Badge>
+            )}
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            {formatDate(reflection.reflection_date)} • Help your coaches remember your journey by reflecting on today's conversations
+          </p>
+        </CardHeader>
+        
+        <CardContent className="space-y-6">
+          {/* Coach Selection */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium">
+              Which coaches did you chat with today? (Select all that apply)
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(coachNames).map(([id, name]) => (
+                <Button
+                  key={id}
+                  variant={reflection.coaches_chatted_with.includes(id) ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => toggleCoach(id)}
+                  className="flex items-center gap-2"
+                >
+                  <MessageSquare className="w-3 h-3" />
+                  {name}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Rating */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium">
+              How helpful were your conversations today?
+            </label>
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((rating) => (
+                <Button
+                  key={rating}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setRating(rating)}
+                  className="p-1"
+                >
+                  <Star 
+                    className={`w-6 h-6 ${
+                      reflection.conversation_rating && rating <= reflection.conversation_rating
+                        ? 'fill-yellow-400 text-yellow-400'
+                        : 'text-muted-foreground'
+                    }`}
+                  />
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Helpful Moments */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium">
+              What was most helpful in your conversations today?
+            </label>
+            <Textarea
+              placeholder="Share what insights, advice, or support stood out to you..."
+              value={reflection.helpful_moments}
+              onChange={(e) => setReflection(prev => ({ 
+                ...prev, 
+                helpful_moments: e.target.value 
+              }))}
+              rows={3}
+            />
+          </div>
+
+          {/* Areas for Improvement */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium">
+              What would you like to explore more in future conversations?
+            </label>
+            <Textarea
+              placeholder="Any topics, feelings, or situations you'd like your coaches to help you work through..."
+              value={reflection.areas_for_improvement}
+              onChange={(e) => setReflection(prev => ({ 
+                ...prev, 
+                areas_for_improvement: e.target.value 
+              }))}
+              rows={3}
+            />
+          </div>
+
+          <Button 
+            onClick={saveReflection} 
+            disabled={isSaving}
+            className="w-full"
+          >
+            {isSaving ? "Saving..." : hasReflectedToday ? "Update Reflection" : "Save Reflection"}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Past Reflections History */}
+      {pastReflections.length > 0 && (
+        <Card className="w-full shadow-gentle">
+          <CardHeader>
+            <Button
+              variant="ghost"
+              onClick={() => setShowHistory(!showHistory)}
+              className="flex items-center justify-between w-full p-0 h-auto"
+            >
+              <div className="flex items-center gap-2">
+                <History className="w-5 h-5" />
+                <CardTitle>Reflection History ({pastReflections.length})</CardTitle>
+              </div>
+              {showHistory ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+            <p className="text-sm text-muted-foreground text-left">
+              View your past reflections to track your journey
+            </p>
+          </CardHeader>
+          
+          {showHistory && (
+            <CardContent>
+              <ScrollArea className="h-96">
+                <div className="space-y-4">
+                  {pastReflections.map((pastReflection, index) => (
+                    <div key={pastReflection.id || index} className="border-l-2 border-primary/20 pl-4 pb-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium text-sm">
+                            {formatDate(pastReflection.reflection_date)}
+                          </h4>
+                          <div className="flex items-center gap-2">
+                            {pastReflection.conversation_rating && (
+                              <div className="flex items-center gap-1">
+                                {[...Array(pastReflection.conversation_rating)].map((_, i) => (
+                                  <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {pastReflection.coaches_chatted_with && pastReflection.coaches_chatted_with.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {pastReflection.coaches_chatted_with.map(coachId => (
+                              <Badge key={coachId} variant="outline" className="text-xs">
+                                {coachNames[coachId as keyof typeof coachNames]}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {pastReflection.helpful_moments && (
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground mb-1">What was helpful:</p>
+                            <p className="text-sm">{pastReflection.helpful_moments}</p>
+                          </div>
+                        )}
+                        
+                        {pastReflection.areas_for_improvement && (
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground mb-1">Areas to explore:</p>
+                            <p className="text-sm">{pastReflection.areas_for_improvement}</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {index < pastReflections.length - 1 && <Separator className="mt-4" />}
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </CardContent>
           )}
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Help your coaches remember your journey by reflecting on today's conversations
-        </p>
-      </CardHeader>
-      
-      <CardContent className="space-y-6">
-        {/* Coach Selection */}
-        <div className="space-y-3">
-          <label className="text-sm font-medium">
-            Which coaches did you chat with today? (Select all that apply)
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(coachNames).map(([id, name]) => (
-              <Button
-                key={id}
-                variant={reflection.coaches_chatted_with.includes(id) ? "default" : "outline"}
-                size="sm"
-                onClick={() => toggleCoach(id)}
-                className="flex items-center gap-2"
-              >
-                <MessageSquare className="w-3 h-3" />
-                {name}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Rating */}
-        <div className="space-y-3">
-          <label className="text-sm font-medium">
-            How helpful were your conversations today?
-          </label>
-          <div className="flex gap-1">
-            {[1, 2, 3, 4, 5].map((rating) => (
-              <Button
-                key={rating}
-                variant="ghost"
-                size="sm"
-                onClick={() => setRating(rating)}
-                className="p-1"
-              >
-                <Star 
-                  className={`w-6 h-6 ${
-                    reflection.conversation_rating && rating <= reflection.conversation_rating
-                      ? 'fill-yellow-400 text-yellow-400'
-                      : 'text-muted-foreground'
-                  }`}
-                />
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Helpful Moments */}
-        <div className="space-y-3">
-          <label className="text-sm font-medium">
-            What was most helpful in your conversations today?
-          </label>
-          <Textarea
-            placeholder="Share what insights, advice, or support stood out to you..."
-            value={reflection.helpful_moments}
-            onChange={(e) => setReflection(prev => ({ 
-              ...prev, 
-              helpful_moments: e.target.value 
-            }))}
-            rows={3}
-          />
-        </div>
-
-        {/* Areas for Improvement */}
-        <div className="space-y-3">
-          <label className="text-sm font-medium">
-            What would you like to explore more in future conversations?
-          </label>
-          <Textarea
-            placeholder="Any topics, feelings, or situations you'd like your coaches to help you work through..."
-            value={reflection.areas_for_improvement}
-            onChange={(e) => setReflection(prev => ({ 
-              ...prev, 
-              areas_for_improvement: e.target.value 
-            }))}
-            rows={3}
-          />
-        </div>
-
-        <Button 
-          onClick={saveReflection} 
-          disabled={isSaving}
-          className="w-full"
-        >
-          {isSaving ? "Saving..." : hasReflectedToday ? "Update Reflection" : "Save Reflection"}
-        </Button>
-      </CardContent>
-    </Card>
+        </Card>
+      )}
+    </div>
   );
 };
