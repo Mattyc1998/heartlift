@@ -34,11 +34,8 @@ const plans = [
     icon: Sparkles,
     description: "Unlimited support for your relationship growth",
     features: [
-      "Basic AI relationship advice",
+      "Everything in free",
       "Unlimited AI coach conversations",
-      "Daily mood check-ins",
-      "Daily reflections",
-      "Access to all coaches",
       "Regenerate AI responses",
       "Guided Programmes",
       "Personalized insights & reports",
