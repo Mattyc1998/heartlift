@@ -38,7 +38,7 @@ const plans = [
       "Unlimited AI coach conversations",
       "Regenerate AI responses",
       "Guided Programmes",
-      "Personalized insights & reports",
+      "Personalised insights & reports",
       "Daily attachment style quiz with AI analysis",
       "Conversation analyzer with AI insights",
       "Text suggestion helper for all scenarios",

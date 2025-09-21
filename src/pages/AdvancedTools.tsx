@@ -5,7 +5,7 @@ import { AttachmentStyleQuiz } from "@/components/AttachmentStyleQuiz";
 import { GuidedPrograms } from "@/components/GuidedPrograms";
 import { ConversationAnalyzer } from "@/components/ConversationAnalyzer";
 import { TextSuggestionHelper } from "@/components/TextSuggestionHelper";
-import { PersonalizedInsights } from "@/components/PersonalizedInsights";
+import { PersonalisedInsights } from "@/components/PersonalisedInsights";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -84,7 +84,7 @@ export default function AdvancedTools() {
               Unlock deeper insights into your relationship patterns
             </p>
             <p className="text-muted-foreground">
-              Discover your attachment style, analyze conversations, get personalized text suggestions, and access guided programs designed to help you build healthier, more fulfilling relationships.
+              Discover your attachment style, analyze conversations, get personalised text suggestions, and access guided programs designed to help you build healthier, more fulfilling relationships.
             </p>
           </div>
         </div>
@@ -139,7 +139,7 @@ export default function AdvancedTools() {
           
           {activeSection === "analyzer" && <ConversationAnalyzer />}
           {activeSection === "suggestions" && <TextSuggestionHelper />}
-          {activeSection === "insights" && <PersonalizedInsights />}
+          {activeSection === "insights" && <PersonalisedInsights />}
           {activeSection === "programs" && <GuidedPrograms />}
         </div>
       </div>

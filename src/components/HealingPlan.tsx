@@ -233,7 +233,7 @@ export const HealingPlan = () => {
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
           30-Day Healing Plan
         </h1>
-        <p className="text-muted-foreground">Your personalized journey from heartbreak to healing</p>
+        <p className="text-muted-foreground">Your personalised journey from heartbreak to healing</p>
       </div>
 
       <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5">

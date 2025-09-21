@@ -82,7 +82,7 @@ export default function HealingKit() {
           </h1>
           <div className="max-w-2xl mx-auto space-y-3">
             <p className="text-lg font-semibold text-foreground">
-              Your personalized toolkit for emotional recovery and growth 💚
+              Your personalised toolkit for emotional recovery and growth 💚
             </p>
             <p className="text-muted-foreground">
               Navigate through heartbreak and emotional challenges with proven techniques. Track your progress, practice daily affirmations, and build the foundation for healthier relationships ahead.

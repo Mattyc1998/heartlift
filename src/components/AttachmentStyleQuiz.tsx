@@ -431,7 +431,7 @@ export const AttachmentStyleQuiz = () => {
 
       toast({
         title: "Analysis Complete!",
-        description: "Your personalized attachment style report is ready.",
+        description: "Your personalised attachment style report is ready.",
       });
 
     } catch (error) {
@@ -590,7 +590,7 @@ export const AttachmentStyleQuiz = () => {
           <Loader2 className="w-8 h-8 animate-spin mb-4" />
           <h3 className="text-lg font-semibold mb-2">Analyzing Your Responses</h3>
           <p className="text-muted-foreground text-center">
-            Our AI is creating your personalized attachment style report...
+            Our AI is creating your personalised attachment style report...
           </p>
         </CardContent>
       </Card>
@@ -744,7 +744,7 @@ export const AttachmentStyleQuiz = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  🌱 Your Personalized Healing Path
+                  🌱 Your Personalised Healing Path
                 </CardTitle>
               </CardHeader>
               <CardContent>

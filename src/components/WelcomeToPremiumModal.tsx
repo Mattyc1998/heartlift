@@ -40,13 +40,13 @@ export const WelcomeToPremiumModal = ({ isOpen, onClose, userName = "there" }: W
     {
       icon: BarChart3,
       title: "Advanced Mood Analytics",
-      description: "Weekly trends, emotion patterns, and personalized insights",
+      description: "Weekly trends, emotion patterns, and personalised insights",
       gradient: "from-green-400 to-green-500",
       bgColor: "from-green-50 to-green-100"
     },
     {
       icon: Sparkles,
-      title: "Personalized Reports",
+      title: "Personalised Reports",
       description: "Dating patterns, attachment analysis, and healing roadmaps",
       gradient: "from-yellow-400 to-orange-400",
       bgColor: "from-yellow-50 to-orange-100"

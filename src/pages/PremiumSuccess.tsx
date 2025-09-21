@@ -37,7 +37,7 @@ export const PremiumSuccess = () => {
 
   const premiumFeatures = [
     "💬 Unlimited AI conversations with all coaches",
-    "🧠 Personalized coaching and text suggestions", 
+    "🧠 Personalised coaching and text suggestions", 
     "🛠 Advanced tools and healing plans",
     "💬 Text helpers & conversation analyzer"
   ];

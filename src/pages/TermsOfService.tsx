@@ -44,7 +44,7 @@ export default function TermsOfService() {
               <ul className="list-disc pl-6 space-y-1">
                 <li>AI-powered relationship wellbeing coaching</li>
                 <li>Emotional wellness tools and resources</li>
-                <li>Personalized insights and guidance</li>
+                <li>Personalised insights and guidance</li>
                 <li>Premium features for subscribers</li>
               </ul>
             </section>

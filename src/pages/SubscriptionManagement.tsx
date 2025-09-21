@@ -208,7 +208,7 @@ export const SubscriptionManagement = () => {
             <div className="bg-gradient-to-r from-primary/5 to-secondary/5 border border-primary/20 rounded-lg p-4">
               <h4 className="font-medium text-primary mb-2">Upgrade to Premium</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                Get unlimited conversations, advanced tools, and personalized coaching
+                Get unlimited conversations, advanced tools, and personalised coaching
               </p>
               <Button 
                 onClick={() => navigate('/premium-purchase', { state: { from: location.pathname + location.search } })}
@@ -285,7 +285,7 @@ export const SubscriptionManagement = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>🧠 Personalized coaching</span>
+                  <span>🧠 Personalised coaching</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>

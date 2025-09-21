@@ -70,7 +70,7 @@ export const PrivacyPolicy = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <p>
-                When you chat with our AI coaches, your conversations are securely stored to provide continuity and personalized support across sessions.
+                When you chat with our AI coaches, your conversations are securely stored to provide continuity and personalised support across sessions.
               </p>
               <div className="space-y-3">
                 <div>

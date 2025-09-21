@@ -253,7 +253,7 @@ const Index = () => {
             {/* Support Contact - Bottom of page */}
             <div className="flex flex-col items-center justify-center pt-12 pb-8 space-y-2">
               <p className="text-muted-foreground text-center">
-                All coaches provide personalized emotional support
+                All coaches provide personalised emotional support
               </p>
               <p className="text-muted-foreground text-sm">
                 Need help? Contact us at{" "}

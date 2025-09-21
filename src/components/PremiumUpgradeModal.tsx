@@ -59,14 +59,14 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
     },
     {
       icon: Sparkles,
-      title: "Personalized insights & reports",
+      title: "Personalised insights & reports",
       description: "Get detailed analysis and custom reports on your progress",
       gradient: "from-purple-400 to-purple-500"
     },
     {
       icon: Crown,
       title: "Daily attachment style quiz with AI analysis",
-      description: "Take daily quizzes with personalized AI insights on your attachment patterns",
+      description: "Take daily quizzes with personalised AI insights on your attachment patterns",
       gradient: "from-pink-400 to-pink-500"
     },
     {
@@ -100,7 +100,7 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
     
     return {
       title: `${coachName || "Your coach"} wants to help you more! ✨`,
-      description: "This kind of personalized coaching is included in Premium. Ready to unlock the full experience?",
+      description: "This kind of personalised coaching is included in Premium. Ready to unlock the full experience?",
       highlight: "Premium includes deep insights and custom advice"
     };
   };
