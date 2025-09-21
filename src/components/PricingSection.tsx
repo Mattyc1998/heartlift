@@ -29,12 +29,16 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "£0",
-    period: "forever",
+    price: "£11.99",
+    period: "per month",
     icon: Sparkles,
     description: "Unlimited support for your relationship growth",
     features: [
+      "Basic AI relationship advice",
       "Unlimited AI coach conversations",
+      "Daily mood check-ins",
+      "Daily reflections",
+      "Access to all coaches",
       "Regenerate AI responses",
       "Guided Programmes",
       "Personalized insights & reports",
