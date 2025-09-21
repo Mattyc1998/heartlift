@@ -19,6 +19,7 @@ const plans = [
       "Basic AI relationship advice",
       "10 messages per day",
       "Daily mood check-ins",
+      "Daily reflections",
       "Access to all coaches",
       "Email support"
     ],
@@ -28,8 +29,8 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "£11.99",
-    period: "per month",
+    price: "£0",
+    period: "forever",
     icon: Sparkles,
     description: "Unlimited support for your relationship growth",
     features: [
