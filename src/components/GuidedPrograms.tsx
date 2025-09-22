@@ -434,7 +434,7 @@ export const GuidedPrograms = () => {
   // Show program content
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="space-y-4">
         <Button
           variant="outline"
           onClick={async () => {
@@ -447,15 +447,19 @@ export const GuidedPrograms = () => {
             setCurrentModule(null);
             setReflectionAnswer("");
           }}
+          className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Programs
         </Button>
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <span>{selectedProgram.emoji}</span>
-            {selectedProgram.title}
-          </h2>
+        
+        <div className="text-center sm:text-left">
+          <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-3 sm:gap-4">
+            <span className="text-4xl sm:text-3xl">{selectedProgram.emoji}</span>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center sm:text-left leading-tight">
+              {selectedProgram.title}
+            </h2>
+          </div>
         </div>
       </div>
 
