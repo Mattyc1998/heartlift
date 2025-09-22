@@ -39,43 +39,68 @@ serve(async (req) => {
     // Calculate attachment style
     const attachmentStyle = calculateAttachmentStyle(answers);
     
-    // Generate detailed analysis using OpenAI
+    // Generate comprehensive detailed analysis using OpenAI
     const analysisPrompt = `
-    Based on the attachment style quiz results showing ${attachmentStyle} attachment style, provide a detailed psychological analysis.
+    You are a world-renowned attachment theory expert with 20+ years of clinical experience. Based on the attachment style quiz results showing ${attachmentStyle} attachment style, provide an exceptionally detailed psychological analysis.
     
-    IMPORTANT: The calculated attachment style is ${attachmentStyle}. Your analysis must be consistent with this specific style.
+    IMPORTANT: The calculated attachment style is ${attachmentStyle}. Your analysis must be comprehensive and consistent with this specific style.
     
     Attachment Style Definitions:
-    - secure: Comfortable with intimacy and autonomy
-    - anxious: Seeks closeness but fears abandonment
-    - avoidant: Values independence, uncomfortable with closeness
-    - fearful-avoidant: Wants close relationships but fears getting hurt
+    - secure: Comfortable with intimacy and autonomy, trusting, communicative
+    - anxious: Seeks closeness but fears abandonment, needs constant reassurance
+    - avoidant: Values independence, uncomfortable with closeness, self-reliant
+    - fearful-avoidant: Wants close relationships but fears getting hurt, push-pull dynamic
     - disorganized: Chaotic, unpredictable relationship patterns, often from trauma
     
-    Provide analysis for ${attachmentStyle} attachment style including:
+    Provide an exceptionally comprehensive analysis for ${attachmentStyle} attachment style including:
 
-    1. Full breakdown of their ${attachmentStyle} attachment style patterns
-    2. Specific triggers they should watch out for in relationships
-    3. Personalized healing path recommendations for ${attachmentStyle} style
-    4. Practical coping techniques specifically for ${attachmentStyle} attachment
-    5. How ${attachmentStyle} attachment affects their relationship patterns
+    1. DETAILED breakdown with at least 5-7 items in each category
+    2. EXTENSIVE list of specific triggers (at least 8-10)
+    3. COMPREHENSIVE healing path with multiple stages
+    4. PRACTICAL coping techniques with detailed examples (at least 6-8)
+    5. DEEP analysis of relationship patterns
+    6. CHILDHOOD origins and how they manifest today
+    7. COMMUNICATION patterns specific to this style
+    8. EMOTIONAL regulation strategies
+    9. INTIMACY and vulnerability challenges
+    10. GROWTH opportunities and potential
+    11. DAILY practices for healing
+    12. RED FLAGS to watch for in relationships
 
-    Format the response as valid JSON only (no markdown formatting) with this structure:
+    Format the response as valid JSON only (no markdown formatting) with this expanded structure:
     {
       "detailedBreakdown": {
-        "strengths": ["list of strengths specific to ${attachmentStyle}"],
-        "challenges": ["list of challenges specific to ${attachmentStyle}"],
-        "relationshipPatterns": ["list of patterns specific to ${attachmentStyle}"]
+        "strengths": ["comprehensive list of 5-7 strengths specific to ${attachmentStyle}"],
+        "challenges": ["comprehensive list of 5-7 challenges specific to ${attachmentStyle}"],
+        "relationshipPatterns": ["comprehensive list of 5-7 patterns specific to ${attachmentStyle}"],
+        "childhoodOrigins": ["detailed list of 4-5 childhood factors that created this style"],
+        "communicationStyle": ["detailed list of 4-5 communication patterns"],
+        "emotionalPatterns": ["detailed list of 4-5 emotional regulation patterns"],
+        "intimacyChallenges": ["detailed list of 4-5 intimacy-related challenges"]
       },
-      "healingPath": "Detailed personalized healing path text for ${attachmentStyle} attachment",
-      "triggers": ["list of specific triggers to watch for with ${attachmentStyle} attachment"],
+      "healingPath": "Extremely detailed multi-stage healing path (at least 300 words) for ${attachmentStyle} attachment with specific steps, timeframes, and milestones",
+      "triggers": ["comprehensive list of 8-10 specific triggers to watch for with ${attachmentStyle} attachment"],
       "copingTechniques": [
         {
           "technique": "technique name",
-          "description": "how to apply it for ${attachmentStyle} attachment",
-          "example": "practical example for someone with ${attachmentStyle} attachment"
+          "description": "detailed description of how to apply it for ${attachmentStyle} attachment",
+          "example": "specific practical example for someone with ${attachmentStyle} attachment",
+          "whenToUse": "specific situations when this technique is most effective"
         }
-      ]
+      ],
+      "dailyPractices": [
+        {
+          "practice": "practice name",
+          "description": "detailed description",
+          "timeNeeded": "how long it takes",
+          "frequency": "how often to do it"
+        }
+      ],
+      "redFlags": ["list of 5-6 red flags in relationships for ${attachmentStyle} attachment"],
+      "growthOpportunities": ["list of 5-6 specific areas for growth and potential"],
+      "selfCareStrategies": ["list of 6-8 self-care strategies tailored to ${attachmentStyle} attachment"],
+      "boundaryGuidance": "Detailed guidance on setting healthy boundaries for ${attachmentStyle} attachment style",
+      "relationshipAdvice": "Comprehensive relationship advice tailored specifically to ${attachmentStyle} attachment style"
     }
     `;
 
@@ -86,12 +111,13 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
-          { role: 'system', content: `You are a licensed therapist specializing in attachment theory. Provide detailed, empathetic, and scientifically-backed analysis. Always ensure your analysis is consistent with the calculated attachment style. Return only valid JSON without any markdown formatting or code blocks.` },
+          { role: 'system', content: `You are Dr. Sarah Mitchell, a world-renowned attachment theory expert with 25+ years of clinical experience, published researcher, and specialist in adult attachment patterns. You have helped thousands of clients heal their attachment wounds. Provide exceptionally detailed, empathetic, and scientifically-backed analysis that goes far beyond basic descriptions. Your analysis should be transformative and actionable. Always ensure your analysis is consistent with the calculated attachment style. Return only valid JSON without any markdown formatting or code blocks.` },
           { role: 'user', content: analysisPrompt }
         ],
-        temperature: 0.7,
+        temperature: 0.8,
+        max_tokens: 4000,
       }),
     });
 
@@ -105,13 +131,21 @@ serve(async (req) => {
     
     const analysis = JSON.parse(analysisContent);
 
-    // Save results to database
+    // Save comprehensive results to database
     const { error } = await supabase
       .from('user_attachment_results')
       .insert({
         user_id: userId,
         attachment_style: attachmentStyle,
-        detailed_breakdown: analysis.detailedBreakdown,
+        detailed_breakdown: {
+          ...analysis.detailedBreakdown,
+          dailyPractices: analysis.dailyPractices,
+          redFlags: analysis.redFlags,
+          growthOpportunities: analysis.growthOpportunities,
+          selfCareStrategies: analysis.selfCareStrategies,
+          boundaryGuidance: analysis.boundaryGuidance,
+          relationshipAdvice: analysis.relationshipAdvice
+        },
         healing_path: analysis.healingPath,
         triggers: analysis.triggers,
         coping_techniques: analysis.copingTechniques,

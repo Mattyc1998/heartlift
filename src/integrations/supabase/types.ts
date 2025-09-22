@@ -98,6 +98,30 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_quiz_questions: {
+        Row: {
+          created_at: string
+          generated_at: string
+          id: string
+          questions: Json
+          quiz_date: string
+        }
+        Insert: {
+          created_at?: string
+          generated_at?: string
+          id?: string
+          questions: Json
+          quiz_date: string
+        }
+        Update: {
+          created_at?: string
+          generated_at?: string
+          id?: string
+          questions?: Json
+          quiz_date?: string
+        }
+        Relationships: []
+      }
       daily_reflections: {
         Row: {
           areas_for_improvement: string | null

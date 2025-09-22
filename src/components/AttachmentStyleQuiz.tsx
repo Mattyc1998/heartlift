@@ -344,14 +344,76 @@ export const AttachmentStyleQuiz = () => {
   const [pastResults, setPastResults] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [hasCompletedToday, setHasCompletedToday] = useState(false);
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
+  const [questionsError, setQuestionsError] = useState<string | null>(null);
   
-  const dailyQuizData = getDailyQuestions();
-  const quizQuestions = dailyQuizData.questions;
+  // Remove the old daily questions logic since we're now using AI-generated questions
+  const formatTimeUntilNextChange = () => {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    
+    const msUntilChange = tomorrow.getTime() - now.getTime();
+    const hoursUntil = Math.floor(msUntilChange / (1000 * 60 * 60));
+    const minutesUntil = Math.floor((msUntilChange % (1000 * 60 * 60)) / (1000 * 60));
+    
+    return `${hoursUntil}h ${minutesUntil}m`;
+  };
 
   useEffect(() => {
-    fetchPastResults();
-    checkTodayCompletion();
+    if (user) {
+      loadDailyQuestions();
+      fetchPastResults();
+      checkTodayCompletion();
+    }
   }, [user]);
+
+  const loadDailyQuestions = async () => {
+    setIsLoadingQuestions(true);
+    setQuestionsError(null);
+    
+    try {
+      console.log('Loading daily AI-generated questions...');
+      
+      const { data, error } = await supabase.functions.invoke('generate-daily-quiz-questions', {
+        body: {}
+      });
+
+      if (error) {
+        console.error('Error loading questions:', error);
+        throw error;
+      }
+
+      if (!data.questions || !Array.isArray(data.questions)) {
+        throw new Error('Invalid questions format received');
+      }
+
+      setQuizQuestions(data.questions);
+      console.log('Loaded', data.questions.length, 'AI-generated questions');
+      
+    } catch (error) {
+      console.error('Failed to load daily questions:', error);
+      setQuestionsError('Failed to load today\'s quiz questions. Please try again.');
+      
+      // Fallback to a basic question set
+      setQuizQuestions([
+        {
+          id: 1,
+          question: "How do you typically approach new relationships?",
+          options: [
+            "With excitement and openness to connection",
+            "With hope but worry about being hurt",
+            "With caution and preference for independence", 
+            "With confusion about what I want"
+          ]
+        }
+      ]);
+    } finally {
+      setIsLoadingQuestions(false);
+    }
+  };
 
   const checkTodayCompletion = async () => {
     if (!user) return;
@@ -496,6 +558,7 @@ export const AttachmentStyleQuiz = () => {
     setSelectedAnswer("");
     setAttachmentStyle("");
     setAnalysis(null);
+    loadDailyQuestions(); // Reload questions when resetting
   };
 
   const formatTimeUntilNext = (nextTime: Date): string => {
@@ -509,6 +572,46 @@ export const AttachmentStyleQuiz = () => {
     }
     return `${minutes}m`;
   };
+
+  // Show loading state while fetching questions
+  if (isLoadingQuestions) {
+    return (
+      <div className="space-y-6 max-w-4xl mx-auto">
+        <Card>
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+            <CardTitle className="text-2xl">Loading Today's Questions...</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-muted-foreground">
+              AI is generating fresh attachment style questions for you.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show error state if questions failed to load
+  if (questionsError) {
+    return (
+      <div className="space-y-6 max-w-4xl mx-auto">
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl text-destructive">Error Loading Questions</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-muted-foreground">{questionsError}</p>
+            <Button onClick={loadDailyQuestions} variant="outline">
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Show completion status if user has completed today's quiz
   if (hasCompletedToday && !showResults) {
@@ -525,11 +628,11 @@ export const AttachmentStyleQuiz = () => {
             <div className="flex items-center justify-center gap-4 mt-4">
               <Badge variant="outline" className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
-                Today's Set #{dailyQuizData.setNumber}
+                AI-Generated Questions
               </Badge>
               <Badge variant="secondary" className="flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                Next: {formatTimeUntilNext(dailyQuizData.nextChangeTime)}
+                Next: {formatTimeUntilNextChange()}
               </Badge>
             </div>
           </CardHeader>
@@ -631,11 +734,11 @@ export const AttachmentStyleQuiz = () => {
             <div className="flex items-center justify-center gap-4 mt-4">
               <Badge variant="outline" className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
-                Set #{dailyQuizData.setNumber}
+                AI-Generated Quiz
               </Badge>
               <Badge variant="secondary" className="flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                Next: {formatTimeUntilNext(dailyQuizData.nextChangeTime)}
+                Next: {formatTimeUntilNextChange()}
               </Badge>
             </div>
           </CardHeader>
@@ -793,6 +896,27 @@ export const AttachmentStyleQuiz = () => {
   }
 
   // Show the quiz
+  // Don't render quiz if no questions loaded
+  if (!quizQuestions || quizQuestions.length === 0) {
+    return (
+      <div className="space-y-6 max-w-4xl mx-auto">
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">No Questions Available</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-muted-foreground">
+              Unable to load quiz questions. Please try refreshing the page.
+            </p>
+            <Button onClick={loadDailyQuestions} variant="outline">
+              Reload Questions
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 sm:space-y-6 max-w-2xl mx-auto px-4 sm:px-0">
       {/* Quiz Header */}
@@ -805,15 +929,15 @@ export const AttachmentStyleQuiz = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mt-3 sm:mt-4">
             <Badge variant="outline" className="flex items-center gap-2 text-xs sm:text-sm">
               <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-              Today's Set #{dailyQuizData.setNumber}
+              AI-Generated Questions
             </Badge>
             <Badge variant="secondary" className="flex items-center gap-2 text-xs sm:text-sm">
               <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-              New questions in {formatTimeUntilNext(dailyQuizData.nextChangeTime)}
+              New questions in {formatTimeUntilNextChange()}
             </Badge>
           </div>
           <p className="text-muted-foreground mt-2 text-sm sm:text-base">
-            Questions change daily to give you deeper insights into your attachment patterns
+            AI generates fresh questions daily to provide deeper insights into your attachment patterns
           </p>
           <div className="mt-3 flex justify-center">
             <Button variant="ghost" onClick={() => setShowHistory(true)} size="sm">
