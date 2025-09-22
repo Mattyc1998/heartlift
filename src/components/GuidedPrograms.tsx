@@ -383,7 +383,7 @@ export const GuidedPrograms = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
-          {programs.map((program) => {
+          {(programs || []).map((program) => {
             const IconComponent = getProgramIcon(program.program_key);
             const progress = getProgressPercentage(program.id);
             const isCompleted = userProgress[program.id]?.program_completed;
@@ -467,7 +467,7 @@ export const GuidedPrograms = () => {
               <CardTitle className="text-lg">Modules</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {programModules.map((module) => {
+              {(programModules || []).map((module) => {
                 const isCompleted = userProgress[selectedProgram.id]?.completed_modules.includes(module.module_number);
                 const isCurrent = currentModule.id === module.id;
                 
