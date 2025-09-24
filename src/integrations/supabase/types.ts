@@ -858,6 +858,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_current_user_profile: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          full_name: string
+          id: string
+          updated_at: string
+        }[]
+      }
       get_user_daily_usage: {
         Args: { coach_id?: string; user_uuid: string }
         Returns: {
