@@ -381,24 +381,32 @@ export const AttachmentStyleQuiz = () => {
         body: {}
       });
 
+      console.log('Edge function response:', { data, error });
+
+      // Handle any error from the edge function
       if (error) {
-        console.error('Error loading questions:', error);
-        throw error;
+        console.error('Edge function error:', error);
+        throw new Error(`Function error: ${error.message || 'Unknown error'}`);
       }
 
-      if (!data.questions || !Array.isArray(data.questions)) {
-        throw new Error('Invalid questions format received');
+      // The edge function now always returns questions (either AI or fallback)
+      if (!data || !data.questions || !Array.isArray(data.questions)) {
+        throw new Error('Invalid response format from edge function');
       }
 
       setQuizQuestions(data.questions);
-      console.log('Loaded', data.questions.length, 'AI-generated questions');
+      console.log('Successfully loaded', data.questions.length, 'questions');
+      
+      if (data.fallback) {
+        console.log('Using fallback questions:', data.note);
+      }
       
     } catch (error) {
-      console.error('Failed to load daily questions:', error);
-      setQuestionsError('Failed to load today\'s quiz questions. Please try again.');
+      console.error('Failed to load quiz questions:', error);
+      setQuestionsError('Failed to load quiz questions. Using backup questions.');
       
-      // Fallback to a basic question set
-      setQuizQuestions([
+      // Ultimate fallback - hardcoded questions in the frontend
+      const hardcodedQuestions = [
         {
           id: 1,
           question: "How do you typically approach new relationships?",
@@ -408,8 +416,31 @@ export const AttachmentStyleQuiz = () => {
             "With caution and preference for independence", 
             "With confusion about what I want"
           ]
+        },
+        {
+          id: 2,
+          question: "When conflict arises, you tend to:",
+          options: [
+            "Address issues directly and work toward resolution",
+            "Become anxious and seek immediate reassurance",
+            "Withdraw and avoid confrontation",
+            "Feel overwhelmed and react unpredictably"
+          ]
+        },
+        {
+          id: 3,
+          question: "Your emotional regulation involves:",
+          options: [
+            "Processing feelings and seeking appropriate support",
+            "Becoming overwhelmed and needing constant comfort",
+            "Shutting down emotions and handling things alone",
+            "Experiencing intense, conflicting emotions"
+          ]
         }
-      ]);
+      ];
+      
+      setQuizQuestions(hardcodedQuestions);
+      console.log('Using hardcoded fallback questions');
     } finally {
       setIsLoadingQuestions(false);
     }

@@ -181,7 +181,7 @@ Make sure the questions are fresh, creative, and would provide deep insights int
   } catch (error) {
     console.error('Function error:', error.message);
     
-    // Return comprehensive fallback questions
+    // Return comprehensive fallback questions with consistent format
     const fallbackQuestions = [
       {
         id: 1,
@@ -235,14 +235,18 @@ Make sure the questions are fresh, creative, and would provide deep insights int
       }
     ];
     
+    // ALWAYS return success with questions - never return error status
     return new Response(
       JSON.stringify({ 
         questions: fallbackQuestions,
         isNew: true,
         fallback: true,
-        error: 'Using fallback questions due to: ' + error.message
+        note: 'Using fallback questions: ' + error.message
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        status: 200, // Always return 200 so frontend doesn't fail
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
     );
   }
 });
