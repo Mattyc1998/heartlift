@@ -16,7 +16,8 @@ serve(async (req) => {
   try {
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
+      console.log('No OpenAI API key, using fallback questions');
+      throw new Error('OpenAI API key not configured - using fallback');
     }
 
     // Initialize Supabase client
@@ -35,8 +36,8 @@ serve(async (req) => {
       .limit(1);
 
     if (fetchError) {
-      console.error('Error fetching existing questions:', fetchError);
-      throw fetchError;
+      console.error('Database error:', fetchError);
+      throw new Error('Database access failed - using fallback');
     }
 
     // If questions already exist for today, return them
@@ -103,29 +104,49 @@ Make sure the questions are fresh, creative, and would provide deep insights int
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenAI API error:', errorText);
-      throw new Error(`OpenAI API error: ${response.status} ${errorText}`);
+      console.error('OpenAI API error:', response.status, errorText);
+      throw new Error(`OpenAI API failed: ${response.status}`);
     }
 
     const data = await response.json();
-    const aiResponse = data.choices[0].message.content;
+    console.log('OpenAI response structure:', Object.keys(data));
     
-    console.log('AI Response:', aiResponse);
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('Unexpected OpenAI response structure:', data);
+      throw new Error('Invalid OpenAI response structure');
+    }
+    
+    const aiResponse = data.choices[0].message.content;
+    console.log('AI Response (first 200 chars):', aiResponse.substring(0, 200));
 
     let questionsData;
     try {
-      questionsData = JSON.parse(aiResponse);
+      // Try to extract JSON from the response - sometimes AI includes extra text
+      let cleanResponse = aiResponse.trim();
+      
+      // Look for JSON object markers
+      const jsonStart = cleanResponse.indexOf('{');
+      const jsonEnd = cleanResponse.lastIndexOf('}');
+      
+      if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+        cleanResponse = cleanResponse.substring(jsonStart, jsonEnd + 1);
+        console.log('Extracted JSON (first 100 chars):', cleanResponse.substring(0, 100));
+      }
+      
+      questionsData = JSON.parse(cleanResponse);
     } catch (parseError) {
-      console.error('Failed to parse AI response:', parseError);
-      throw new Error('Invalid JSON response from AI');
+      console.error('JSON parse failed:', parseError);
+      console.error('Raw response:', aiResponse);
+      throw new Error(`JSON parsing failed: ${parseError.message}`);
     }
 
     if (!questionsData.questions || !Array.isArray(questionsData.questions)) {
+      console.error('Invalid questions format:', questionsData);
       throw new Error('Invalid questions format from AI');
     }
 
     // Validate questions structure
-    const validatedQuestions = questionsData.questions.map((q: any, index: number) => ({
+    const validatedQuestions = questionsData.questions.slice(0, 10).map((q: any, index: number) => ({
       id: index + 1,
       question: q.question || `Question ${index + 1}`,
       options: Array.isArray(q.options) && q.options.length === 4 ? q.options : [
@@ -143,11 +164,11 @@ Make sure the questions are fresh, creative, and would provide deep insights int
       });
 
     if (insertError) {
-      console.error('Error saving questions:', insertError);
-      throw insertError;
+      console.error('Database insert error:', insertError);
+      // Don't throw here - still return the questions even if we can't save them
     }
 
-    console.log('Successfully generated and saved questions for', today);
+    console.log('Successfully generated', validatedQuestions.length, 'questions for', today);
 
     return new Response(
       JSON.stringify({ 
@@ -158,27 +179,70 @@ Make sure the questions are fresh, creative, and would provide deep insights int
     );
 
   } catch (error) {
-    console.error('Error in generate-daily-quiz-questions function:', error);
+    console.error('Function error:', error.message);
+    
+    // Return comprehensive fallback questions
+    const fallbackQuestions = [
+      {
+        id: 1,
+        question: "How do you typically approach new relationships?",
+        options: [
+          "With excitement and openness to connection",
+          "With hope but worry about being hurt", 
+          "With caution and preference for independence",
+          "With confusion about what I want"
+        ]
+      },
+      {
+        id: 2,
+        question: "When conflict arises in relationships, you tend to:",
+        options: [
+          "Address issues directly and work toward resolution",
+          "Become anxious and seek immediate reassurance",
+          "Withdraw and avoid confrontation",
+          "Feel overwhelmed and react unpredictably"
+        ]
+      },
+      {
+        id: 3,
+        question: "Your view of yourself in relationships is generally:",
+        options: [
+          "Confident and worthy of love",
+          "Dependent on others' validation",
+          "Self-reliant but emotionally distant", 
+          "Inconsistent and self-doubting"
+        ]
+      },
+      {
+        id: 4,
+        question: "When a partner needs space, you typically:",
+        options: [
+          "Respect their need while maintaining connection",
+          "Feel rejected and seek constant reassurance",
+          "Feel relieved and prefer the distance",
+          "Feel confused about how to respond appropriately"
+        ]
+      },
+      {
+        id: 5,
+        question: "Your emotional regulation during stress involves:",
+        options: [
+          "Processing feelings and seeking appropriate support",
+          "Becoming overwhelmed and needing constant comfort",
+          "Shutting down emotions and handling things alone",
+          "Experiencing intense, conflicting emotions"
+        ]
+      }
+    ];
+    
     return new Response(
       JSON.stringify({ 
-        error: error.message,
-        fallbackQuestions: [
-          {
-            id: 1,
-            question: "How do you typically approach new relationships?",
-            options: [
-              "With excitement and openness to connection",
-              "With hope but worry about being hurt",
-              "With caution and preference for independence", 
-              "With confusion about what I want"
-            ]
-          }
-        ]
+        questions: fallbackQuestions,
+        isNew: true,
+        fallback: true,
+        error: 'Using fallback questions due to: ' + error.message
       }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
