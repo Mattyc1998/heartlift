@@ -141,7 +141,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -201,7 +201,7 @@ function generateFallbackMessages(messageType: string, relationship: string): Ar
     };
 
     const relationshipKey = relationship === 'romantic' ? 'boyfriend' : relationship;
-    return baseMessages[type]?.[relationshipKey] || baseMessages[type]?.['boyfriend'] || [
+    return (baseMessages as any)[type]?.[relationshipKey] || (baseMessages as any)[type]?.['boyfriend'] || [
       { tone: 'gentle', message: `I appreciate you reaching out, but I think it's best if we don't communicate right now.` },
       { tone: 'neutral', message: `I need some space. Please respect this boundary.` },
       { tone: 'firm', message: `Please stop contacting me. I need space right now.` }

@@ -124,12 +124,46 @@ serve(async (req) => {
     const aiData = await response.json();
     let analysisContent = aiData.choices[0].message.content;
     
-    // Clean up markdown formatting if present
-    if (analysisContent.includes('```json')) {
-      analysisContent = analysisContent.replace(/```json\n?/g, '').replace(/\n?```/g, '');
-    }
+    console.log('Raw AI response (first 200 chars):', analysisContent.substring(0, 200));
     
-    const analysis = JSON.parse(analysisContent);
+    let analysis;
+    try {
+      // Clean up markdown formatting if present
+      if (analysisContent.includes('```json')) {
+        analysisContent = analysisContent.replace(/```json\n?/g, '').replace(/\n?```/g, '');
+      }
+      
+      // Try to extract JSON from the response
+      let cleanResponse = analysisContent.trim();
+      
+      // Look for JSON object markers
+      const jsonStart = cleanResponse.indexOf('{');
+      const jsonEnd = cleanResponse.lastIndexOf('}');
+      
+      if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+        cleanResponse = cleanResponse.substring(jsonStart, jsonEnd + 1);
+        console.log('Extracted JSON (first 100 chars):', cleanResponse.substring(0, 100));
+      }
+      
+      analysis = JSON.parse(cleanResponse);
+    } catch (parseError) {
+      console.error('JSON parse failed:', parseError);
+      console.error('Raw response:', analysisContent);
+      
+      // Use fallback analysis
+      analysis = {
+        detailedBreakdown: {
+          strengths: ["High emotional awareness", "Strong desire for connection"],
+          challenges: ["Fear of abandonment", "Difficulty with boundaries"],
+          redFlags: ["Dismissive behavior", "Inconsistent communication"],
+          growthOpportunities: ["Self-soothing skills", "Healthy boundaries"]
+        },
+        dailyPractices: [
+          { practice: "Mindfulness", frequency: "Daily", description: "Daily mindfulness practice" }
+        ],
+        healingPath: "Focus on building secure attachment through self-awareness and healthy relationships."
+      };
+    }
 
     // Save comprehensive results to database
     const { error } = await supabase

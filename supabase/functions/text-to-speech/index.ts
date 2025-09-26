@@ -115,7 +115,7 @@ serve(async (req) => {
     } catch (conversionError) {
       console.error('Audio conversion error:', conversionError)
       return new Response(
-        JSON.stringify({ error: `Audio conversion failed: ${conversionError.message}` }),
+        JSON.stringify({ error: `Audio conversion failed: ${(conversionError as Error).message}` }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -126,7 +126,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Text-to-speech error:', error)
     return new Response(
-      JSON.stringify({ error: `Internal server error: ${error.message}` }),
+      JSON.stringify({ error: `Internal server error: ${(error as Error).message}` }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

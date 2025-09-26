@@ -180,7 +180,16 @@ serve(async (req) => {
         console.log('OpenAI quota exceeded, providing fallback insights');
         const analysisEnd = new Date();
         const analysisStart = thirtyDaysAgo;
-        return await generateFallbackInsights(supabase, userId, conversationSummary, moodSummary, attachmentStyle, attachmentDetails, analysisStart, analysisEnd);
+        return await generateFallbackInsights(
+          supabase, 
+          userId, 
+          JSON.stringify(conversationSummary), 
+          JSON.stringify(moodSummary), 
+          attachmentStyle, 
+          JSON.stringify(attachmentDetails), 
+          analysisStart, 
+          analysisEnd
+        );
       }
       
       throw new Error(`OpenAI API error: ${aiResponse.error?.message || 'Unknown error'}`);
@@ -248,18 +257,10 @@ serve(async (req) => {
     // If we encounter an error, try to provide fallback insights
     const errorMessage = (error as Error).message || '';
     if (errorMessage.includes('quota') || errorMessage.includes('429')) {
-      try {
-        console.log('Attempting fallback insights due to quota issue');
-        const analysisEnd = new Date();
-        const analysisStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
-        return await generateFallbackInsights(supabase, userId, conversationSummary, moodSummary, attachmentStyle, attachmentDetails, analysisStart, analysisEnd);
-      } catch (fallbackError) {
-        console.error('Fallback insights also failed:', fallbackError);
-        return new Response(
-          JSON.stringify({ error: 'Service temporarily unavailable. Please try again later.' }),
-          { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+      return new Response(
+        JSON.stringify({ error: 'AI service temporarily unavailable. Please try again later.' }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
     
     return new Response(
