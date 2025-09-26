@@ -280,10 +280,9 @@ function calculateAttachmentStyle(answers: string[]): string {
   
   // If there's a tie, use specific logic to break it
   if (topStyles.length > 1) {
-    // Prioritize fearful-avoidant over disorganized if both are high
-    if (styleScores['fearful-avoidant'] === styleScores.disorganized && 
-        styleScores['fearful-avoidant'] >= styleScores.anxious && 
-        styleScores['fearful-avoidant'] >= styleScores.avoidant) {
+    // Always prioritize fearful-avoidant over disorganized if fearful-avoidant scored
+    if (styleScores['fearful-avoidant'] > 0 && 
+        styleScores['fearful-avoidant'] === styleScores.disorganized) {
       return 'fearful-avoidant';
     }
     
@@ -291,6 +290,14 @@ function calculateAttachmentStyle(answers: string[]): string {
     if (styleScores.anxious === styleScores.avoidant && 
         styleScores.anxious > 0) {
       return 'fearful-avoidant';
+    }
+    
+    // Prioritize more specific styles over general ones
+    const priorityOrder = ['fearful-avoidant', 'secure', 'anxious', 'avoidant', 'disorganized'];
+    for (const style of priorityOrder) {
+      if (topStyles.some(([s]) => s === style)) {
+        return style;
+      }
     }
   }
   
