@@ -246,11 +246,12 @@ serve(async (req) => {
     console.error('Error in generate-insights function:', error);
     
     // If we encounter an error, try to provide fallback insights
-    if (error.message?.includes('quota') || error.message?.includes('429')) {
+    const errorMessage = (error as Error).message || '';
+    if (errorMessage.includes('quota') || errorMessage.includes('429')) {
       try {
         console.log('Attempting fallback insights due to quota issue');
         const analysisEnd = new Date();
-        const analysisStart = thirtyDaysAgo;
+        const analysisStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
         return await generateFallbackInsights(supabase, userId, conversationSummary, moodSummary, attachmentStyle, attachmentDetails, analysisStart, analysisEnd);
       } catch (fallbackError) {
         console.error('Fallback insights also failed:', fallbackError);
@@ -262,14 +263,14 @@ serve(async (req) => {
     }
     
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: (error as Error).message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
 
 // Fallback insights function when OpenAI is unavailable
-async function generateFallbackInsights(supabase, userId, conversationSummary, moodSummary, attachmentStyle, attachmentDetails, analysisStart, analysisEnd) {
+async function generateFallbackInsights(supabase: any, userId: string, conversationSummary: string, moodSummary: string, attachmentStyle: string, attachmentDetails: string, analysisStart: Date, analysisEnd: Date) {
   console.log('Generating fallback insights');
   
   // Generate basic insights based on available data

@@ -94,7 +94,7 @@ serve(async (req) => {
 
     // Enhanced parsing to handle the specific format we requested
     const options = [];
-    const lines = suggestions.split('\n').filter(line => line.trim());
+    const lines = suggestions.split('\n').filter((line: string) => line.trim());
     
     let currentTone = '';
     let currentMessage = '';

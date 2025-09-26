@@ -115,7 +115,7 @@ serve(async (req) => {
       logStep("Stripe session created successfully", { sessionId: session.id, url: session.url });
     } catch (stripeError) {
       logStep("Stripe session creation failed", { error: stripeError });
-      throw new Error(`Stripe checkout session creation failed: ${stripeError.message}`);
+      throw new Error(`Stripe checkout session creation failed: ${(stripeError as Error).message}`);
     }
 
     if (!session || !session.url) {

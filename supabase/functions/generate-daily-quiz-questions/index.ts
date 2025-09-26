@@ -137,7 +137,7 @@ Make sure the questions are fresh, creative, and would provide deep insights int
     } catch (parseError) {
       console.error('JSON parse failed:', parseError);
       console.error('Raw response:', aiResponse);
-      throw new Error(`JSON parsing failed: ${parseError.message}`);
+      throw new Error(`JSON parsing failed: ${(parseError as Error).message}`);
     }
 
     if (!questionsData.questions || !Array.isArray(questionsData.questions)) {
@@ -179,7 +179,7 @@ Make sure the questions are fresh, creative, and would provide deep insights int
     );
 
   } catch (error) {
-    console.error('Function error:', error.message);
+    console.error('Function error:', (error as Error).message);
     
     // Return comprehensive fallback questions with consistent format
     const fallbackQuestions = [
@@ -241,7 +241,7 @@ Make sure the questions are fresh, creative, and would provide deep insights int
         questions: fallbackQuestions,
         isNew: true,
         fallback: true,
-        note: 'Using fallback questions: ' + error.message
+        note: 'Using fallback questions: ' + (error as Error).message
       }),
       { 
         status: 200, // Always return 200 so frontend doesn't fail

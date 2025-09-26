@@ -421,9 +421,9 @@ serve(async (req) => {
 
       console.log('Usage data:', usageData, 'Error:', usageError);
 
-      if (usageData && !usageData.can_send_message) {
-        const hoursLeft = Math.max(0, usageData.hours_until_reset);
-        const minutesLeft = Math.max(0, Math.floor((usageData.hours_until_reset - hoursLeft) * 60));
+      if (usageData && !(usageData as any).can_send_message) {
+        const hoursLeft = Math.max(0, (usageData as any).hours_until_reset || 0);
+        const minutesLeft = Math.max(0, Math.floor(((usageData as any).hours_until_reset - hoursLeft) * 60));
         
         return new Response(JSON.stringify({
           error: "usage_limit_reached",
@@ -565,7 +565,7 @@ serve(async (req) => {
     console.error("Error in ai-chat function:", error);
     return new Response(JSON.stringify({
       error: "Something went wrong. Please try again.",
-      details: error.message
+      details: (error as Error).message
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
