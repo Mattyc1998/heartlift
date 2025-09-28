@@ -39,87 +39,67 @@ serve(async (req) => {
     // Calculate attachment style
     const attachmentStyle = calculateAttachmentStyle(answers);
     
-    // Generate comprehensive detailed analysis using OpenAI
+    // Generate focused analysis using OpenAI with timeout
     const analysisPrompt = `
-    You are a world-renowned attachment theory expert with 20+ years of clinical experience. Based on the attachment style quiz results showing ${attachmentStyle} attachment style, provide an exceptionally detailed psychological analysis.
-    
-    IMPORTANT: The calculated attachment style is ${attachmentStyle}. Your analysis must be comprehensive and consistent with this specific style.
-    
-    Attachment Style Definitions:
-    - secure: Comfortable with intimacy and autonomy, trusting, communicative
-    - anxious: Seeks closeness but fears abandonment, needs constant reassurance
-    - avoidant: Values independence, uncomfortable with closeness, self-reliant
-    - fearful-avoidant: Wants close relationships but fears getting hurt, push-pull dynamic
-    - disorganized: Chaotic, unpredictable relationship patterns, often from trauma
-    
-    Provide an exceptionally comprehensive analysis for ${attachmentStyle} attachment style including:
+    You are an attachment theory expert. For ${attachmentStyle} attachment style, provide a concise analysis in valid JSON format only:
 
-    1. DETAILED breakdown with at least 5-7 items in each category
-    2. EXTENSIVE list of specific triggers (at least 8-10)
-    3. COMPREHENSIVE healing path with multiple stages
-    4. PRACTICAL coping techniques with detailed examples (at least 6-8)
-    5. DEEP analysis of relationship patterns
-    6. CHILDHOOD origins and how they manifest today
-    7. COMMUNICATION patterns specific to this style
-    8. EMOTIONAL regulation strategies
-    9. INTIMACY and vulnerability challenges
-    10. GROWTH opportunities and potential
-    11. DAILY practices for healing
-    12. RED FLAGS to watch for in relationships
-
-    Format the response as valid JSON only (no markdown formatting) with this expanded structure:
     {
       "detailedBreakdown": {
-        "strengths": ["comprehensive list of 5-7 strengths specific to ${attachmentStyle}"],
-        "challenges": ["comprehensive list of 5-7 challenges specific to ${attachmentStyle}"],
-        "relationshipPatterns": ["comprehensive list of 5-7 patterns specific to ${attachmentStyle}"],
-        "childhoodOrigins": ["detailed list of 4-5 childhood factors that created this style"],
-        "communicationStyle": ["detailed list of 4-5 communication patterns"],
-        "emotionalPatterns": ["detailed list of 4-5 emotional regulation patterns"],
-        "intimacyChallenges": ["detailed list of 4-5 intimacy-related challenges"]
+        "strengths": ["3-4 key strengths for ${attachmentStyle}"],
+        "challenges": ["3-4 main challenges for ${attachmentStyle}"],
+        "relationshipPatterns": ["3-4 key patterns for ${attachmentStyle}"]
       },
-      "healingPath": "Extremely detailed multi-stage healing path (at least 300 words) for ${attachmentStyle} attachment with specific steps, timeframes, and milestones",
-      "triggers": ["comprehensive list of 8-10 specific triggers to watch for with ${attachmentStyle} attachment"],
+      "healingPath": "Concise healing path for ${attachmentStyle} attachment (100-150 words)",
+      "triggers": ["4-5 main triggers for ${attachmentStyle}"],
       "copingTechniques": [
         {
           "technique": "technique name",
-          "description": "detailed description of how to apply it for ${attachmentStyle} attachment",
-          "example": "specific practical example for someone with ${attachmentStyle} attachment",
-          "whenToUse": "specific situations when this technique is most effective"
+          "description": "brief description for ${attachmentStyle}",
+          "example": "practical example"
         }
       ],
       "dailyPractices": [
         {
           "practice": "practice name",
-          "description": "detailed description",
-          "timeNeeded": "how long it takes",
-          "frequency": "how often to do it"
+          "description": "brief description",
+          "frequency": "how often"
         }
-      ],
-      "redFlags": ["list of 5-6 red flags in relationships for ${attachmentStyle} attachment"],
-      "growthOpportunities": ["list of 5-6 specific areas for growth and potential"],
-      "selfCareStrategies": ["list of 6-8 self-care strategies tailored to ${attachmentStyle} attachment"],
-      "boundaryGuidance": "Detailed guidance on setting healthy boundaries for ${attachmentStyle} attachment style",
-      "relationshipAdvice": "Comprehensive relationship advice tailored specifically to ${attachmentStyle} attachment style"
+      ]
     }
     `;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          { role: 'system', content: `You are Dr. Sarah Mitchell, a world-renowned attachment theory expert with 25+ years of clinical experience, published researcher, and specialist in adult attachment patterns. You have helped thousands of clients heal their attachment wounds. Provide exceptionally detailed, empathetic, and scientifically-backed analysis that goes far beyond basic descriptions. Your analysis should be transformative and actionable. Always ensure your analysis is consistent with the calculated attachment style. Return only valid JSON without any markdown formatting or code blocks.` },
-          { role: 'user', content: analysisPrompt }
-        ],
-        temperature: 0.8,
-        max_tokens: 4000,
-      }),
-    });
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 second timeout
+
+    let response;
+    try {
+      response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini', // Faster model
+          messages: [
+            { role: 'system', content: `You are an attachment theory expert. Provide concise, actionable analysis in valid JSON format only. No markdown formatting.` },
+            { role: 'user', content: analysisPrompt }
+          ],
+          temperature: 0.7,
+          max_tokens: 1500, // Reduced for faster response
+        }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('OpenAI request timed out, using fallback analysis');
+        throw new Error('Analysis timed out');
+      }
+      throw error;
+    }
 
     const aiData = await response.json();
     let analysisContent = aiData.choices[0].message.content;
@@ -150,39 +130,47 @@ serve(async (req) => {
       console.error('JSON parse failed:', parseError);
       console.error('Raw response:', analysisContent);
       
-      // Use fallback analysis
+      // Use improved fallback analysis
       analysis = {
         detailedBreakdown: {
-          strengths: ["High emotional awareness", "Strong desire for connection"],
-          challenges: ["Fear of abandonment", "Difficulty with boundaries"],
-          redFlags: ["Dismissive behavior", "Inconsistent communication"],
-          growthOpportunities: ["Self-soothing skills", "Healthy boundaries"]
+          strengths: ["Emotional awareness", "Desire for connection", "Capacity for growth"],
+          challenges: ["Managing emotions", "Trust issues", "Boundary setting"],
+          relationshipPatterns: ["Seeks reassurance", "May appear clingy", "Values security"]
         },
-        dailyPractices: [
-          { practice: "Mindfulness", frequency: "Daily", description: "Daily mindfulness practice" }
+        healingPath: "Focus on building self-awareness through journaling and mindfulness. Practice self-soothing techniques and gradually work on trusting others. Consider therapy for deeper healing.",
+        triggers: ["Abandonment fears", "Criticism", "Uncertainty", "Conflict"],
+        copingTechniques: [
+          {
+            "technique": "Breathing exercises",
+            "description": "Deep breathing to calm anxiety",
+            "example": "4-7-8 breathing technique"
+          }
         ],
-        healingPath: "Focus on building secure attachment through self-awareness and healthy relationships."
+        dailyPractices: [
+          { 
+            practice: "Mindfulness meditation", 
+            description: "Daily mindfulness practice", 
+            frequency: "10 minutes daily" 
+          }
+        ]
       };
     }
 
-    // Save comprehensive results to database
+    // Enhanced error handling for timeout cases
+    if (!analysis || typeof analysis !== 'object') {
+      throw new Error('Invalid analysis generated');
+    }
+
+    // Save results to database with simplified structure
     const { error } = await supabase
       .from('user_attachment_results')
       .insert({
         user_id: userId,
         attachment_style: attachmentStyle,
-        detailed_breakdown: {
-          ...analysis.detailedBreakdown,
-          dailyPractices: analysis.dailyPractices,
-          redFlags: analysis.redFlags,
-          growthOpportunities: analysis.growthOpportunities,
-          selfCareStrategies: analysis.selfCareStrategies,
-          boundaryGuidance: analysis.boundaryGuidance,
-          relationshipAdvice: analysis.relationshipAdvice
-        },
-        healing_path: analysis.healingPath,
-        triggers: analysis.triggers,
-        coping_techniques: analysis.copingTechniques,
+        detailed_breakdown: analysis.detailedBreakdown || {},
+        healing_path: analysis.healingPath || "Focus on self-awareness and healthy relationships.",
+        triggers: analysis.triggers || [],
+        coping_techniques: analysis.copingTechniques || [],
         quiz_date: new Date().toISOString().slice(0, 10),
       });
 
