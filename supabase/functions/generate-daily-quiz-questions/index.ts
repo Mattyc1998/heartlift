@@ -55,32 +55,58 @@ serve(async (req) => {
     // Generate new questions using AI
     console.log('Generating new questions for today');
     
-    const prompt = `You are a psychology expert specializing in attachment theory. Generate exactly 10 comprehensive, thought-provoking questions for an attachment style quiz that will help identify someone's attachment style (Secure, Anxious-Preoccupied, Dismissive-Avoidant, or Fearful-Avoidant).
+    // Create a unique seed for today to ensure different questions
+    const dayOfYear = Math.floor((new Date().getTime() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+    const themes = [
+      'workplace dynamics and professional relationships',
+      'family gatherings and holiday interactions', 
+      'social media behavior and online connections',
+      'financial decision-making in relationships',
+      'parenting styles and childhood memories',
+      'travel experiences and adventure planning',
+      'creative collaboration and artistic expression',
+      'health challenges and support systems',
+      'life transitions and major changes',
+      'daily routines and living arrangements'
+    ];
+    
+    const todayTheme = themes[dayOfYear % themes.length];
+    
+    const prompt = `You are a world-renowned psychology expert specializing in attachment theory. Today is ${today} and I need you to generate exactly 10 completely FRESH and UNIQUE questions for an attachment style quiz.
 
-Each question should:
-- Be unique and different from typical attachment style questions
-- Focus on real relationship scenarios and behaviors
-- Have exactly 4 answer options that clearly correspond to the 4 attachment styles
-- Be deep and insightful, not superficial
-- Cover different aspects: emotional regulation, trust, communication, intimacy, conflict resolution, relationship patterns, childhood influences, self-perception, etc.
+CRITICAL: These questions must be entirely different from standard attachment questionnaires. Focus specifically on "${todayTheme}" as the primary context for your questions.
 
-Return ONLY a JSON object with this exact structure:
+Requirements:
+- Each question explores attachment patterns through the lens of "${todayTheme}"
+- Questions should be creative scenarios, not typical relationship questions
+- Include subtle psychological insights about trust, emotional regulation, and connection patterns
+- Each question has exactly 4 options representing: Secure, Anxious-Preoccupied, Dismissive-Avoidant, Fearful-Avoidant
+- Make options realistic and nuanced, not obvious stereotypes
+- Questions should feel natural and conversational, not clinical
+
+Additional variety elements:
+- Mix question formats: hypothetical scenarios, preference choices, reaction descriptions
+- Include both direct and indirect ways of assessing attachment patterns
+- Vary emotional intensity from subtle to more revealing
+- Include questions about past experiences and future expectations
+
+Return ONLY this JSON structure:
 {
   "questions": [
     {
       "id": 1,
       "question": "Question text here?",
       "options": [
-        "Option 1 (secure style)",
-        "Option 2 (anxious style)", 
-        "Option 3 (avoidant style)",
-        "Option 4 (fearful-avoidant style)"
+        "Secure attachment response",
+        "Anxious attachment response", 
+        "Avoidant attachment response",
+        "Fearful-avoidant attachment response"
       ]
     }
   ]
 }
 
-Make sure the questions are fresh, creative, and would provide deep insights into someone's attachment patterns. Avoid cliché questions about texting responses or basic relationship fears.`;
+Generate 10 completely fresh questions NOW with "${todayTheme}" as the main context.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
