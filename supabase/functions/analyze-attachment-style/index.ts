@@ -200,8 +200,7 @@ function calculateAttachmentStyle(answers: string[]): string {
     secure: 0,
     anxious: 0,
     avoidant: 0,
-    'fearful-avoidant': 0,
-    disorganized: 0
+    'fearful-avoidant': 0
   };
 
   // More sophisticated scoring based on attachment theory research
@@ -241,13 +240,13 @@ function calculateAttachmentStyle(answers: string[]): string {
       styleScores['fearful-avoidant'] += 3;
     }
     
-    // Disorganized indicators (chaotic, unpredictable patterns)
+    // Additional fearful-avoidant indicators (chaotic, unpredictable patterns)
     if (lowerAnswer.includes('unpredictable') || lowerAnswer.includes('chaotic') ||
         lowerAnswer.includes('confused') || lowerAnswer.includes('inconsistent') ||
         lowerAnswer.includes('explosive') || lowerAnswer.includes('trauma') ||
         (lowerAnswer.includes('hot') && lowerAnswer.includes('cold')) ||
         lowerAnswer.includes('doesn\'t make sense')) {
-      styleScores.disorganized += 2;
+      styleScores['fearful-avoidant'] += 2;
     }
     
     // Context-based scoring adjustments
@@ -268,12 +267,6 @@ function calculateAttachmentStyle(answers: string[]): string {
   
   // If there's a tie, use specific logic to break it
   if (topStyles.length > 1) {
-    // Always prioritize fearful-avoidant over disorganized if fearful-avoidant scored
-    if (styleScores['fearful-avoidant'] > 0 && 
-        styleScores['fearful-avoidant'] === styleScores.disorganized) {
-      return 'fearful-avoidant';
-    }
-    
     // If anxious and avoidant are tied and high, it's likely fearful-avoidant
     if (styleScores.anxious === styleScores.avoidant && 
         styleScores.anxious > 0) {
@@ -281,7 +274,7 @@ function calculateAttachmentStyle(answers: string[]): string {
     }
     
     // Prioritize more specific styles over general ones
-    const priorityOrder = ['fearful-avoidant', 'secure', 'anxious', 'avoidant', 'disorganized'];
+    const priorityOrder = ['fearful-avoidant', 'secure', 'anxious', 'avoidant'];
     for (const style of priorityOrder) {
       if (topStyles.some(([s]) => s === style)) {
         return style;
