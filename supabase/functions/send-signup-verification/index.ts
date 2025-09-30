@@ -1,20 +1,73 @@
-// Temporarily disabled due to build issues - will fix later
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import React from 'npm:react@18.3.1'
+import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0'
+import { Resend } from 'npm:resend@4.0.0'
+import { renderAsync } from 'npm:@react-email/components@0.0.22'
+import { SignupVerificationEmail } from './_templates/signup-verification.tsx'
+
+const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
+const hookSecret = Deno.env.get('SEND_SIGNUP_VERIFICATION_HOOK_SECRET') as string
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+  if (req.method !== 'POST') {
+    return new Response('not allowed', { status: 400 })
   }
 
-  // Temporarily return not implemented
-  return new Response(JSON.stringify({ 
-    error: 'Signup verification temporarily disabled - contact support' 
-  }), {
-    status: 501,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  const payload = await req.text()
+  const headers = Object.fromEntries(req.headers)
+  const wh = new Webhook(hookSecret)
+  
+  try {
+    const { user, email_data } = wh.verify(payload, headers) as {
+      user: { email: string }
+      email_data: {
+        token: string
+        token_hash: string
+        redirect_to: string
+        site_url: string
+        email_action_type: string
+      }
+    }
+
+    console.log('Processing signup verification for:', user.email)
+
+    const html = await renderAsync(
+      React.createElement(SignupVerificationEmail, {
+        userEmail: user.email,
+        verificationCode: email_data.token,
+      })
+    )
+
+    const { error } = await resend.emails.send({
+      from: 'HeartLift <support@heart-lift.com>',
+      to: [user.email],
+      subject: 'Verify Your HeartLift Account',
+      html,
+    })
+
+    if (error) {
+      console.error('Resend error:', error)
+      throw error
+    }
+
+    console.log('Verification email sent successfully to:', user.email)
+  } catch (error) {
+    console.error('Error in send-signup-verification function:', error)
+    return new Response(
+      JSON.stringify({
+        error: {
+          http_code: error.code,
+          message: error.message,
+        },
+      }),
+      {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    )
+  }
+
+  return new Response(JSON.stringify({}), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
   })
 })

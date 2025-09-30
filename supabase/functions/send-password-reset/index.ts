@@ -39,7 +39,7 @@ Deno.serve(async (req) => {
     )
 
     const { error } = await resend.emails.send({
-      from: 'HeartLift <onboarding@resend.dev>',
+      from: 'HeartLift <support@heart-lift.com>',
       to: [user.email],
       subject: 'Reset Your HeartLift Password',
       html,
