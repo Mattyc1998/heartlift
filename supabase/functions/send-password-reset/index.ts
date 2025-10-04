@@ -1,23 +1,19 @@
 import React from 'npm:react@18.3.1'
-import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0'
 import { Resend } from 'npm:resend@4.0.0'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { PasswordResetEmail } from './_templates/password-reset.tsx'
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
-const hookSecret = Deno.env.get('SEND_PASSWORD_RESET_HOOK_SECRET') as string
 
 Deno.serve(async (req) => {
   if (req.method !== 'POST') {
     return new Response('not allowed', { status: 400 })
   }
 
-  const payload = await req.text()
-  const headers = Object.fromEntries(req.headers)
-  const wh = new Webhook(hookSecret)
-  
   try {
-    const { user, email_data } = wh.verify(payload, headers) as {
+    const payload = await req.json()
+    
+    const { user, email_data } = payload as {
       user: { email: string }
       email_data: {
         token: string
