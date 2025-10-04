@@ -58,16 +58,18 @@ serve(async (req) => {
     // Create a unique seed for today to ensure different questions
     const dayOfYear = Math.floor((new Date().getTime() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
     const themes = [
+      'romantic relationships and dating experiences',
       'workplace dynamics and professional relationships',
-      'family gatherings and holiday interactions', 
-      'social media behavior and online connections',
-      'financial decision-making in relationships',
-      'parenting styles and childhood memories',
-      'travel experiences and adventure planning',
-      'creative collaboration and artistic expression',
-      'health challenges and support systems',
-      'life transitions and major changes',
-      'daily routines and living arrangements'
+      'friendships and social circle interactions', 
+      'family dynamics and sibling relationships',
+      'conflict resolution in everyday situations',
+      'communication styles in relationships',
+      'trust and vulnerability in connections',
+      'work-life balance and personal boundaries',
+      'social gatherings and group situations',
+      'life transitions and major decisions',
+      'daily routines and cohabitation',
+      'long-distance relationships and separation'
     ];
     
     const todayTheme = themes[dayOfYear % themes.length];
@@ -76,9 +78,14 @@ serve(async (req) => {
 
 CRITICAL: These questions must be entirely different from standard attachment questionnaires. Focus specifically on "${todayTheme}" as the primary context for your questions.
 
+IMPORTANT RESTRICTIONS:
+- NO questions about health issues, medical conditions, illness, or treatment plans
+- Focus ONLY on relationships (romantic, friendships, work), general life situations, emotional patterns, and interpersonal dynamics
+- Keep scenarios relatable to everyday life experiences
+
 Requirements:
 - Each question explores attachment patterns through the lens of "${todayTheme}"
-- Questions should be creative scenarios, not typical relationship questions
+- Questions should be creative scenarios about relationships and everyday life, not clinical situations
 - Include subtle psychological insights about trust, emotional regulation, and connection patterns
 - Each question has exactly 4 options representing: Secure, Anxious-Preoccupied, Dismissive-Avoidant, Fearful-Avoidant
 - Make options realistic and nuanced, not obvious stereotypes
