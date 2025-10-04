@@ -13,12 +13,12 @@ import {
 import * as React from 'npm:react@18.3.1'
 
 interface PasswordResetEmailProps {
-  resetLink?: string
+  verificationCode: string
   userEmail: string
 }
 
 export const PasswordResetEmail = ({
-  resetLink,
+  verificationCode,
   userEmail,
 }: PasswordResetEmailProps) => (
   <Html>
@@ -44,27 +44,17 @@ export const PasswordResetEmail = ({
             We received a request to reset the password for your HeartLift account ({userEmail}).
           </Text>
 
-          {resetLink && (
-            <>
-              <Text style={text}>
-                Click the button below to set a new password:
-              </Text>
-              <Section style={buttonSection}>
-                <Link
-                  href={resetLink}
-                  style={button}
-                >
-                  Reset My Password
-                </Link>
-              </Section>
-              <Text style={smallText}>
-                If the button doesn't work, copy and paste this URL into your browser:
-              </Text>
-              <Text style={linkText}>
-                {resetLink}
-              </Text>
-            </>
-          )}
+          <Text style={text}>
+            Enter this verification code in the app to reset your password:
+          </Text>
+          
+          <Section style={codeSection}>
+            <Text style={codeText}>{verificationCode}</Text>
+          </Section>
+          
+          <Text style={smallText}>
+            This code will expire in 1 hour for security purposes.
+          </Text>
 
           <Hr style={hr} />
 
@@ -146,22 +136,22 @@ const text = {
   margin: '16px 0',
 }
 
-const buttonSection = {
+const codeSection = {
   textAlign: 'center' as const,
   margin: '32px 0',
+  padding: '24px',
+  backgroundColor: '#fff',
+  borderRadius: '12px',
+  border: '2px solid #e91e63',
 }
 
-const button = {
-  backgroundColor: '#e91e63',
-  borderRadius: '12px',
-  color: '#fff',
-  fontSize: '16px',
+const codeText = {
+  fontSize: '32px',
   fontWeight: 'bold',
-  textDecoration: 'none',
-  textAlign: 'center' as const,
-  display: 'inline-block',
-  padding: '16px 32px',
-  boxShadow: '0 4px 14px 0 rgba(233, 30, 99, 0.25)',
+  color: '#e91e63',
+  letterSpacing: '4px',
+  margin: '0',
+  fontFamily: 'monospace',
 }
 
 const hr = {

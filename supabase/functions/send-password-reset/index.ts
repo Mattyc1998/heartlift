@@ -25,11 +25,9 @@ Deno.serve(async (req) => {
 
     console.log('Processing password reset for:', user.email)
 
-    const resetLink = `${email_data.site_url}/password-reset-form?token_hash=${email_data.token_hash}&type=recovery`
-
     const html = await renderAsync(
       React.createElement(PasswordResetEmail, {
-        resetLink,
+        verificationCode: email_data.token,
         userEmail: user.email,
       })
     )
