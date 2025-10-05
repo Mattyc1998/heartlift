@@ -5,7 +5,7 @@ enabled = true
 
 [auth.email.recovery.webhook]
 enabled = true
-url = "https://hmmimemzznsyilxqakty.supabase.co/functions/v1/send-password-reset"
+url = "https://hmmimemzznsyilxqakty.supabase.co/functions/v1/send-email"
 events = ["recovery"]
 
 [auth.email.signup]
@@ -13,11 +13,8 @@ enabled = true
 
 [auth.email.signup.webhook]
 enabled = true
-url = "https://hmmimemzznsyilxqakty.supabase.co/functions/v1/send-signup-verification"
+url = "https://hmmimemzznsyilxqakty.supabase.co/functions/v1/send-email"
 events = ["signup"]
 
-[functions.send-password-reset]
-verify_jwt = false
-
-[functions.send-signup-verification]
+[functions.send-email]
 verify_jwt = false
