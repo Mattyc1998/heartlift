@@ -152,12 +152,21 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
               support@heart-lift.com
             </a>
           </span>
-          <a 
-            href="/privacy-policy"
-            className="text-muted-foreground hover:text-primary text-xs underline transition-colors"
-          >
-            Privacy Policy
-          </a>
+          <div className="flex items-center gap-3">
+            <a 
+              href="/privacy-policy"
+              className="text-muted-foreground hover:text-primary text-xs underline transition-colors"
+            >
+              Privacy Policy
+            </a>
+            <span className="text-muted-foreground text-xs">•</span>
+            <a 
+              href="/terms-of-service"
+              className="text-muted-foreground hover:text-primary text-xs underline transition-colors"
+            >
+              Terms of Service
+            </a>
+          </div>
         </div>
       </div>
     </section>
