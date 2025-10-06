@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      conversation_access_audit: {
+        Row: {
+          access_type: string | null
+          accessed_at: string | null
+          accessing_user_id: string | null
+          id: string
+          metadata: Json | null
+          target_user_id: string | null
+          was_blocked: boolean | null
+        }
+        Insert: {
+          access_type?: string | null
+          accessed_at?: string | null
+          accessing_user_id?: string | null
+          id?: string
+          metadata?: Json | null
+          target_user_id?: string | null
+          was_blocked?: boolean | null
+        }
+        Update: {
+          access_type?: string | null
+          accessed_at?: string | null
+          accessing_user_id?: string | null
+          id?: string
+          metadata?: Json | null
+          target_user_id?: string | null
+          was_blocked?: boolean | null
+        }
+        Relationships: []
+      }
       conversation_analyses: {
         Row: {
           analysis_date: string
@@ -879,6 +909,15 @@ export type Database = {
       increment_user_usage: {
         Args: { input_coach_id?: string; user_uuid: string }
         Returns: boolean
+      }
+      insert_conversation_message: {
+        Args: {
+          p_coach_id: string
+          p_message_content: string
+          p_sender: string
+          p_user_id: string
+        }
+        Returns: string
       }
       track_premium_feature_usage: {
         Args: { feature_name: string; user_uuid: string }

@@ -367,10 +367,19 @@ serve(async (req) => {
       const crisisResponse = getCrisisResponse(crisisDetection.type!);
       
       // Save the user message and crisis response to conversation history
-      await supabase.from('conversation_history').insert([
-        { user_id: user.id, coach_id: coachId, message_content: message, sender: 'user' },
-        { user_id: user.id, coach_id: coachId, message_content: crisisResponse, sender: 'assistant' }
-      ]);
+      // Use secure function to ensure proper validation
+      await supabase.rpc('insert_conversation_message', {
+        p_user_id: user.id,
+        p_coach_id: coachId,
+        p_message_content: message,
+        p_sender: 'user'
+      });
+      await supabase.rpc('insert_conversation_message', {
+        p_user_id: user.id,
+        p_coach_id: coachId,
+        p_message_content: crisisResponse,
+        p_sender: 'assistant'
+      });
       
       return new Response(JSON.stringify({
         response: crisisResponse,
@@ -505,11 +514,12 @@ serve(async (req) => {
 
     if (!requestRegenerate) {
       // Save user message to conversation history only if not regenerating
-      await supabase.from('conversation_history').insert({
-        user_id: user.id,
-        coach_id: coachId,
-        message_content: message,
-        sender: 'user'
+      // Use secure function to ensure proper validation
+      await supabase.rpc('insert_conversation_message', {
+        p_user_id: user.id,
+        p_coach_id: coachId,
+        p_message_content: message,
+        p_sender: 'user'
       });
     }
 
@@ -529,11 +539,12 @@ serve(async (req) => {
 
     if (!requestRegenerate) {
       // Save coach response to conversation history only if not regenerating
-      await supabase.from('conversation_history').insert({
-        user_id: user.id,
-        coach_id: coachId,
-        message_content: response,
-        sender: 'coach'
+      // Use secure function to ensure proper validation
+      await supabase.rpc('insert_conversation_message', {
+        p_user_id: user.id,
+        p_coach_id: coachId,
+        p_message_content: response,
+        p_sender: 'coach'
       });
     }
 
