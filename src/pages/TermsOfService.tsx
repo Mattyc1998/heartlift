@@ -27,148 +27,152 @@ export default function TermsOfService() {
               Last updated: 05/10/2025
             </p>
           </CardHeader>
-          <CardContent className="prose prose-slate dark:prose-invert max-w-none space-y-6">
-            <section>
-              <h2 className="text-xl font-semibold mb-3">1. Acceptance of Terms</h2>
-              <p>
-                By accessing or using HeartLift ("the Service"), you agree to be bound by these Terms of Service ("Terms"). 
-                If you do not agree, please do not use the Service.
+          <CardContent className="prose prose-slate dark:prose-invert max-w-none space-y-8">
+            <section className="pb-4 border-b border-border/50">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">1. Acceptance of Terms</h2>
+              <p className="text-base leading-relaxed">
+                By accessing or using <strong>HeartLift</strong> ("the Service"), you <strong>agree to be bound</strong> by these Terms of Service ("Terms"). 
+                If you do not agree, <strong>please do not use the Service</strong>.
               </p>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold mb-3">2. Service Description</h2>
-              <p>
-                HeartLift provides relationship wellbeing tools and AI-powered coaching experiences to support users with relationships, 
+            <section className="pb-4 border-b border-border/50">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">2. Service Description</h2>
+              <p className="text-base leading-relaxed mb-4">
+                HeartLift provides <strong>relationship wellbeing tools</strong> and <strong>AI-powered coaching experiences</strong> to support users with relationships, 
                 breakups, and emotional growth. Features may include:
               </p>
-              <ul className="list-disc pl-6 space-y-1">
-                <li>AI-powered relationship and emotional wellbeing coaching</li>
-                <li>Personalised insights and self-reflection tools</li>
-                <li>Emotional wellness resources</li>
-                <li>Optional premium features for subscribers</li>
+              <ul className="list-disc pl-6 space-y-2 mb-4">
+                <li className="text-base">AI-powered relationship and emotional wellbeing coaching</li>
+                <li className="text-base">Personalised insights and self-reflection tools</li>
+                <li className="text-base">Emotional wellness resources</li>
+                <li className="text-base">Optional premium features for subscribers</li>
               </ul>
-              <p className="mt-3 font-medium text-foreground">
-                <strong>Important:</strong> HeartLift's AI coaches are virtual wellbeing companions. They are not licensed therapists 
-                or medical professionals. All guidance is for informational and self-development purposes only and should not be 
-                considered therapy, counselling, or medical advice.
-              </p>
+              <div className="bg-amber-500/10 border border-amber-500/30 p-5 rounded-lg mt-4">
+                <p className="font-bold text-lg mb-2 text-amber-900 dark:text-amber-200">⚠️ Important Disclaimer</p>
+                <p className="text-base leading-relaxed text-foreground">
+                  HeartLift's AI coaches are <strong>virtual wellbeing companions</strong>. They are <strong>NOT licensed therapists 
+                  or medical professionals</strong>. All guidance is for <strong>informational and self-development purposes only</strong> and should <strong>NOT be 
+                  considered therapy, counselling, or medical advice</strong>.
+                </p>
+              </div>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold mb-3">3. Service Limitations and Crisis Support</h2>
-              <p className="font-medium text-foreground">
-                HeartLift does not provide professional mental health or crisis support. Our AI coaches cannot and do not assist with:
+            <section className="pb-4 border-b border-border/50">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">3. Service Limitations and Crisis Support</h2>
+              <p className="font-bold text-lg text-foreground mb-3">
+                ⛔ HeartLift <strong>does NOT provide</strong> professional mental health or crisis support. Our AI coaches <strong>cannot and do not assist</strong> with:
               </p>
-              <ul className="list-disc pl-6 space-y-1 text-destructive font-medium">
+              <ul className="list-disc pl-6 space-y-2 text-destructive font-semibold text-base mb-4">
                 <li>Suicide ideation or self-harm</li>
                 <li>Child abuse or child safety concerns</li>
                 <li>Domestic violence or abuse situations</li>
                 <li>Drug or substance misuse</li>
                 <li>Clinical mental health conditions requiring treatment</li>
               </ul>
-              <div className="bg-destructive/10 p-4 rounded-lg border border-destructive/20 mt-3">
-                <p className="font-semibold mb-2">If you are in crisis or feel unsafe, please do not use HeartLift. Instead, contact your local emergency services or a trusted helpline:</p>
-                <ul className="list-disc pl-6 space-y-1">
-                  <li><strong>UK:</strong> 999 (Emergency Services) / Samaritans at 116 123</li>
-                  <li><strong>US:</strong> 911 (Emergency Services) / 988 Suicide & Crisis Lifeline (988)</li>
-                  <li><strong>Child Protection (UK):</strong> NSPCC – 0808 800 5000</li>
+              <div className="bg-destructive/15 p-6 rounded-lg border-2 border-destructive/40 mt-4">
+                <p className="font-bold text-xl mb-4 text-destructive">🚨 Crisis Resources</p>
+                <p className="font-bold text-base mb-3 text-foreground">If you are in crisis or feel unsafe, <strong className="underline">DO NOT use HeartLift</strong>. Instead, contact your local emergency services or a trusted helpline:</p>
+                <ul className="list-none space-y-3 text-base">
+                  <li className="bg-background/50 p-3 rounded-md"><strong className="text-foreground">UK:</strong> <span className="font-bold text-destructive">999</span> (Emergency Services) / Samaritans at <span className="font-bold text-destructive">116 123</span></li>
+                  <li className="bg-background/50 p-3 rounded-md"><strong className="text-foreground">US:</strong> <span className="font-bold text-destructive">911</span> (Emergency Services) / <span className="font-bold text-destructive">988</span> Suicide & Crisis Lifeline</li>
+                  <li className="bg-background/50 p-3 rounded-md"><strong className="text-foreground">Child Protection (UK):</strong> NSPCC – <span className="font-bold text-destructive">0808 800 5000</span></li>
                 </ul>
               </div>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold mb-3">4. User Responsibilities</h2>
-              <p>You agree to:</p>
-              <ul className="list-disc pl-6 space-y-1">
-                <li>Provide accurate, truthful information when using the Service</li>
-                <li>Use HeartLift only for lawful, personal, and non-commercial purposes</li>
-                <li>Avoid harmful, abusive, or inappropriate behavior</li>
+            <section className="pb-4 border-b border-border/50">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">4. User Responsibilities</h2>
+              <p className="text-base leading-relaxed mb-3 font-medium">You agree to:</p>
+              <ul className="list-disc pl-6 space-y-2 text-base">
+                <li>Provide <strong>accurate, truthful information</strong> when using the Service</li>
+                <li>Use HeartLift only for <strong>lawful, personal, and non-commercial purposes</strong></li>
+                <li>Avoid <strong>harmful, abusive, or inappropriate behavior</strong></li>
                 <li>Respect the limits of our AI wellbeing tools</li>
-                <li>Seek professional help when needed</li>
+                <li><strong>Seek professional help when needed</strong></li>
               </ul>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold mb-3">5. Eligibility</h2>
-              <p>
-                You must be at least 13 years old to use HeartLift. By using the Service, you confirm that you meet this age requirement.
+            <section className="pb-4 border-b border-border/50">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">5. Eligibility</h2>
+              <p className="text-base leading-relaxed mb-3">
+                You must be <strong>at least 13 years old</strong> to use HeartLift. By using the Service, you <strong>confirm that you meet this age requirement</strong>.
               </p>
-              <p className="mt-2">
-                HeartLift is not directed at children under 13, and we do not knowingly collect personal data from anyone under this age. 
+              <p className="text-base leading-relaxed">
+                HeartLift is <strong>not directed at children under 13</strong>, and we do <strong>not knowingly collect personal data</strong> from anyone under this age. 
                 If we become aware that a user under 13 has registered, we will take steps to delete their information promptly.
               </p>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold mb-3">6. Payment and Subscriptions</h2>
-              <p>
-                Certain features of HeartLift require a paid subscription. Payments are securely processed through Apple's In-App Purchase (IAP) system.
+            <section className="pb-4 border-b border-border/50">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">6. Payment and Subscriptions</h2>
+              <p className="text-base leading-relaxed mb-3">
+                Certain features of HeartLift require a <strong>paid subscription</strong>. Payments are securely processed through <strong>Apple's In-App Purchase (IAP) system</strong>.
               </p>
-              <ul className="list-disc pl-6 space-y-1 mt-2">
-                <li>Subscriptions automatically renew unless cancelled at least 24 hours before renewal.</li>
-                <li>Renewal charges are applied within 24 hours prior to the end of the current billing period.</li>
-                <li>You may manage or cancel your subscription at any time in your device's App Store settings.</li>
+              <ul className="list-disc pl-6 space-y-2 mt-2 text-base">
+                <li>Subscriptions <strong>automatically renew</strong> unless cancelled at least <strong>24 hours before renewal</strong>.</li>
+                <li>Renewal charges are applied <strong>within 24 hours prior to the end</strong> of the current billing period.</li>
+                <li>You may <strong>manage or cancel your subscription</strong> at any time in your device's App Store settings.</li>
               </ul>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold mb-3">7. Intellectual Property</h2>
-              <p>
-                All content, features, designs, and functionality of HeartLift are owned by us or our licensors and are protected by copyright, 
-                trademark, and other intellectual property laws. You may not reproduce, distribute, or modify any part of the Service without written permission.
+            <section className="pb-4 border-b border-border/50">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">7. Intellectual Property</h2>
+              <p className="text-base leading-relaxed">
+                All content, features, designs, and functionality of HeartLift are <strong>owned by us or our licensors</strong> and are <strong>protected by copyright, 
+                trademark, and other intellectual property laws</strong>. You may <strong>not reproduce, distribute, or modify</strong> any part of the Service without written permission.
               </p>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold mb-3">8. Limitation of Liability</h2>
-              <p>
-                HeartLift provides wellbeing guidance and digital support tools. We make no guarantees regarding accuracy or outcomes 
-                and are not liable for any loss, harm, or decision made based on the information provided.
+            <section className="pb-4 border-b border-border/50">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">8. Limitation of Liability</h2>
+              <p className="text-base leading-relaxed mb-3">
+                HeartLift provides wellbeing guidance and digital support tools. We <strong>make no guarantees regarding accuracy or outcomes</strong> 
+                and are <strong>not liable for any loss, harm, or decision</strong> made based on the information provided.
               </p>
-              <p className="mt-2">
-                The Service is provided "as is" and "as available," without warranties of any kind.
+              <p className="text-base leading-relaxed font-medium">
+                The Service is provided <strong>"as is"</strong> and <strong>"as available"</strong>, without warranties of any kind.
               </p>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold mb-3">9. Privacy</h2>
-              <p>
-                Your privacy is important to us. Please review our Privacy Policy to understand how we collect, 
+            <section className="pb-4 border-b border-border/50">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">9. Privacy</h2>
+              <p className="text-base leading-relaxed">
+                <strong>Your privacy is important to us.</strong> Please review our Privacy Policy to understand how we collect, 
                 use, and protect your personal information.
               </p>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold mb-3">10. Termination</h2>
-              <p>
-                We reserve the right to suspend or terminate your account, at our discretion and without notice, 
-                if you violate these Terms or misuse the Service.
+            <section className="pb-4 border-b border-border/50">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">10. Termination</h2>
+              <p className="text-base leading-relaxed">
+                We reserve the right to <strong>suspend or terminate your account</strong>, at our discretion and without notice, 
+                if you <strong>violate these Terms or misuse the Service</strong>.
               </p>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold mb-3">11. Changes to Terms</h2>
-              <p>
-                We may update these Terms from time to time. The latest version will always be posted on this page 
-                with a revised "last updated" date. Continued use of the Service after changes are posted constitutes 
-                acceptance of those changes.
+            <section className="pb-4 border-b border-border/50">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">11. Changes to Terms</h2>
+              <p className="text-base leading-relaxed">
+                We may <strong>update these Terms from time to time</strong>. The latest version will always be posted on this page 
+                with a revised "last updated" date. <strong>Continued use of the Service after changes are posted constitutes 
+                acceptance of those changes.</strong>
               </p>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold mb-3">12. Governing Law</h2>
-              <p>
-                These Terms are governed by and construed in accordance with the laws of the United Kingdom, 
+            <section className="pb-4 border-b border-border/50">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">12. Governing Law</h2>
+              <p className="text-base leading-relaxed">
+                These Terms are governed by and construed in accordance with the <strong>laws of the United Kingdom</strong>, 
                 without regard to its conflict of law principles.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">13. Contact Information</h2>
-              <p>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">13. Contact Information</h2>
+              <p className="text-base leading-relaxed">
                 For questions, feedback, or support, please contact us at:{' '}
-                <a href="mailto:support@heartliftapp.com" className="text-primary hover:underline">
+                <a href="mailto:support@heartliftapp.com" className="text-primary hover:underline font-semibold">
                   support@heartliftapp.com
                 </a>
               </p>
