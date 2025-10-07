@@ -20,8 +20,12 @@ export type Database = {
           accessed_at: string | null
           accessing_user_id: string | null
           id: string
+          ip_address: string | null
           metadata: Json | null
+          row_id: string | null
+          table_name: string | null
           target_user_id: string | null
+          user_agent: string | null
           was_blocked: boolean | null
         }
         Insert: {
@@ -29,8 +33,12 @@ export type Database = {
           accessed_at?: string | null
           accessing_user_id?: string | null
           id?: string
+          ip_address?: string | null
           metadata?: Json | null
+          row_id?: string | null
+          table_name?: string | null
           target_user_id?: string | null
+          user_agent?: string | null
           was_blocked?: boolean | null
         }
         Update: {
@@ -38,8 +46,12 @@ export type Database = {
           accessed_at?: string | null
           accessing_user_id?: string | null
           id?: string
+          ip_address?: string | null
           metadata?: Json | null
+          row_id?: string | null
+          table_name?: string | null
           target_user_id?: string | null
+          user_agent?: string | null
           was_blocked?: boolean | null
         }
         Relationships: []
@@ -445,6 +457,33 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_log: {
+        Row: {
+          created_at: string
+          endpoint: string
+          id: string
+          request_count: number
+          user_id: string | null
+          window_start: string
+        }
+        Insert: {
+          created_at?: string
+          endpoint: string
+          id?: string
+          request_count?: number
+          user_id?: string | null
+          window_start?: string
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string
+          id?: string
+          request_count?: number
+          user_id?: string | null
+          window_start?: string
+        }
+        Relationships: []
+      }
       recovery_milestones: {
         Row: {
           badge_name: string | null
@@ -484,6 +523,39 @@ export type Database = {
           reward_type?: string | null
           title?: string
           unlock_message?: string | null
+        }
+        Relationships: []
+      }
+      security_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          description: string
+          id: string
+          metadata: Json | null
+          resolved: boolean | null
+          severity: string
+          user_id: string | null
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          description: string
+          id?: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          severity: string
+          user_id?: string | null
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          severity?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -829,18 +901,21 @@ export type Database = {
           email_address: string | null
           id: number
           Name: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           email_address?: string | null
           id?: number
           Name?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           email_address?: string | null
           id?: number
           Name?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -888,6 +963,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_rate_limit: {
+        Args: {
+          _endpoint: string
+          _limit?: number
+          _user_id: string
+          _window_minutes?: number
+        }
+        Returns: boolean
+      }
+      create_security_alert: {
+        Args: {
+          _alert_type: string
+          _description: string
+          _metadata?: Json
+          _severity: string
+          _user_id: string
+        }
+        Returns: string
+      }
       get_current_user_profile: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -918,6 +1012,15 @@ export type Database = {
           p_user_id: string
         }
         Returns: string
+      }
+      log_sensitive_access: {
+        Args: {
+          _access_type: string
+          _row_id: string
+          _table_name: string
+          _target_user_id: string
+        }
+        Returns: undefined
       }
       track_premium_feature_usage: {
         Args: { feature_name: string; user_uuid: string }
