@@ -172,8 +172,8 @@ export default function TermsOfService() {
               <h2 className="text-2xl font-bold mb-4 text-foreground">13. Contact Information</h2>
               <p className="text-base leading-relaxed">
                 For questions, feedback, or support, please contact us at:{' '}
-                <a href="mailto:support@heartliftapp.com" className="text-primary hover:underline font-semibold">
-                  support@heartliftapp.com
+                <a href="mailto:support@heart-lift.com" className="text-primary hover:underline font-semibold">
+                  support@heart-lift.com
                 </a>
               </p>
             </section>
