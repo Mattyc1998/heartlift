@@ -430,6 +430,30 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_access_log: {
+        Row: {
+          access_type: string
+          accessed_at: string
+          accessed_profile_id: string
+          accessing_user_id: string
+          id: string
+        }
+        Insert: {
+          access_type: string
+          accessed_at?: string
+          accessed_profile_id: string
+          accessing_user_id: string
+          id?: string
+        }
+        Update: {
+          access_type?: string
+          accessed_at?: string
+          accessed_profile_id?: string
+          accessing_user_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -999,6 +1023,10 @@ export type Database = {
           last_message_at: string
           message_count: number
         }[]
+      }
+      get_user_display_name: {
+        Args: { user_uuid: string }
+        Returns: string
       }
       increment_user_usage: {
         Args: { input_coach_id?: string; user_uuid: string }
