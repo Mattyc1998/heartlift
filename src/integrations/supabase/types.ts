@@ -631,6 +631,39 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_access_audit: {
+        Row: {
+          access_type: string
+          accessed_at: string
+          accessed_subscription_id: string
+          accessing_user_id: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          user_agent: string | null
+        }
+        Insert: {
+          access_type: string
+          accessed_at?: string
+          accessed_subscription_id: string
+          accessing_user_id: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+        }
+        Update: {
+          access_type?: string
+          accessed_at?: string
+          accessed_subscription_id?: string
+          accessing_user_id?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       user_attachment_results: {
         Row: {
           attachment_style: string
