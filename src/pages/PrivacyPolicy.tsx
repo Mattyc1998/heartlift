@@ -111,6 +111,7 @@ export const PrivacyPolicy = () => {
                 <p><strong>Platform:</strong> We use Supabase, a secure cloud database, to store and manage data.</p>
                 <p><strong>Encryption:</strong> Data is encrypted both in transit and at rest.</p>
                 <p><strong>Access Control:</strong> Only you can access your account via secure authentication. Row Level Security (RLS) ensures data privacy.</p>
+                <p><strong>Password Protection:</strong> Leaked password protection is enabled to prevent the use of compromised passwords.</p>
                 <p><strong>Security Practices:</strong> SSL encryption, secure authentication, and regular security audits.</p>
               </div>
             </CardContent>
