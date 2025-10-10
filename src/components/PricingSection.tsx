@@ -40,7 +40,7 @@ const plans = [
       "Guided Programmes",
       "Personalised insights & reports",
       "Daily attachment style quiz with AI analysis",
-      "Conversation analyzer with AI insights",
+      "Conversation analyser with AI insights",
       "Text suggestion helper for all scenarios",
       "Priority support"
     ],

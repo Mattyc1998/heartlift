@@ -71,7 +71,7 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
     },
     {
       icon: MessageSquare,
-      title: "Conversation analyzer with AI insights",
+      title: "Conversation analyser with AI insights",
       description: "Get AI-powered analysis of your conversations and relationships",
       gradient: "from-indigo-400 to-indigo-500"
     },

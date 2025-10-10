@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useNavigate } from "react-router-dom";
 import { AttachmentStyleQuiz } from "@/components/AttachmentStyleQuiz";
 import { GuidedPrograms } from "@/components/GuidedPrograms";
-import { ConversationAnalyzer } from "@/components/ConversationAnalyzer";
+import { ConversationAnalyser } from "@/components/ConversationAnalyser";
 import { TextSuggestionHelper } from "@/components/TextSuggestionHelper";
 import { PersonalisedInsights } from "@/components/PersonalisedInsights";
 import { Card } from "@/components/ui/card";
@@ -84,7 +84,7 @@ export default function AdvancedTools() {
               Unlock deeper insights into your relationship patterns
             </p>
             <p className="text-muted-foreground">
-              Discover your attachment style, analyze conversations, get personalised text suggestions, and access guided programs designed to help you build healthier, more fulfilling relationships.
+              Discover your attachment style, analyse conversations, get personalised text suggestions, and access guided programs designed to help you build healthier, more fulfilling relationships.
             </p>
           </div>
         </div>
@@ -100,12 +100,12 @@ export default function AdvancedTools() {
               Attachment Quiz
             </Button>
             <Button
-              variant={activeSection === "analyzer" ? "default" : "outline"}
-              onClick={() => setActiveSection("analyzer")}
-              className="flex items-center gap-2"
+              variant={activeSection === "analyser" ? "default" : "outline"}
+              onClick={() => setActiveSection("analyser")}
+              className="flex-1 sm:flex-none"
             >
-              <MessageSquare className="w-4 h-4" />
-              Conversation Analyzer
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Conversation Analyser
             </Button>
             <Button
               variant={activeSection === "suggestions" ? "default" : "outline"}
@@ -137,7 +137,7 @@ export default function AdvancedTools() {
         <div className="max-w-4xl mx-auto">
           {activeSection === "quiz" && <AttachmentStyleQuiz />}
           
-          {activeSection === "analyzer" && <ConversationAnalyzer />}
+          {activeSection === "analyser" && <ConversationAnalyser />}
           {activeSection === "suggestions" && <TextSuggestionHelper />}
           {activeSection === "insights" && <PersonalisedInsights />}
           {activeSection === "programs" && <GuidedPrograms />}

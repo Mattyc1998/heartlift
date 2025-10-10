@@ -297,7 +297,7 @@ export const SubscriptionManagement = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>💬 Text helpers & conversation analyzer</span>
+                  <span>💬 Text helpers & conversation analyser</span>
                 </div>
               </div>
             </div>

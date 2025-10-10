@@ -27,18 +27,18 @@ interface Analysis {
   overallAssessment: string;
 }
 
-export const ConversationAnalyzer = () => {
+export const ConversationAnalyser = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [conversationText, setConversationText] = useState("");
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const analyzeConversation = async () => {
+  const analyseConversation = async () => {
     if (!conversationText.trim()) {
       toast({
         title: "Please enter a conversation",
-        description: "Paste or type the conversation you'd like to analyze.",
+        description: "Paste or type the conversation you'd like to analyse.",
         variant: "destructive",
       });
       return;
@@ -59,14 +59,14 @@ export const ConversationAnalyzer = () => {
       setAnalysis(data);
       toast({
         title: "Analysis Complete",
-        description: "Your conversation has been analyzed successfully.",
+        description: "Your conversation has been analysed successfully.",
       });
 
     } catch (error) {
       console.error('Analysis error:', error);
       toast({
         title: "Analysis Failed",
-        description: "There was an error analyzing your conversation. Please try again.",
+        description: "There was an error analysing your conversation. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -80,7 +80,7 @@ export const ConversationAnalyzer = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5" />
-            Conversation Analyzer
+            Conversation Analyser
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -98,19 +98,19 @@ export const ConversationAnalyzer = () => {
           </div>
           
           <Button 
-            onClick={analyzeConversation}
+            onClick={analyseConversation}
             disabled={isAnalyzing || !conversationText.trim()}
             className="w-full"
           >
             {isAnalyzing ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Analyzing Conversation...
+                Analysing Conversation...
               </>
             ) : (
               <>
                 <Upload className="w-4 h-4 mr-2" />
-                Analyze Conversation
+                Analyse Conversation
               </>
             )}
           </Button>

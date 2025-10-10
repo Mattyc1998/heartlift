@@ -565,12 +565,12 @@ export const AttachmentStyleQuiz = () => {
       if (currentQuestion < quizQuestions.length - 1) {
         setCurrentQuestion(currentQuestion + 1);
       } else {
-        analyzeResults(newAnswers);
+        analyseResults(newAnswers);
       }
     }
   };
 
-  const analyzeResults = async (finalAnswers: number[]) => {
+  const analyseResults = async (finalAnswers: number[]) => {
     setIsAnalyzing(true);
     
     try {
