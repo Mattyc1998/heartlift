@@ -87,6 +87,19 @@ const attachmentStyles: Record<string, AttachmentStyle> = {
     ],
     icon: Lightbulb,
     color: "bg-purple-500"
+  },
+  // Alias for backend compatibility
+  "fearful-avoidant": {
+    name: "Fearful-Avoidant",
+    description: "You have negative views of both yourself and others. You want close relationships but fear getting hurt.",
+    characteristics: [
+      "Conflicted about relationships",
+      "Fear of intimacy and abandonment",
+      "Unpredictable emotional responses",
+      "Past trauma or inconsistent caregiving"
+    ],
+    icon: Lightbulb,
+    color: "bg-purple-500"
   }
 };
 
