@@ -2,12 +2,30 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// CORS configuration - restrict to known origins
+const getAllowedOrigin = (requestOrigin: string | null): string => {
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://yourdomain.com',
+  ];
+  
+  if (requestOrigin && allowedOrigins.includes(requestOrigin)) {
+    return requestOrigin;
+  }
+  return allowedOrigins[0];
 };
 
+const getCorsHeaders = (origin: string) => ({
+  'Access-Control-Allow-Origin': origin,
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Credentials': 'true',
+});
+
 serve(async (req) => {
+  const origin = req.headers.get('origin') || '';
+  const corsHeaders = getCorsHeaders(origin);
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -15,20 +33,27 @@ serve(async (req) => {
   try {
     const { answers, userId } = await req.json();
 
-    // Input validation for security
-    if (!answers || !Array.isArray(answers) || answers.length > 50) {
-      throw new Error('Answers must be an array and cannot exceed 50 items');
+    // Comprehensive input validation
+    if (!answers || !Array.isArray(answers)) {
+      throw new Error('VALIDATION_ERROR');
+    }
+    
+    if (answers.length === 0 || answers.length > 50) {
+      throw new Error('VALIDATION_ERROR');
     }
 
-    // Validate each answer
+    // Validate and sanitize each answer
+    const sanitizedAnswers = [];
     for (const answer of answers) {
-      if (typeof answer !== 'string' || answer.length > 500) {
-        throw new Error('Each answer must be a string and cannot exceed 500 characters');
+      if (typeof answer !== 'string' || answer.length > 1000) {
+        throw new Error('VALIDATION_ERROR');
       }
+      // Remove control characters and trim
+      sanitizedAnswers.push(answer.trim().replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ''));
     }
 
-    if (!userId || typeof userId !== 'string') {
-      throw new Error('Valid user ID is required');
+    if (!userId || typeof userId !== 'string' || !userId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      throw new Error('VALIDATION_ERROR');
     }
 
     const supabase = createClient(
@@ -36,8 +61,8 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Calculate attachment style
-    const attachmentStyle = calculateAttachmentStyle(answers);
+    // Calculate attachment style using sanitized answers
+    const attachmentStyle = calculateAttachmentStyle(sanitizedAnswers);
     
     // Generate focused analysis using OpenAI with timeout
     const analysisPrompt = `
@@ -187,9 +212,24 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Error:', error);
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
-      status: 500,
+    console.error('[ANALYZE-ATTACHMENT-ERROR]', error); // Log server-side only
+    
+    const errorMessage = (error as Error).message;
+    let statusCode = 500;
+    let clientError = 'An error occurred during analysis.';
+    
+    if (errorMessage === 'VALIDATION_ERROR') {
+      statusCode = 400;
+      clientError = 'Invalid input provided.';
+    } else if (errorMessage.includes('timed out')) {
+      statusCode = 504;
+      clientError = 'Analysis timed out. Please try again.';
+    }
+    
+    return new Response(JSON.stringify({ 
+      error: clientError 
+    }), {
+      status: statusCode,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

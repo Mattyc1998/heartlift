@@ -1,18 +1,54 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// CORS configuration
+const getAllowedOrigin = (requestOrigin: string | null): string => {
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://yourdomain.com',
+  ];
+  
+  if (requestOrigin && allowedOrigins.includes(requestOrigin)) {
+    return requestOrigin;
+  }
+  return allowedOrigins[0];
 };
 
+const getCorsHeaders = (origin: string) => ({
+  'Access-Control-Allow-Origin': origin,
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Credentials': 'true',
+});
+
 serve(async (req) => {
+  const origin = req.headers.get('origin') || '';
+  const corsHeaders = getCorsHeaders(origin);
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { messageType, relationship, userMessage } = await req.json();
+    
+    // Input validation
+    if (!messageType || typeof messageType !== 'string' || messageType.length > 100) {
+      throw new Error('VALIDATION_ERROR');
+    }
+    
+    if (!relationship || typeof relationship !== 'string' || relationship.length > 100) {
+      throw new Error('VALIDATION_ERROR');
+    }
+    
+    // Sanitize userMessage if provided
+    let sanitizedUserMessage = '';
+    if (userMessage) {
+      if (typeof userMessage !== 'string' || userMessage.length > 2000) {
+        throw new Error('VALIDATION_ERROR');
+      }
+      sanitizedUserMessage = userMessage.trim().replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+    }
 
     const relationshipContext = getRelationshipContext(relationship);
     
@@ -42,7 +78,7 @@ serve(async (req) => {
       
       neutral_reply: `Generate 3 neutral response messages for ${relationshipContext}. Should acknowledge their message without escalating or encouraging further contact.`,
       
-      custom: `Help rewrite this message to be more emotionally intelligent and effective in a ${relationshipContext} context: "${userMessage}". Provide 3 different versions with different tones.`
+      custom: `Help rewrite this message to be more emotionally intelligent and effective in a ${relationshipContext} context: "${sanitizedUserMessage}". Provide 3 different versions with different tones.`
     };
 
     const systemPrompt = `You are a relationship communication expert specializing in ${relationshipContext} dynamics. Generate messages that are:
@@ -140,9 +176,21 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Error:', error);
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
-      status: 500,
+    console.error('[SUGGEST-TEXT-ERROR]', error); // Log server-side only
+    
+    const errorMessage = (error as Error).message;
+    let statusCode = 500;
+    let clientError = 'An error occurred generating suggestions.';
+    
+    if (errorMessage === 'VALIDATION_ERROR') {
+      statusCode = 400;
+      clientError = 'Invalid input provided.';
+    }
+    
+    return new Response(JSON.stringify({ 
+      error: clientError 
+    }), {
+      status: statusCode,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

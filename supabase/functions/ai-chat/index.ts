@@ -2,10 +2,25 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+// CORS configuration - restrict to known origins in production
+const getAllowedOrigin = (requestOrigin: string | null): string => {
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://yourdomain.com', // Replace with your production domain
+  ];
+  
+  if (requestOrigin && allowedOrigins.includes(requestOrigin)) {
+    return requestOrigin;
+  }
+  return allowedOrigins[0];
 };
+
+const getCorsHeaders = (origin: string) => ({
+  'Access-Control-Allow-Origin': origin,
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Credentials': 'true',
+});
 
 interface ChatRequest {
   message: string;
@@ -330,6 +345,9 @@ IMPORTANT: Use this context to remember what the user has shared before and refe
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('origin') || '';
+  const corsHeaders = getCorsHeaders(origin);
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -356,13 +374,20 @@ serve(async (req) => {
     const user = userData.user;
     const { message, coachId = "chill", conversationHistory = [], requestRegenerate = false } = await req.json() as ChatRequest;
 
-    // Input validation for security
-    if (!message || typeof message !== 'string' || message.length > 5000) {
-      throw new Error('Message must be a string and cannot exceed 5000 characters');
+    // Comprehensive input validation
+    if (!message || typeof message !== 'string') {
+      throw new Error('VALIDATION_ERROR');
     }
+    
+    if (message.length < 1 || message.length > 5000) {
+      throw new Error('VALIDATION_ERROR');
+    }
+    
+    // Sanitize message - remove control characters
+    const sanitizedMessage = message.trim().replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
-    // Crisis detection - handle immediately before any other processing
-    const crisisDetection = detectCrisisSituation(message);
+    // Crisis detection - handle immediately before any other processing using sanitized message
+    const crisisDetection = detectCrisisSituation(sanitizedMessage);
     if (crisisDetection.isCrisis) {
       const crisisResponse = getCrisisResponse(crisisDetection.type!);
       
@@ -371,7 +396,7 @@ serve(async (req) => {
       await supabase.rpc('insert_conversation_message', {
         p_user_id: user.id,
         p_coach_id: coachId,
-        p_message_content: message,
+        p_message_content: sanitizedMessage,
         p_sender: 'user'
       });
       await supabase.rpc('insert_conversation_message', {
@@ -518,14 +543,14 @@ serve(async (req) => {
       await supabase.rpc('insert_conversation_message', {
         p_user_id: user.id,
         p_coach_id: coachId,
-        p_message_content: message,
+        p_message_content: sanitizedMessage,
         p_sender: 'user'
       });
     }
 
     if (isPremium) {
       // Premium users get full AI responses with conversation history and reflection context
-      response = await generateAIResponse(message, coach, formattedHistory, reflectionContext, user.id);
+      response = await generateAIResponse(sanitizedMessage, coach, formattedHistory, reflectionContext, user.id);
       
       // Track premium feature usage
       await supabase.rpc("track_premium_feature_usage", {
@@ -573,13 +598,30 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error("Error in ai-chat function:", error);
+    console.error('[AI-CHAT-ERROR]', error); // Log full error server-side only
+    
+    const errorMessage = (error as Error).message;
+    let statusCode = 500;
+    let clientError = 'An error occurred. Please try again.';
+    
+    // Return safe error codes instead of detailed messages
+    if (errorMessage === 'VALIDATION_ERROR') {
+      statusCode = 400;
+      clientError = 'Invalid input provided.';
+    } else if (errorMessage.includes('quota') || errorMessage.includes('429')) {
+      statusCode = 503;
+      clientError = 'Service temporarily unavailable. Please try again later.';
+    } else if (errorMessage.includes('auth')) {
+      statusCode = 401;
+      clientError = 'Authentication failed.';
+    }
+    
     return new Response(JSON.stringify({
-      error: "Something went wrong. Please try again.",
-      details: (error as Error).message
+      error: clientError
+      // No details field - never expose internal error details
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
+      status: statusCode,
     });
   }
 });

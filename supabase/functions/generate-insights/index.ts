@@ -6,12 +6,30 @@ const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// CORS configuration
+const getAllowedOrigin = (requestOrigin: string | null): string => {
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://yourdomain.com',
+  ];
+  
+  if (requestOrigin && allowedOrigins.includes(requestOrigin)) {
+    return requestOrigin;
+  }
+  return allowedOrigins[0];
 };
 
+const getCorsHeaders = (origin: string) => ({
+  'Access-Control-Allow-Origin': origin,
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Credentials': 'true',
+});
+
 serve(async (req) => {
+  const origin = req.headers.get('origin') || '';
+  const corsHeaders = getCorsHeaders(origin);
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -19,11 +37,9 @@ serve(async (req) => {
   try {
     const { userId } = await req.json();
 
-    if (!userId) {
-      return new Response(
-        JSON.stringify({ error: 'User ID is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Input validation
+    if (!userId || typeof userId !== 'string' || !userId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      throw new Error('VALIDATION_ERROR');
     }
 
     // Initialize Supabase client
@@ -252,20 +268,26 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in generate-insights function:', error);
+    console.error('[GENERATE-INSIGHTS-ERROR]', error); // Log server-side only
     
-    // If we encounter an error, try to provide fallback insights
     const errorMessage = (error as Error).message || '';
-    if (errorMessage.includes('quota') || errorMessage.includes('429')) {
-      return new Response(
-        JSON.stringify({ error: 'AI service temporarily unavailable. Please try again later.' }),
-        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    let statusCode = 500;
+    let clientError = 'An error occurred generating insights.';
+    
+    if (errorMessage === 'VALIDATION_ERROR') {
+      statusCode = 400;
+      clientError = 'Invalid input provided.';
+    } else if (errorMessage.includes('quota') || errorMessage.includes('429')) {
+      statusCode = 503;
+      clientError = 'AI service temporarily unavailable. Please try again later.';
+    } else if (errorMessage.includes('auth')) {
+      statusCode = 401;
+      clientError = 'Authentication failed.';
     }
     
     return new Response(
-      JSON.stringify({ error: (error as Error).message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ error: clientError }),
+      { status: statusCode, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

@@ -1,51 +1,69 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+// CORS configuration
+const getAllowedOrigin = (requestOrigin: string | null): string => {
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://yourdomain.com',
+  ];
+  
+  if (requestOrigin && allowedOrigins.includes(requestOrigin)) {
+    return requestOrigin;
+  }
+  return allowedOrigins[0];
+};
+
+const getCorsHeaders = (origin: string) => ({
+  'Access-Control-Allow-Origin': origin,
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+  'Access-Control-Allow-Credentials': 'true',
+});
 
 serve(async (req) => {
+  const origin = req.headers.get('origin') || '';
+  const corsHeaders = getCorsHeaders(origin);
+  
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
     console.log('Text-to-speech function called')
-    const { text, voice = 'nova' } = await req.json()
+    const { text, voice = 'alloy' } = await req.json()
     console.log('Request parsed, text length:', text?.length, 'voice:', voice)
 
-    if (!text) {
-      console.log('No text provided')
-      return new Response(
-        JSON.stringify({ error: 'Text is required' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+    // Comprehensive input validation
+    if (!text || typeof text !== 'string') {
+      throw new Error('VALIDATION_ERROR');
     }
-
-    // OpenAI TTS has a 4096 character limit
-    const maxLength = 3000 // Even more conservative limit
-    let processedText = text
     
-    if (text.length > maxLength) {
-      console.log('Text too long, truncating from', text.length, 'to', maxLength)
-      processedText = text.substring(0, maxLength) + '.'
+    if (text.length < 1 || text.length > 4096) {
+      throw new Error('VALIDATION_ERROR');
     }
+    
+    // Validate voice parameter
+    const allowedVoices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'];
+    if (voice && !allowedVoices.includes(voice)) {
+      throw new Error('VALIDATION_ERROR');
+    }
+    
+    // Sanitize text - remove control characters
+    const sanitizedText = text.trim().replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+
+    // Use sanitized text with length limit
+    const maxLength = 3000
+    const processedText = sanitizedText.length > maxLength 
+      ? sanitizedText.substring(0, maxLength) + '.' 
+      : sanitizedText;
+
+    console.log('Processed text length:', processedText.length)
 
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')
     if (!OPENAI_API_KEY) {
       console.log('OpenAI API key not found')
-      return new Response(
-        JSON.stringify({ error: 'OpenAI API key not configured' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+      throw new Error('Configuration error');
     }
 
     console.log('Making request to OpenAI API...')
@@ -56,7 +74,6 @@ serve(async (req) => {
       voice: voice,
       response_format: 'mp3',
     }
-    console.log('Request body:', JSON.stringify(requestBody))
 
     // Generate speech from text using OpenAI
     const response = await fetch('https://api.openai.com/v1/audio/speech', {
@@ -124,11 +141,24 @@ serve(async (req) => {
     }
 
   } catch (error) {
-    console.error('Text-to-speech error:', error)
+    console.error('[TEXT-TO-SPEECH-ERROR]', error) // Log server-side only
+    
+    const errorMessage = (error as Error).message;
+    let statusCode = 500;
+    let clientError = 'An error occurred generating audio.';
+    
+    if (errorMessage === 'VALIDATION_ERROR') {
+      statusCode = 400;
+      clientError = 'Invalid input provided.';
+    } else if (errorMessage === 'Configuration error') {
+      statusCode = 500;
+      clientError = 'Service configuration error.';
+    }
+    
     return new Response(
-      JSON.stringify({ error: `Internal server error: ${(error as Error).message}` }),
+      JSON.stringify({ error: clientError }),
       { 
-        status: 500, 
+        status: statusCode, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     )
