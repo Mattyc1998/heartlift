@@ -5,7 +5,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Heart, Users, Shield, Lightbulb, Calendar, BookOpen, Target, Loader2, Clock, CheckCircle } from "lucide-react";
+import { Heart, Users, Shield, Lightbulb, Calendar, BookOpen, Target, Loader2, Clock, CheckCircle, Brain } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -41,64 +41,123 @@ interface Analysis {
 
 const attachmentStyles: Record<string, AttachmentStyle> = {
   secure: {
-    name: "Secure",
-    description: "You have a positive view of both yourself and others. You're comfortable with intimacy and independence.",
+    name: "Secure Attached",
+    description: "You have a positive view of yourself and others. You're comfortable with intimacy while maintaining healthy independence.",
     characteristics: [
       "Comfortable with emotional intimacy",
-      "Good communication skills",
+      "Excellent communication skills",
       "Able to express needs clearly",
-      "Trusting in relationships"
+      "Trusting and reliable in relationships"
     ],
     icon: Heart,
     color: "bg-green-500"
   },
   anxious: {
     name: "Anxious-Preoccupied",
-    description: "You have a negative view of yourself but positive view of others. You crave closeness but fear abandonment.",
+    description: "You deeply value connection and may worry about relationship security. You're emotionally expressive and seek reassurance.",
     characteristics: [
-      "Fear of abandonment",
-      "Seeks constant reassurance",
-      "Highly emotional in relationships",
-      "Tendency to be clingy"
+      "Highly attuned to partner's emotions",
+      "Seeks frequent reassurance",
+      "Fear of abandonment present",
+      "Deeply committed when in love"
     ],
     icon: Users,
     color: "bg-yellow-500"
   },
   avoidant: {
     name: "Dismissive-Avoidant",
-    description: "You have a positive view of yourself but negative view of others. You value independence over intimacy.",
+    description: "You highly value independence and self-reliance. You prefer emotional distance and may find intimacy uncomfortable.",
     characteristics: [
       "Values independence highly",
-      "Uncomfortable with emotional intimacy",
-      "Tends to suppress emotions",
-      "Difficulty depending on others"
+      "Uncomfortable with vulnerability",
+      "Self-sufficient approach to life",
+      "Prefers to handle emotions alone"
     ],
     icon: Shield,
     color: "bg-blue-500"
   },
-  disorganized: {
-    name: "Fearful-Avoidant",
-    description: "You have negative views of both yourself and others. You want close relationships but fear getting hurt.",
+  "compassionate-connector": {
+    name: "Compassionate Connector",
+    description: "You're securely attached with exceptional empathy. You naturally create safe spaces for emotional intimacy while respecting boundaries.",
     characteristics: [
-      "Conflicted about relationships",
-      "Fear of intimacy and abandonment",
-      "Unpredictable emotional responses",
-      "Past trauma or inconsistent caregiving"
+      "Highly empathetic and intuitive",
+      "Creates emotional safety for others",
+      "Balances giving and receiving support",
+      "Strong emotional intelligence"
     ],
-    icon: Lightbulb,
-    color: "bg-purple-500"
+    icon: Heart,
+    color: "bg-pink-500"
   },
-  // Alias for backend compatibility
-  "fearful-avoidant": {
-    name: "Fearful-Avoidant",
-    description: "You have negative views of both yourself and others. You want close relationships but fear getting hurt.",
+  "independent-secure": {
+    name: "Independent Secure",
+    description: "You're secure but particularly value autonomy. You enjoy relationships while maintaining strong sense of self and personal space.",
     characteristics: [
-      "Conflicted about relationships",
-      "Fear of intimacy and abandonment",
-      "Unpredictable emotional responses",
-      "Past trauma or inconsistent caregiving"
+      "Comfortable in relationships and alone",
+      "Strong sense of personal identity",
+      "Respects partner's independence",
+      "Confident in relationship security"
+    ],
+    icon: Target,
+    color: "bg-teal-500"
+  },
+  "recovering-anxious": {
+    name: "Evolving Secure",
+    description: "You're actively healing anxious attachment patterns. You're developing confidence while maintaining your caring, attentive nature.",
+    characteristics: [
+      "Self-awareness of attachment patterns",
+      "Working on self-soothing skills",
+      "Building internal security",
+      "Balancing needs with independence"
     ],
     icon: Lightbulb,
+    color: "bg-orange-500"
+  },
+  "guarded-growing": {
+    name: "Cautiously Opening",
+    description: "You're moving from avoidant patterns toward security. You're learning to embrace vulnerability while honoring your need for space.",
+    characteristics: [
+      "Gradually opening to intimacy",
+      "Recognizing value of connection",
+      "Learning to trust others",
+      "Balancing independence with closeness"
+    ],
+    icon: Shield,
+    color: "bg-indigo-500"
+  },
+  "relationship-focused": {
+    name: "Partnership-Oriented",
+    description: "You thrive in committed relationships and prioritize partnership. You're deeply invested in creating strong, lasting bonds.",
+    characteristics: [
+      "Highly committed to relationships",
+      "Naturally collaborative",
+      "Values quality time together",
+      "Strong relationship investment"
+    ],
+    icon: Users,
+    color: "bg-rose-500"
+  },
+  "self-sufficient-secure": {
+    name: "Contentedly Independent",
+    description: "You're secure with a strong preference for solitude. You enjoy relationships but are equally fulfilled by your own company.",
+    characteristics: [
+      "Comfortable with long-term singlehood",
+      "Rich internal life",
+      "Selective about relationships",
+      "Self-contained happiness"
+    ],
+    icon: Target,
+    color: "bg-cyan-500"
+  },
+  "emotionally-aware": {
+    name: "Emotionally Attuned",
+    description: "You have exceptional emotional intelligence and self-awareness. You navigate relationships with insight and intentionality.",
+    characteristics: [
+      "Deep self-understanding",
+      "Skilled at emotional regulation",
+      "Insightful about relationship dynamics",
+      "Intentional in communication"
+    ],
+    icon: Brain,
     color: "bg-purple-500"
   }
 };
@@ -543,28 +602,65 @@ export const AttachmentStyleQuiz = () => {
     } catch (error) {
       console.error('Analysis error:', error);
       // Fallback to simple calculation
-      const styleScores = {
+      const styleScores: Record<string, number> = {
         secure: 0,
         anxious: 0,
         avoidant: 0,
-        disorganized: 0
+        'compassionate-connector': 0,
+        'independent-secure': 0,
+        'recovering-anxious': 0,
+        'guarded-growing': 0,
+        'relationship-focused': 0,
+        'self-sufficient-secure': 0,
+        'emotionally-aware': 0
       };
       
-      // Basic scoring based on answer patterns
+      // Enhanced scoring based on answer patterns with 10 outcomes
       finalAnswers.forEach((answerIndex, questionIndex) => {
         const answer = quizQuestions[questionIndex].options[answerIndex].toLowerCase();
-        if (answer.includes('comfortable') || answer.includes('trust') || answer.includes('secure')) {
-          styleScores.secure++;
-        } else if (answer.includes('worry') || answer.includes('anxious') || answer.includes('clingy')) {
-          styleScores.anxious++;
-        } else if (answer.includes('independent') || answer.includes('distance') || answer.includes('uncomfortable')) {
-          styleScores.avoidant++;
-        } else {
-          styleScores.disorganized++;
+        
+        // Secure patterns
+        if (answer.includes('comfortable') && answer.includes('express')) styleScores.secure += 2;
+        if (answer.includes('trust') && answer.includes('open')) styleScores.secure++;
+        
+        // Anxious patterns
+        if (answer.includes('worry') || answer.includes('anxious')) styleScores.anxious += 2;
+        if (answer.includes('reassurance') || answer.includes('fear') && answer.includes('abandon')) styleScores.anxious++;
+        
+        // Avoidant patterns
+        if (answer.includes('independent') || answer.includes('self-reliant')) styleScores.avoidant += 2;
+        if (answer.includes('distance') || answer.includes('space')) styleScores.avoidant++;
+        
+        // Compassionate connector
+        if (answer.includes('support') && answer.includes('understand')) styleScores['compassionate-connector']++;
+        if (answer.includes('empathy') || answer.includes('listen')) styleScores['compassionate-connector']++;
+        
+        // Independent secure
+        if (answer.includes('balance') || (answer.includes('independent') && answer.includes('comfortable'))) {
+          styleScores['independent-secure']++;
         }
+        
+        // Recovering anxious
+        if (answer.includes('working on') || answer.includes('trying to')) styleScores['recovering-anxious']++;
+        
+        // Guarded growing
+        if (answer.includes('gradually') || answer.includes('learning to')) styleScores['guarded-growing']++;
+        
+        // Relationship-focused
+        if (answer.includes('partner') && answer.includes('together')) styleScores['relationship-focused']++;
+        if (answer.includes('committed') || answer.includes('quality time')) styleScores['relationship-focused']++;
+        
+        // Self-sufficient secure
+        if (answer.includes('alone') && answer.includes('content')) styleScores['self-sufficient-secure']++;
+        
+        // Emotionally aware
+        if (answer.includes('aware') || answer.includes('reflect')) styleScores['emotionally-aware']++;
       });
       
-      const dominantStyle = Object.entries(styleScores).reduce((a, b) => styleScores[a[0]] > styleScores[b[0]] ? a : b)[0];
+      // Find highest scoring style
+      const dominantStyle = Object.entries(styleScores).reduce((a, b) => 
+        styleScores[a[0]] > styleScores[b[0]] ? a : b
+      )[0];
       
       setAttachmentStyle(dominantStyle);
       setShowResults(true);

@@ -65,32 +65,49 @@ serve(async (req) => {
     const attachmentStyle = calculateAttachmentStyle(sanitizedAnswers);
     
     // Generate focused analysis using OpenAI with timeout
+    const styleDescriptions: Record<string, string> = {
+      'secure': 'classic secure attachment with balanced view of self and others',
+      'anxious': 'anxious-preoccupied attachment with fear of abandonment',
+      'avoidant': 'dismissive-avoidant attachment valuing independence',
+      'compassionate-connector': 'secure attachment with exceptional empathy and ability to create emotional safety',
+      'independent-secure': 'secure attachment with strong emphasis on autonomy and personal space',
+      'recovering-anxious': 'healing from anxious attachment patterns toward secure attachment',
+      'guarded-growing': 'moving from avoidant patterns toward secure attachment',
+      'relationship-focused': 'secure attachment with high investment in partnerships',
+      'self-sufficient-secure': 'secure attachment with comfort in solitude and selective relationships',
+      'emotionally-aware': 'secure attachment with exceptional emotional intelligence and self-awareness'
+    };
+
     const analysisPrompt = `
-    You are an attachment theory expert. For ${attachmentStyle} attachment style, provide a concise analysis in valid JSON format only:
+    You are an attachment theory expert. Analyze the ${attachmentStyle} attachment style (${styleDescriptions[attachmentStyle] || 'unique attachment pattern'}).
+    
+    Provide a concise, encouraging analysis in valid JSON format only:
 
     {
       "detailedBreakdown": {
-        "strengths": ["3-4 key strengths for ${attachmentStyle}"],
-        "challenges": ["3-4 main challenges for ${attachmentStyle}"],
-        "relationshipPatterns": ["3-4 key patterns for ${attachmentStyle}"]
+        "strengths": ["3-4 specific strengths for ${attachmentStyle}"],
+        "challenges": ["3-4 growth areas for ${attachmentStyle}"],
+        "relationshipPatterns": ["3-4 key patterns in relationships"]
       },
-      "healingPath": "Concise healing path for ${attachmentStyle} attachment (100-150 words)",
-      "triggers": ["4-5 main triggers for ${attachmentStyle}"],
+      "healingPath": "Actionable healing path for ${attachmentStyle} (100-150 words, focus on growth not problems)",
+      "triggers": ["4-5 common triggers specific to ${attachmentStyle}"],
       "copingTechniques": [
         {
-          "technique": "technique name",
-          "description": "brief description for ${attachmentStyle}",
-          "example": "practical example"
+          "technique": "specific technique name",
+          "description": "how it helps ${attachmentStyle}",
+          "example": "concrete example to practice"
         }
       ],
       "dailyPractices": [
         {
           "practice": "practice name",
-          "description": "brief description",
-          "frequency": "how often"
+          "description": "brief description tailored to ${attachmentStyle}",
+          "frequency": "recommended frequency"
         }
       ]
     }
+    
+    Be positive, specific, and actionable. Focus on growth potential.
     `;
 
     // Create AbortController for timeout
@@ -236,85 +253,145 @@ serve(async (req) => {
 });
 
 function calculateAttachmentStyle(answers: string[]): string {
-  const styleScores = {
+  const styleScores: Record<string, number> = {
     secure: 0,
     anxious: 0,
     avoidant: 0,
-    'fearful-avoidant': 0
+    'compassionate-connector': 0,
+    'independent-secure': 0,
+    'recovering-anxious': 0,
+    'guarded-growing': 0,
+    'relationship-focused': 0,
+    'self-sufficient-secure': 0,
+    'emotionally-aware': 0
   };
 
-  // More sophisticated scoring based on attachment theory research
+  // Sophisticated scoring across 10 attachment style variations
   answers.forEach((answer, index) => {
     const lowerAnswer = answer.toLowerCase();
     
-    // Secure attachment indicators
-    if (lowerAnswer.includes('comfortable') || lowerAnswer.includes('trust') || 
-        lowerAnswer.includes('open') || lowerAnswer.includes('easy') ||
-        lowerAnswer.includes('confident') || lowerAnswer.includes('positive') ||
-        lowerAnswer.includes('supportive') || lowerAnswer.includes('stable')) {
+    // Secure attachment - classic indicators
+    if (lowerAnswer.includes('comfortable') && lowerAnswer.includes('express')) {
+      styleScores.secure += 3;
+    }
+    if (lowerAnswer.includes('trust') || lowerAnswer.includes('open') || 
+        lowerAnswer.includes('confident') || lowerAnswer.includes('stable')) {
       styleScores.secure += 2;
     }
     
-    // Anxious attachment indicators
-    if (lowerAnswer.includes('worry') || lowerAnswer.includes('anxious') || 
-        lowerAnswer.includes('clingy') || lowerAnswer.includes('need') ||
-        lowerAnswer.includes('fear') && lowerAnswer.includes('abandon') ||
-        lowerAnswer.includes('jealous') || lowerAnswer.includes('insecure')) {
+    // Anxious attachment - fear and reassurance seeking
+    if (lowerAnswer.includes('worry') || lowerAnswer.includes('anxious')) {
+      styleScores.anxious += 3;
+    }
+    if (lowerAnswer.includes('fear') && lowerAnswer.includes('abandon') ||
+        lowerAnswer.includes('reassurance') || lowerAnswer.includes('insecure')) {
       styleScores.anxious += 2;
     }
     
-    // Dismissive-avoidant indicators
-    if (lowerAnswer.includes('independent') || lowerAnswer.includes('self-reliant') ||
-        lowerAnswer.includes('distance') || lowerAnswer.includes('space') ||
-        lowerAnswer.includes('uncomfortable') && lowerAnswer.includes('close') ||
-        lowerAnswer.includes('prefer') && lowerAnswer.includes('alone')) {
+    // Avoidant attachment - independence and distance
+    if (lowerAnswer.includes('independent') || lowerAnswer.includes('self-reliant')) {
+      styleScores.avoidant += 3;
+    }
+    if (lowerAnswer.includes('distance') || lowerAnswer.includes('space') ||
+        lowerAnswer.includes('alone') && !lowerAnswer.includes('comfortable')) {
       styleScores.avoidant += 2;
     }
     
-    // Fearful-avoidant indicators (wants closeness but fears it)
-    if ((lowerAnswer.includes('want') || lowerAnswer.includes('need')) && 
-        (lowerAnswer.includes('fear') || lowerAnswer.includes('afraid') || lowerAnswer.includes('scared')) ||
-        lowerAnswer.includes('conflicted') || lowerAnswer.includes('mixed feelings') ||
-        (lowerAnswer.includes('close') && lowerAnswer.includes('hurt')) ||
-        lowerAnswer.includes('push away') && lowerAnswer.includes('want')) {
-      styleScores['fearful-avoidant'] += 3;
+    // Compassionate Connector - empathy and support focus
+    if (lowerAnswer.includes('support') && lowerAnswer.includes('understand') ||
+        lowerAnswer.includes('empathy') || lowerAnswer.includes('listen')) {
+      styleScores['compassionate-connector'] += 3;
+    }
+    if (lowerAnswer.includes('safe') || lowerAnswer.includes('caring')) {
+      styleScores['compassionate-connector'] += 1;
     }
     
-    // Additional fearful-avoidant indicators (chaotic, unpredictable patterns)
-    if (lowerAnswer.includes('unpredictable') || lowerAnswer.includes('chaotic') ||
-        lowerAnswer.includes('confused') || lowerAnswer.includes('inconsistent') ||
-        lowerAnswer.includes('explosive') || lowerAnswer.includes('trauma') ||
-        (lowerAnswer.includes('hot') && lowerAnswer.includes('cold')) ||
-        lowerAnswer.includes('doesn\'t make sense')) {
-      styleScores['fearful-avoidant'] += 2;
+    // Independent Secure - autonomy within security
+    if ((lowerAnswer.includes('independent') || lowerAnswer.includes('autonomy')) && 
+        (lowerAnswer.includes('comfortable') || lowerAnswer.includes('confident'))) {
+      styleScores['independent-secure'] += 3;
+    }
+    if (lowerAnswer.includes('balance') && lowerAnswer.includes('space')) {
+      styleScores['independent-secure'] += 2;
     }
     
-    // Context-based scoring adjustments
-    if (index < 5) { // Early questions about general relationship comfort
-      if (lowerAnswer.includes('difficult') || lowerAnswer.includes('hard')) {
-        if (lowerAnswer.includes('trust') || lowerAnswer.includes('open')) {
-          styleScores['fearful-avoidant'] += 1;
-        } else {
-          styleScores.avoidant += 1;
-        }
-      }
+    // Recovering Anxious - healing journey
+    if (lowerAnswer.includes('working on') || lowerAnswer.includes('learning to') ||
+        lowerAnswer.includes('trying to') || lowerAnswer.includes('developing')) {
+      styleScores['recovering-anxious'] += 3;
+    }
+    if (lowerAnswer.includes('aware') && lowerAnswer.includes('patterns')) {
+      styleScores['recovering-anxious'] += 2;
+    }
+    
+    // Guarded Growing - opening from avoidance
+    if (lowerAnswer.includes('gradually') || lowerAnswer.includes('slowly opening') ||
+        lowerAnswer.includes('cautiously')) {
+      styleScores['guarded-growing'] += 3;
+    }
+    if (lowerAnswer.includes('recogniz') && lowerAnswer.includes('value')) {
+      styleScores['guarded-growing'] += 2;
+    }
+    
+    // Relationship-Focused - partnership priority
+    if (lowerAnswer.includes('partner') && lowerAnswer.includes('together') ||
+        lowerAnswer.includes('we') || lowerAnswer.includes('us')) {
+      styleScores['relationship-focused'] += 3;
+    }
+    if (lowerAnswer.includes('committed') || lowerAnswer.includes('quality time') ||
+        lowerAnswer.includes('prioritize') && lowerAnswer.includes('relationship')) {
+      styleScores['relationship-focused'] += 2;
+    }
+    
+    // Self-Sufficient Secure - content alone
+    if (lowerAnswer.includes('alone') && lowerAnswer.includes('content') ||
+        lowerAnswer.includes('solitude') || lowerAnswer.includes('self-contained')) {
+      styleScores['self-sufficient-secure'] += 3;
+    }
+    if (lowerAnswer.includes('fulfilled') && lowerAnswer.includes('own company')) {
+      styleScores['self-sufficient-secure'] += 2;
+    }
+    
+    // Emotionally Aware - high emotional intelligence
+    if (lowerAnswer.includes('aware') || lowerAnswer.includes('reflect') ||
+        lowerAnswer.includes('understand') && lowerAnswer.includes('emotion')) {
+      styleScores['emotionally-aware'] += 3;
+    }
+    if (lowerAnswer.includes('intentional') || lowerAnswer.includes('mindful')) {
+      styleScores['emotionally-aware'] += 2;
+    }
+
+    // Positive indicators boost multiple secure variants
+    if (lowerAnswer.includes('healthy') || lowerAnswer.includes('clear boundaries')) {
+      styleScores.secure += 1;
+      styleScores['independent-secure'] += 1;
+      styleScores['emotionally-aware'] += 1;
     }
   });
 
   // Find the highest scoring style
   const maxScore = Math.max(...Object.values(styleScores));
-  const topStyles = Object.entries(styleScores).filter(([style, score]) => score === maxScore);
   
-  // If there's a tie, use specific logic to break it
+  // If max score is 0, default to secure
+  if (maxScore === 0) return 'secure';
+  
+  const topStyles = Object.entries(styleScores).filter(([_, score]) => score === maxScore);
+  
+  // If there's a tie, use priority order
   if (topStyles.length > 1) {
-    // If anxious and avoidant are tied and high, it's likely fearful-avoidant
-    if (styleScores.anxious === styleScores.avoidant && 
-        styleScores.anxious > 0) {
-      return 'fearful-avoidant';
-    }
+    const priorityOrder = [
+      'compassionate-connector',
+      'emotionally-aware', 
+      'secure',
+      'independent-secure',
+      'recovering-anxious',
+      'guarded-growing',
+      'relationship-focused',
+      'self-sufficient-secure',
+      'anxious',
+      'avoidant'
+    ];
     
-    // Prioritize more specific styles over general ones
-    const priorityOrder = ['fearful-avoidant', 'secure', 'anxious', 'avoidant'];
     for (const style of priorityOrder) {
       if (topStyles.some(([s]) => s === style)) {
         return style;
