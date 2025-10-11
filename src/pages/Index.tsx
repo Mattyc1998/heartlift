@@ -8,16 +8,16 @@ import { SubscriptionStatusBanner } from "@/components/SubscriptionStatusBanner"
 import { WelcomeOverlay } from "@/components/WelcomeOverlay";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, MessageCircle, TrendingUp, CreditCard, Crown, LogOut, User } from "lucide-react";
+import { Heart, MessageCircle, TrendingUp, CreditCard, Crown, LogOut, User, Brain, Zap, Coffee } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const coachData = {
-  flirty: { name: "Luna Love", personality: "flirty", greeting: "Hey gorgeous! Ready to turn heads? ✨" },
-  therapist: { name: "Dr. Sage", personality: "therapist", greeting: "I'm here to help you understand yourself better." },
-  "tough-love": { name: "Phoenix Fire", personality: "tough-love", greeting: "Time for some real talk. Ready to level up?" },
-  chill: { name: "River Calm", personality: "chill", greeting: "Take a deep breath. Let's figure this out together." }
+  flirty: { name: "Luna Love", personality: "flirty", greeting: "Hey gorgeous! Ready to turn heads? ✨", icon: Heart },
+  therapist: { name: "Dr. Sage", personality: "therapist", greeting: "I'm here to help you understand yourself better.", icon: Brain },
+  "tough-love": { name: "Phoenix Fire", personality: "tough-love", greeting: "Time for some real talk. Ready to level up?", icon: Zap },
+  chill: { name: "River Calm", personality: "chill", greeting: "Take a deep breath. Let's figure this out together.", icon: Coffee }
 };
 
 const Index = () => {
@@ -231,6 +231,7 @@ const Index = () => {
                   coachName={coachData[selectedCoach as keyof typeof coachData]?.name || "Dr. Sage"}
                   coachPersonality={coachData[selectedCoach as keyof typeof coachData]?.personality || "therapist"}
                   coachGreeting={coachData[selectedCoach as keyof typeof coachData]?.greeting || "I'm here to help you understand yourself better."}
+                  coachIcon={coachData[selectedCoach as keyof typeof coachData]?.icon || Brain}
                 />
               </div>
             </div>

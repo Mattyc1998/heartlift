@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User, Crown, Clock, AlertCircle, Sparkles, RefreshCw } from "lucide-react";
+import { Send, Bot, User, Crown, Clock, AlertCircle, Sparkles, RefreshCw, LucideIcon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -25,9 +25,10 @@ interface ChatInterfaceProps {
   coachName: string;
   coachPersonality: string;
   coachGreeting?: string;
+  coachIcon?: LucideIcon;
 }
 
-export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: ChatInterfaceProps) => {
+export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coachIcon }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -448,7 +449,14 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting }: Ch
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="p-2 rounded-full bg-gradient-to-r from-primary to-primary-glow">
-                <Bot className="w-4 h-4 text-primary-foreground" />
+                {coachIcon ? (
+                  (() => {
+                    const CoachIcon = coachIcon;
+                    return <CoachIcon className="w-4 h-4 text-primary-foreground" />;
+                  })()
+                ) : (
+                  <Bot className="w-4 h-4 text-primary-foreground" />
+                )}
               </div>
               <span>{coachName}</span>
               {isPremium && <PremiumBadge variant="compact" />}
