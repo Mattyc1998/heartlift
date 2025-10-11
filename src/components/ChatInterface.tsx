@@ -112,11 +112,15 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
       setInputMessage('');
       setIsTyping(false);
       
-      // Load history first, then show greeting if no history
-      checkForDailyRefresh();
-      loadConversationHistory();
+      // Run checks and load history in sequence
+      const loadData = async () => {
+        await checkForDailyRefresh();
+        await loadConversationHistory();
+      };
+      
+      loadData();
     }
-  }, [user, coachPersonality, coachName]);
+  }, [user, coachPersonality]);
 
   const checkForDailyRefresh = async () => {
     if (!user) return;
