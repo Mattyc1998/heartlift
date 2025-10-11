@@ -419,6 +419,15 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
 
       // Reset to default greeting and clear all messages
       const personalizedGreeting = getRandomGreeting();
+      
+      // Save the greeting to the database immediately
+      await supabase.rpc('insert_conversation_message', {
+        p_user_id: user.id,
+        p_coach_id: coachPersonality,
+        p_message_content: personalizedGreeting,
+        p_sender: 'coach'
+      });
+      
       setMessages([{
         id: '1',
         content: personalizedGreeting,
