@@ -115,6 +115,16 @@ const Index = () => {
         {/* Subscription Status Banner */}
         <SubscriptionStatusBanner />
         
+        {/* Welcome Message */}
+        {user && (
+          <div className="mb-6 text-center">
+            <p className="text-lg sm:text-xl text-foreground">
+              Welcome back, <span className="font-semibold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">{getFirstName()}</span>! 
+              <span className="block sm:inline sm:ml-1 text-muted-foreground">Your coaches are ready to support you today</span>
+            </p>
+          </div>
+        )}
+        
         {/* Premium Navigation */}
         {(isPremium || hasHealingKit) && (
           <div className="flex justify-center gap-2 mb-6">
