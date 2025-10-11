@@ -249,20 +249,17 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
           timestamp: new Date(msg.created_at)
         }));
         
-        // Ensure the first message is always the greeting if it's not already there
-        const hasGreeting = loadedMessages.length > 0 && loadedMessages[0].sender === 'coach';
-        if (!hasGreeting) {
+        // Always replace the first coach message with a fresh random greeting
+        const firstCoachIndex = loadedMessages.findIndex(msg => msg.sender === 'coach');
+        if (firstCoachIndex !== -1) {
           const personalizedGreeting = getRandomGreeting();
-          const greeting = {
-            id: '1',
-            content: personalizedGreeting,
-            sender: 'coach' as const,
-            timestamp: new Date()
+          loadedMessages[firstCoachIndex] = {
+            ...loadedMessages[firstCoachIndex],
+            content: personalizedGreeting
           };
-          setMessages([greeting, ...loadedMessages]);
-        } else {
-          setMessages(loadedMessages);
         }
+        
+        setMessages(loadedMessages);
       } else {
         // No history found, greeting should already be set from useEffect
         // Don't overwrite it here
