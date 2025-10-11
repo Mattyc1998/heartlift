@@ -18,10 +18,10 @@ const coachData = {
     name: "Luna Love", 
     personality: "flirty", 
     greetings: [
-      "Ready to turn heads today? ✨",
-      "Feeling that spark yet? Let's bring it out! 💫",
-      "You've got main character energy and I'm here for it.",
-      "Let's add a little confidence magic to your day."
+      "Hi {firstName}! Ready to turn heads today? ✨",
+      "Hey {firstName}, feeling that spark yet? Let's bring it out! 💫",
+      "Hi {firstName}! You've got main character energy and I'm here for it.",
+      "Hello {firstName}, let's add a little confidence magic to your day."
     ],
     icon: Heart, 
     color: "from-pink-400 to-rose-500" 
@@ -30,10 +30,10 @@ const coachData = {
     name: "Dr. Sage", 
     personality: "therapist", 
     greetings: [
-      "I'm here to help you understand yourself better.",
-      "Let's take a moment to pause and reflect together.",
-      "What's been on your mind lately? I'm listening.",
-      "You've taken the first step just by showing up and that matters."
+      "Hi {firstName}, I'm here to help you understand yourself better.",
+      "Hello {firstName}. Let's take a moment to pause and reflect together.",
+      "Hi {firstName}, what's been on your mind lately? I'm listening.",
+      "Hi {firstName}. You've taken the first step just by showing up and that matters."
     ],
     icon: Brain, 
     color: "from-purple-400 to-indigo-500" 
@@ -42,10 +42,10 @@ const coachData = {
     name: "Phoenix Fire", 
     personality: "tough-love", 
     greetings: [
-      "I'm Phoenix, your no BS mentor for self transformation. Ready to light things up? 🔥",
-      "I'm here to help you set boundaries, own your power, and make real change.",
-      "Time for some straight talk. Let's cut through the noise and get you feeling strong again.",
-      "Growth takes courage and you already have what it takes."
+      "Hey {firstName}! I'm Phoenix, your no BS mentor for self transformation. Ready to light things up? 🔥",
+      "Hi {firstName}, I'm here to help you set boundaries, own your power, and make real change.",
+      "Hello {firstName}! Time for some straight talk. Let's cut through the noise and get you feeling strong again.",
+      "Hey {firstName}, growth takes courage and you already have what it takes."
     ],
     icon: Zap, 
     color: "from-orange-400 to-red-500" 
@@ -54,10 +54,10 @@ const coachData = {
     name: "River Calm", 
     personality: "chill", 
     greetings: [
-      "I'm River. Take a deep breath and let's find your calm together.",
-      "I'm here to offer you a peaceful space to reflect and release what's been heavy.",
-      "Take a moment to pause and reconnect. Let's find your balance again.",
-      "You've arrived in a safe and gentle space. What's been flowing through your mind today?"
+      "Hello {firstName}, I'm River. Take a deep breath and let's find your calm together.",
+      "Hi {firstName}. I'm here to offer you a peaceful space to reflect and release what's been heavy.",
+      "Hey {firstName}, take a moment to pause and reconnect. Let's find your balance again.",
+      "Hi {firstName}. You've arrived in a safe and gentle space. What's been flowing through your mind today?"
     ],
     icon: Coffee, 
     color: "from-emerald-400 to-teal-500" 
@@ -281,10 +281,10 @@ const Index = () => {
               </div>
               <div className="lg:col-span-2 lg:order-2">
                 <ChatInterface 
-                  key={selectedCoach} // Force remount when coach changes
+                  key={selectedCoach}
                   coachName={coachData[selectedCoach as keyof typeof coachData]?.name || "Dr. Sage"}
                   coachPersonality={coachData[selectedCoach as keyof typeof coachData]?.personality || "therapist"}
-                  coachGreetings={coachData[selectedCoach as keyof typeof coachData]?.greetings || ["I'm here to help you understand yourself better."]}
+                  coachGreetings={coachData[selectedCoach as keyof typeof coachData]?.greetings}
                   coachIcon={coachData[selectedCoach as keyof typeof coachData]?.icon || Brain}
                   coachColor={coachData[selectedCoach as keyof typeof coachData]?.color || "from-purple-400 to-indigo-500"}
                 />

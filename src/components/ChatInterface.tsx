@@ -95,10 +95,14 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
     const randomIndex = Math.floor(Math.random() * coachGreetings.length);
     const selectedGreeting = coachGreetings[randomIndex];
     
-    console.log('Selected greeting:', selectedGreeting);
+    console.log('Selected greeting template:', selectedGreeting);
     
-    // Prepend personalized greeting with first name
-    return firstName ? `Hi ${firstName}! ${selectedGreeting}` : `Hello! ${selectedGreeting}`;
+    // Replace {firstName} placeholder with actual name
+    const personalizedGreeting = selectedGreeting.replace('{firstName}', firstName || 'there');
+    
+    console.log('Final greeting:', personalizedGreeting);
+    
+    return personalizedGreeting;
   };
 
   // Load conversation history when coach changes - ensure greeting is always present

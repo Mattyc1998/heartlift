@@ -13,10 +13,10 @@ const coaches = [
     personality: "Playful, empowering, flirty, and charmingly bold",
     specialties: ["Dating confidence", "Flirting tips", "Self-love", "Planning fun, adventurous dates"],
     greetings: [
-      "Ready to turn heads today? ✨",
-      "Feeling that spark yet? Let's bring it out! 💫",
-      "You've got main character energy and I'm here for it.",
-      "Let's add a little confidence magic to your day."
+      "Hi {firstName}! Ready to turn heads today? ✨",
+      "Hey {firstName}, feeling that spark yet? Let's bring it out! 💫",
+      "Hi {firstName}! You've got main character energy and I'm here for it.",
+      "Hello {firstName}, let's add a little confidence magic to your day."
     ],
     color: "from-pink-400 to-rose-500",
     bgColor: "from-pink-50 to-rose-50",
@@ -57,10 +57,10 @@ const coaches = [
     personality: "Compassionate, insightful, and evidence-based",
     specialties: ["Attachment theory", "Communication skills", "Healing trauma", "Intimacy-focused date planning"],
     greetings: [
-      "I'm here to help you understand yourself better.",
-      "Let's take a moment to pause and reflect together.",
-      "What's been on your mind lately? I'm listening.",
-      "You've taken the first step just by showing up and that matters."
+      "Hi {firstName}, I'm here to help you understand yourself better.",
+      "Hello {firstName}. Let's take a moment to pause and reflect together.",
+      "Hi {firstName}, what's been on your mind lately? I'm listening.",
+      "Hi {firstName}. You've taken the first step just by showing up and that matters."
     ],
     color: "from-purple-400 to-indigo-500",
     bgColor: "from-purple-50 to-indigo-50",
@@ -97,10 +97,10 @@ const coaches = [
     personality: "Direct, motivating, and courageously honest",
     specialties: ["Tough love coaching", "Setting boundaries", "Self-respect", "Bold, adventurous date planning"],
     greetings: [
-      "I'm Phoenix, your no BS mentor for self transformation. Ready to light things up? 🔥",
-      "I'm here to help you set boundaries, own your power, and make real change.",
-      "Time for some straight talk. Let's cut through the noise and get you feeling strong again.",
-      "Growth takes courage and you already have what it takes."
+      "Hey {firstName}! I'm Phoenix, your no BS mentor for self transformation. Ready to light things up? 🔥",
+      "Hi {firstName}, I'm here to help you set boundaries, own your power, and make real change.",
+      "Hello {firstName}! Time for some straight talk. Let's cut through the noise and get you feeling strong again.",
+      "Hey {firstName}, growth takes courage and you already have what it takes."
     ],
     color: "from-orange-400 to-red-500",
     bgColor: "from-orange-50 to-red-50",
@@ -137,10 +137,10 @@ const coaches = [
     personality: "Zen, supportive, and naturally wise",
     specialties: ["Mindfulness", "Gentle healing", "Offering perspective", "Tranquil, grounding date planning"],
     greetings: [
-      "I'm River. Take a deep breath and let's find your calm together.",
-      "I'm here to offer you a peaceful space to reflect and release what's been heavy.",
-      "Take a moment to pause and reconnect. Let's find your balance again.",
-      "You've arrived in a safe and gentle space. What's been flowing through your mind today?"
+      "Hello {firstName}, I'm River. Take a deep breath and let's find your calm together.",
+      "Hi {firstName}. I'm here to offer you a peaceful space to reflect and release what's been heavy.",
+      "Hey {firstName}, take a moment to pause and reconnect. Let's find your balance again.",
+      "Hi {firstName}. You've arrived in a safe and gentle space. What's been flowing through your mind today?"
     ],
     color: "from-emerald-400 to-teal-500",
     bgColor: "from-emerald-50 to-teal-50",
