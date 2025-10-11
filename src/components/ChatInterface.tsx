@@ -319,16 +319,20 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
     setIsTyping(true);
 
     try {
+      // Get fresh session token
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !sessionData.session) {
+        throw new Error('Please sign in again to continue');
+      }
+
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
           message: inputMessage,
           coachId: coachPersonality,
           conversationHistory: messages.slice(-5), // Send last 5 messages for context
           requestRegenerate: false
-        },
-        headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-        },
+        }
       });
 
       if (error) {
@@ -392,6 +396,13 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
     setIsTyping(true);
     
     try {
+      // Get fresh session token
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !sessionData.session) {
+        throw new Error('Please sign in again to continue');
+      }
+
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
           message: userMessage.content,
@@ -401,10 +412,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
             content: m.content
           })),
           requestRegenerate: true
-        },
-        headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-        },
+        }
       });
 
       if (error) throw error;
