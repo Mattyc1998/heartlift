@@ -114,8 +114,30 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
       
       // Run checks and load history in sequence
       const loadData = async () => {
-        await checkForDailyRefresh();
-        await loadConversationHistory();
+        const wasRefreshed = await checkForDailyRefresh();
+        
+        // Only load history if we didn't just refresh (which clears everything)
+        if (!wasRefreshed) {
+          await loadConversationHistory();
+        } else {
+          // If we refreshed, create and save a new greeting
+          const personalizedGreeting = getRandomGreeting();
+          
+          await supabase.rpc('insert_conversation_message', {
+            p_user_id: user.id,
+            p_coach_id: coachPersonality,
+            p_message_content: personalizedGreeting,
+            p_sender: 'coach'
+          });
+          
+          setMessages([{
+            id: '1',
+            content: personalizedGreeting,
+            sender: 'coach',
+            timestamp: new Date()
+          }]);
+          setConversationLoaded(true);
+        }
       };
       
       loadData();
@@ -129,10 +151,10 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
     const lastRefresh = localStorage.getItem(lastRefreshKey);
     const today = new Date().toDateString();
     
-    // First time with this coach - just set the date without deleting anything
+    // First time with this coach - just set the date, don't do anything else
     if (!lastRefresh) {
       localStorage.setItem(lastRefreshKey, today);
-      return;
+      return false; // Return false to indicate no refresh happened
     }
     
     // Only delete if it's actually a different day
@@ -146,23 +168,14 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
           .eq('coach_id', coachPersonality);
         
         localStorage.setItem(lastRefreshKey, today);
-        
-        // Clear messages immediately for daily refresh
-        const personalizedGreeting = getRandomGreeting();
-        setMessages([
-          {
-            id: '1',
-            content: personalizedGreeting,
-            sender: 'coach',
-            timestamp: new Date()
-          }
-        ]);
-        
-        console.log('Daily conversation refresh completed for', coachPersonality);
+        return true; // Return true to indicate refresh happened
       } catch (error) {
         console.error('Error during daily refresh:', error);
+        return false;
       }
     }
+    
+    return false; // Same day, no refresh
   };
 
   const loadConversationHistory = async () => {
