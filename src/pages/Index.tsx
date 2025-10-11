@@ -14,10 +14,54 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const coachData = {
-  flirty: { name: "Luna Love", personality: "flirty", greeting: "Hey gorgeous! Ready to turn heads? ✨", icon: Heart, color: "from-pink-400 to-rose-500" },
-  therapist: { name: "Dr. Sage", personality: "therapist", greeting: "I'm here to help you understand yourself better.", icon: Brain, color: "from-purple-400 to-indigo-500" },
-  "tough-love": { name: "Phoenix Fire", personality: "tough-love", greeting: "Time for some real talk. Ready to level up?", icon: Zap, color: "from-orange-400 to-red-500" },
-  chill: { name: "River Calm", personality: "chill", greeting: "Take a deep breath. Let's figure this out together.", icon: Coffee, color: "from-emerald-400 to-teal-500" }
+  flirty: { 
+    name: "Luna Love", 
+    personality: "flirty", 
+    greetings: [
+      "Ready to turn heads today? ✨",
+      "Feeling that spark yet? Let's bring it out! 💫",
+      "You've got main character energy and I'm here for it.",
+      "Let's add a little confidence magic to your day."
+    ],
+    icon: Heart, 
+    color: "from-pink-400 to-rose-500" 
+  },
+  therapist: { 
+    name: "Dr. Sage", 
+    personality: "therapist", 
+    greetings: [
+      "I'm here to help you understand yourself better.",
+      "Let's take a moment to pause and reflect together.",
+      "What's been on your mind lately? I'm listening.",
+      "You've taken the first step just by showing up and that matters."
+    ],
+    icon: Brain, 
+    color: "from-purple-400 to-indigo-500" 
+  },
+  "tough-love": { 
+    name: "Phoenix Fire", 
+    personality: "tough-love", 
+    greetings: [
+      "I'm Phoenix, your no BS mentor for self transformation. Ready to light things up? 🔥",
+      "I'm here to help you set boundaries, own your power, and make real change.",
+      "Time for some straight talk. Let's cut through the noise and get you feeling strong again.",
+      "Growth takes courage and you already have what it takes."
+    ],
+    icon: Zap, 
+    color: "from-orange-400 to-red-500" 
+  },
+  chill: { 
+    name: "River Calm", 
+    personality: "chill", 
+    greetings: [
+      "I'm River. Take a deep breath and let's find your calm together.",
+      "I'm here to offer you a peaceful space to reflect and release what's been heavy.",
+      "Take a moment to pause and reconnect. Let's find your balance again.",
+      "You've arrived in a safe and gentle space. What's been flowing through your mind today?"
+    ],
+    icon: Coffee, 
+    color: "from-emerald-400 to-teal-500" 
+  }
 };
 
 const Index = () => {
@@ -240,7 +284,7 @@ const Index = () => {
                   key={selectedCoach} // Force remount when coach changes
                   coachName={coachData[selectedCoach as keyof typeof coachData]?.name || "Dr. Sage"}
                   coachPersonality={coachData[selectedCoach as keyof typeof coachData]?.personality || "therapist"}
-                  coachGreeting={coachData[selectedCoach as keyof typeof coachData]?.greeting || "I'm here to help you understand yourself better."}
+                  coachGreetings={coachData[selectedCoach as keyof typeof coachData]?.greetings || ["I'm here to help you understand yourself better."]}
                   coachIcon={coachData[selectedCoach as keyof typeof coachData]?.icon || Brain}
                   coachColor={coachData[selectedCoach as keyof typeof coachData]?.color || "from-purple-400 to-indigo-500"}
                 />

@@ -12,7 +12,12 @@ const coaches = [
     description: "Your confidence coach for dating, flirting, and magnetic attraction",
     personality: "Playful, empowering, flirty, and charmingly bold",
     specialties: ["Dating confidence", "Flirting tips", "Self-love", "Planning fun, adventurous dates"],
-    greeting: "Hey gorgeous! Ready to turn heads and spark some magic? ✨ I'm Luna, your confidence coach for dating, flirting, and magnetic attraction. What's on your heart today?",
+    greetings: [
+      "Ready to turn heads today? ✨",
+      "Feeling that spark yet? Let's bring it out! 💫",
+      "You've got main character energy and I'm here for it.",
+      "Let's add a little confidence magic to your day."
+    ],
     color: "from-pink-400 to-rose-500",
     bgColor: "from-pink-50 to-rose-50",
     accent: "text-pink-600",
@@ -51,7 +56,12 @@ const coaches = [
     description: "Relationship wellbeing coach specializing in attachment and relationship patterns",
     personality: "Compassionate, insightful, and evidence-based",
     specialties: ["Attachment theory", "Communication skills", "Healing trauma", "Intimacy-focused date planning"],
-    greeting: "Hello, I'm Dr. Sage, your relationship wellbeing coach. I'm here to provide a safe, supportive space for exploring your relationship patterns and attachment style. What's bringing you here today?",
+    greetings: [
+      "I'm here to help you understand yourself better.",
+      "Let's take a moment to pause and reflect together.",
+      "What's been on your mind lately? I'm listening.",
+      "You've taken the first step just by showing up and that matters."
+    ],
     color: "from-purple-400 to-indigo-500",
     bgColor: "from-purple-50 to-indigo-50",
     accent: "text-purple-600",
@@ -86,7 +96,12 @@ const coaches = [
     description: "Your no-BS mentor for radical self-transformation and boundary setting",
     personality: "Direct, motivating, and courageously honest",
     specialties: ["Tough love coaching", "Setting boundaries", "Self-respect", "Bold, adventurous date planning"],
-    greeting: "Hey there! I'm Phoenix Fire, your no-BS mentor for radical self-transformation. Time for some real talk - I'm here to help you set boundaries, own your power, and level up your life. Ready to ignite some change?",
+    greetings: [
+      "I'm Phoenix, your no BS mentor for self transformation. Ready to light things up? 🔥",
+      "I'm here to help you set boundaries, own your power, and make real change.",
+      "Time for some straight talk. Let's cut through the noise and get you feeling strong again.",
+      "Growth takes courage and you already have what it takes."
+    ],
     color: "from-orange-400 to-red-500",
     bgColor: "from-orange-50 to-red-50",
     accent: "text-orange-600",
@@ -121,7 +136,12 @@ const coaches = [
     description: "Your laid-back friend for mindful healing and gentle perspective",
     personality: "Zen, supportive, and naturally wise",
     specialties: ["Mindfulness", "Gentle healing", "Offering perspective", "Tranquil, grounding date planning"],
-    greeting: "Hello there, I'm River Calm 🌊 Take a deep breath... I'm here to offer you a peaceful space for mindful healing and gentle perspective. Let's figure this out together with presence and care. What's flowing through your heart today?",
+    greetings: [
+      "I'm River. Take a deep breath and let's find your calm together.",
+      "I'm here to offer you a peaceful space to reflect and release what's been heavy.",
+      "Take a moment to pause and reconnect. Let's find your balance again.",
+      "You've arrived in a safe and gentle space. What's been flowing through your mind today?"
+    ],
     color: "from-emerald-400 to-teal-500",
     bgColor: "from-emerald-50 to-teal-50",
     accent: "text-emerald-600",
@@ -251,7 +271,7 @@ export const CoachPersonas = ({ onSelectCoach, selectedCoach, compact = false }:
                 {!compact && (
                   <div className={`p-3 sm:p-4 rounded-lg bg-gradient-to-r ${coach.bgColor} border border-current border-opacity-10`}>
                     <p className={`text-sm sm:text-base italic ${coach.accent} font-medium`}>
-                      "{coach.greeting}"
+                      "{coach.greetings[0]}"
                     </p>
                   </div>
                 )}

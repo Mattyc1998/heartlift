@@ -24,12 +24,12 @@ interface Message {
 interface ChatInterfaceProps {
   coachName: string;
   coachPersonality: string;
-  coachGreeting?: string;
+  coachGreetings?: string[];
   coachIcon?: LucideIcon;
   coachColor?: string;
 }
 
-export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coachIcon, coachColor }: ChatInterfaceProps) => {
+export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coachIcon, coachColor }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -79,6 +79,21 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
     }
   }, [isPremium]);
 
+  // Function to get a random personalized greeting
+  const getRandomGreeting = () => {
+    const firstName = getFirstName();
+    if (!coachGreetings || coachGreetings.length === 0) {
+      return firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`;
+    }
+    
+    // Randomly select one of the greeting variations
+    const randomIndex = Math.floor(Math.random() * coachGreetings.length);
+    const selectedGreeting = coachGreetings[randomIndex];
+    
+    // Prepend personalized greeting with first name
+    return firstName ? `Hi ${firstName}! ${selectedGreeting}` : `Hello! ${selectedGreeting}`;
+  };
+
   // Load conversation history when coach changes - ensure greeting is always present
   useEffect(() => {
     if (user && coachPersonality) {
@@ -87,18 +102,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
       setIsTyping(false);
       
       // Always start with greeting to prevent disappearing first message
-      const firstName = getFirstName();
-      let personalizedGreeting;
-      if (coachGreeting) {
-        // Replace existing greetings or prepend name
-        if (/^(Hi there!|Hey gorgeous!)/i.test(coachGreeting)) {
-          personalizedGreeting = coachGreeting.replace(/^(Hi there!|Hey gorgeous!)/i, firstName ? `Hi ${firstName}!` : '$1');
-        } else {
-          personalizedGreeting = firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting;
-        }
-      } else {
-        personalizedGreeting = firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`;
-      }
+      const personalizedGreeting = getRandomGreeting();
       setMessages([{
         id: '1',
         content: personalizedGreeting,
@@ -110,7 +114,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
       checkForDailyRefresh();
       loadConversationHistory();
     }
-  }, [user, coachPersonality, coachName, coachGreeting]);
+  }, [user, coachPersonality, coachName]);
 
   const checkForNavigationRefresh = () => {
     if (!user) return;
@@ -148,17 +152,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
         localStorage.setItem(lastRefreshKey, today);
         
         // Clear messages immediately for daily refresh
-        const firstName = getFirstName();
-        let personalizedGreeting;
-        if (coachGreeting) {
-          if (/^(Hi there!|Hey gorgeous!)/i.test(coachGreeting)) {
-            personalizedGreeting = coachGreeting.replace(/^(Hi there!|Hey gorgeous!)/i, firstName ? `Hi ${firstName}!` : '$1');
-          } else {
-            personalizedGreeting = firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting;
-          }
-        } else {
-          personalizedGreeting = firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`;
-        }
+        const personalizedGreeting = getRandomGreeting();
         setMessages([
           {
             id: '1',
@@ -198,17 +192,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
           localStorage.removeItem(manualRefreshKey);
         } else {
           // If manually refreshed in the last 5 minutes, don't load history
-          const firstName = getFirstName();
-          let personalizedGreeting;
-          if (coachGreeting) {
-            if (/^(Hi there!|Hey gorgeous!)/i.test(coachGreeting)) {
-              personalizedGreeting = coachGreeting.replace(/^(Hi there!|Hey gorgeous!)/i, firstName ? `Hi ${firstName}!` : '$1');
-            } else {
-              personalizedGreeting = firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting;
-            }
-          } else {
-            personalizedGreeting = firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`;
-          }
+          const personalizedGreeting = getRandomGreeting();
           setMessages([
             {
               id: '1',
@@ -225,17 +209,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
       if (navigationRefresh) {
         // Clear navigation refresh flag and start fresh
         sessionStorage.removeItem(navigationRefreshKey);
-        const firstName = getFirstName();
-        let personalizedGreeting;
-        if (coachGreeting) {
-          if (/^(Hi there!|Hey gorgeous!)/i.test(coachGreeting)) {
-            personalizedGreeting = coachGreeting.replace(/^(Hi there!|Hey gorgeous!)/i, firstName ? `Hi ${firstName}!` : '$1');
-          } else {
-            personalizedGreeting = firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting;
-          }
-        } else {
-          personalizedGreeting = firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`;
-        }
+        const personalizedGreeting = getRandomGreeting();
         setMessages([
           {
             id: '1',
@@ -271,17 +245,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
         // Ensure the first message is always the greeting if it's not already there
         const hasGreeting = loadedMessages.length > 0 && loadedMessages[0].sender === 'coach';
         if (!hasGreeting) {
-          const firstName = getFirstName();
-          let personalizedGreeting;
-          if (coachGreeting) {
-            if (/^(Hi there!|Hey gorgeous!)/i.test(coachGreeting)) {
-              personalizedGreeting = coachGreeting.replace(/^(Hi there!|Hey gorgeous!)/i, firstName ? `Hi ${firstName}!` : '$1');
-            } else {
-              personalizedGreeting = firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting;
-            }
-          } else {
-            personalizedGreeting = firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`;
-          }
+          const personalizedGreeting = getRandomGreeting();
           const greeting = {
             id: '1',
             content: personalizedGreeting,
@@ -479,17 +443,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
       localStorage.setItem(manualRefreshKey, new Date().toISOString());
 
       // Reset to default greeting and clear all messages
-      const firstName = getFirstName();
-      let personalizedGreeting;
-      if (coachGreeting) {
-        if (/^(Hi there!|Hey gorgeous!)/i.test(coachGreeting)) {
-          personalizedGreeting = coachGreeting.replace(/^(Hi there!|Hey gorgeous!)/i, firstName ? `Hi ${firstName}!` : '$1');
-        } else {
-          personalizedGreeting = firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting;
-        }
-      } else {
-        personalizedGreeting = firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`;
-      }
+      const personalizedGreeting = getRandomGreeting();
       setMessages([{
         id: '1',
         content: personalizedGreeting,
