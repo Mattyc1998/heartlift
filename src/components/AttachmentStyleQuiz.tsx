@@ -735,19 +735,29 @@ export const AttachmentStyleQuiz = () => {
     );
   }
 
-  // Show error state if questions failed to load
-  if (questionsError) {
+  // Only show error if we truly have no questions to display
+  if (questionsError && quizQuestions.length === 0) {
     return (
       <div className="space-y-6 max-w-4xl mx-auto">
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-destructive">Error Loading Questions</CardTitle>
+            <div className="flex justify-center mb-4">
+              <div className="p-4 rounded-full bg-muted">
+                <Clock className="w-8 h-8 text-muted-foreground" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl">New Questions Coming Soon</CardTitle>
+            <div className="flex items-center justify-center gap-4 mt-4">
+              <Badge variant="secondary" className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                Next questions: {formatTimeUntilNextChange()}
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent className="text-center space-y-4">
-            <p className="text-muted-foreground">{questionsError}</p>
-            <Button onClick={loadDailyQuestions} variant="outline">
-              Try Again
-            </Button>
+            <p className="text-muted-foreground">
+              Fresh attachment style questions will be available soon. Check back in a few hours!
+            </p>
           </CardContent>
         </Card>
       </div>
