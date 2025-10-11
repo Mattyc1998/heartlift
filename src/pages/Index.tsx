@@ -158,7 +158,7 @@ const Index = () => {
                 onClick={() => setCurrentTab("home")}
                 className="text-xs sm:text-sm min-h-[44px] px-4"
               >
-                <span className="hidden sm:inline">Back to Home</span>
+                <span className="hidden sm:inline">← Home</span>
                 <span className="sm:hidden">Home</span>
               </Button>
             
