@@ -125,7 +125,8 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
     const lastRefresh = localStorage.getItem(lastRefreshKey);
     const today = new Date().toDateString();
     
-    if (lastRefresh !== today) {
+    // Only delete if lastRefresh exists AND it's a different day
+    if (lastRefresh && lastRefresh !== today) {
       // New day detected, refresh conversation
       try {
         await supabase
@@ -151,40 +152,14 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
       } catch (error) {
         console.error('Error during daily refresh:', error);
       }
+    } else if (!lastRefresh) {
+      // First time loading this coach, just set the date without deleting
+      localStorage.setItem(lastRefreshKey, today);
     }
   };
 
   const loadConversationHistory = async () => {
     if (!user) return;
-
-    // Check if this coach was manually refreshed recently
-    const manualRefreshKey = `manualRefresh_${user.id}_${coachPersonality}`;
-    const manualRefresh = localStorage.getItem(manualRefreshKey);
-    
-    if (manualRefresh) {
-      const refreshTime = new Date(manualRefresh);
-      const now = new Date();
-      const timeDiff = now.getTime() - refreshTime.getTime();
-      const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
-      
-      // Clear the manual refresh flag after 5 minutes
-      if (timeDiff >= fiveMinutes) {
-        localStorage.removeItem(manualRefreshKey);
-      } else {
-        // If manually refreshed in the last 5 minutes, don't load history
-        const personalizedGreeting = getRandomGreeting();
-        setMessages([
-          {
-            id: '1',
-            content: personalizedGreeting,
-            sender: 'coach',
-            timestamp: new Date()
-          }
-        ]);
-        setConversationLoaded(true);
-        return;
-      }
-    }
 
     try {
       const { data: history, error } = await supabase
