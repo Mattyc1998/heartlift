@@ -14,6 +14,7 @@ export const SubscriptionManagement = () => {
   const [subscriptionData, setSubscriptionData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [newEmail, setNewEmail] = useState("");
@@ -77,6 +78,15 @@ export const SubscriptionManagement = () => {
   };
 
   const handlePasswordChange = async () => {
+    if (!currentPassword) {
+      toast({
+        title: "Error",
+        description: "Please enter your current password",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       toast({
         title: "Error",
@@ -97,6 +107,23 @@ export const SubscriptionManagement = () => {
 
     setIsChangingPassword(true);
     try {
+      // Verify current password by attempting to sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user?.email || '',
+        password: currentPassword
+      });
+
+      if (signInError) {
+        toast({
+          title: "Error",
+          description: "Current password is incorrect",
+          variant: "destructive",
+        });
+        setIsChangingPassword(false);
+        return;
+      }
+
+      // If current password is correct, update to new password
       const { error } = await supabase.auth.updateUser({
         password: newPassword
       });
@@ -107,6 +134,7 @@ export const SubscriptionManagement = () => {
         title: "Password Updated",
         description: "Your password has been successfully changed.",
       });
+      setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (error: any) {
@@ -361,16 +389,16 @@ export const SubscriptionManagement = () => {
             {/* Change Password */}
             <div className="space-y-4">
               <h4 className="font-medium">Change Password</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="new-password">New Password</Label>
+                  <Label htmlFor="current-password">Current Password</Label>
                   <div className="relative">
                     <Input
-                      id="new-password"
+                      id="current-password"
                       type={showPassword ? "text" : "password"}
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Enter new password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="Enter current password"
                     />
                     <Button
                       type="button"
@@ -383,20 +411,32 @@ export const SubscriptionManagement = () => {
                     </Button>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirm Password</Label>
-                  <Input
-                    id="confirm-password"
-                    type={showPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm new password"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">New Password</Label>
+                    <Input
+                      id="new-password"
+                      type={showPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter new password"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirm Password</Label>
+                    <Input
+                      id="confirm-password"
+                      type={showPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm new password"
+                    />
+                  </div>
                 </div>
               </div>
               <Button 
                 onClick={handlePasswordChange}
-                disabled={!newPassword || !confirmPassword || isChangingPassword}
+                disabled={!currentPassword || !newPassword || !confirmPassword || isChangingPassword}
                 className="w-full md:w-auto"
               >
                 {isChangingPassword ? "Updating..." : "Update Password"}
