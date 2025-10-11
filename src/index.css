@@ -220,6 +220,15 @@ All colors MUST be HSL.
     }
   }
 
+  @keyframes heart-pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+  }
+
   @keyframes float-gentle {
     0%, 100% {
       transform: translateY(0px);
@@ -257,6 +266,10 @@ All colors MUST be HSL.
 
   .animate-pulse-warm {
     animation: pulse-warm 2s ease-in-out infinite;
+  }
+
+  .animate-heart-pulse {
+    animation: heart-pulse 1.5s ease-in-out infinite;
   }
 
   .animate-float-gentle {

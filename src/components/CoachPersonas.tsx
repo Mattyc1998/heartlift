@@ -156,6 +156,17 @@ interface CoachPersonasProps {
 }
 
 export const CoachPersonas = ({ onSelectCoach, selectedCoach, compact = false }: CoachPersonasProps) => {
+  // Simulated last interaction times - in real app, this would come from database
+  const getLastInteraction = (coachId: string) => {
+    const interactions: Record<string, string> = {
+      'therapist': 'Online now',
+      'flirty': 'Last spoke 2 days ago',
+      'tough-love': 'Last spoke 1 week ago',
+      'chill': 'Online now'
+    };
+    return interactions[coachId] || 'Available';
+  };
+
   return (
     <div className="space-y-8 animate-fade-in">
       {!compact && (
@@ -203,6 +214,19 @@ export const CoachPersonas = ({ onSelectCoach, selectedCoach, compact = false }:
                     <CardDescription className={`${compact ? 'text-xs sm:text-base hidden sm:block' : 'text-sm sm:text-base'} font-medium ${coach.accent}`}>
                       {coach.personality}
                     </CardDescription>
+                    <div className={`flex items-center gap-1 mt-1 ${compact ? 'justify-center sm:justify-start text-xs' : 'text-xs sm:text-sm'}`}>
+                      {getLastInteraction(coach.id).includes('Online') ? (
+                        <>
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                          </span>
+                          <span className="text-green-600 font-medium">{getLastInteraction(coach.id)}</span>
+                        </>
+                      ) : (
+                        <span className="text-muted-foreground italic">{getLastInteraction(coach.id)}</span>
+                      )}
+                    </div>
                   </div>
                   {isSelected && (
                     <Star className={`${compact ? 'w-4 h-4 sm:w-6 sm:h-6' : 'w-5 h-5 sm:w-6 sm:h-6'} text-primary animate-pulse-warm`} />
