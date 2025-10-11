@@ -14,10 +14,10 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const coachData = {
-  flirty: { name: "Luna Love", personality: "flirty", greeting: "Hey gorgeous! Ready to turn heads? ✨", icon: Heart },
-  therapist: { name: "Dr. Sage", personality: "therapist", greeting: "I'm here to help you understand yourself better.", icon: Brain },
-  "tough-love": { name: "Phoenix Fire", personality: "tough-love", greeting: "Time for some real talk. Ready to level up?", icon: Zap },
-  chill: { name: "River Calm", personality: "chill", greeting: "Take a deep breath. Let's figure this out together.", icon: Coffee }
+  flirty: { name: "Luna Love", personality: "flirty", greeting: "Hey gorgeous! Ready to turn heads? ✨", icon: Heart, color: "from-pink-400 to-rose-500" },
+  therapist: { name: "Dr. Sage", personality: "therapist", greeting: "I'm here to help you understand yourself better.", icon: Brain, color: "from-purple-400 to-indigo-500" },
+  "tough-love": { name: "Phoenix Fire", personality: "tough-love", greeting: "Time for some real talk. Ready to level up?", icon: Zap, color: "from-orange-400 to-red-500" },
+  chill: { name: "River Calm", personality: "chill", greeting: "Take a deep breath. Let's figure this out together.", icon: Coffee, color: "from-emerald-400 to-teal-500" }
 };
 
 const Index = () => {
@@ -232,6 +232,7 @@ const Index = () => {
                   coachPersonality={coachData[selectedCoach as keyof typeof coachData]?.personality || "therapist"}
                   coachGreeting={coachData[selectedCoach as keyof typeof coachData]?.greeting || "I'm here to help you understand yourself better."}
                   coachIcon={coachData[selectedCoach as keyof typeof coachData]?.icon || Brain}
+                  coachColor={coachData[selectedCoach as keyof typeof coachData]?.color || "from-purple-400 to-indigo-500"}
                 />
               </div>
             </div>

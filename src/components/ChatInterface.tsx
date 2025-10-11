@@ -26,9 +26,10 @@ interface ChatInterfaceProps {
   coachPersonality: string;
   coachGreeting?: string;
   coachIcon?: LucideIcon;
+  coachColor?: string;
 }
 
-export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coachIcon }: ChatInterfaceProps) => {
+export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coachIcon, coachColor }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -448,14 +449,14 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
         <CardHeader className="pb-3 flex-shrink-0">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="p-2 rounded-full bg-gradient-to-r from-primary to-primary-glow">
+              <div className={`p-2 rounded-full bg-gradient-to-r ${coachColor || 'from-primary to-primary-glow'} shadow-lg`}>
                 {coachIcon ? (
                   (() => {
                     const CoachIcon = coachIcon;
-                    return <CoachIcon className="w-4 h-4 text-primary-foreground" />;
+                    return <CoachIcon className="w-4 h-4 text-white" />;
                   })()
                 ) : (
-                  <Bot className="w-4 h-4 text-primary-foreground" />
+                  <Bot className="w-4 h-4 text-white" />
                 )}
               </div>
               <span>{coachName}</span>
