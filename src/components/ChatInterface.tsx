@@ -44,6 +44,22 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
 
+  // Extract first name from user metadata or email
+  const getFirstName = () => {
+    if (!user) return '';
+    
+    // Try to get from user_metadata first
+    if (user.user_metadata?.full_name) {
+      const fullName = user.user_metadata.full_name;
+      const firstName = fullName.split(' ')[0];
+      return firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+    }
+    
+    // Fallback to email prefix
+    const emailPrefix = user.email?.split('@')[0] || '';
+    return emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1).toLowerCase();
+  };
+
   useEffect(() => {
     if (user) {
       loadUsageCount();
@@ -71,10 +87,13 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
       setIsTyping(false);
       
       // Always start with greeting to prevent disappearing first message
-      const greeting = coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`;
+      const firstName = getFirstName();
+      const personalizedGreeting = coachGreeting 
+        ? (firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting)
+        : (firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`);
       setMessages([{
         id: '1',
-        content: greeting,
+        content: personalizedGreeting,
         sender: 'coach',
         timestamp: new Date()
       }]);
@@ -121,10 +140,14 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
         localStorage.setItem(lastRefreshKey, today);
         
         // Clear messages immediately for daily refresh
+        const firstName = getFirstName();
+        const personalizedGreeting = coachGreeting 
+          ? (firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting)
+          : (firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`);
         setMessages([
           {
             id: '1',
-            content: coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`,
+            content: personalizedGreeting,
             sender: 'coach',
             timestamp: new Date()
           }
@@ -160,10 +183,14 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
           localStorage.removeItem(manualRefreshKey);
         } else {
           // If manually refreshed in the last 5 minutes, don't load history
+          const firstName = getFirstName();
+          const personalizedGreeting = coachGreeting 
+            ? (firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting)
+            : (firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`);
           setMessages([
             {
               id: '1',
-              content: coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`,
+              content: personalizedGreeting,
               sender: 'coach',
               timestamp: new Date()
             }
@@ -176,10 +203,14 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
       if (navigationRefresh) {
         // Clear navigation refresh flag and start fresh
         sessionStorage.removeItem(navigationRefreshKey);
+        const firstName = getFirstName();
+        const personalizedGreeting = coachGreeting 
+          ? (firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting)
+          : (firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`);
         setMessages([
           {
             id: '1',
-            content: coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`,
+            content: personalizedGreeting,
             sender: 'coach',
             timestamp: new Date()
           }
@@ -211,9 +242,13 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
         // Ensure the first message is always the greeting if it's not already there
         const hasGreeting = loadedMessages.length > 0 && loadedMessages[0].sender === 'coach';
         if (!hasGreeting) {
+          const firstName = getFirstName();
+          const personalizedGreeting = coachGreeting 
+            ? (firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting)
+            : (firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`);
           const greeting = {
             id: '1',
-            content: coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`,
+            content: personalizedGreeting,
             sender: 'coach' as const,
             timestamp: new Date()
           };
@@ -408,10 +443,13 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
       localStorage.setItem(manualRefreshKey, new Date().toISOString());
 
       // Reset to default greeting and clear all messages
-      const greeting = coachGreeting || `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`;
+      const firstName = getFirstName();
+      const personalizedGreeting = coachGreeting 
+        ? (firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting)
+        : (firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`);
       setMessages([{
         id: '1',
-        content: greeting,
+        content: personalizedGreeting,
         sender: 'coach',
         timestamp: new Date()
       }]);
