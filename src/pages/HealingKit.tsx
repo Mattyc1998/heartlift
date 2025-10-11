@@ -67,7 +67,7 @@ export default function HealingKit() {
             className="flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back
+            Coaches
           </Button>
         </div>
         
