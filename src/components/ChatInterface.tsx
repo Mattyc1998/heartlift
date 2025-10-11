@@ -112,15 +112,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
       setInputMessage('');
       setIsTyping(false);
       
-      // Always start with greeting to prevent disappearing first message
-      const personalizedGreeting = getRandomGreeting();
-      setMessages([{
-        id: '1',
-        content: personalizedGreeting,
-        sender: 'coach',
-        timestamp: new Date()
-      }]);
-      
+      // Load history first, then show greeting if no history
       checkForDailyRefresh();
       loadConversationHistory();
     }
@@ -225,14 +217,27 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
         
         setMessages(loadedMessages);
       } else {
-        // No history found, greeting should already be set from useEffect
-        // Don't overwrite it here
+        // No history found, show greeting
+        const personalizedGreeting = getRandomGreeting();
+        setMessages([{
+          id: '1',
+          content: personalizedGreeting,
+          sender: 'coach',
+          timestamp: new Date()
+        }]);
       }
       
       setConversationLoaded(true);
     } catch (error) {
       console.error("Error loading conversation history:", error);
-      // Don't overwrite the greeting that was already set in useEffect
+      // On error, show greeting
+      const personalizedGreeting = getRandomGreeting();
+      setMessages([{
+        id: '1',
+        content: personalizedGreeting,
+        sender: 'coach',
+        timestamp: new Date()
+      }]);
       setConversationLoaded(true);
     }
   };
