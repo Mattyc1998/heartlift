@@ -189,8 +189,17 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
         
         setMessages(loadedMessages);
       } else {
-        // No history found, show greeting
+        // No history found, show greeting and save it to database
         const personalizedGreeting = getRandomGreeting();
+        
+        // Save the greeting to the database
+        await supabase.rpc('insert_conversation_message', {
+          p_user_id: user.id,
+          p_coach_id: coachPersonality,
+          p_message_content: personalizedGreeting,
+          p_sender: 'coach'
+        });
+        
         setMessages([{
           id: '1',
           content: personalizedGreeting,
