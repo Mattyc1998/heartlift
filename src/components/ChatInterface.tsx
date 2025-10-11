@@ -121,28 +121,10 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
         timestamp: new Date()
       }]);
       
-      checkForNavigationRefresh();
       checkForDailyRefresh();
       loadConversationHistory();
     }
   }, [user, coachPersonality, coachName]);
-
-  const checkForNavigationRefresh = () => {
-    if (!user) return;
-    
-    // Check if user came from home page - clear conversation if so
-    const navigationKey = `fromHome_${user.id}`;
-    const cameFromHome = sessionStorage.getItem(navigationKey);
-    
-    if (cameFromHome === 'true') {
-      // Clear the flag and refresh conversation
-      sessionStorage.removeItem(navigationKey);
-      
-      // Set flag to start fresh conversation
-      const refreshKey = `navigationRefresh_${user.id}_${coachPersonality}`;
-      sessionStorage.setItem(refreshKey, new Date().toISOString());
-    }
-  };
 
   const checkForDailyRefresh = async () => {
     if (!user) return;
@@ -187,39 +169,17 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
     const manualRefreshKey = `manualRefresh_${user.id}_${coachPersonality}`;
     const manualRefresh = localStorage.getItem(manualRefreshKey);
     
-    // Check if this is a navigation refresh (from home page)
-    const navigationRefreshKey = `navigationRefresh_${user.id}_${coachPersonality}`;
-    const navigationRefresh = sessionStorage.getItem(navigationRefreshKey);
-    
-    if (manualRefresh || navigationRefresh) {
-      if (manualRefresh) {
-        const refreshTime = new Date(manualRefresh);
-        const now = new Date();
-        const timeDiff = now.getTime() - refreshTime.getTime();
-        const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
-        
-        // Clear the manual refresh flag after 5 minutes
-        if (timeDiff >= fiveMinutes) {
-          localStorage.removeItem(manualRefreshKey);
-        } else {
-          // If manually refreshed in the last 5 minutes, don't load history
-          const personalizedGreeting = getRandomGreeting();
-          setMessages([
-            {
-              id: '1',
-              content: personalizedGreeting,
-              sender: 'coach',
-              timestamp: new Date()
-            }
-          ]);
-          setConversationLoaded(true);
-          return;
-        }
-      }
+    if (manualRefresh) {
+      const refreshTime = new Date(manualRefresh);
+      const now = new Date();
+      const timeDiff = now.getTime() - refreshTime.getTime();
+      const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
       
-      if (navigationRefresh) {
-        // Clear navigation refresh flag and start fresh
-        sessionStorage.removeItem(navigationRefreshKey);
+      // Clear the manual refresh flag after 5 minutes
+      if (timeDiff >= fiveMinutes) {
+        localStorage.removeItem(manualRefreshKey);
+      } else {
+        // If manually refreshed in the last 5 minutes, don't load history
         const personalizedGreeting = getRandomGreeting();
         setMessages([
           {
