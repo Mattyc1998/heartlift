@@ -89,7 +89,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
       // Always start with greeting to prevent disappearing first message
       const firstName = getFirstName();
       const personalizedGreeting = coachGreeting 
-        ? (firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting)
+        ? coachGreeting.replace(/Hi there!|Hey gorgeous!/i, firstName ? `Hi ${firstName}!` : '$&')
         : (firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`);
       setMessages([{
         id: '1',
@@ -142,7 +142,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
         // Clear messages immediately for daily refresh
         const firstName = getFirstName();
         const personalizedGreeting = coachGreeting 
-          ? (firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting)
+          ? coachGreeting.replace(/Hi there!|Hey gorgeous!/i, firstName ? `Hi ${firstName}!` : '$&')
           : (firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`);
         setMessages([
           {
@@ -185,7 +185,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
           // If manually refreshed in the last 5 minutes, don't load history
           const firstName = getFirstName();
           const personalizedGreeting = coachGreeting 
-            ? (firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting)
+            ? coachGreeting.replace(/Hi there!|Hey gorgeous!/i, firstName ? `Hi ${firstName}!` : '$&')
             : (firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`);
           setMessages([
             {
@@ -205,7 +205,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
         sessionStorage.removeItem(navigationRefreshKey);
         const firstName = getFirstName();
         const personalizedGreeting = coachGreeting 
-          ? (firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting)
+          ? coachGreeting.replace(/Hi there!|Hey gorgeous!/i, firstName ? `Hi ${firstName}!` : '$&')
           : (firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`);
         setMessages([
           {
@@ -244,7 +244,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
         if (!hasGreeting) {
           const firstName = getFirstName();
           const personalizedGreeting = coachGreeting 
-            ? (firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting)
+            ? coachGreeting.replace(/Hi there!|Hey gorgeous!/i, firstName ? `Hi ${firstName}!` : '$&')
             : (firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`);
           const greeting = {
             id: '1',
@@ -445,7 +445,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreeting, coac
       // Reset to default greeting and clear all messages
       const firstName = getFirstName();
       const personalizedGreeting = coachGreeting 
-        ? (firstName ? `Hi ${firstName}! ${coachGreeting}` : coachGreeting)
+        ? coachGreeting.replace(/Hi there!|Hey gorgeous!/i, firstName ? `Hi ${firstName}!` : '$&')
         : (firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`);
       setMessages([{
         id: '1',
