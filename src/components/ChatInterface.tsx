@@ -192,27 +192,45 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
 
       if (error) throw error;
 
+      // Always generate a fresh greeting regardless of history
+      const personalizedGreeting = getRandomGreeting();
+
       if (history && history.length > 0) {
-        const loadedMessages: Message[] = history.map((msg, index) => ({
-          id: `${msg.id}-${index}`,
-          content: msg.message_content,
-          sender: msg.sender as 'user' | 'coach',
-          timestamp: new Date(msg.created_at)
-        }));
+        // Filter out old coach greetings (first message if it's from coach)
+        const conversationMessages = history.filter((msg, index) => 
+          !(index === 0 && msg.sender === 'coach')
+        );
         
-        setMessages(loadedMessages);
+        // If there are actual conversation messages (user messages), load them
+        if (conversationMessages.length > 0) {
+          const loadedMessages: Message[] = conversationMessages.map((msg, index) => ({
+            id: `${msg.id}-${index}`,
+            content: msg.message_content,
+            sender: msg.sender as 'user' | 'coach',
+            timestamp: new Date(msg.created_at)
+          }));
+          
+          // Add fresh greeting at the start
+          setMessages([
+            {
+              id: '1',
+              content: personalizedGreeting,
+              sender: 'coach',
+              timestamp: new Date()
+            },
+            ...loadedMessages
+          ]);
+        } else {
+          // Only greeting existed, show fresh one
+          setMessages([{
+            id: '1',
+            content: personalizedGreeting,
+            sender: 'coach',
+            timestamp: new Date()
+          }]);
+        }
       } else {
-        // No history found, show greeting and save it to database
-        const personalizedGreeting = getRandomGreeting();
-        
-        // Save the greeting to the database
-        await supabase.rpc('insert_conversation_message', {
-          p_user_id: user.id,
-          p_coach_id: coachPersonality,
-          p_message_content: personalizedGreeting,
-          p_sender: 'coach'
-        });
-        
+        // No history found, show greeting
         setMessages([{
           id: '1',
           content: personalizedGreeting,
