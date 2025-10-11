@@ -100,10 +100,6 @@ const Index = () => {
   }, [user, currentTab]);
 
   const handleGetStarted = () => {
-    // Set flag to indicate user is navigating from home to chat
-    if (user) {
-      sessionStorage.setItem(`fromHome_${user.id}`, 'true');
-    }
     setCurrentTab("chat");
   };
 
