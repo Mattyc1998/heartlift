@@ -574,14 +574,15 @@ export const AttachmentStyleQuiz = () => {
     setIsAnalyzing(true);
     
     try {
-      // Convert answers to text for analysis
-      const answerTexts = finalAnswers.map((answerIndex, questionIndex) => 
-        quizQuestions[questionIndex].options[answerIndex]
-      );
+      // Convert answers to text for analysis with their questions
+      const questionsAndAnswers = finalAnswers.map((answerIndex, questionIndex) => ({
+        question: quizQuestions[questionIndex].question,
+        answer: quizQuestions[questionIndex].options[answerIndex]
+      }));
 
       const { data, error } = await supabase.functions.invoke('analyze-attachment-style', {
         body: {
-          answers: answerTexts,
+          questionsAndAnswers,
           userId: user?.id,
         },
       });

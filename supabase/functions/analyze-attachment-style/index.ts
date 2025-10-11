@@ -31,25 +31,32 @@ serve(async (req) => {
   }
 
   try {
-    const { answers, userId } = await req.json();
+    const { questionsAndAnswers, userId } = await req.json();
 
     // Comprehensive input validation
-    if (!answers || !Array.isArray(answers)) {
+    if (!questionsAndAnswers || !Array.isArray(questionsAndAnswers)) {
       throw new Error('VALIDATION_ERROR');
     }
     
-    if (answers.length === 0 || answers.length > 50) {
+    if (questionsAndAnswers.length === 0 || questionsAndAnswers.length > 50) {
       throw new Error('VALIDATION_ERROR');
     }
 
-    // Validate and sanitize each answer
+    // Validate and sanitize each question/answer pair
+    const sanitizedQA = [];
     const sanitizedAnswers = [];
-    for (const answer of answers) {
-      if (typeof answer !== 'string' || answer.length > 1000) {
+    for (const qa of questionsAndAnswers) {
+      if (!qa || typeof qa !== 'object' || typeof qa.question !== 'string' || typeof qa.answer !== 'string') {
+        throw new Error('VALIDATION_ERROR');
+      }
+      if (qa.question.length > 1000 || qa.answer.length > 1000) {
         throw new Error('VALIDATION_ERROR');
       }
       // Remove control characters and trim
-      sanitizedAnswers.push(answer.trim().replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ''));
+      const cleanQuestion = qa.question.trim().replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+      const cleanAnswer = qa.answer.trim().replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+      sanitizedQA.push({ question: cleanQuestion, answer: cleanAnswer });
+      sanitizedAnswers.push(cleanAnswer);
     }
 
     if (!userId || typeof userId !== 'string' || !userId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
@@ -78,36 +85,44 @@ serve(async (req) => {
       'emotionally-aware': 'secure attachment with exceptional emotional intelligence and self-awareness'
     };
 
+    // Format questions and answers for the prompt
+    const qaContext = sanitizedQA.map((qa, i) => 
+      `Q${i + 1}: ${qa.question}\nA${i + 1}: ${qa.answer}`
+    ).join('\n\n');
+
     const analysisPrompt = `
-    You are an attachment theory expert. Analyze the ${attachmentStyle} attachment style (${styleDescriptions[attachmentStyle] || 'unique attachment pattern'}).
+    You are an attachment theory expert. Based on the user's answers to today's specific questions, analyze their ${attachmentStyle} attachment style (${styleDescriptions[attachmentStyle] || 'unique attachment pattern'}).
     
-    Provide a concise, encouraging analysis in valid JSON format only:
+    Here are the questions they answered and their responses:
+    ${qaContext}
+    
+    Provide a concise, encouraging analysis SPECIFIC TO THESE QUESTIONS AND ANSWERS in valid JSON format only:
 
     {
       "detailedBreakdown": {
-        "strengths": ["3-4 specific strengths for ${attachmentStyle}"],
-        "challenges": ["3-4 growth areas for ${attachmentStyle}"],
-        "relationshipPatterns": ["3-4 key patterns in relationships"]
+        "strengths": ["3-4 specific strengths based on their actual answers"],
+        "challenges": ["3-4 growth areas revealed by their responses"],
+        "relationshipPatterns": ["3-4 patterns evident from their answers"]
       },
-      "healingPath": "Actionable healing path for ${attachmentStyle} (100-150 words, focus on growth not problems)",
-      "triggers": ["4-5 common triggers specific to ${attachmentStyle}"],
+      "healingPath": "Actionable healing path directly addressing patterns in their answers (100-150 words, reference specific responses)",
+      "triggers": ["4-5 triggers evident from their answers"],
       "copingTechniques": [
         {
           "technique": "specific technique name",
-          "description": "how it helps ${attachmentStyle}",
-          "example": "concrete example to practice"
+          "description": "how it helps based on their responses",
+          "example": "concrete example relevant to their answers"
         }
       ],
       "dailyPractices": [
         {
           "practice": "practice name",
-          "description": "brief description tailored to ${attachmentStyle}",
+          "description": "brief description addressing their specific patterns",
           "frequency": "recommended frequency"
         }
       ]
     }
     
-    Be positive, specific, and actionable. Focus on growth potential.
+    CRITICAL: Your analysis must be directly relevant to their specific answers. Reference what they said, don't give generic attachment style information.
     `;
 
     // Create AbortController for timeout
