@@ -205,16 +205,6 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
           timestamp: new Date(msg.created_at)
         }));
         
-        // Always replace the first coach message with a fresh random greeting
-        const firstCoachIndex = loadedMessages.findIndex(msg => msg.sender === 'coach');
-        if (firstCoachIndex !== -1) {
-          const personalizedGreeting = getRandomGreeting();
-          loadedMessages[firstCoachIndex] = {
-            ...loadedMessages[firstCoachIndex],
-            content: personalizedGreeting
-          };
-        }
-        
         setMessages(loadedMessages);
       } else {
         // No history found, show greeting
