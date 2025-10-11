@@ -60,8 +60,8 @@ export default function AdvancedTools() {
             onClick={() => navigate("/?tab=coaches", { replace: true })}
             className="flex items-center gap-2"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back
+          <ArrowLeft className="w-4 h-4" />
+            Home
           </Button>
         </div>
         
