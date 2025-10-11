@@ -128,8 +128,8 @@ const Index = () => {
             )}
             {hasHealingKit && (
               <Link to="/healing-kit">
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Heart className="w-4 h-4 animate-heart-pulse" />
+                <Button variant="outline" className="flex items-center gap-2 hover:shadow-md transition-all">
+                  <Heart className="w-4 h-4 text-primary animate-heart-pulse" />
                   Healing Kit
                 </Button>
               </Link>

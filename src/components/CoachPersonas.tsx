@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Brain, Zap, Coffee, Sparkles, Star } from "lucide-react";
+import { useCoachLastInteraction } from "@/hooks/useCoachLastInteraction";
 
 const coaches = [
   {
@@ -156,16 +157,7 @@ interface CoachPersonasProps {
 }
 
 export const CoachPersonas = ({ onSelectCoach, selectedCoach, compact = false }: CoachPersonasProps) => {
-  // Simulated last interaction times - in real app, this would come from database
-  const getLastInteraction = (coachId: string) => {
-    const interactions: Record<string, string> = {
-      'therapist': 'Online now',
-      'flirty': 'Last spoke 2 days ago',
-      'tough-love': 'Last spoke 1 week ago',
-      'chill': 'Online now'
-    };
-    return interactions[coachId] || 'Available';
-  };
+  const { getLastInteractionText, loading } = useCoachLastInteraction();
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -215,16 +207,18 @@ export const CoachPersonas = ({ onSelectCoach, selectedCoach, compact = false }:
                       {coach.personality}
                     </CardDescription>
                     <div className={`flex items-center gap-1 mt-1 ${compact ? 'justify-center sm:justify-start text-xs' : 'text-xs sm:text-sm'}`}>
-                      {getLastInteraction(coach.id).includes('Online') ? (
+                      {loading ? (
+                        <span className="text-muted-foreground italic">Loading...</span>
+                      ) : getLastInteractionText(coach.id).includes('Online') ? (
                         <>
                           <span className="relative flex h-2 w-2">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                           </span>
-                          <span className="text-green-600 font-medium">{getLastInteraction(coach.id)}</span>
+                          <span className="text-green-600 font-medium">{getLastInteractionText(coach.id)}</span>
                         </>
                       ) : (
-                        <span className="text-muted-foreground italic">{getLastInteraction(coach.id)}</span>
+                        <span className="text-muted-foreground italic">{getLastInteractionText(coach.id)}</span>
                       )}
                     </div>
                   </div>
