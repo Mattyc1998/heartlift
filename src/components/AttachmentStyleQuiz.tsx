@@ -455,27 +455,22 @@ export const AttachmentStyleQuiz = () => {
 
       console.log('Edge function response:', { data, error });
 
-      // Handle any error from the edge function
-      if (error) {
-        console.error('Edge function error:', error);
-        throw new Error(`Function error: ${error.message || 'Unknown error'}`);
+      // The edge function always returns questions (either AI or fallback)
+      if (data && data.questions && Array.isArray(data.questions)) {
+        setQuizQuestions(data.questions);
+        console.log('Successfully loaded', data.questions.length, 'questions');
+        
+        if (data.fallback) {
+          console.log('Using fallback questions:', data.note);
+        }
+        return;
       }
 
-      // The edge function now always returns questions (either AI or fallback)
-      if (!data || !data.questions || !Array.isArray(data.questions)) {
-        throw new Error('Invalid response format from edge function');
-      }
-
-      setQuizQuestions(data.questions);
-      console.log('Successfully loaded', data.questions.length, 'questions');
-      
-      if (data.fallback) {
-        console.log('Using fallback questions:', data.note);
-      }
+      // Only throw error if we truly have no questions
+      throw new Error('No questions available');
       
     } catch (error) {
       console.error('Failed to load quiz questions:', error);
-      setQuestionsError('Failed to load quiz questions. Using backup questions.');
       
       // Ultimate fallback - hardcoded questions in the frontend
       const hardcodedQuestions = [
@@ -513,6 +508,7 @@ export const AttachmentStyleQuiz = () => {
       
       setQuizQuestions(hardcodedQuestions);
       console.log('Using hardcoded fallback questions');
+      // Don't set error state - we have questions to show
     } finally {
       setIsLoadingQuestions(false);
     }
@@ -735,34 +731,7 @@ export const AttachmentStyleQuiz = () => {
     );
   }
 
-  // Only show error if we truly have no questions to display
-  if (questionsError && quizQuestions.length === 0) {
-    return (
-      <div className="space-y-6 max-w-4xl mx-auto">
-        <Card>
-          <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="p-4 rounded-full bg-muted">
-                <Clock className="w-8 h-8 text-muted-foreground" />
-              </div>
-            </div>
-            <CardTitle className="text-2xl">New Questions Coming Soon</CardTitle>
-            <div className="flex items-center justify-center gap-4 mt-4">
-              <Badge variant="secondary" className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                Next questions: {formatTimeUntilNextChange()}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <p className="text-muted-foreground">
-              Fresh attachment style questions will be available soon. Check back in a few hours!
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  // Skip error display - we always have questions to show
 
   // Show completion status if user has completed today's quiz
   if (hasCompletedToday && !showResults) {
