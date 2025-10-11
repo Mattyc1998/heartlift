@@ -82,13 +82,20 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   // Function to get a random personalized greeting
   const getRandomGreeting = () => {
     const firstName = getFirstName();
+    
+    console.log('Coach greetings received:', coachGreetings);
+    console.log('Coach name:', coachName);
+    
     if (!coachGreetings || coachGreetings.length === 0) {
+      console.warn('No greetings array provided, using fallback');
       return firstName ? `Hi ${firstName}! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?` : `Hi there! I'm ${coachName}, and I'm here to support you through whatever you're going through. What's on your heart today?`;
     }
     
     // Randomly select one of the greeting variations
     const randomIndex = Math.floor(Math.random() * coachGreetings.length);
     const selectedGreeting = coachGreetings[randomIndex];
+    
+    console.log('Selected greeting:', selectedGreeting);
     
     // Prepend personalized greeting with first name
     return firstName ? `Hi ${firstName}! ${selectedGreeting}` : `Hello! ${selectedGreeting}`;
