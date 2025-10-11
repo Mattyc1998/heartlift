@@ -125,8 +125,14 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
     const lastRefresh = localStorage.getItem(lastRefreshKey);
     const today = new Date().toDateString();
     
-    // Only delete if lastRefresh exists AND it's a different day
-    if (lastRefresh && lastRefresh !== today) {
+    // First time with this coach - just set the date without deleting anything
+    if (!lastRefresh) {
+      localStorage.setItem(lastRefreshKey, today);
+      return;
+    }
+    
+    // Only delete if it's actually a different day
+    if (lastRefresh !== today) {
       // New day detected, refresh conversation
       try {
         await supabase
@@ -152,9 +158,6 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
       } catch (error) {
         console.error('Error during daily refresh:', error);
       }
-    } else if (!lastRefresh) {
-      // First time loading this coach, just set the date without deleting
-      localStorage.setItem(lastRefreshKey, today);
     }
   };
 
