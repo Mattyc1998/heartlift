@@ -17,7 +17,7 @@ export const SubscriptionStatusBanner = () => {
       <div className="flex items-center justify-center gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           <CheckCircle className="w-5 h-5 text-green-500" />
-          <span className="font-medium text-foreground">Active Subscriptions:</span>
+          <span className="font-medium text-foreground">Your Active Plans</span>
         </div>
         
         <div className="flex items-center gap-3">
