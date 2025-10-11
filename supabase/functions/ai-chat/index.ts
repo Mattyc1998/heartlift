@@ -2,25 +2,11 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-// CORS configuration - restrict to known origins in production
-const getAllowedOrigin = (requestOrigin: string | null): string => {
-  const allowedOrigins = [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'https://yourdomain.com', // Replace with your production domain
-  ];
-  
-  if (requestOrigin && allowedOrigins.includes(requestOrigin)) {
-    return requestOrigin;
-  }
-  return allowedOrigins[0];
-};
-
-const getCorsHeaders = (origin: string) => ({
-  'Access-Control-Allow-Origin': origin,
+// CORS configuration
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Credentials': 'true',
-});
+};
 
 interface ChatRequest {
   message: string;
@@ -345,9 +331,6 @@ IMPORTANT: Use this context to remember what the user has shared before and refe
 }
 
 serve(async (req) => {
-  const origin = req.headers.get('origin') || '';
-  const corsHeaders = getCorsHeaders(origin);
-  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
