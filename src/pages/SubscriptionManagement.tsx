@@ -17,10 +17,8 @@ export const SubscriptionManagement = () => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [newEmail, setNewEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [isChangingEmail, setIsChangingEmail] = useState(false);
   const { isPremium, subscriptionStatus, checkSubscription, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -145,40 +143,6 @@ export const SubscriptionManagement = () => {
       });
     } finally {
       setIsChangingPassword(false);
-    }
-  };
-
-  const handleEmailChange = async () => {
-    if (!newEmail || !newEmail.includes("@")) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid email address",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsChangingEmail(true);
-    try {
-      const { error } = await supabase.auth.updateUser({
-        email: newEmail
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Email Update Requested",
-        description: "Please check both your old and new email for confirmation links.",
-      });
-      setNewEmail("");
-    } catch (error: any) {
-      toast({
-        title: "Error", 
-        description: error.message || "Failed to update email",
-        variant: "destructive",
-      });
-    } finally {
-      setIsChangingEmail(false);
     }
   };
 
@@ -446,38 +410,23 @@ export const SubscriptionManagement = () => {
             {/* Change Email */}
             <div className="border-t pt-6 space-y-4">
               <h4 className="font-medium">Change Email Address</h4>
-              <div className="space-y-2">
-                <Label htmlFor="current-email">Current Email</Label>
-                <Input
-                  id="current-email"
-                  type="email"
-                  value={user?.email || ""}
-                  disabled
-                  className="bg-muted"
-                />
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Mail className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm text-blue-900">
+                      If you would like to change your email address, please email{" "}
+                      <a 
+                        href="mailto:support@heart-lift.com" 
+                        className="font-medium underline hover:text-blue-700"
+                      >
+                        support@heart-lift.com
+                      </a>
+                      {" "}and we will make the change for you.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="new-email">New Email Address</Label>
-                <Input
-                  id="new-email"
-                  type="email"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder="Enter new email address"
-                />
-              </div>
-              <Button 
-                onClick={handleEmailChange}
-                disabled={!newEmail || isChangingEmail}
-                className="w-full md:w-auto"
-                variant="outline"
-              >
-                <Mail className="w-4 h-4 mr-2" />
-                {isChangingEmail ? "Updating..." : "Update Email"}
-              </Button>
-              <p className="text-sm text-muted-foreground">
-                You'll receive confirmation emails at both your current and new email addresses.
-              </p>
             </div>
           </CardContent>
         </Card>
