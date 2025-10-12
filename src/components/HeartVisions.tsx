@@ -83,14 +83,14 @@ export function HeartVisions() {
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-full bg-gradient-to-r from-primary to-primary-glow">
+      <CardHeader className="space-y-4 pb-4">
+        <div className="flex items-start gap-3 sm:items-center">
+          <div className="p-2 rounded-full bg-gradient-to-r from-primary to-primary-glow shrink-0">
             <Palette className="w-5 h-5 text-primary-foreground" />
           </div>
-          <div>
-            <CardTitle>HeartVisions</CardTitle>
-            <CardDescription>
+          <div className="space-y-2">
+            <CardTitle className="text-xl sm:text-2xl">HeartVisions</CardTitle>
+            <CardDescription className="text-sm sm:text-base leading-relaxed">
               Create your own emotional visuals. Type what you'd like to see, and HeartLift will
               generate a personalised image that captures your feelings or intentions.
             </CardDescription>
@@ -99,8 +99,8 @@ export function HeartVisions() {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="vision-prompt" className="text-sm font-medium">
+          <div className="space-y-3">
+            <label htmlFor="vision-prompt" className="text-sm font-medium block">
               What would you like to visualise today?
             </label>
             <Textarea
