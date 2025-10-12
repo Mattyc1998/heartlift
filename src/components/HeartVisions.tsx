@@ -186,7 +186,7 @@ export function HeartVisions() {
               </div>
             </div>
             
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 onClick={handleDownload}
                 variant="outline"
@@ -203,7 +203,7 @@ export function HeartVisions() {
                 size="lg"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Generate Another Vision
+                Generate Another
               </Button>
             </div>
           </div>
