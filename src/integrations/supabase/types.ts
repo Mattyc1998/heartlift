@@ -340,6 +340,36 @@ export type Database = {
         }
         Relationships: []
       }
+      heart_visions: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          image_url: string
+          prompt: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_url: string
+          prompt: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+          prompt?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       journal_prompts: {
         Row: {
           category: string | null

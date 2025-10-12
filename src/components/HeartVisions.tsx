@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Palette, Heart, RefreshCw, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SavedVision {
   id: string;
@@ -26,11 +27,36 @@ export function HeartVisions() {
   const [showGallery, setShowGallery] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("heartVisions");
-    if (saved) {
-      setSavedVisions(JSON.parse(saved));
+    if (user?.id) {
+      loadVisions();
     }
-  }, []);
+  }, [user?.id]);
+
+  const loadVisions = async () => {
+    if (!user?.id) return;
+
+    const { data, error } = await supabase
+      .from('heart_visions')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error loading visions:', error);
+      return;
+    }
+
+    if (data) {
+      const formattedVisions = data.map(v => ({
+        id: v.id,
+        url: v.image_url,
+        caption: v.caption,
+        prompt: v.prompt,
+        timestamp: new Date(v.created_at).getTime(),
+      }));
+      setSavedVisions(formattedVisions);
+    }
+  };
 
   const getFirstName = () => {
     if (!user?.user_metadata?.full_name) return "friend";
@@ -98,27 +124,52 @@ export function HeartVisions() {
     return supportiveMessages[Math.floor(Math.random() * supportiveMessages.length)];
   };
 
-  const handleSaveToGallery = () => {
-    if (!generatedImage || !prompt) return;
+  const handleSaveToGallery = async () => {
+    if (!generatedImage || !prompt || !user?.id) return;
 
-    const newVision: SavedVision = {
-      id: Date.now().toString(),
-      url: generatedImage.url,
-      caption: generatedImage.caption,
-      prompt: prompt,
-      timestamp: Date.now(),
-    };
+    const { data, error } = await supabase
+      .from('heart_visions')
+      .insert({
+        user_id: user.id,
+        image_url: generatedImage.url,
+        prompt: prompt,
+        caption: generatedImage.caption,
+      })
+      .select()
+      .single();
 
-    const updated = [newVision, ...savedVisions];
-    setSavedVisions(updated);
-    localStorage.setItem("heartVisions", JSON.stringify(updated));
-    toast.success("Vision saved to gallery!");
+    if (error) {
+      console.error('Error saving vision:', error);
+      toast.error("Failed to save vision");
+      return;
+    }
+
+    if (data) {
+      const newVision: SavedVision = {
+        id: data.id,
+        url: data.image_url,
+        caption: data.caption,
+        prompt: data.prompt,
+        timestamp: new Date(data.created_at).getTime(),
+      };
+      setSavedVisions([newVision, ...savedVisions]);
+      toast.success("Vision saved to gallery!");
+    }
   };
 
-  const handleDeleteVision = (id: string) => {
-    const updated = savedVisions.filter(v => v.id !== id);
-    setSavedVisions(updated);
-    localStorage.setItem("heartVisions", JSON.stringify(updated));
+  const handleDeleteVision = async (id: string) => {
+    const { error } = await supabase
+      .from('heart_visions')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting vision:', error);
+      toast.error("Failed to remove vision");
+      return;
+    }
+
+    setSavedVisions(savedVisions.filter(v => v.id !== id));
     toast.success("Vision removed from gallery");
   };
 
