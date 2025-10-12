@@ -6,10 +6,11 @@ import { GuidedPrograms } from "@/components/GuidedPrograms";
 import { ConversationAnalyser } from "@/components/ConversationAnalyser";
 import { TextSuggestionHelper } from "@/components/TextSuggestionHelper";
 import { PersonalisedInsights } from "@/components/PersonalisedInsights";
+import { HeartVisions } from "@/components/HeartVisions";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Crown, Heart, Target, ArrowLeft, MessageSquare, Bot, Brain, BookOpen } from "lucide-react";
+import { Crown, Heart, Target, ArrowLeft, MessageSquare, Bot, Brain, BookOpen, Palette } from "lucide-react";
 
 export default function AdvancedTools() {
   const { user, isPremium } = useAuth();
@@ -131,6 +132,14 @@ export default function AdvancedTools() {
               <BookOpen className="w-4 h-4" />
               Guided Programs
             </Button>
+            <Button
+              variant={activeSection === "heartvisions" ? "default" : "outline"}
+              onClick={() => setActiveSection("heartvisions")}
+              className="flex items-center gap-2"
+            >
+              <Palette className="w-4 h-4" />
+              HeartVisions
+            </Button>
           </div>
         </Card>
 
@@ -141,6 +150,7 @@ export default function AdvancedTools() {
           {activeSection === "suggestions" && <TextSuggestionHelper />}
           {activeSection === "insights" && <PersonalisedInsights />}
           {activeSection === "programs" && <GuidedPrograms />}
+          {activeSection === "heartvisions" && <HeartVisions />}
         </div>
       </div>
     </div>
