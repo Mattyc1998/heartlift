@@ -33,7 +33,7 @@ serve(async (req) => {
     const { error: purchaseError } = await supabaseClient.from("healing_kit_purchases").upsert({
       user_id: user.id,
       stripe_session_id: "test_healing_kit_session",
-      amount: 399,
+      amount: 499,
       currency: "gbp",
       status: "completed",
       stripe_payment_intent_id: "test_payment_intent",

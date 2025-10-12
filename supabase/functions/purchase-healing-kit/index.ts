@@ -115,7 +115,7 @@ serve(async (req) => {
                 name: "Healing Kit - 30-Day Breakup Recovery Package",
                 description: "Complete break-up recovery package with healing plan, affirmations, meditations, and more."
               },
-              unit_amount: 399, // £3.99 in pence
+              unit_amount: 499, // £4.99 in pence
             },
             quantity: 1,
           },
@@ -146,7 +146,7 @@ serve(async (req) => {
       .insert({
         user_id: user.id,
         stripe_session_id: session.id,
-        amount: 399,
+        amount: 499,
         currency: "gbp",
         status: "pending"
       });

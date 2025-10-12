@@ -66,7 +66,7 @@ export const HealingKitPurchase = () => {
             </CardTitle>
             <div className="space-y-2">
               <div className="flex items-baseline justify-center space-x-1">
-                <span className="text-4xl font-bold text-foreground">£3.99</span>
+                <span className="text-4xl font-bold text-foreground">£4.99</span>
               </div>
               <Badge variant="secondary" className="bg-green-100 text-green-800">
                 Lifetime Access

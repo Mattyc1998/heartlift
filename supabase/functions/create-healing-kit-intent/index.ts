@@ -85,7 +85,7 @@ serve(async (req) => {
     }
 
     // Create PaymentIntent
-    const amount = 399; // £3.99 in pence
+    const amount = 499; // £4.99 in pence
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: 'gbp',

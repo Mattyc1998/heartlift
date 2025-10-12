@@ -93,7 +93,7 @@ export const HealingKitCard = () => {
         <div className="border-t pt-4">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-2xl font-bold text-primary">£3.99</p>
+              <p className="text-2xl font-bold text-primary">£4.99</p>
               <p className="text-xs text-muted-foreground">One-time purchase • Lifetime access</p>
             </div>
             <div>

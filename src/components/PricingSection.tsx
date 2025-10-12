@@ -50,7 +50,7 @@ const plans = [
   },
   {
     name: "Healing Kit",
-    price: "£3.99",
+    price: "£4.99",
     period: "one-time",
     icon: Crown,
     description: "Complete break-up recovery package",
