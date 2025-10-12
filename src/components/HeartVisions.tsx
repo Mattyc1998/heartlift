@@ -78,7 +78,7 @@ export function HeartVisions() {
     }
 
     if (dailyCount >= 5) {
-      toast.error("Daily limit reached. You can create 5 images per day.");
+      toast.error("You have hit your daily limit of images today, please wait until tomorrow to generate more!");
       return;
     }
 
