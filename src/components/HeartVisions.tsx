@@ -25,6 +25,7 @@ export function HeartVisions() {
   } | null>(null);
   const [savedVisions, setSavedVisions] = useState<SavedVision[]>([]);
   const [showGallery, setShowGallery] = useState(false);
+  const [dailyCount, setDailyCount] = useState(0);
 
   useEffect(() => {
     if (user?.id) {
@@ -55,6 +56,13 @@ export function HeartVisions() {
         timestamp: new Date(v.created_at).getTime(),
       }));
       setSavedVisions(formattedVisions);
+      
+      // Count today's images
+      const today = new Date().toDateString();
+      const todayCount = data.filter(v => 
+        new Date(v.created_at).toDateString() === today
+      ).length;
+      setDailyCount(todayCount);
     }
   };
 
@@ -66,6 +74,11 @@ export function HeartVisions() {
   const generateImage = async () => {
     if (!prompt.trim()) {
       toast.error("Please enter what you'd like to visualise");
+      return;
+    }
+
+    if (dailyCount >= 5) {
+      toast.error("Daily limit reached. You can create 5 images per day.");
       return;
     }
 
@@ -97,11 +110,12 @@ export function HeartVisions() {
       
       if (data.image || data.image_url) {
         setGeneratedImage({
-          url: data.image || data.image_url,
-          caption: data.caption,
-        });
-        toast.success("Your vision has been created!");
-      } else {
+        url: data.image || data.image_url,
+        caption: data.caption,
+      });
+      setDailyCount(prev => prev + 1);
+      toast.success("Your vision has been created!");
+    } else {
         throw new Error("No image URL in response");
       }
     } catch (error) {
@@ -190,6 +204,9 @@ export function HeartVisions() {
             <CardDescription className="text-sm sm:text-base leading-relaxed">
               Create your own emotional visuals. Type what you'd like to see, and HeartVisions will
               generate a personalised image that captures your feelings or intentions.
+              <span className="block mt-2 text-xs">
+                {dailyCount}/5 images created today
+              </span>
             </CardDescription>
           </div>
         </div>
