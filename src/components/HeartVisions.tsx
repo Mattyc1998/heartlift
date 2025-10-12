@@ -1,10 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Palette, Download, RefreshCw } from "lucide-react";
+import { Loader2, Palette, Heart, RefreshCw, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
+
+interface SavedVision {
+  id: string;
+  url: string;
+  caption?: string;
+  prompt: string;
+  timestamp: number;
+}
 
 export function HeartVisions() {
   const { user } = useAuth();
@@ -14,6 +22,15 @@ export function HeartVisions() {
     url: string;
     caption?: string;
   } | null>(null);
+  const [savedVisions, setSavedVisions] = useState<SavedVision[]>([]);
+  const [showGallery, setShowGallery] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("heartVisions");
+    if (saved) {
+      setSavedVisions(JSON.parse(saved));
+    }
+  }, []);
 
   const getFirstName = () => {
     if (!user?.user_metadata?.full_name) return "friend";
@@ -81,25 +98,28 @@ export function HeartVisions() {
     return supportiveMessages[Math.floor(Math.random() * supportiveMessages.length)];
   };
 
-  const handleDownload = async () => {
-    if (!generatedImage) return;
+  const handleSaveToGallery = () => {
+    if (!generatedImage || !prompt) return;
 
-    try {
-      const response = await fetch(generatedImage.url);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `heart-vision-${Date.now()}.png`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      toast.success("Image saved successfully!");
-    } catch (error) {
-      console.error("Error downloading image:", error);
-      toast.error("Failed to save image");
-    }
+    const newVision: SavedVision = {
+      id: Date.now().toString(),
+      url: generatedImage.url,
+      caption: generatedImage.caption,
+      prompt: prompt,
+      timestamp: Date.now(),
+    };
+
+    const updated = [newVision, ...savedVisions];
+    setSavedVisions(updated);
+    localStorage.setItem("heartVisions", JSON.stringify(updated));
+    toast.success("Vision saved to gallery!");
+  };
+
+  const handleDeleteVision = (id: string) => {
+    const updated = savedVisions.filter(v => v.id !== id);
+    setSavedVisions(updated);
+    localStorage.setItem("heartVisions", JSON.stringify(updated));
+    toast.success("Vision removed from gallery");
   };
 
   const handleGenerateAnother = () => {
@@ -117,96 +137,160 @@ export function HeartVisions() {
           <div className="space-y-2">
             <CardTitle className="text-xl sm:text-2xl">HeartVisions</CardTitle>
             <CardDescription className="text-sm sm:text-base leading-relaxed">
-              Create your own emotional visuals. Type what you'd like to see, and HeartLift will
+              Create your own emotional visuals. Type what you'd like to see, and HeartVisions will
               generate a personalised image that captures your feelings or intentions.
             </CardDescription>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <label htmlFor="vision-prompt" className="text-sm font-medium block">
-              What would you like to visualise today?
-            </label>
-            <Textarea
-              id="vision-prompt"
-              placeholder="a peaceful sunrise over calm water"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              className="min-h-[100px] resize-none"
-              disabled={isGenerating}
-            />
-          </div>
-          
+        <div className="flex gap-2 mb-4">
           <Button
-            onClick={generateImage}
-            disabled={isGenerating || !prompt.trim()}
-            className="w-full"
-            size="lg"
+            onClick={() => setShowGallery(false)}
+            variant={!showGallery ? "default" : "outline"}
+            size="sm"
           >
-            {isGenerating ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Creating your vision...
-              </>
-            ) : (
-              <>
-                <Palette className="w-4 h-4 mr-2" />
-                Generate Vision
-              </>
-            )}
+            <Palette className="w-4 h-4 mr-2" />
+            Create
+          </Button>
+          <Button
+            onClick={() => setShowGallery(true)}
+            variant={showGallery ? "default" : "outline"}
+            size="sm"
+          >
+            <ImageIcon className="w-4 h-4 mr-2" />
+            Gallery ({savedVisions.length})
           </Button>
         </div>
 
-        {isGenerating && (
-          <div className="space-y-4 animate-in fade-in duration-500">
-            <div className="p-8 rounded-lg bg-muted/50 border text-center">
-              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-              <p className="text-lg font-medium mb-2">Generating your image</p>
-              <p className="text-sm text-muted-foreground">
-                Creating a visual that captures your feelings...
-              </p>
-            </div>
+        {showGallery ? (
+          <div className="space-y-4">
+            {savedVisions.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>No saved visions yet</p>
+                <p className="text-sm">Create and save your first vision to see it here</p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {savedVisions.map((vision) => (
+                  <div key={vision.id} className="p-4 rounded-lg bg-muted/50 border space-y-3">
+                    <div className="flex justify-between items-start gap-2">
+                      <p className="text-sm text-muted-foreground italic flex-1">
+                        {vision.caption || `"${vision.prompt}"`}
+                      </p>
+                      <Button
+                        onClick={() => handleDeleteVision(vision.id)}
+                        variant="ghost"
+                        size="sm"
+                        className="shrink-0"
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                    <div className="rounded-lg overflow-hidden border shadow-lg">
+                      <img
+                        src={vision.url}
+                        alt={vision.prompt}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(vision.timestamp).toLocaleDateString()} at{" "}
+                      {new Date(vision.timestamp).toLocaleTimeString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
-
-        {generatedImage && !isGenerating && (
-          <div className="space-y-4 animate-in fade-in duration-500">
-            <div className="p-4 rounded-lg bg-muted/50 border">
-              <p className="text-sm text-muted-foreground italic mb-3">
-                {generatedImage.caption || getRandomMessage()}
-              </p>
-              <div className="rounded-lg overflow-hidden border shadow-lg">
-                <img
-                  src={generatedImage.url}
-                  alt="Your emotional vision"
-                  className="w-full h-auto"
+        ) : (
+          <>
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <label htmlFor="vision-prompt" className="text-sm font-medium block">
+                  What would you like to visualise today?
+                </label>
+                <Textarea
+                  id="vision-prompt"
+                  placeholder="a peaceful sunrise over calm water"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="min-h-[100px] resize-none"
+                  disabled={isGenerating}
                 />
               </div>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-3">
+              
               <Button
-                onClick={handleDownload}
-                variant="outline"
-                className="flex-1"
+                onClick={generateImage}
+                disabled={isGenerating || !prompt.trim()}
+                className="w-full"
                 size="lg"
               >
-                <Download className="w-4 h-4 mr-2" />
-                Save Image
-              </Button>
-              <Button
-                onClick={handleGenerateAnother}
-                variant="default"
-                className="flex-1"
-                size="lg"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Generate Another
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Creating your vision...
+                  </>
+                ) : (
+                  <>
+                    <Palette className="w-4 h-4 mr-2" />
+                    Generate Vision
+                  </>
+                )}
               </Button>
             </div>
-          </div>
+
+            {isGenerating && (
+              <div className="space-y-4 animate-in fade-in duration-500">
+                <div className="p-8 rounded-lg bg-muted/50 border text-center">
+                  <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+                  <p className="text-lg font-medium mb-2">Generating your image</p>
+                  <p className="text-sm text-muted-foreground">
+                    Creating a visual that captures your feelings...
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {generatedImage && !isGenerating && (
+              <div className="space-y-4 animate-in fade-in duration-500">
+                <div className="p-4 rounded-lg bg-muted/50 border">
+                  <p className="text-sm text-muted-foreground italic mb-3">
+                    {generatedImage.caption || getRandomMessage()}
+                  </p>
+                  <div className="rounded-lg overflow-hidden border shadow-lg">
+                    <img
+                      src={generatedImage.url}
+                      alt="Your emotional vision"
+                      className="w-full h-auto"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button
+                    onClick={handleSaveToGallery}
+                    variant="outline"
+                    className="flex-1"
+                    size="lg"
+                  >
+                    <Heart className="w-4 h-4 mr-2" />
+                    Save to Gallery
+                  </Button>
+                  <Button
+                    onClick={handleGenerateAnother}
+                    variant="default"
+                    className="flex-1"
+                    size="lg"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Generate Another
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </CardContent>
     </Card>
