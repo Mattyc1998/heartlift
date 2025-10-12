@@ -28,6 +28,7 @@ export const PremiumPurchase = () => {
     "Daily attachment style quiz with AI analysis",
     "Conversation analyser with AI insights",
     "Text suggestion helper for all scenarios",
+    "Create personalised AI-generated visuals",
     "Priority support",
   ], []);
 
@@ -85,9 +86,9 @@ export const PremiumPurchase = () => {
               </h3>
               <ul className="space-y-3">
                 {features.map((feature, index) => (
-                  <li key={index} className="flex items-start space-x-3">
-                    <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                    <span className="text-foreground">{feature}</span>
+                  <li key={index} className="flex items-start space-x-2 sm:space-x-3">
+                    <Check className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm sm:text-base text-foreground leading-relaxed">{feature}</span>
                   </li>
                 ))}
               </ul>
