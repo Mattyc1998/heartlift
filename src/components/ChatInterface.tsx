@@ -472,7 +472,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2 sm:space-y-4">
       <UsageCounter 
         currentUsage={usageCount}
         onUpgradeClick={() => {
