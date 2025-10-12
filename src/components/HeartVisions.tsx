@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Palette } from "lucide-react";
+import { Loader2, Palette, Download, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 export function HeartVisions() {
@@ -79,6 +79,32 @@ export function HeartVisions() {
 
   const getRandomMessage = () => {
     return supportiveMessages[Math.floor(Math.random() * supportiveMessages.length)];
+  };
+
+  const handleDownload = async () => {
+    if (!generatedImage) return;
+
+    try {
+      const response = await fetch(generatedImage.url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `heart-vision-${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success("Image saved successfully!");
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      toast.error("Failed to save image");
+    }
+  };
+
+  const handleGenerateAnother = () => {
+    setPrompt("");
+    setGeneratedImage(null);
   };
 
   return (
@@ -158,6 +184,27 @@ export function HeartVisions() {
                   className="w-full h-auto"
                 />
               </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button
+                onClick={handleDownload}
+                variant="outline"
+                className="flex-1"
+                size="lg"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Save Image
+              </Button>
+              <Button
+                onClick={handleGenerateAnother}
+                variant="default"
+                className="flex-1"
+                size="lg"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Generate Another Vision
+              </Button>
             </div>
           </div>
         )}
