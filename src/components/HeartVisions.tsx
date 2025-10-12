@@ -52,9 +52,9 @@ export function HeartVisions() {
 
       const data = await response.json();
       
-      if (data.image_url) {
+      if (data.image || data.image_url) {
         setGeneratedImage({
-          url: data.image_url,
+          url: data.image || data.image_url,
           caption: data.caption,
         });
         toast.success("Your vision has been created!");
