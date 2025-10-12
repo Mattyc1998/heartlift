@@ -297,9 +297,9 @@ async function generateAIResponse(
   reflectionContext: string = "",
   userId: string
 ): Promise<string> {
-  const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-  if (!openAIApiKey) {
-    console.log('No OpenAI API key found, using basic response');
+  const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+  if (!lovableApiKey) {
+    console.log('No Lovable API key found, using basic response');
     return getBasicResponse(message, coach, coach.name.toLowerCase().replace(/\s+/g, '-'));
   }
 
@@ -320,23 +320,22 @@ IMPORTANT: Use this context to remember what the user has shared before and refe
       { role: 'user', content: message }
     ];
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'google/gemini-2.5-flash',
         messages: messages,
         max_tokens: 500,
-        temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`OpenAI API error: ${response.status} - ${errorText}`);
+      console.error(`Lovable AI API error: ${response.status} - ${errorText}`);
       // Fall back to basic response on API error
       return getBasicResponse(message, coach, coach.name.toLowerCase().replace(/\s+/g, '-'));
     }
@@ -344,7 +343,7 @@ IMPORTANT: Use this context to remember what the user has shared before and refe
     const data = await response.json();
     return data.choices[0].message.content;
   } catch (error) {
-    console.error('Error calling OpenAI API:', error);
+    console.error('Error calling Lovable AI API:', error);
     // Fall back to basic response on any error
     return getBasicResponse(message, coach, coach.name.toLowerCase().replace(/\s+/g, '-'));
   }
