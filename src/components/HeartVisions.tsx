@@ -133,7 +133,19 @@ export function HeartVisions() {
           </Button>
         </div>
 
-        {generatedImage && (
+        {isGenerating && (
+          <div className="space-y-4 animate-in fade-in duration-500">
+            <div className="p-8 rounded-lg bg-muted/50 border text-center">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+              <p className="text-lg font-medium mb-2">Generating your image</p>
+              <p className="text-sm text-muted-foreground">
+                Creating a visual that captures your feelings...
+              </p>
+            </div>
+          </div>
+        )}
+
+        {generatedImage && !isGenerating && (
           <div className="space-y-4 animate-in fade-in duration-500">
             <div className="p-4 rounded-lg bg-muted/50 border">
               <p className="text-sm text-muted-foreground italic mb-3">
