@@ -482,7 +482,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
         isPremium={isPremium}
       />
 
-      <Card className="h-[calc(100vh-80px)] sm:h-[600px] max-h-[800px] flex flex-col shadow-gentle">
+      <Card className="h-[calc(100dvh-100px)] sm:h-[600px] max-h-[800px] flex flex-col shadow-gentle overflow-hidden">
         <CardHeader className="pb-3 flex-shrink-0">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -512,8 +512,8 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
           </CardTitle>
         </CardHeader>
         
-        <CardContent className="flex-1 flex flex-col p-0 min-h-0">
-          <ScrollArea className="flex-1 px-4 h-full">
+        <CardContent className="flex-1 flex flex-col p-0 min-h-0 overflow-hidden">
+          <ScrollArea className="flex-1 px-4 h-full" type="auto">
             <div className="space-y-4 pb-4 pt-2">
               {messages.map((message) => (
                 <div
@@ -594,7 +594,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
           </ScrollArea>
           
           
-          <div className="p-3 sm:p-4 border-t border-border">
+          <div className="p-3 sm:p-4 border-t border-border flex-shrink-0 bg-background">
             <div className="flex space-x-2">
               <Input
                 value={inputMessage}

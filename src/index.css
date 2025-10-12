@@ -307,4 +307,25 @@ All colors MUST be HSL.
       min-height: -webkit-fill-available;
     }
   }
+
+  /* iOS-specific fixes for chat interface */
+  @supports (-webkit-touch-callout: none) {
+    /* Ensure proper height on iOS devices */
+    html {
+      height: -webkit-fill-available;
+    }
+    
+    body {
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+    }
+  }
+
+  /* Prevent page scroll when keyboard opens on iOS */
+  @media screen and (max-width: 768px) {
+    body.keyboard-open {
+      position: fixed;
+      width: 100%;
+    }
+  }
 }
