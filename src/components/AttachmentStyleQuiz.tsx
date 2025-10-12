@@ -503,6 +503,76 @@ export const AttachmentStyleQuiz = () => {
             "Shutting down emotions and handling things alone",
             "Experiencing intense, conflicting emotions"
           ]
+        },
+        {
+          id: 4,
+          question: "When someone gets close emotionally, you tend to:",
+          options: [
+            "Welcome the closeness and feel secure",
+            "Feel both excited and terrified",
+            "Create distance to maintain independence",
+            "Feel unpredictable emotions"
+          ]
+        },
+        {
+          id: 5,
+          question: "Your view of yourself in relationships is:",
+          options: [
+            "Confident and worthy of love",
+            "Dependent on others' validation",
+            "Self-reliant but emotionally distant",
+            "Inconsistent and self-doubting"
+          ]
+        },
+        {
+          id: 6,
+          question: "When your partner needs space, you:",
+          options: [
+            "Respect their need while maintaining connection",
+            "Feel rejected and seek reassurance",
+            "Feel relieved and prefer the distance",
+            "Feel confused about how to respond"
+          ]
+        },
+        {
+          id: 7,
+          question: "Trust in relationships comes:",
+          options: [
+            "Naturally with the right person",
+            "Hard - you want to trust but fear disappointment",
+            "Very slowly - you need consistent proof",
+            "In waves - sometimes you trust, sometimes you don't"
+          ]
+        },
+        {
+          id: 8,
+          question: "When you're upset, you prefer to:",
+          options: [
+            "Talk it through with your partner openly",
+            "Seek immediate comfort and reassurance",
+            "Process your feelings alone first",
+            "Sometimes seek comfort, sometimes withdraw"
+          ]
+        },
+        {
+          id: 9,
+          question: "Your biggest fear in relationships is:",
+          options: [
+            "Growing apart due to lack of communication",
+            "Being abandoned or rejected",
+            "Losing your sense of self",
+            "Not knowing if the relationship is stable"
+          ]
+        },
+        {
+          id: 10,
+          question: "Physical affection in relationships feels:",
+          options: [
+            "Natural and comforting",
+            "Amazing but sometimes you crave more",
+            "Nice but you need personal space too",
+            "Complicated - sometimes you want it, sometimes you don't"
+          ]
         }
       ];
       
