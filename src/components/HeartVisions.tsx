@@ -48,7 +48,7 @@ export function HeartVisions() {
 
     try {
       const response = await fetch(
-        "https://n8n-self-host-cj60.onrender.com/webhook-test/63a905a2-3c6c-460f-bdac-675d3a60e34f",
+        "https://n8n-self-host-cj60.onrender.com/webhook/63a905a2-3c6c-460f-bdac-675d3a60e34f",
         {
           method: "POST",
           headers: {
