@@ -103,26 +103,25 @@ serve(async (req) => {
     
     console.log(`Generating suggestions for ${messageType} with ${relationship} relationship`);
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${Deno.env.get('LOVABLE_API_KEY')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: selectedPrompt }
         ],
-        temperature: 0.7,
       }),
     });
 
     const aiData = await response.json();
     
     if (!aiData.choices || !aiData.choices[0]) {
-      throw new Error('Invalid response from OpenAI');
+      throw new Error('Invalid response from AI');
     }
     
     const suggestions = aiData.choices[0].message.content;

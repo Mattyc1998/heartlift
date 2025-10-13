@@ -131,20 +131,19 @@ serve(async (req) => {
 
     let response;
     try {
-      response = await fetch('https://api.openai.com/v1/chat/completions', {
+      response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+          'Authorization': `Bearer ${Deno.env.get('LOVABLE_API_KEY')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini', // Faster model
+          model: 'google/gemini-2.5-flash',
           messages: [
             { role: 'system', content: `You are an attachment theory expert. Provide concise, actionable analysis in valid JSON format only. No markdown formatting.` },
             { role: 'user', content: analysisPrompt }
           ],
-          temperature: 0.7,
-          max_tokens: 1500, // Reduced for faster response
+          max_completion_tokens: 1500,
         }),
         signal: controller.signal
       });
@@ -152,7 +151,7 @@ serve(async (req) => {
     } catch (error) {
       clearTimeout(timeoutId);
       if (error instanceof Error && error.name === 'AbortError') {
-        console.log('OpenAI request timed out, using fallback analysis');
+        console.log('AI request timed out, using fallback analysis');
         throw new Error('Analysis timed out');
       }
       throw error;
