@@ -77,8 +77,8 @@ export function HeartVisions() {
       return;
     }
 
-    if (dailyCount >= 5) {
-      toast.error("You have hit your daily limit of images today, please wait until tomorrow to generate more!");
+    if (dailyCount >= 2) {
+      toast.error("You've reached your daily limit of 2 images. Come back tomorrow to create more!");
       return;
     }
 
@@ -204,8 +204,8 @@ export function HeartVisions() {
             <CardDescription className="text-sm sm:text-base leading-relaxed">
               Create your own emotional visuals. Type what you'd like to see, and HeartVisions will
               generate a personalised image that captures your feelings or intentions.
-              <span className="block mt-2 text-xs">
-                {dailyCount}/5 images created today
+              <span className="block mt-2 text-xs font-medium">
+                You get 2 free images per day • {dailyCount}/2 used today
               </span>
             </CardDescription>
           </div>
