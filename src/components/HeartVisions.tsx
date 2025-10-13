@@ -86,38 +86,31 @@ export function HeartVisions() {
     setGeneratedImage(null);
 
     try {
-      const response = await fetch(
-        "https://n8n-self-host-cj60.onrender.com/webhook/63a905a2-3c6c-460f-bdac-675d3a60e34f",
+      const { data: functionData, error: functionError } = await supabase.functions.invoke(
+        'generate-heart-vision',
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_name: getFirstName(),
+          body: { 
             prompt: prompt.trim(),
-            feature: "HeartVisions",
-            tier: "premium",
-          }),
+            userName: getFirstName()
+          }
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to generate image");
+      if (functionError) {
+        console.error("Edge function error:", functionError);
+        throw new Error(functionError.message || "Failed to generate image");
       }
 
-      const data = await response.json();
-      
-      if (data.image || data.image_url) {
-        setGeneratedImage({
-        url: data.image || data.image_url,
-        caption: data.caption,
+      if (!functionData?.imageUrl) {
+        throw new Error("No image URL in response");
+      }
+
+      setGeneratedImage({
+        url: functionData.imageUrl,
+        caption: functionData.caption,
       });
       setDailyCount(prev => prev + 1);
       toast.success("Your vision has been created!");
-    } else {
-        throw new Error("No image URL in response");
-      }
     } catch (error) {
       console.error("Error generating image:", error);
       toast.error("Unable to generate your vision. Please try again.");
