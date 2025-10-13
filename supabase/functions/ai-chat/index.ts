@@ -357,6 +357,20 @@ serve(async (req) => {
     }
 
     const user = userData.user;
+    
+    // Create a user-scoped client for RLS-protected operations
+    const userSupabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      {
+        auth: { persistSession: false },
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      }
+    );
     const { message, coachId = "chill", conversationHistory = [], requestRegenerate = false } = await req.json() as ChatRequest;
 
     // Comprehensive input validation
@@ -470,8 +484,8 @@ serve(async (req) => {
         });
       }
 
-      // Increment usage for free users
-      const { data: canIncrement, error: incrementError } = await supabase
+      // Increment usage for free users - use user-scoped client for RLS
+      const { data: canIncrement, error: incrementError } = await userSupabase
         .rpc("increment_user_usage", { user_uuid: user.id, input_coach_id: coachId });
 
       console.log('Increment attempt for coach:', coachId, 'Result:', canIncrement, 'Error:', incrementError);
