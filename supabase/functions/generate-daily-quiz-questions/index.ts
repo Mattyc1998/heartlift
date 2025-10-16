@@ -30,10 +30,10 @@ serve(async (req) => {
   }
 
   try {
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey) {
-      console.log('No OpenAI API key, using fallback questions');
-      throw new Error('OpenAI API key not configured - using fallback');
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    if (!lovableApiKey) {
+      console.log('No Lovable API key, using fallback questions');
+      throw new Error('Lovable API key not configured - using fallback');
     }
 
     // Initialize Supabase client
@@ -131,14 +131,14 @@ Return ONLY this JSON structure:
 
 Generate 10 completely fresh questions NOW with "${todayTheme}" as the main context.`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { 
             role: 'system', 
@@ -146,23 +146,30 @@ Generate 10 completely fresh questions NOW with "${todayTheme}" as the main cont
           },
           { role: 'user', content: prompt }
         ],
-        temperature: 0.8,
-        max_tokens: 2000,
+        max_completion_tokens: 2000,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenAI API error:', response.status, errorText);
-      throw new Error(`OpenAI API failed: ${response.status}`);
+      console.error('Lovable AI error:', response.status, errorText);
+      
+      if (response.status === 429) {
+        throw new Error('Rate limit exceeded. Please try again later.');
+      }
+      if (response.status === 402) {
+        throw new Error('Payment required. Please add credits to your Lovable AI workspace.');
+      }
+      
+      throw new Error(`Lovable AI failed: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('OpenAI response structure:', Object.keys(data));
+    console.log('Lovable AI response structure:', Object.keys(data));
     
     if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      console.error('Unexpected OpenAI response structure:', data);
-      throw new Error('Invalid OpenAI response structure');
+      console.error('Unexpected Lovable AI response structure:', data);
+      throw new Error('Invalid Lovable AI response structure');
     }
     
     const aiResponse = data.choices[0].message.content;
