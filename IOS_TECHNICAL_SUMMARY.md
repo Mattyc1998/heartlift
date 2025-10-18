@@ -172,8 +172,10 @@ frontend/ios/
 
 ### Backend Integration
 - **Backend URL**: https://github-mobile-app.preview.emergentagent.com
-- **Authentication**: Supabase (hmmimemzznsyilxqakty.supabase.co)
+- **Authentication**: Supabase (hmmimemzznsyilxqakty.supabase.co) ✅ VERIFIED
 - **Payments**: Stripe (@stripe/stripe-js, @stripe/react-stripe-js)
+
+**Supabase Configuration**: Credentials are properly configured and bundled into iOS build. See [SUPABASE_CONFIGURATION_VERIFIED.md](./SUPABASE_CONFIGURATION_VERIFIED.md) for details.
 
 ### Capacitor Setup
 - **Version**: 7.4.3
