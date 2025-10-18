@@ -16,6 +16,7 @@ Your HeartLift app is now configured for iOS! Here's what to do next:
 - 📘 **[IOS_DEPLOYMENT_GUIDE.md](./IOS_DEPLOYMENT_GUIDE.md)** - Complete step-by-step instructions
 - ✅ **[APP_STORE_SUBMISSION_CHECKLIST.md](./APP_STORE_SUBMISSION_CHECKLIST.md)** - Pre-submission checklist
 - 🔧 **[IOS_TECHNICAL_SUMMARY.md](./IOS_TECHNICAL_SUMMARY.md)** - Technical details and architecture
+- 🔌 **[SUPABASE_CONFIGURATION_VERIFIED.md](./SUPABASE_CONFIGURATION_VERIFIED.md)** - Supabase setup confirmed ✓
 
 ### 3️⃣ Critical Requirements
 ⚠️ **IMPORTANT**: The app currently uses placeholder icons (pink/purple gradient with heart). You **MUST** replace these with professional designs before App Store submission:
