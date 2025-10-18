@@ -9,7 +9,11 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cap:sync": "cap sync",
+    "cap:sync:ios": "cap sync ios",
+    "cap:open:ios": "cap open ios",
+    "build:ios": "vite build && cap sync ios"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
