@@ -1,0 +1,74 @@
+workflows:
+  ios-workflow:
+    name: HeartLift iOS Build
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: codemagic
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.mattyc.heartlift
+      vars:
+        XCODE_WORKSPACE: "App.xcworkspace"
+        XCODE_SCHEME: "App"
+        BUNDLE_ID: "com.mattyc.heartlift"
+        APP_STORE_APPLE_ID: YOUR_APPLE_ID # Replace with your Apple ID
+      node: 20.11.0
+      xcode: 15.2
+      cocoapods: default
+    
+    scripts:
+      - name: Install frontend dependencies
+        script: |
+          cd frontend
+          yarn install
+      
+      - name: Build web application
+        script: |
+          cd frontend
+          yarn build
+      
+      - name: Sync Capacitor iOS
+        script: |
+          cd frontend
+          npx cap sync ios
+      
+      - name: Set up code signing settings on Xcode project
+        script: |
+          cd frontend/ios/App
+          xcode-project use-profiles
+      
+      - name: Increment build number
+        script: |
+          cd frontend/ios/App
+          agvtool new-version -all $(($BUILD_NUMBER + 1))
+      
+      - name: Build ipa for distribution
+        script: |
+          cd frontend/ios/App
+          xcode-project build-ipa \
+            --workspace "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
+    
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - frontend/ios/App/*.ipa
+    
+    publishing:
+      # Email notification
+      email:
+        recipients:
+          - your-email@example.com # Replace with your email
+        notify:
+          success: true
+          failure: true
+      
+      # App Store Connect publishing (uncomment when ready)
+      # app_store_connect:
+      #   auth: integration
+      #   submit_to_testflight: true
+      #   beta_groups:
+      #     - Internal Testers
+      #   submit_to_app_store: false
