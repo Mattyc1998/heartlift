@@ -449,20 +449,31 @@ export const AttachmentStyleQuiz = () => {
     try {
       console.log('Loading daily AI-generated questions...');
       
-      const { data, error } = await supabase.functions.invoke('generate-daily-quiz-questions', {
-        body: {}
+      // Call the new AI backend endpoint
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const response = await fetch(`${backendUrl}/api/ai/quiz/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          category: 'attachment_style',
+          num_questions: 10
+        })
       });
 
-      console.log('Edge function response:', { data, error });
+      if (!response.ok) {
+        throw new Error(`Failed to generate quiz: ${response.statusText}`);
+      }
 
-      // The edge function always returns questions (either AI or fallback)
+      const data = await response.json();
+
+      console.log('Backend response:', data);
+
+      // The backend always returns questions (either AI or fallback)
       if (data && data.questions && Array.isArray(data.questions)) {
         setQuizQuestions(data.questions);
-        console.log('Successfully loaded', data.questions.length, 'questions');
-        
-        if (data.fallback) {
-          console.log('Using fallback questions:', data.note);
-        }
+        console.log('Successfully loaded', data.questions.length, 'fresh AI-generated questions');
         return;
       }
 
