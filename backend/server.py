@@ -84,6 +84,86 @@ async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
 
+# ============ AI ENDPOINTS ============
+
+@api_router.post("/ai/chat", response_model=ChatResponse)
+async def ai_chat(request: ChatRequest):
+    """
+    Chat with an AI coach
+    """
+    try:
+        # Generate session ID based on coach and timestamp
+        session_id = f"{request.coach_id}-{datetime.now().strftime('%Y%m%d-%H')}"
+        
+        # Convert ChatMessage models to dicts for the AI service
+        history_dicts = [{"content": msg.content, "sender": msg.sender} for msg in request.conversation_history]
+        
+        response = await ai_service.chat_with_coach(
+            coach_id=request.coach_id,
+            user_message=request.message,
+            conversation_history=history_dicts,
+            session_id=session_id,
+            user_name=request.user_name
+        )
+        
+        return ChatResponse(response=response, session_id=session_id)
+        
+    except Exception as e:
+        logger.error(f"Error in ai_chat endpoint: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to get AI response")
+
+@api_router.post("/ai/quiz/generate")
+async def generate_quiz(request: QuizRequest):
+    """
+    Generate fresh daily quiz questions
+    """
+    try:
+        questions = await ai_service.generate_daily_quiz_questions(
+            category=request.category,
+            num_questions=request.num_questions
+        )
+        
+        return {"questions": questions}
+        
+    except Exception as e:
+        logger.error(f"Error generating quiz: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to generate quiz")
+
+@api_router.post("/ai/analyze-conversation")
+async def analyze_conversation(request: ConversationAnalysisRequest):
+    """
+    Analyze a conversation for patterns and insights
+    """
+    try:
+        analysis = await ai_service.analyze_conversation(
+            conversation_text=request.conversation_text,
+            analysis_type=request.analysis_type
+        )
+        
+        return analysis
+        
+    except Exception as e:
+        logger.error(f"Error analyzing conversation: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to analyze conversation")
+
+@api_router.post("/ai/text-suggestions")
+async def generate_text_suggestions(request: TextSuggestionsRequest):
+    """
+    Generate text message suggestions
+    """
+    try:
+        suggestions = await ai_service.generate_text_suggestions(
+            context=request.context,
+            situation=request.situation,
+            tone=request.tone
+        )
+        
+        return {"suggestions": suggestions}
+        
+    except Exception as e:
+        logger.error(f"Error generating suggestions: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to generate suggestions")
+
 # Include the router in the main app
 app.include_router(api_router)
 
