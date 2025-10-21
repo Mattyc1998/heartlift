@@ -36,6 +36,37 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+# AI Chat Models
+class ChatMessage(BaseModel):
+    content: str
+    sender: str  # 'user' or 'coach'
+    
+class ChatRequest(BaseModel):
+    message: str
+    coach_id: str
+    conversation_history: List[ChatMessage] = []
+    user_name: Optional[str] = None
+
+class ChatResponse(BaseModel):
+    response: str
+    session_id: str
+
+# Quiz Models
+class QuizRequest(BaseModel):
+    category: str = "attachment_style"
+    num_questions: int = 10
+
+# Conversation Analysis Models
+class ConversationAnalysisRequest(BaseModel):
+    conversation_text: str
+    analysis_type: str = "general"
+
+# Text Suggestions Models
+class TextSuggestionsRequest(BaseModel):
+    context: str
+    situation: str
+    tone: str = "balanced"
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
