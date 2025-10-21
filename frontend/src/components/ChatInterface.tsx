@@ -296,57 +296,60 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
     setIsTyping(true);
 
     try {
-      // Get fresh session token
+      // Check if user is authenticated
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError || !sessionData.session) {
         throw new Error('Please sign in again to continue');
       }
 
-      const { data, error } = await supabase.functions.invoke('ai-chat', {
-        body: {
+      // Call the new AI backend endpoint
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const response = await fetch(`${backendUrl}/api/ai/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           message: inputMessage,
-          coachId: coachPersonality,
-          conversationHistory: messages.slice(-5), // Send last 5 messages for context
-          requestRegenerate: false
-        }
+          coach_id: coachPersonality,
+          conversation_history: messages.slice(-5).map(msg => ({
+            content: msg.content,
+            sender: msg.sender
+          })),
+          user_name: getFirstName() || undefined
+        })
       });
 
-      if (error) {
-        if (error.message?.includes("usage_limit_reached")) {
-          setCanSendMessage(false);
-          setUpgradeModalTrigger("usage_limit");
-          setShowUpgradeModal(true);
-          return;
-        }
-        throw error;
+      if (!response.ok) {
+        throw new Error(`Failed to get AI response: ${response.statusText}`);
       }
+
+      const data = await response.json();
 
       const coachResponse: Message = {
         id: (Date.now() + 1).toString(),
         content: data.response,
         sender: 'coach',
-        timestamp: new Date(),
-        isPremiumTeaser: data.isPremiumTeaser || false
+        timestamp: new Date()
       };
 
       setMessages(prev => [...prev, coachResponse]);
-      setUsageCount(data.usageCount || 0);
-      setRemainingMessages(data.remainingMessages || 0);
-      setCanSendMessage(data.canSendMore !== false);
       
-
-      // Refresh usage data to update the counter display
-      await loadUsageCount();
-
-      if (data.isPremiumTeaser) {
-        setUpgradeModalTrigger("premium_teaser");
-        setShowUpgradeModal(true);
-      }
-
-      if (data.showUpgradeModal) {
-        setUpgradeModalTrigger("usage_limit");
-        setShowUpgradeModal(true);
+      // Update usage count
+      if (!isPremium) {
+        const newUsageCount = usageCount + 1;
+        setUsageCount(newUsageCount);
+        setRemainingMessages(Math.max(0, 10 - newUsageCount));
+        
+        if (newUsageCount >= 10) {
+          setCanSendMessage(false);
+          setUpgradeModalTrigger("usage_limit");
+          setShowUpgradeModal(true);
+        }
+        
+        // Save usage to database
+        await loadUsageCount();
       }
 
     } catch (error) {
