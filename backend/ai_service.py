@@ -8,11 +8,25 @@ from typing import List, Dict, Optional
 from datetime import datetime
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 import logging
+from dotenv import load_dotenv
+from pathlib import Path
+
+# Load environment variables
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
 
 logger = logging.getLogger(__name__)
 
 # Get the Emergent LLM key from environment
 EMERGENT_LLM_KEY = os.getenv("EMERGENT_LLM_KEY")
+
+if not EMERGENT_LLM_KEY:
+    logger.error("EMERGENT_LLM_KEY not found in environment!")
+    logger.error(f"Looked in: {ROOT_DIR / '.env'}")
+    logger.error(f"Environment variables: {list(os.environ.keys())}")
+else:
+    logger.info(f"EMERGENT_LLM_KEY loaded successfully: {EMERGENT_LLM_KEY[:15]}...")
+
 
 # Coach personality prompts
 COACH_PERSONALITIES = {
