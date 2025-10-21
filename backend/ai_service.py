@@ -101,10 +101,18 @@ class AIService:
     """Service for handling all AI interactions"""
     
     def __init__(self):
-        self.api_key = EMERGENT_LLM_KEY
+        # Reload env vars in case subprocess doesn't have them
+        from dotenv import load_dotenv
+        from pathlib import Path
+        load_dotenv(Path(__file__).parent / '.env')
+        
+        self.api_key = os.getenv("EMERGENT_LLM_KEY") or EMERGENT_LLM_KEY
         if not self.api_key:
             logger.error("EMERGENT_LLM_KEY not found in environment!")
-            raise ValueError("EMERGENT_LLM_KEY is required")
+            # Don't raise error, just log - we'll handle it per-request
+            logger.warning("AI features will not work without EMERGENT_LLM_KEY")
+        else:
+            logger.info(f"AIService initialized with key: {self.api_key[:15]}...")
     
     async def chat_with_coach(
         self,
