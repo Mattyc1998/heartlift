@@ -182,12 +182,14 @@ class AIService:
             coach = COACH_PERSONALITIES.get(coach_id)
             if not coach:
                 logger.error(f"Unknown coach ID: {coach_id}")
-                coach = COACH_PERSONALITIES["empathy-coach"]  # Fallback
+                coach = COACH_PERSONALITIES["therapist"]  # Fallback to Dr. Sage
             
             # Build system message with context
             system_message = coach["system_message"]
-            if user_name:
-                system_message += f"\n\nThe user's name is {user_name}. Use it naturally when appropriate."
+            
+            # Only add name instruction if this is the first message (no conversation history)
+            if user_name and not conversation_history:
+                system_message += f"\n\nThis is your first message to the user. Their name is {user_name}. Use their name ONCE in this first greeting only, then don't use it again in future messages."
             
             # Create chat instance
             chat = LlmChat(
