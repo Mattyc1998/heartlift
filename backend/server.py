@@ -134,6 +134,23 @@ async def generate_quiz(request: QuizRequest):
         logger.error(f"Error generating quiz: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to generate quiz")
 
+@api_router.post("/ai/quiz/analyze")
+async def analyze_quiz(request: QuizAnalysisRequest):
+    """
+    Analyze attachment style quiz results with AI
+    """
+    try:
+        result = await ai_service.analyze_attachment_quiz(
+            questions_and_answers=request.questions_and_answers,
+            user_id=request.user_id
+        )
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error analyzing quiz: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to analyze quiz")
+
 @api_router.post("/ai/analyze-conversation")
 async def analyze_conversation(request: ConversationAnalysisRequest):
     """
