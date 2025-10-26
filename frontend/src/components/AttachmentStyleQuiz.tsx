@@ -657,20 +657,52 @@ export const AttachmentStyleQuiz = () => {
         answer: quizQuestions[questionIndex].options[answerIndex]
       }));
 
-      const { data, error } = await supabase.functions.invoke('analyze-attachment-style', {
-        body: {
-          questionsAndAnswers,
-          userId: user?.id,
+      // Call new AI backend endpoint for analysis
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const response = await fetch(`${backendUrl}/api/ai/quiz/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          questions_and_answers: questionsAndAnswers,
+          user_id: user?.id
+        })
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(`Failed to analyze quiz: ${response.statusText}`);
+      }
+
+      const data = await response.json();
 
       setAttachmentStyle(data.attachmentStyle);
       setAnalysis(data.analysis);
       setShowResults(true);
       setHasCompletedToday(true);
-      fetchPastResults(); // Refresh past results
+      
+      // Save result to database
+      if (user?.id) {
+        try {
+          const { error: saveError } = await supabase
+            .from('quiz_results')
+            .insert({
+              user_id: user.id,
+              attachment_style: data.attachmentStyle,
+              analysis: data.analysis,
+              questions_and_answers: questionsAndAnswers,
+              completed_at: new Date().toISOString()
+            });
+          
+          if (saveError) {
+            console.error('Error saving quiz result:', saveError);
+          } else {
+            fetchPastResults(); // Refresh past results
+          }
+        } catch (saveError) {
+          console.error('Error saving to database:', saveError);
+        }
+      }
 
       toast({
         title: "Analysis Complete!",
