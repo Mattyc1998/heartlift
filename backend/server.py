@@ -191,6 +191,23 @@ async def generate_text_suggestions(request: TextSuggestionsRequest):
         logger.error(f"Error generating suggestions: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to generate suggestions")
 
+@api_router.post("/ai/heart-vision")
+async def generate_heart_vision(request: HeartVisionRequest):
+    """
+    Generate a professional, photorealistic HeartVision image
+    """
+    try:
+        result = await ai_service.generate_heart_vision(
+            prompt=request.prompt,
+            user_name=request.user_name
+        )
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error generating heart vision: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
