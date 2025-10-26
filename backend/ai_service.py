@@ -460,22 +460,106 @@ No other text or explanation."""
             ]
     
     def _get_fallback_questions(self) -> List[Dict]:
-        """Fallback quiz questions if AI generation fails"""
+        """Fallback quiz questions if AI generation fails - matches frontend format"""
         return [
             {
+                "id": 1,
                 "question": "When my partner needs space, I usually...",
                 "options": [
-                    {"text": "Give them space while feeling secure in our connection", "score": {"secure": 3, "anxious": 0, "avoidant": 0}},
-                    {"text": "Feel worried and want to check in frequently", "score": {"secure": 0, "anxious": 3, "avoidant": 0}},
-                    {"text": "Feel relieved and enjoy the independence", "score": {"secure": 0, "anxious": 0, "avoidant": 3}}
+                    "Give them space while feeling secure in our connection",
+                    "Feel worried and want to check in frequently",
+                    "Feel relieved and enjoy the independence",
+                    "Feel confused and unsure how to respond"
                 ]
             },
             {
+                "id": 2,
                 "question": "In a disagreement, I tend to...",
                 "options": [
-                    {"text": "Express my feelings calmly and listen to theirs", "score": {"secure": 3, "anxious": 0, "avoidant": 0}},
-                    {"text": "Feel intense emotions and need immediate resolution", "score": {"secure": 0, "anxious": 3, "avoidant": 0}},
-                    {"text": "Withdraw and need time alone to process", "score": {"secure": 0, "anxious": 0, "avoidant": 3}}
+                    "Express my feelings calmly and listen to theirs",
+                    "Feel intense emotions and need immediate resolution",
+                    "Withdraw and need time alone to process",
+                    "React unpredictably depending on the situation"
+                ]
+            },
+            {
+                "id": 3,
+                "question": "When thinking about relationships, I...",
+                "options": [
+                    "Feel optimistic and trust they can be fulfilling",
+                    "Worry about being hurt or abandoned",
+                    "Prefer to maintain my independence",
+                    "Have mixed feelings about commitment"
+                ]
+            },
+            {
+                "id": 4,
+                "question": "If my partner doesn't respond to my messages quickly, I...",
+                "options": [
+                    "Assume they're busy and trust they'll respond when they can",
+                    "Start to worry and check my phone repeatedly",
+                    "Don't really mind and prefer not to text constantly anyway",
+                    "Feel anxious but try to suppress it"
+                ]
+            },
+            {
+                "id": 5,
+                "question": "When someone gets close to me emotionally, I...",
+                "options": [
+                    "Welcome the closeness and feel comfortable",
+                    "Feel excited but also scared they might leave",
+                    "Start to feel uncomfortable and pull away",
+                    "Experience conflicting desires for closeness and distance"
+                ]
+            },
+            {
+                "id": 6,
+                "question": "My view of myself in relationships is...",
+                "options": [
+                    "I'm worthy of love and have healthy relationships",
+                    "I need constant reassurance that I'm loved",
+                    "I'm fine on my own and don't need much from others",
+                    "I'm not sure what I need or deserve"
+                ]
+            },
+            {
+                "id": 7,
+                "question": "When my partner shares their feelings with me, I...",
+                "options": [
+                    "Listen openly and appreciate their vulnerability",
+                    "Feel anxious about saying the wrong thing",
+                    "Feel somewhat uncomfortable with emotional talks",
+                    "Want to engage but also want to escape"
+                ]
+            },
+            {
+                "id": 8,
+                "question": "Trust in relationships...",
+                "options": [
+                    "Comes naturally when I feel respected and cared for",
+                    "Is hard for me - I want to trust but fear disappointment",
+                    "Takes a very long time and lots of proof",
+                    "Fluctuates - sometimes I trust, sometimes I don't"
+                ]
+            },
+            {
+                "id": 9,
+                "question": "When upset in a relationship, I prefer to...",
+                "options": [
+                    "Talk it through with my partner openly",
+                    "Seek immediate comfort and reassurance",
+                    "Process my feelings alone first",
+                    "Alternate between wanting support and pushing away"
+                ]
+            },
+            {
+                "id": 10,
+                "question": "My typical relationship pattern is...",
+                "options": [
+                    "Balanced between independence and connection",
+                    "Intense and often filled with anxiety",
+                    "Emotionally distant but stable",
+                    "Unpredictable and sometimes chaotic"
                 ]
             }
         ]
