@@ -72,6 +72,11 @@ class QuizAnalysisRequest(BaseModel):
     questions_and_answers: List[Dict]
     user_id: Optional[str] = None
 
+# Heart Vision Models
+class HeartVisionRequest(BaseModel):
+    prompt: str
+    user_name: Optional[str] = None
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
