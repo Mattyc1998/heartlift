@@ -4,9 +4,11 @@ Uses Emergent Universal LLM Key with OpenAI GPT-4o-mini
 """
 import os
 import json
+import base64
 from typing import List, Dict, Optional
 from datetime import datetime
 from emergentintegrations.llm.chat import LlmChat, UserMessage
+from emergentintegrations.llm.openai.image_generation import OpenAIImageGeneration
 import logging
 from dotenv import load_dotenv
 from pathlib import Path
