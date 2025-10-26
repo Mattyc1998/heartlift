@@ -86,34 +86,42 @@ export function HeartVisions() {
     setGeneratedImage(null);
 
     try {
-      const { data: functionData, error: functionError } = await supabase.functions.invoke(
-        'generate-heart-vision',
-        {
-          body: { 
-            prompt: prompt.trim(),
-            userName: getFirstName()
-          }
-        }
-      );
+      // Call new AI backend endpoint for image generation
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const response = await fetch(`${backendUrl}/api/ai/heart-vision`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: prompt.trim(),
+          user_name: getFirstName()
+        })
+      });
 
-      if (functionError) {
-        console.error("Edge function error:", functionError);
-        throw new Error(functionError.message || "Failed to generate image");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Failed to generate image: ${response.statusText}`);
       }
 
-      if (!functionData?.imageUrl) {
-        throw new Error("No image URL in response");
+      const data = await response.json();
+
+      if (!data?.image_base64) {
+        throw new Error("No image data in response");
       }
+
+      // Convert base64 to data URL for display
+      const imageUrl = `data:image/png;base64,${data.image_base64}`;
 
       setGeneratedImage({
-        url: functionData.imageUrl,
-        caption: functionData.caption,
+        url: imageUrl,
+        caption: data.caption,
       });
       setDailyCount(prev => prev + 1);
       toast.success("Your vision has been created!");
     } catch (error) {
       console.error("Error generating image:", error);
-      toast.error("Unable to generate your vision. Please try again.");
+      toast.error(error instanceof Error ? error.message : "Unable to generate your vision. Please try again.");
     } finally {
       setIsGenerating(false);
     }
