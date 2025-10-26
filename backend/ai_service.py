@@ -447,6 +447,8 @@ IMPORTANT:
                 ]
             }
         }
+    
+    async def analyze_conversation(
         self,
         conversation_text: str,
         analysis_type: str = "general"
