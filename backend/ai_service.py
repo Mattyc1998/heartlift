@@ -237,11 +237,11 @@ class AIService:
             user_context: Optional context about the user
         
         Returns:
-            List of quiz questions with options
+            List of quiz questions in frontend format: {id, question, options: [string]}
         """
         try:
             system_message = """You are an expert psychologist specializing in attachment theory and relationship patterns. 
-            
+
 Generate quiz questions that help people understand their attachment style. Questions should be:
 - Thoughtful and relevant to real relationship situations
 - Clear and easy to understand
@@ -249,19 +249,27 @@ Generate quiz questions that help people understand their attachment style. Ques
 - Varied in scenarios and contexts
 - Fresh and different from typical attachment quizzes
 
-Return ONLY a valid JSON array with this exact structure:
+Return ONLY a valid JSON array with this SIMPLIFIED structure:
 [
   {
     "question": "Question text here",
     "options": [
-      {"text": "Option 1", "score": {"secure": 3, "anxious": 0, "avoidant": 0}},
-      {"text": "Option 2", "score": {"secure": 0, "anxious": 3, "avoidant": 0}},
-      {"text": "Option 3", "score": {"secure": 0, "anxious": 0, "avoidant": 3}}
+      "First option text",
+      "Second option text",
+      "Third option text",
+      "Fourth option text"
     ]
   }
 ]
 
-Important: Return ONLY the JSON array, no other text or explanation."""
+IMPORTANT: 
+- Return EXACTLY 4 options per question
+- Options should be simple strings, not objects
+- The first option should reflect secure attachment
+- The second option should reflect anxious attachment  
+- The third option should reflect avoidant attachment
+- The fourth option can be a mixed/disorganized response
+- Return ONLY the JSON array, no other text or explanation."""
             
             chat = LlmChat(
                 api_key=self.api_key,
@@ -289,6 +297,11 @@ Important: Return ONLY the JSON array, no other text or explanation."""
                 clean_response = clean_response.strip()
                 
                 questions = json.loads(clean_response)
+                
+                # Add IDs to questions (frontend expects this)
+                for i, question in enumerate(questions):
+                    question['id'] = i + 1
+                
                 return questions
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse quiz questions JSON: {e}")
