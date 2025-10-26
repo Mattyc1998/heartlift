@@ -67,6 +67,11 @@ class TextSuggestionsRequest(BaseModel):
     situation: str
     tone: str = "balanced"
 
+# Quiz Analysis Models
+class QuizAnalysisRequest(BaseModel):
+    questions_and_answers: List[Dict]
+    user_id: Optional[str] = None
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
