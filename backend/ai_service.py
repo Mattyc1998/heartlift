@@ -597,6 +597,85 @@ No other text or explanation."""
                 "I'm working on setting healthier boundaries. I hope you can understand."
             ]
     
+    async def generate_heart_vision(
+        self,
+        prompt: str,
+        user_name: Optional[str] = None
+    ) -> Dict:
+        """
+        Generate a professional, photorealistic image for HeartVisions
+        
+        Args:
+            prompt: User's description of what they want to visualize
+            user_name: Optional user's first name for personalization
+        
+        Returns:
+            Dict with image_base64 and caption
+        """
+        try:
+            # Enhance the prompt for photorealistic, professional results
+            enhanced_prompt = f"""Create a professional, photorealistic, beautifully designed image that captures this emotion/intention: {prompt}
+
+Style requirements:
+- Ultra-realistic, high-quality photography style (NOT painting or illustration)
+- Professional composition and lighting
+- Modern, clean aesthetic
+- Emotionally evocative but sophisticated
+- Cinematic quality with depth of field
+- Natural colors with subtle warmth
+- Should look like a professional magazine or design portfolio piece
+
+Think: high-end lifestyle photography, not artistic painting."""
+            
+            logger.info(f"Generating HeartVision with enhanced prompt")
+            
+            # Initialize image generator
+            image_gen = OpenAIImageGeneration(api_key=self.api_key)
+            
+            # Generate image using gpt-image-1 (latest model)
+            import asyncio
+            try:
+                images = await asyncio.wait_for(
+                    image_gen.generate_images(
+                        prompt=enhanced_prompt,
+                        model="gpt-image-1",
+                        number_of_images=1
+                    ),
+                    timeout=30.0  # 30 second timeout
+                )
+            except asyncio.TimeoutError:
+                logger.error("Image generation timed out after 30 seconds")
+                raise Exception("Image generation took too long. Please try again.")
+            
+            if not images or len(images) == 0:
+                raise Exception("No image was generated")
+            
+            # Convert to base64
+            image_base64 = base64.b64encode(images[0]).decode('utf-8')
+            
+            # Generate a supportive caption
+            caption_prompts = [
+                f"Here's what that feeling might look like{', ' + user_name if user_name else ''}.",
+                "This image reflects your intention beautifully.",
+                "Take a moment with this — does it capture your emotion?",
+                f"Beautiful{', ' + user_name if user_name else ''}. Let this vision guide your heart.",
+                "Your feelings, visualised. What do you notice?",
+            ]
+            
+            import random
+            caption = random.choice(caption_prompts)
+            
+            logger.info("Successfully generated HeartVision image")
+            
+            return {
+                "image_base64": image_base64,
+                "caption": caption
+            }
+            
+        except Exception as e:
+            logger.error(f"Error generating heart vision: {e}", exc_info=True)
+            raise
+    
     def _get_fallback_questions(self) -> List[Dict]:
         """Fallback quiz questions if AI generation fails - matches frontend format"""
         return [
