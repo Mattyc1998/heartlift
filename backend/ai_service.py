@@ -230,6 +230,7 @@ class AIService:
     ) -> List[Dict]:
         """
         Generate fresh daily quiz questions about attachment styles
+        Fast generation with 8-second timeout
         
         Args:
             category: Quiz category (e.g., 'attachment_style')
@@ -240,53 +241,46 @@ class AIService:
             List of quiz questions in frontend format: {id, question, options: [string]}
         """
         try:
-            system_message = """You are an expert psychologist specializing in attachment theory and relationship patterns. 
+            system_message = """You are an expert psychologist. Generate attachment style quiz questions QUICKLY.
 
-Generate quiz questions that help people understand their attachment style. Questions should be:
-- Thoughtful and relevant to real relationship situations
-- Clear and easy to understand
-- Based on validated attachment theory research
-- Varied in scenarios and contexts
-- Fresh and different from typical attachment quizzes
-
-Return ONLY a valid JSON array with this SIMPLIFIED structure:
+Return ONLY this JSON format (NO explanations):
 [
   {
-    "question": "Question text here",
-    "options": [
-      "First option text",
-      "Second option text",
-      "Third option text",
-      "Fourth option text"
-    ]
+    "question": "Short question here?",
+    "options": ["Option 1", "Option 2", "Option 3", "Option 4"]
   }
 ]
 
-IMPORTANT: 
-- Return EXACTLY 4 options per question
-- Options should be simple strings, not objects
-- The first option should reflect secure attachment
-- The second option should reflect anxious attachment  
-- The third option should reflect avoidant attachment
-- The fourth option can be a mixed/disorganized response
-- Return ONLY the JSON array, no other text or explanation."""
+Rules:
+- 4 options per question
+- Option 1 = secure, Option 2 = anxious, Option 3 = avoidant, Option 4 = mixed
+- Keep questions concise
+- Return ONLY valid JSON, nothing else"""
             
             chat = LlmChat(
                 api_key=self.api_key,
-                session_id=f"quiz-{datetime.now().strftime('%Y%m%d')}",
+                session_id=f"quiz-{datetime.now().strftime('%Y%m%d-%H')}",
                 system_message=system_message
             ).with_model("openai", "gpt-4o-mini")
             
-            prompt = f"Generate {num_questions} unique attachment style quiz questions. Make them varied and insightful."
-            if user_context:
-                prompt += f" Context: {user_context}"
+            prompt = f"Generate {num_questions} attachment quiz questions. Be FAST and concise."
             
             user_msg = UserMessage(text=prompt)
-            response = await chat.send_message(user_msg)
+            
+            # Use asyncio timeout to limit generation time to 8 seconds
+            import asyncio
+            try:
+                response = await asyncio.wait_for(
+                    chat.send_message(user_msg),
+                    timeout=8.0  # 8 second timeout
+                )
+            except asyncio.TimeoutError:
+                logger.warning("Quiz generation timed out after 8 seconds, using fallback")
+                return self._get_fallback_questions()
             
             # Parse JSON response
             try:
-                # Clean the response - remove markdown code blocks if present
+                # Clean the response
                 clean_response = response.strip()
                 if clean_response.startswith("```json"):
                     clean_response = clean_response[7:]
@@ -298,14 +292,14 @@ IMPORTANT:
                 
                 questions = json.loads(clean_response)
                 
-                # Add IDs to questions (frontend expects this)
+                # Add IDs to questions
                 for i, question in enumerate(questions):
                     question['id'] = i + 1
                 
+                logger.info(f"Successfully generated {len(questions)} quiz questions")
                 return questions
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse quiz questions JSON: {e}")
-                logger.error(f"Response was: {response}")
                 return self._get_fallback_questions()
                 
         except Exception as e:
