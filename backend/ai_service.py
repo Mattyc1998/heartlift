@@ -306,7 +306,147 @@ Rules:
             logger.error(f"Error generating quiz questions: {e}", exc_info=True)
             return self._get_fallback_questions()
     
-    async def analyze_conversation(
+    async def analyze_attachment_quiz(
+        self,
+        questions_and_answers: List[Dict],
+        user_id: Optional[str] = None
+    ) -> Dict:
+        """
+        Analyze attachment style quiz results with AI
+        
+        Args:
+            questions_and_answers: List of {question: str, answer: str}
+            user_id: Optional user ID for personalization
+        
+        Returns:
+            Analysis with attachment style and detailed insights
+        """
+        try:
+            system_message = """You are an expert psychologist specializing in attachment theory. Analyze quiz responses to determine attachment style.
+
+Analyze the answers and return ONLY this JSON structure:
+{
+  "attachmentStyle": "secure|anxious|avoidant|fearful-avoidant",
+  "analysis": {
+    "detailedBreakdown": {
+      "strengths": ["strength 1", "strength 2", "strength 3"],
+      "challenges": ["challenge 1", "challenge 2", "challenge 3"],
+      "relationshipPatterns": ["pattern 1", "pattern 2", "pattern 3"]
+    },
+    "healingPath": "Specific, actionable guidance for growth based on their answers",
+    "triggers": ["trigger 1", "trigger 2", "trigger 3"],
+    "copingTechniques": [
+      {
+        "technique": "Technique name",
+        "description": "How it helps",
+        "example": "Specific example"
+      },
+      {
+        "technique": "Technique name",
+        "description": "How it helps",
+        "example": "Specific example"
+      }
+    ]
+  }
+}
+
+IMPORTANT:
+- Base your analysis ONLY on the answers provided
+- Be specific and reference their actual responses
+- Provide actionable, practical insights
+- Keep it supportive and non-judgmental
+- Return ONLY valid JSON"""
+            
+            chat = LlmChat(
+                api_key=self.api_key,
+                session_id=f"quiz-analysis-{datetime.now().timestamp()}",
+                system_message=system_message
+            ).with_model("openai", "gpt-4o-mini")
+            
+            # Build analysis request
+            prompt = "Analyze these quiz responses:\n\n"
+            for i, qa in enumerate(questions_and_answers, 1):
+                prompt += f"Q{i}: {qa['question']}\n"
+                prompt += f"A{i}: {qa['answer']}\n\n"
+            prompt += "Provide detailed attachment style analysis based on these specific answers."
+            
+            user_msg = UserMessage(text=prompt)
+            
+            # 10 second timeout for analysis
+            import asyncio
+            try:
+                response = await asyncio.wait_for(
+                    chat.send_message(user_msg),
+                    timeout=10.0
+                )
+            except asyncio.TimeoutError:
+                logger.warning("Analysis timed out, using fallback")
+                return self._get_fallback_analysis()
+            
+            # Parse JSON response
+            try:
+                clean_response = response.strip()
+                if clean_response.startswith("```json"):
+                    clean_response = clean_response[7:]
+                if clean_response.startswith("```"):
+                    clean_response = clean_response[3:]
+                if clean_response.endswith("```"):
+                    clean_response = clean_response[:-3]
+                clean_response = clean_response.strip()
+                
+                result = json.loads(clean_response)
+                logger.info(f"Successfully analyzed attachment style: {result.get('attachmentStyle')}")
+                return result
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse analysis JSON: {e}")
+                return self._get_fallback_analysis()
+                
+        except Exception as e:
+            logger.error(f"Error analyzing quiz: {e}", exc_info=True)
+            return self._get_fallback_analysis()
+    
+    def _get_fallback_analysis(self) -> Dict:
+        """Fallback analysis if AI fails"""
+        return {
+            "attachmentStyle": "secure",
+            "analysis": {
+                "detailedBreakdown": {
+                    "strengths": [
+                        "You show self-awareness in relationships",
+                        "You're open to understanding your patterns",
+                        "You're taking steps toward growth"
+                    ],
+                    "challenges": [
+                        "Continue exploring your relationship patterns",
+                        "Practice self-compassion during growth",
+                        "Stay open to new insights"
+                    ],
+                    "relationshipPatterns": [
+                        "You're on a journey of self-discovery",
+                        "Your patterns are evolving",
+                        "You're building awareness"
+                    ]
+                },
+                "healingPath": "Continue reflecting on your relationship experiences. Consider journaling about your feelings and patterns. Be patient with yourself as you grow.",
+                "triggers": [
+                    "Situations that feel uncertain",
+                    "Changes in relationship dynamics",
+                    "Moments requiring vulnerability"
+                ],
+                "copingTechniques": [
+                    {
+                        "technique": "Mindful Self-Reflection",
+                        "description": "Regular check-ins with yourself",
+                        "example": "Take 5 minutes daily to journal about your feelings"
+                    },
+                    {
+                        "technique": "Grounding Exercises",
+                        "description": "Stay present during difficult moments",
+                        "example": "Use 5-4-3-2-1 sensory technique when anxious"
+                    }
+                ]
+            }
+        }
         self,
         conversation_text: str,
         analysis_type: str = "general"
