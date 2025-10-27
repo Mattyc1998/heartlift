@@ -106,30 +106,42 @@ export const PersonalisedInsights = () => {
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Backend error response:', errorText);
         throw new Error(`Failed to generate insights: ${response.statusText}`);
       }
 
       const insights = await response.json();
+      console.log('Received insights from backend:', insights);
 
       // Save to database
+      const reportData = {
+        user_id: user.id,
+        report_type: 'comprehensive',
+        insights: insights,
+        conversation_count: 5,
+        mood_entries_analysed: 10,
+        attachment_style: 'secure',
+        healing_progress_score: insights.healingProgressScore || 70,
+        analysis_period_start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+        analysis_period_end: new Date().toISOString(),
+      };
+      
+      console.log('Attempting to save report:', reportData);
+      
       const { data: savedReport, error: saveError } = await supabase
         .from('user_insights_reports')
-        .insert({
-          user_id: user.id,
-          report_type: 'comprehensive',
-          insights: insights,
-          conversation_count: 5, // Placeholder
-          mood_entries_analysed: 10, // Placeholder
-          attachment_style: 'secure', // Placeholder
-          healing_progress_score: insights.healingProgressScore || 70,
-          analysis_period_start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-          analysis_period_end: new Date().toISOString(),
-        })
+        .insert(reportData)
         .select()
         .single();
 
-      if (saveError) throw saveError;
+      if (saveError) {
+        console.error('Supabase save error:', saveError);
+        throw saveError;
+      }
 
+      console.log('Report saved successfully:', savedReport);
+      
       setCurrentReport(savedReport as unknown as InsightReport);
       await loadReports();
       setActiveTab("current");
@@ -138,7 +150,7 @@ export const PersonalisedInsights = () => {
       
     } catch (error) {
       console.error('Error generating insights:', error);
-      toast.error("Failed to generate insights. Please try again.");
+      toast.error(`Failed to generate insights: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsGenerating(false);
     }
