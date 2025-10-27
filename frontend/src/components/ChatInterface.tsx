@@ -325,7 +325,8 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
             content: msg.content,
             sender: msg.sender
           })),
-          user_name: getFirstName() || undefined
+          user_name: getFirstName() || undefined,
+          user_id: user.id  // Send user ID so coach can access reflections
         })
       });
 
