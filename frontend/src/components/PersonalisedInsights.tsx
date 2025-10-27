@@ -39,7 +39,7 @@ interface InsightReport {
     nextSteps: string[];
   };
   conversation_count: number;
-  mood_entries_analysed: number;
+  mood_entries_analyzed: number;  // Fixed: use 'analyzed' not 'analysed'
   attachment_style: string;
   healing_progress_score: number;
   analysis_period_start: string;
