@@ -6,7 +6,7 @@ import os
 import json
 import base64
 from typing import List, Dict, Optional
-from datetime import datetime
+from datetime import datetime, date
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 from emergentintegrations.llm.openai.image_generation import OpenAIImageGeneration
 import logging
@@ -28,6 +28,10 @@ if not EMERGENT_LLM_KEY:
     logger.error(f"Environment variables: {list(os.environ.keys())}")
 else:
     logger.info(f"EMERGENT_LLM_KEY loaded successfully: {EMERGENT_LLM_KEY[:15]}...")
+
+# Simple in-memory cache for daily quiz questions
+_quiz_cache: Dict[str, List[Dict]] = {}
+_quiz_cache_date: Optional[date] = None
 
 
 # Coach personality prompts - MUST match frontend coach IDs exactly!
