@@ -138,12 +138,31 @@ async def ai_chat(request: ChatRequest):
         # Convert ChatMessage models to dicts for the AI service
         history_dicts = [{"content": msg.content, "sender": msg.sender} for msg in request.conversation_history]
         
+        # Fetch user's recent reflections for personalization
+        user_reflections = None
+        if request.user_id:
+            try:
+                logger.info(f"Fetching reflections for user {request.user_id} to personalize chat")
+                cursor = db.daily_reflections.find({
+                    "user_id": request.user_id
+                }).sort("reflection_date", -1).limit(3)  # Get last 3 reflections
+                
+                reflections = await cursor.to_list(length=3)
+                if reflections:
+                    user_reflections = reflections
+                    logger.info(f"Found {len(reflections)} reflections for context")
+            except Exception as e:
+                logger.warning(f"Could not fetch reflections: {e}")
+                # Continue without reflections if fetch fails
+        
         response = await ai_service.chat_with_coach(
             coach_id=request.coach_id,
             user_message=request.message,
             conversation_history=history_dicts,
             session_id=session_id,
-            user_name=request.user_name
+            user_name=request.user_name,
+            user_reflections=user_reflections
+        )
         )
         
         return ChatResponse(response=response, session_id=session_id)
