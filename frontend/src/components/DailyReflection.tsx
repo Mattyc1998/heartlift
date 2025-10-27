@@ -389,31 +389,34 @@ export const DailyReflection = () => {
           >
             {isSaving ? "Saving..." : hasReflectedToday ? "Update Reflection" : "Save Reflection"}
           </Button>
+          
+          {/* View Past Reflections Button */}
+          <Button 
+            onClick={() => setShowHistory(!showHistory)} 
+            variant="outline"
+            className="w-full"
+          >
+            <History className="w-4 h-4 mr-2" />
+            {showHistory ? "Hide" : "View"} Past Reflections ({pastReflections.length})
+          </Button>
         </CardContent>
       </Card>
 
       {/* Past Reflections History */}
-      {pastReflections.length > 0 && (
+      {showHistory && (
         <Card className="w-full shadow-gentle">
           <CardHeader>
-            <Button
-              variant="ghost"
-              onClick={() => setShowHistory(!showHistory)}
-              className="flex items-center justify-between w-full p-0 h-auto"
-            >
-              <div className="flex items-center gap-2">
-                <History className="w-5 h-5" />
-                <CardTitle>Reflection History ({pastReflections.length})</CardTitle>
-              </div>
-              {showHistory ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </Button>
-            <p className="text-sm text-muted-foreground text-left">
+            <div className="flex items-center gap-2">
+              <History className="w-5 h-5" />
+              <CardTitle>Reflection History ({pastReflections.length})</CardTitle>
+            </div>
+            <p className="text-sm text-muted-foreground">
               View your past reflections to track your journey
             </p>
           </CardHeader>
           
-          {showHistory && (
-            <CardContent>
+          <CardContent>
+            {pastReflections.length > 0 ? (
               <ScrollArea className="h-96">
                 <div className="space-y-4">
                   {pastReflections.map((pastReflection, index) => (
