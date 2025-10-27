@@ -235,6 +235,26 @@ export const DailyReflection = () => {
       await loadTodayReflection();
       await loadPastReflections();
       
+      // Double-check if it's actually there
+      const { data: verifyData, error: verifyError } = await supabase
+        .from('daily_reflections')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('reflection_date', reflection.reflection_date)
+        .maybeSingle();
+      
+      if (verifyError) {
+        console.error('Verification error:', verifyError);
+        throw new Error(`Save verification failed: ${verifyError.message}`);
+      }
+      
+      if (!verifyData) {
+        console.error('Reflection was saved but cannot be retrieved! Possible RLS policy issue.');
+        throw new Error('Reflection saved but not accessible. Please check database permissions.');
+      }
+      
+      console.log('Verification successful! Reflection is in database:', verifyData);
+      
       toast({
         title: "Reflection saved!",
         description: "Your daily reflection has been recorded. This helps your coaches remember your journey better."
