@@ -894,6 +894,7 @@ Think: high-end lifestyle photography, not artistic painting."""
     ) -> str:
         """
         Generate soothing text-to-speech audio for visualization practices
+        Uses user's OpenAI API key for high-quality voices
         
         Args:
             text: The text to convert to speech
@@ -905,17 +906,23 @@ Think: high-end lifestyle photography, not artistic painting."""
         try:
             logger.info(f"Generating TTS with voice: {voice}")
             
-            # Use OpenAI API directly since emergentintegrations doesn't have TTS
+            # Use user's OpenAI API key for TTS
+            openai_key = os.getenv("OPENAI_API_KEY")
+            if not openai_key:
+                logger.error("OPENAI_API_KEY not found for TTS")
+                raise Exception("OpenAI API key not configured for text-to-speech")
+            
+            # Use OpenAI API directly
             import httpx
             
             url = "https://api.openai.com/v1/audio/speech"
             headers = {
-                "Authorization": f"Bearer {self.api_key}",
+                "Authorization": f"Bearer {openai_key}",
                 "Content-Type": "application/json"
             }
             
             payload = {
-                "model": "tts-1",  # Faster model
+                "model": "tts-1",  # Standard quality, faster
                 "input": text,
                 "voice": voice,
                 "response_format": "mp3"
@@ -935,7 +942,7 @@ Think: high-end lifestyle photography, not artistic painting."""
             # Convert to base64
             audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
             
-            logger.info("Successfully generated TTS audio")
+            logger.info(f"Successfully generated TTS audio ({len(audio_bytes)} bytes)")
             return audio_base64
             
         except Exception as e:
