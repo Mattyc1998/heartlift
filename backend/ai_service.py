@@ -905,25 +905,32 @@ Think: high-end lifestyle photography, not artistic painting."""
         try:
             logger.info(f"Generating TTS with voice: {voice}")
             
-            # Use OpenAI TTS via emergentintegrations
-            from emergentintegrations.llm.openai.text_to_speech import OpenAITextToSpeech
+            # Use OpenAI API directly since emergentintegrations doesn't have TTS
+            import httpx
             
-            tts = OpenAITextToSpeech(api_key=self.api_key)
+            url = "https://api.openai.com/v1/audio/speech"
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            }
             
-            # Generate audio - shimmer is warm, soothing, and perfect for meditation
+            payload = {
+                "model": "tts-1",  # Faster model
+                "input": text,
+                "voice": voice,
+                "response_format": "mp3"
+            }
+            
+            # Generate audio with timeout
             import asyncio
-            try:
-                audio_bytes = await asyncio.wait_for(
-                    tts.generate_speech(
-                        text=text,
-                        voice=voice,  # shimmer is most soothing
-                        model="tts-1"  # Standard quality, faster
-                    ),
-                    timeout=20.0
-                )
-            except asyncio.TimeoutError:
-                logger.error("TTS generation timed out")
-                raise Exception("Audio generation took too long. Please try again.")
+            async with httpx.AsyncClient(timeout=20.0) as client:
+                response = await client.post(url, headers=headers, json=payload)
+                
+                if response.status_code != 200:
+                    logger.error(f"OpenAI TTS error: {response.status_code} - {response.text}")
+                    raise Exception(f"TTS generation failed: {response.status_code}")
+                
+                audio_bytes = response.content
             
             # Convert to base64
             audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
