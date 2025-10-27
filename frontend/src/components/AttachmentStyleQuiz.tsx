@@ -1122,18 +1122,13 @@ export const AttachmentStyleQuiz = () => {
         {showResults && (
           <div className="flex gap-3 justify-center mt-6">
             {selectedPastResult ? (
-              <>
-                <Button onClick={() => {
-                  setShowHistory(true);
-                  setShowResults(false);
-                  setSelectedPastResult(null);
-                }} variant="outline">
-                  Back to History
-                </Button>
-                <Button onClick={resetQuiz} variant="default">
-                  Take New Quiz
-                </Button>
-              </>
+              <Button onClick={() => {
+                setShowHistory(true);
+                setShowResults(false);
+                setSelectedPastResult(null);
+              }} variant="outline">
+                Back to History
+              </Button>
             ) : (
               <Button onClick={() => setShowHistory(true)} variant="outline">
                 View Past Results
