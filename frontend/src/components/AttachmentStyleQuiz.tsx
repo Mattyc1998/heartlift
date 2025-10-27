@@ -637,6 +637,14 @@ export const AttachmentStyleQuiz = () => {
     }
   };
 
+  const viewPastResult = (result: any) => {
+    setSelectedPastResult(result);
+    setAttachmentStyle(result.attachment_style);
+    setAnalysis(result.analysis);
+    setShowResults(true);
+    setShowHistory(false);
+  };
+
   const handleAnswer = () => {
     if (selectedAnswer) {
       const newAnswers = [...answers, parseInt(selectedAnswer)];
