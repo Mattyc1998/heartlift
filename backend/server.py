@@ -46,6 +46,7 @@ class ChatRequest(BaseModel):
     coach_id: str
     conversation_history: List[ChatMessage] = []
     user_name: Optional[str] = None
+    user_id: Optional[str] = None  # Add user_id to fetch reflections
 
 class ChatResponse(BaseModel):
     response: str
