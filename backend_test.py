@@ -257,11 +257,13 @@ class QuizAnalysisTest:
                 return False
                 
         except Exception as e:
-            print(f"❌ Exception: {str(e)}")
+            import traceback
+            error_msg = f"{str(e)}\n{traceback.format_exc()}"
+            print(f"❌ Exception: {error_msg}")
             self.test_results.append({
                 "test": "Response Structure Validation",
                 "status": "FAILED",
-                "error": str(e)
+                "error": error_msg
             })
             return False
     
