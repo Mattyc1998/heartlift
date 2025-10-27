@@ -168,7 +168,8 @@ class AIService:
         user_message: str,
         conversation_history: List[Dict],
         session_id: str,
-        user_name: Optional[str] = None
+        user_name: Optional[str] = None,
+        user_reflections: Optional[List[Dict]] = None
     ) -> str:
         """
         Have a conversation with an AI coach
@@ -179,6 +180,7 @@ class AIService:
             conversation_history: Previous messages in the conversation
             session_id: Unique session ID for this conversation
             user_name: Optional user's first name
+            user_reflections: Optional list of user's recent daily reflections
         
         Returns:
             AI coach's response
@@ -196,6 +198,22 @@ class AIService:
             # Only add name instruction if this is the first message (no conversation history)
             if user_name and not conversation_history:
                 system_message += f"\n\nThis is your first message to the user. Their name is {user_name}. Use their name ONCE in this first greeting only, then don't use it again in future messages."
+            
+            # Add reflection context if available
+            if user_reflections and len(user_reflections) > 0:
+                reflection_context = "\n\n**USER'S RECENT REFLECTIONS (use this to personalize your support):**\n"
+                for ref in user_reflections:
+                    reflection_context += f"\n• Date: {ref.get('reflection_date')}"
+                    if ref.get('areas_for_improvement'):
+                        reflection_context += f"\n  - Areas to explore: {ref.get('areas_for_improvement')}"
+                    if ref.get('helpful_moments'):
+                        reflection_context += f"\n  - What helped: {ref.get('helpful_moments')}"
+                    if ref.get('conversation_rating'):
+                        reflection_context += f"\n  - Previous conversation rating: {ref.get('conversation_rating')}/5 stars"
+                
+                reflection_context += "\n\nNaturally weave these topics into the conversation when relevant. Reference what they want to explore without being too obvious about it. Make it feel personalized and thoughtful."
+                system_message += reflection_context
+                logger.info("Added reflection context to coach system message")
             
             # Create chat instance
             chat = LlmChat(
