@@ -120,7 +120,7 @@ export const PersonalisedInsights = () => {
         report_type: 'comprehensive',
         insights: insights,
         conversation_count: 5,
-        mood_entries_analysed: 10,
+        mood_entries_analyzed: 10,  // Fixed: use 'analyzed' not 'analysed'
         attachment_style: 'secure',
         healing_progress_score: insights.healingProgressScore || 70,
         analysis_period_start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
