@@ -175,24 +175,63 @@ export const DailyReflection = () => {
 
       console.log('Attempting to save reflection:', reflectionData);
 
-      // Try insert first, if it fails due to conflict, update
-      const { data, error } = await supabase
+      // Check if reflection already exists for today
+      const { data: existingReflection, error: checkError } = await supabase
         .from('daily_reflections')
-        .upsert(reflectionData, { 
-          onConflict: 'user_id,reflection_date',
-          ignoreDuplicates: false
-        })
-        .select();
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('reflection_date', reflection.reflection_date)
+        .maybeSingle();
 
-      if (error) {
-        console.error("Upsert error:", error);
-        throw error;
+      if (checkError) {
+        console.error("Error checking existing reflection:", checkError);
+        throw checkError;
       }
 
-      console.log('Reflection saved successfully:', data);
+      let result;
+      if (existingReflection) {
+        // Update existing reflection
+        console.log('Updating existing reflection:', existingReflection.id);
+        result = await supabase
+          .from('daily_reflections')
+          .update({
+            coaches_chatted_with: reflection.coaches_chatted_with,
+            conversation_rating: reflection.conversation_rating,
+            helpful_moments: reflection.helpful_moments,
+            areas_for_improvement: reflection.areas_for_improvement,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingReflection.id)
+          .select();
+      } else {
+        // Insert new reflection
+        console.log('Inserting new reflection');
+        result = await supabase
+          .from('daily_reflections')
+          .insert(reflectionData)
+          .select();
+      }
+
+      if (result.error) {
+        console.error("Save error:", result.error);
+        throw result.error;
+      }
+
+      console.log('Reflection saved successfully:', result.data);
 
       setHasReflectedToday(true);
-      loadPastReflections(); // Refresh past reflections in case this was an update
+      
+      // Update the reflection state with the saved data
+      if (result.data && result.data[0]) {
+        setReflection({
+          ...reflection,
+          id: result.data[0].id,
+          created_at: result.data[0].created_at
+        });
+      }
+      
+      loadPastReflections(); // Refresh past reflections
+      
       toast({
         title: "Reflection saved!",
         description: "Your daily reflection has been recorded. This helps your coaches remember your journey better."
