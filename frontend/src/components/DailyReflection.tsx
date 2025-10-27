@@ -467,8 +467,13 @@ export const DailyReflection = () => {
                   ))}
                 </div>
               </ScrollArea>
-            </CardContent>
-          )}
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No past reflections yet.</p>
+                <p className="text-sm mt-2">Complete today's reflection above to start building your journey history!</p>
+              </div>
+            )}
+          </CardContent>
         </Card>
       )}
     </div>
