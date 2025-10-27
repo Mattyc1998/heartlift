@@ -173,13 +173,23 @@ export const DailyReflection = () => {
         areas_for_improvement: reflection.areas_for_improvement
       };
 
-      const { error } = await supabase
+      console.log('Attempting to save reflection:', reflectionData);
+
+      // Try insert first, if it fails due to conflict, update
+      const { data, error } = await supabase
         .from('daily_reflections')
         .upsert(reflectionData, { 
-          onConflict: 'user_id,reflection_date' 
-        });
+          onConflict: 'user_id,reflection_date',
+          ignoreDuplicates: false
+        })
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Upsert error:", error);
+        throw error;
+      }
+
+      console.log('Reflection saved successfully:', data);
 
       setHasReflectedToday(true);
       loadPastReflections(); // Refresh past reflections in case this was an update
@@ -191,7 +201,7 @@ export const DailyReflection = () => {
       console.error("Error saving reflection:", error);
       toast({
         title: "Error saving reflection",
-        description: "Please try again.",
+        description: error instanceof Error ? error.message : "Please try again.",
         variant: "destructive"
       });
     } finally {
