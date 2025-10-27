@@ -239,6 +239,23 @@ async def generate_insights(request: InsightsRequest):
         logger.error(f"Error generating insights: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to generate insights")
 
+@api_router.post("/ai/text-to-speech")
+async def text_to_speech(request: TextToSpeechRequest):
+    """
+    Generate soothing text-to-speech audio for visualization practices
+    """
+    try:
+        audio_base64 = await ai_service.generate_text_to_speech(
+            text=request.text,
+            voice=request.voice
+        )
+        
+        return {"audio": audio_base64}
+        
+    except Exception as e:
+        logger.error(f"Error generating TTS: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
