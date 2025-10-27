@@ -161,7 +161,10 @@ export const VisualisationPractices = () => {
     
     if (isPlayingAudio) {
       // Stop current audio
-      window.speechSynthesis.cancel();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
       setIsPlayingAudio(false);
       return;
     }
@@ -172,59 +175,50 @@ export const VisualisationPractices = () => {
     setIsLoadingAudio(true);
     
     try {
-      // Use browser's Web Speech API - free, fast, and works great!
-      const utterance = new SpeechSynthesisUtterance(fullText);
-      
-      // Configure for soothing meditation voice
-      utterance.rate = 0.75;  // Slower, more relaxing pace
-      utterance.pitch = 1.0;  // Normal pitch
-      utterance.volume = 1.0; // Full volume
-      
-      // Try to use a female voice (more soothing for meditation)
-      const voices = window.speechSynthesis.getVoices();
-      const preferredVoice = voices.find(voice => 
-        voice.name.includes('Female') || 
-        voice.name.includes('Samantha') || 
-        voice.name.includes('Karen') ||
-        voice.name.includes('Moira') ||
-        voice.name.includes('Fiona') ||
-        voice.name.includes('Google UK English Female') ||
-        voice.name.includes('Microsoft Zira')
-      );
-      
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
+      // Call backend with OpenAI TTS - shimmer voice (most soothing)
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const response = await fetch(`${backendUrl}/api/ai/text-to-speech`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: fullText,
+          voice: 'shimmer'  // Warm, soothing, professional voice
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to generate audio: ${response.statusText}`);
       }
-      
-      utterance.onstart = () => {
-        setIsPlayingAudio(true);
-        setIsLoadingAudio(false);
-      };
-      
-      utterance.onend = () => {
-        setIsPlayingAudio(false);
-      };
-      
-      utterance.onerror = (event) => {
-        setIsPlayingAudio(false);
-        setIsLoadingAudio(false);
-        console.error('Speech synthesis error:', event);
-        toast({
-          title: "Audio Error",
-          description: "Failed to play audio guide",
-          variant: "destructive"
-        });
-      };
-      
-      // Load voices if not already loaded
-      if (voices.length === 0) {
-        window.speechSynthesis.onvoiceschanged = () => {
-          window.speechSynthesis.speak(utterance);
+
+      const data = await response.json();
+
+      if (data.audio) {
+        const audio = new Audio(`data:audio/mp3;base64,${data.audio}`);
+        audioRef.current = audio;
+        
+        audio.onplay = () => {
+          setIsPlayingAudio(true);
+          setIsLoadingAudio(false);
         };
-      } else {
-        window.speechSynthesis.speak(utterance);
+        audio.onended = () => {
+          setIsPlayingAudio(false);
+          audioRef.current = null;
+        };
+        audio.onerror = () => {
+          setIsPlayingAudio(false);
+          audioRef.current = null;
+          setIsLoadingAudio(false);
+          toast({
+            title: "Audio Error",
+            description: "Failed to play audio",
+            variant: "destructive"
+          });
+        };
+        
+        await audio.play();
       }
-      
     } catch (error) {
       console.error('Error playing audio:', error);
       setIsLoadingAudio(false);
