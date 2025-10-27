@@ -101,3 +101,74 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Quiz results not saving properly and users need access to past reports"
+
+backend:
+  - task: "Quiz Analysis API"
+    implemented: true
+    working: true
+    file: "/app/backend/ai_service.py, /app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Backend correctly analyzes quiz and returns results. Saving is handled by frontend."
+
+frontend:
+  - task: "Quiz Results Saving"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/AttachmentStyleQuiz.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Fixed fetchPastResults to query from 'quiz_results' table instead of 'user_attachment_results'. Updated from line 626. Saving logic was already correct (lines 690-707)."
+
+  - task: "Past Results Display"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/AttachmentStyleQuiz.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added interactive past results viewing. Users can now click on any past quiz result to view full analysis. Added viewPastResult function (line 641-647). Made past results clickable with hover effects. Added conditional UI to show when viewing past vs current results. Added action buttons to navigate between history and taking new quiz."
+
+  - task: "Date Display Format"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/AttachmentStyleQuiz.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Fixed date field from 'quiz_date' to 'completed_at' (lines 901, 1110). Enhanced display to show both date and time for better UX."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Quiz Results Saving"
+    - "Past Results Display"
+    - "Quiz Analysis API"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Fixed quiz results fetching from correct table ('quiz_results') and enhanced UI to allow viewing full details of past quiz results. Added interactive clickable past results with detailed analysis view. Users can now navigate between their quiz history and take new quizzes. Ready for backend testing to verify the quiz analysis and saving flow works end-to-end."
