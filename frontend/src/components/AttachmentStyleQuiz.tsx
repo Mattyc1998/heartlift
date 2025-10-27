@@ -903,15 +903,19 @@ export const AttachmentStyleQuiz = () => {
               {pastResults.length > 0 ? (
                 <div className="space-y-4">
                   {pastResults.map((result, index) => (
-                    <div key={result.id} className="flex justify-between items-center p-3 border rounded-lg">
+                    <button 
+                      key={result.id} 
+                      onClick={() => viewPastResult(result)}
+                      className="w-full flex justify-between items-center p-3 border rounded-lg hover:bg-accent transition-colors cursor-pointer text-left"
+                    >
                       <div>
-                        <p className="font-medium">{result.attachment_style}</p>
+                        <p className="font-medium capitalize">{result.attachment_style?.replace(/-/g, ' ')}</p>
                         <p className="text-sm text-muted-foreground">
-                          {new Date(result.completed_at).toLocaleDateString()}
+                          {new Date(result.completed_at).toLocaleDateString()} at {new Date(result.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
-                      <Badge variant="outline">{result.attachment_style}</Badge>
-                    </div>
+                      <Badge variant="outline" className="capitalize">{result.attachment_style?.replace(/-/g, ' ')}</Badge>
+                    </button>
                   ))}
                 </div>
               ) : (
@@ -1112,15 +1116,19 @@ export const AttachmentStyleQuiz = () => {
               {pastResults.length > 0 ? (
                 <div className="space-y-4">
                   {pastResults.map((result, index) => (
-                    <div key={result.id} className="flex justify-between items-center p-3 border rounded-lg">
+                    <button 
+                      key={result.id} 
+                      onClick={() => viewPastResult(result)}
+                      className="w-full flex justify-between items-center p-3 border rounded-lg hover:bg-accent transition-colors cursor-pointer text-left"
+                    >
                       <div>
-                        <p className="font-medium">{result.attachment_style}</p>
+                        <p className="font-medium capitalize">{result.attachment_style?.replace(/-/g, ' ')}</p>
                         <p className="text-sm text-muted-foreground">
-                          {new Date(result.completed_at).toLocaleDateString()}
+                          {new Date(result.completed_at).toLocaleDateString()} at {new Date(result.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
-                      <Badge variant="outline">{result.attachment_style}</Badge>
-                    </div>
+                      <Badge variant="outline" className="capitalize">{result.attachment_style?.replace(/-/g, ' ')}</Badge>
+                    </button>
                   ))}
                 </div>
               ) : (
