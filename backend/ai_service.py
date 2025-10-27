@@ -887,6 +887,54 @@ Think: high-end lifestyle photography, not artistic painting."""
             logger.error(f"Error generating heart vision: {e}", exc_info=True)
             raise
     
+    async def generate_text_to_speech(
+        self,
+        text: str,
+        voice: str = "shimmer"
+    ) -> str:
+        """
+        Generate soothing text-to-speech audio for visualization practices
+        
+        Args:
+            text: The text to convert to speech
+            voice: Voice to use (shimmer, alloy, echo, fable, onyx, nova)
+        
+        Returns:
+            Base64-encoded audio (MP3)
+        """
+        try:
+            logger.info(f"Generating TTS with voice: {voice}")
+            
+            # Use OpenAI TTS via emergentintegrations
+            from emergentintegrations.llm.openai.text_to_speech import OpenAITextToSpeech
+            
+            tts = OpenAITextToSpeech(api_key=self.api_key)
+            
+            # Generate audio - shimmer is warm, soothing, and perfect for meditation
+            import asyncio
+            try:
+                audio_bytes = await asyncio.wait_for(
+                    tts.generate_speech(
+                        text=text,
+                        voice=voice,  # shimmer is most soothing
+                        model="tts-1"  # Standard quality, faster
+                    ),
+                    timeout=20.0
+                )
+            except asyncio.TimeoutError:
+                logger.error("TTS generation timed out")
+                raise Exception("Audio generation took too long. Please try again.")
+            
+            # Convert to base64
+            audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
+            
+            logger.info("Successfully generated TTS audio")
+            return audio_base64
+            
+        except Exception as e:
+            logger.error(f"Error generating TTS: {e}", exc_info=True)
+            raise
+    
     def _get_fallback_questions(self) -> List[Dict]:
         """Fallback quiz questions if AI generation fails - matches frontend format"""
         return [
