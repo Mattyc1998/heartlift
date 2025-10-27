@@ -898,7 +898,7 @@ export const AttachmentStyleQuiz = () => {
                       <div>
                         <p className="font-medium">{result.attachment_style}</p>
                         <p className="text-sm text-muted-foreground">
-                          {new Date(result.quiz_date).toLocaleDateString()}
+                          {new Date(result.completed_at).toLocaleDateString()}
                         </p>
                       </div>
                       <Badge variant="outline">{result.attachment_style}</Badge>
@@ -1107,7 +1107,7 @@ export const AttachmentStyleQuiz = () => {
                       <div>
                         <p className="font-medium">{result.attachment_style}</p>
                         <p className="text-sm text-muted-foreground">
-                          {new Date(result.quiz_date).toLocaleDateString()}
+                          {new Date(result.completed_at).toLocaleDateString()}
                         </p>
                       </div>
                       <Badge variant="outline">{result.attachment_style}</Badge>
