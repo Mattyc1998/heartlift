@@ -163,9 +163,23 @@ export const DailyReflection = () => {
   };
 
   const saveReflection = async () => {
-    if (!user) return;
+    console.log('========== SAVE REFLECTION CALLED ==========');
+    console.log('User:', user);
+    console.log('User ID:', user?.id);
+    console.log('Reflection data:', reflection);
+    
+    if (!user) {
+      alert('ERROR: No user logged in!');
+      toast({
+        title: "Not logged in",
+        description: "Please log in first.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     if (reflection.coaches_chatted_with.length === 0) {
+      alert('ERROR: No coaches selected!');
       toast({
         title: "Please select at least one coach",
         description: "Let us know which coaches you chatted with today.",
@@ -185,10 +199,17 @@ export const DailyReflection = () => {
         areas_for_improvement: reflection.areas_for_improvement
       };
 
-      console.log('Saving reflection via backend:', reflectionData);
+      console.log('Reflection data to save:', JSON.stringify(reflectionData, null, 2));
 
       const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
-      const response = await fetch(`${backendUrl}/api/reflections/save`, {
+      console.log('Backend URL:', backendUrl);
+      
+      const fullUrl = `${backendUrl}/api/reflections/save`;
+      console.log('Full URL:', fullUrl);
+      
+      alert(`About to POST to: ${fullUrl}`);
+
+      const response = await fetch(fullUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -196,13 +217,19 @@ export const DailyReflection = () => {
         body: JSON.stringify(reflectionData)
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('ERROR Response:', errorText);
+        alert(`ERROR: ${response.status} - ${errorText}`);
         throw new Error(`Failed to save reflection: ${errorText}`);
       }
 
       const savedData = await response.json();
-      console.log('Reflection saved successfully via backend:', savedData);
+      console.log('SUCCESS! Saved data:', savedData);
+      alert(`SUCCESS! Reflection saved with ID: ${savedData.id}`);
 
       setHasReflectedToday(true);
       
@@ -219,10 +246,11 @@ export const DailyReflection = () => {
       
       toast({
         title: "Reflection saved!",
-        description: "Your daily reflection has been recorded. This helps your coaches remember your journey better."
+        description: `ID: ${savedData.id}`,
       });
     } catch (error) {
-      console.error("Error saving reflection:", error);
+      console.error("CATCH ERROR:", error);
+      alert(`CATCH ERROR: ${error instanceof Error ? error.message : String(error)}`);
       toast({
         title: "Error saving reflection",
         description: error instanceof Error ? error.message : "Please try again.",
@@ -230,6 +258,7 @@ export const DailyReflection = () => {
       });
     } finally {
       setIsSaving(false);
+      console.log('========== SAVE REFLECTION COMPLETE ==========');
     }
   };
 
