@@ -415,6 +415,7 @@ export const AttachmentStyleQuiz = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [pastResults, setPastResults] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [selectedPastResult, setSelectedPastResult] = useState<any | null>(null);
   const [hasCompletedToday, setHasCompletedToday] = useState(false);
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
