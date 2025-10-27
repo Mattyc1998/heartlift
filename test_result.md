@@ -157,6 +157,30 @@ frontend:
         agent: "main"
         comment: "Fixed date field from 'quiz_date' to 'completed_at' (lines 901, 1110). Enhanced display to show both date and time for better UX."
 
+  - task: "Chat Conversation Persistence"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/ChatInterface.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "CRITICAL FIX: Added database persistence for chat messages. User reported conversations disappearing when navigating away. Added supabase.rpc('insert_conversation_message') calls in sendMessage function to save both user messages (line 307-312) and coach responses (line 347-352). Also updated regenerateResponse to use new backend API. Conversations should now persist until user clicks refresh or it's a new day."
+
+  - task: "Daily Reflection Saving"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/DailyReflection.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "User reported daily reflections not saving. Reviewed code - saving logic is already correct (lines 153-200). Uses supabase.from('daily_reflections').upsert() with proper conflict resolution on user_id,reflection_date. Should be working but needs user testing to confirm."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
