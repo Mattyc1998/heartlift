@@ -375,15 +375,13 @@ async def get_today_reflection(user_id: str):
 @api_router.get("/reflections/past/{user_id}")
 async def get_past_reflections(user_id: str, limit: int = 30):
     """
-    Get past reflections for a user (excluding today)
+    Get ALL reflections for a user (including today)
     """
     try:
-        today = datetime.utcnow().date().isoformat()
-        logger.info(f"Fetching past reflections for user {user_id}")
+        logger.info(f"Fetching ALL reflections for user {user_id}")
         
         cursor = db.daily_reflections.find({
-            "user_id": user_id,
-            "reflection_date": {"$ne": today}
+            "user_id": user_id
         }).sort("reflection_date", -1).limit(limit)
         
         reflections = await cursor.to_list(length=limit)
@@ -393,12 +391,12 @@ async def get_past_reflections(user_id: str, limit: int = 30):
             reflection["id"] = str(reflection.get("_id", reflection.get("id")))
             reflection.pop("_id", None)
         
-        logger.info(f"Found {len(reflections)} past reflections")
+        logger.info(f"Found {len(reflections)} reflections")
         return reflections
         
     except Exception as e:
-        logger.error(f"Error fetching past reflections: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to fetch past reflections")
+        logger.error(f"Error fetching reflections: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to fetch reflections")
 
 # Include the router in the main app
 app.include_router(api_router)
