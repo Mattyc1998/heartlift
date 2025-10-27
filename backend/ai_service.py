@@ -780,6 +780,8 @@ Create a comprehensive, personalized insights report that:
                 "Celebrate small wins"
             ]
         }
+    
+    async def generate_heart_vision(
         self,
         prompt: str,
         user_name: Optional[str] = None
