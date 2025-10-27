@@ -120,6 +120,18 @@ backend:
         agent: "testing"
         comment: "✅ COMPREHENSIVE TESTING COMPLETED: POST /api/ai/quiz/analyze endpoint working perfectly. Response time: 6-7 seconds (meets <10s requirement). Returns correct structure with attachmentStyle (anxious/secure/avoidant/fearful-avoidant) and complete analysis object containing detailedBreakdown, healingPath, triggers, and copingTechniques. Error handling works - gracefully handles empty questions with fallback analysis. All test scenarios from review request passed successfully."
 
+  - task: "AI Coach Safety Guardrails"
+    implemented: true
+    working: true
+    file: "/app/backend/ai_service.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "CRITICAL SAFETY: Added SAFETY_GUIDELINES to ALL 4 coaches (Luna Love, Dr. Sage, Phoenix Fire, River Calm). Coaches now REFUSE to provide support for: suicide/self-harm, drug/substance abuse, domestic violence, child abuse, sexual assault, eating disorders, severe mental health crises. When detected, immediately redirect to crisis resources (988, Crisis Text Line, National DV Hotline, RAINN). Tested: Crisis messages get proper redirect. Normal conversations work perfectly."
+
 frontend:
   - task: "Quiz Results Saving"
     implemented: true
