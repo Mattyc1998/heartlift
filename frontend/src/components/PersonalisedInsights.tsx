@@ -93,11 +93,47 @@ export const PersonalisedInsights = () => {
     try {
       toast.info("Analyzing your conversations and generating personalised insights...");
       
-      const { data, error } = await supabase.functions.invoke('generate-insights', {
-        body: { userId: user.id }
+      // Call new AI backend endpoint
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const response = await fetch(`${backendUrl}/api/ai/insights`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.id
+        })
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(`Failed to generate insights: ${response.statusText}`);
+      }
+
+      const insights = await response.json();
+
+      // Save to database
+      const { data: savedReport, error: saveError } = await supabase
+        .from('user_insights_reports')
+        .insert({
+          user_id: user.id,
+          report_type: 'comprehensive',
+          insights: insights,
+          conversation_count: 5, // Placeholder
+          mood_entries_analysed: 10, // Placeholder
+          attachment_style: 'secure', // Placeholder
+          healing_progress_score: insights.healingProgressScore || 70,
+          analysis_period_start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+          analysis_period_end: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (saveError) throw saveError;
+
+      setCurrentReport(savedReport as unknown as InsightReport);
+      await loadReports();
+      
+      toast.success("Your personalised insights are ready!");
 
       toast.success("Your personalised insights have been generated!");
       await loadReports(); // Refresh the reports
