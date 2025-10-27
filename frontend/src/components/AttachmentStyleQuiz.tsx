@@ -598,20 +598,23 @@ export const AttachmentStyleQuiz = () => {
   const checkTodayCompletion = async () => {
     if (!user) return;
     
-    const today = new Date().toISOString().slice(0, 10); // UTC date
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD format
     
     try {
       const { data, error } = await supabase
-        .from('user_attachment_results')
-        .select('id')
+        .from('quiz_results')  // Fixed: use quiz_results table
+        .select('id, completed_at')
         .eq('user_id', user.id)
-        .eq('quiz_date', today)
+        .gte('completed_at', `${today}T00:00:00`)
+        .lte('completed_at', `${today}T23:59:59`)
         .limit(1);
 
       if (error) throw error;
       setHasCompletedToday(data && data.length > 0);
     } catch (error) {
       console.error('Error checking today completion:', error);
+      // Don't block if there's an error - let them take the quiz
+      setHasCompletedToday(false);
     }
   };
 
