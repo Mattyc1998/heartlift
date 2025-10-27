@@ -86,6 +86,26 @@ class TextToSpeechRequest(BaseModel):
     text: str
     voice: str = "shimmer"  # Default to shimmer (most soothing)
 
+# Daily Reflection Models
+class DailyReflectionSave(BaseModel):
+    user_id: str
+    reflection_date: str
+    coaches_chatted_with: List[str]
+    conversation_rating: Optional[int] = None
+    helpful_moments: Optional[str] = None
+    areas_for_improvement: Optional[str] = None
+
+class DailyReflectionResponse(BaseModel):
+    id: str
+    user_id: str
+    reflection_date: str
+    coaches_chatted_with: List[str]
+    conversation_rating: Optional[int]
+    helpful_moments: Optional[str]
+    areas_for_improvement: Optional[str]
+    created_at: str
+    updated_at: str
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
