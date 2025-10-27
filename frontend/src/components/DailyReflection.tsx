@@ -130,17 +130,19 @@ export const DailyReflection = () => {
     if (!user) return;
     
     try {
-      const today = new Date().toISOString().split('T')[0];
-      const { data, error } = await supabase
-        .from('daily_reflections')
-        .select('*')
-        .eq('user_id', user.id)
-        .neq('reflection_date', today) // Exclude today's reflection
-        .order('reflection_date', { ascending: false })
-        .limit(30); // Last 30 days
-
-      if (error) throw error;
-
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      
+      console.log(`Loading past reflections from backend: ${backendUrl}/api/reflections/past/${user.id}`);
+      
+      const response = await fetch(`${backendUrl}/api/reflections/past/${user.id}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to load past reflections: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      console.log('Loaded past reflections:', data);
       setPastReflections(data || []);
     } catch (error) {
       console.error("Error loading past reflections:", error);
