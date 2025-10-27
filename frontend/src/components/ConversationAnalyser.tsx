@@ -47,14 +47,24 @@ export const ConversationAnalyser = () => {
     setIsAnalyzing(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('analyze-conversation', {
-        body: {
-          conversationText: conversationText.trim(),
-          userId: user?.id,
+      // Call new AI backend endpoint
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const response = await fetch(`${backendUrl}/api/ai/analyze-conversation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          conversation_text: conversationText.trim(),
+          analysis_type: 'general'
+        })
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(`Failed to analyze conversation: ${response.statusText}`);
+      }
+
+      const data = await response.json();
 
       setAnalysis(data);
       toast({
@@ -66,7 +76,7 @@ export const ConversationAnalyser = () => {
       console.error('Analysis error:', error);
       toast({
         title: "Analysis Failed",
-        description: "There was an error analysing your conversation. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error analysing your conversation. Please try again.",
         variant: "destructive",
       });
     } finally {
