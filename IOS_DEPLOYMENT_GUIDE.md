@@ -219,7 +219,7 @@ yarn cap:open:ios
 ### Current Settings
 - **Bundle ID**: com.mattyc.heartlift
 - **App Name**: HeartLift
-- **Backend URL**: https://github-mobile-app.preview.emergentagent.com
+- **Backend URL**: https://ai-migration-hub.preview.emergentagent.com
 - **Supabase Project**: hmmimemzznsyilxqakty
 
 ### Updating Configuration

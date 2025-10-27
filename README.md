@@ -84,7 +84,7 @@ python3 frontend/generate_icons.py  # Generate placeholder icons
 
 ## 🔗 Important URLs
 
-- **Backend API**: https://github-mobile-app.preview.emergentagent.com
+- **Backend API**: https://ai-migration-hub.preview.emergentagent.com
 - **Supabase**: hmmimemzznsyilxqakty.supabase.co
 - **Bundle ID**: com.mattyc.heartlift
 

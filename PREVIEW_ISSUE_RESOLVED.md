@@ -36,7 +36,7 @@ The frontend service was in a FATAL state because:
 
 ## How to Access
 Your preview URL should now work:
-**https://github-mobile-app.preview.emergentagent.com**
+**https://ai-migration-hub.preview.emergentagent.com**
 
 ## Note About Changes Made
 The changes we made for iOS conversion were all correct:
