@@ -163,7 +163,6 @@ async def ai_chat(request: ChatRequest):
             user_name=request.user_name,
             user_reflections=user_reflections
         )
-        )
         
         return ChatResponse(response=response, session_id=session_id)
         
