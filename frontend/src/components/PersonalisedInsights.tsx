@@ -132,20 +132,13 @@ export const PersonalisedInsights = () => {
 
       setCurrentReport(savedReport as unknown as InsightReport);
       await loadReports();
+      setActiveTab("current");
       
       toast.success("Your personalised insights are ready!");
-
-      toast.success("Your personalised insights have been generated!");
-      await loadReports(); // Refresh the reports
-      setActiveTab("current"); // Switch to current report view
       
     } catch (error) {
       console.error('Error generating insights:', error);
-      if (error.message?.includes('quota') || error.message?.includes('503')) {
-        toast.error("AI insights are temporarily unavailable due to high demand. Please try again later.");
-      } else {
-        toast.error("Failed to generate insights. Please try again.");
-      }
+      toast.error("Failed to generate insights. Please try again.");
     } finally {
       setIsGenerating(false);
     }
