@@ -185,98 +185,37 @@ export const DailyReflection = () => {
         areas_for_improvement: reflection.areas_for_improvement
       };
 
-      console.log('Attempting to save reflection:', reflectionData);
+      console.log('Saving reflection via backend:', reflectionData);
 
-      // Check if reflection already exists for today
-      const { data: existingReflection, error: checkError } = await supabase
-        .from('daily_reflections')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('reflection_date', reflection.reflection_date)
-        .maybeSingle();
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const response = await fetch(`${backendUrl}/api/reflections/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reflectionData)
+      });
 
-      if (checkError) {
-        console.error("Error checking existing reflection:", checkError);
-        throw checkError;
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to save reflection: ${errorText}`);
       }
 
-      let result;
-      if (existingReflection) {
-        // Update existing reflection
-        console.log('Updating existing reflection:', existingReflection.id);
-        const { data, error } = await supabase
-          .from('daily_reflections')
-          .update({
-            coaches_chatted_with: reflection.coaches_chatted_with,
-            conversation_rating: reflection.conversation_rating,
-            helpful_moments: reflection.helpful_moments,
-            areas_for_improvement: reflection.areas_for_improvement,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingReflection.id)
-          .select('*');
-        
-        result = { data, error };
-        console.log('Update result:', result);
-      } else {
-        // Insert new reflection
-        console.log('Inserting new reflection');
-        const { data, error } = await supabase
-          .from('daily_reflections')
-          .insert(reflectionData)
-          .select('*');
-        
-        result = { data, error };
-        console.log('Insert result:', result);
-      }
-
-      if (result.error) {
-        console.error("Save error:", result.error);
-        throw result.error;
-      }
-
-      if (!result.data || result.data.length === 0) {
-        console.error("No data returned from save operation");
-        throw new Error("Save operation returned no data. Possible RLS policy issue.");
-      }
-
-      console.log('Reflection saved successfully:', result.data);
+      const savedData = await response.json();
+      console.log('Reflection saved successfully via backend:', savedData);
 
       setHasReflectedToday(true);
       
       // Update the reflection state with the saved data
-      if (result.data && result.data[0]) {
-        setReflection({
-          ...reflection,
-          id: result.data[0].id,
-          created_at: result.data[0].created_at
-        });
-      }
+      setReflection({
+        ...reflection,
+        id: savedData.id,
+        created_at: savedData.created_at
+      });
       
-      // Reload from database to verify it was actually saved
-      console.log('Verifying save by reloading from database...');
+      // Reload to verify
       await loadTodayReflection();
       await loadPastReflections();
-      
-      // Double-check if it's actually there
-      const { data: verifyData, error: verifyError } = await supabase
-        .from('daily_reflections')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('reflection_date', reflection.reflection_date)
-        .maybeSingle();
-      
-      if (verifyError) {
-        console.error('Verification error:', verifyError);
-        throw new Error(`Save verification failed: ${verifyError.message}`);
-      }
-      
-      if (!verifyData) {
-        console.error('Reflection was saved but cannot be retrieved! Possible RLS policy issue.');
-        throw new Error('Reflection saved but not accessible. Please check database permissions.');
-      }
-      
-      console.log('Verification successful! Reflection is in database:', verifyData);
       
       toast({
         title: "Reflection saved!",
