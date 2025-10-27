@@ -77,6 +77,10 @@ class HeartVisionRequest(BaseModel):
     prompt: str
     user_name: Optional[str] = None
 
+# Insights Models
+class InsightsRequest(BaseModel):
+    user_id: str
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
