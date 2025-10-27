@@ -78,16 +78,20 @@ export const DailyReflection = () => {
     setIsLoading(true);
     try {
       const today = new Date().toISOString().split('T')[0];
-      const { data, error } = await supabase
-        .from('daily_reflections')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('reflection_date', today)
-        .maybeSingle();
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      
+      console.log(`Loading today's reflection from backend: ${backendUrl}/api/reflections/today/${user.id}`);
+      
+      const response = await fetch(`${backendUrl}/api/reflections/today/${user.id}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to load reflection: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
 
-      if (error) throw error;
-
-      if (data) {
+      if (data && data.id) {
+        console.log('Loaded reflection from backend:', data);
         setReflection({
           id: data.id,
           coaches_chatted_with: data.coaches_chatted_with || [],
@@ -99,6 +103,7 @@ export const DailyReflection = () => {
         });
         setHasReflectedToday(true);
       } else {
+        console.log('No reflection found for today');
         // No reflection for today, reset to fresh state
         setReflection({
           coaches_chatted_with: [],
@@ -111,6 +116,11 @@ export const DailyReflection = () => {
       }
     } catch (error) {
       console.error("Error loading reflection:", error);
+      toast({
+        title: "Error loading reflection",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
