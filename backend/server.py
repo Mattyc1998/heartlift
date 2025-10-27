@@ -212,6 +212,28 @@ async def generate_heart_vision(request: HeartVisionRequest):
         logger.error(f"Error generating heart vision: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.post("/ai/insights")
+async def generate_insights(request: InsightsRequest):
+    """
+    Generate personalized insights report
+    """
+    try:
+        # TODO: In production, fetch actual user data from database
+        # For now, using placeholder data
+        insights = await ai_service.generate_personalized_insights(
+            user_id=request.user_id,
+            conversation_count=5,  # Would fetch from chat_history
+            mood_entries_count=10,  # Would fetch from mood_entries
+            recent_conversations=["Setting boundaries", "Healing journey", "Self-worth"],
+            recent_moods=["hopeful", "reflective", "growing"]
+        )
+        
+        return insights
+        
+    except Exception as e:
+        logger.error(f"Error generating insights: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to generate insights")
+
 # Include the router in the main app
 app.include_router(api_router)
 
