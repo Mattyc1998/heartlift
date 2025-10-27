@@ -623,11 +623,11 @@ export const AttachmentStyleQuiz = () => {
     
     try {
       const { data, error } = await supabase
-        .from('user_attachment_results')
+        .from('quiz_results')
         .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(5);
+        .order('completed_at', { ascending: false })
+        .limit(10);
 
       if (error) throw error;
       setPastResults(data || []);
