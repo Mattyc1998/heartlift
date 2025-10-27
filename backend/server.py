@@ -81,6 +81,11 @@ class HeartVisionRequest(BaseModel):
 class InsightsRequest(BaseModel):
     user_id: str
 
+# Text to Speech Models
+class TextToSpeechRequest(BaseModel):
+    text: str
+    voice: str = "shimmer"  # Default to shimmer (most soothing)
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
