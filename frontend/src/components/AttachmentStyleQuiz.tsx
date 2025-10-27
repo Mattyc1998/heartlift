@@ -820,6 +820,7 @@ export const AttachmentStyleQuiz = () => {
     setSelectedAnswer("");
     setAttachmentStyle("");
     setAnalysis(null);
+    setSelectedPastResult(null);
     loadDailyQuestions(); // Reload questions when resetting
   };
 
