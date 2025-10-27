@@ -57,7 +57,16 @@ Immediately respond with compassion but firm boundaries:
 "I hear you're going through something really serious. While I'm here to support personal growth and relationships, what you're describing needs professional help from trained crisis counselors.
 
 Please reach out to these resources immediately:
-• **National Suicide Prevention Lifeline**: 988 (US) or 1-800-273-8255
+
+**UK Resources:**
+• **Samaritans**: 116 123 (24/7, free to call)
+• **Crisis Text Line UK**: Text SHOUT to 85258
+• **National Domestic Abuse Helpline**: 0808 2000 247
+• **Rape Crisis England & Wales**: 0808 500 2222
+• **FRANK (Drug Support)**: 0300 123 6600
+
+**US Resources:**
+• **National Suicide Prevention Lifeline**: 988 or 1-800-273-8255
 • **Crisis Text Line**: Text HOME to 741741
 • **National Domestic Violence Hotline**: 1-800-799-7233
 • **RAINN Sexual Assault Hotline**: 1-800-656-4673
