@@ -189,9 +189,10 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Chat Conversation Persistence"
+    - "Daily Reflection Saving"
     - "Quiz Results Saving"
     - "Past Results Display"
-    - "Quiz Analysis API"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
