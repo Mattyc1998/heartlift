@@ -206,7 +206,7 @@ export function HeartVisions() {
               Create your own emotional visuals. Type what you'd like to see, and HeartVisions will
               generate a personalised image that captures your feelings or intentions.
               <span className="block mt-2 text-xs font-medium">
-                You get 2 free images per day • {dailyCount}/2 used today
+                You get 2 images per day • {dailyCount}/2 used today
               </span>
             </CardDescription>
           </div>
