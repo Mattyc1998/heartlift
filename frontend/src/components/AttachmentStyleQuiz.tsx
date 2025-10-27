@@ -977,19 +977,30 @@ export const AttachmentStyleQuiz = () => {
                 <IconComponent className="w-8 h-8 text-white" />
               </div>
             </div>
-            <CardTitle className="text-2xl">Your Attachment Style</CardTitle>
+            <CardTitle className="text-2xl">
+              {selectedPastResult ? 'Past Quiz Result' : 'Your Attachment Style'}
+            </CardTitle>
             <Badge variant="secondary" className="text-lg px-4 py-2">
               {style.name}
             </Badge>
             <div className="flex items-center justify-center gap-4 mt-4">
-              <Badge variant="outline" className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                AI-Generated Quiz
-              </Badge>
-              <Badge variant="secondary" className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                Next: {formatTimeUntilNextChange()}
-              </Badge>
+              {selectedPastResult ? (
+                <Badge variant="outline" className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  {new Date(selectedPastResult.completed_at).toLocaleDateString()} at {new Date(selectedPastResult.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </Badge>
+              ) : (
+                <>
+                  <Badge variant="outline" className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    AI-Generated Quiz
+                  </Badge>
+                  <Badge variant="secondary" className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Next: {formatTimeUntilNextChange()}
+                  </Badge>
+                </>
+              )}
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
