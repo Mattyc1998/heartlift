@@ -230,7 +230,10 @@ export const DailyReflection = () => {
         });
       }
       
-      loadPastReflections(); // Refresh past reflections
+      // Reload from database to verify it was actually saved
+      console.log('Verifying save by reloading from database...');
+      await loadTodayReflection();
+      await loadPastReflections();
       
       toast({
         title: "Reflection saved!",
