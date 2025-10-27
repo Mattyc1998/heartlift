@@ -597,7 +597,189 @@ No other text or explanation."""
                 "I'm working on setting healthier boundaries. I hope you can understand."
             ]
     
-    async def generate_heart_vision(
+    async def generate_personalized_insights(
+        self,
+        user_id: str,
+        conversation_count: int = 0,
+        mood_entries_count: int = 0,
+        recent_conversations: List[str] = [],
+        recent_moods: List[str] = []
+    ) -> Dict:
+        """
+        Generate personalized insights report for a user
+        
+        Args:
+            user_id: User ID
+            conversation_count: Number of conversations analyzed
+            mood_entries_count: Number of mood entries analyzed
+            recent_conversations: Sample of recent conversation topics
+            recent_moods: Sample of recent mood entries
+        
+        Returns:
+            Comprehensive insights report
+        """
+        try:
+            system_message = """You are an expert relationship psychologist creating personalized insights reports.
+
+Based on the user's activity, create a comprehensive analysis in this EXACT JSON format:
+{
+  "emotionalPatterns": ["pattern 1", "pattern 2", "pattern 3"],
+  "communicationStyle": "Description of their communication style",
+  "relationshipGoals": ["goal 1", "goal 2", "goal 3"],
+  "healingProgressScore": 75,
+  "keyInsights": {
+    "strengths": ["strength 1", "strength 2", "strength 3"],
+    "areasForGrowth": ["area 1", "area 2", "area 3"],
+    "progressSigns": ["sign 1", "sign 2", "sign 3"]
+  },
+  "personalizedRecommendations": [
+    {
+      "category": "Self-Care",
+      "recommendation": "Specific recommendation",
+      "why": "Why this helps"
+    },
+    {
+      "category": "Communication",
+      "recommendation": "Specific recommendation",
+      "why": "Why this helps"
+    },
+    {
+      "category": "Boundaries",
+      "recommendation": "Specific recommendation",
+      "why": "Why this helps"
+    }
+  ],
+  "moodTrends": {
+    "pattern": "Overall mood pattern description",
+    "triggers": ["trigger 1", "trigger 2"],
+    "improvements": ["improvement 1", "improvement 2"]
+  },
+  "nextSteps": ["step 1", "step 2", "step 3", "step 4", "step 5"]
+}
+
+Make insights specific, actionable, and supportive. Return ONLY valid JSON."""
+            
+            chat = LlmChat(
+                api_key=self.api_key,
+                session_id=f"insights-{user_id}-{datetime.now().timestamp()}",
+                system_message=system_message
+            ).with_model("openai", "gpt-4o-mini")
+            
+            # Build context from user data
+            context = f"""Generate personalized insights for this user:
+
+Activity Summary:
+- {conversation_count} coaching conversations
+- {mood_entries_count} mood entries tracked
+
+Recent conversation topics: {', '.join(recent_conversations) if recent_conversations else 'Getting started with healing journey'}
+
+Recent mood patterns: {', '.join(recent_moods) if recent_moods else 'Building emotional awareness'}
+
+Create a comprehensive, personalized insights report that:
+1. Identifies emotional patterns and growth
+2. Assesses communication style
+3. Provides actionable recommendations
+4. Celebrates progress and strengths
+5. Offers specific next steps"""
+            
+            user_msg = UserMessage(text=context)
+            
+            # 15 second timeout
+            import asyncio
+            try:
+                response = await asyncio.wait_for(
+                    chat.send_message(user_msg),
+                    timeout=15.0
+                )
+            except asyncio.TimeoutError:
+                logger.warning("Insights generation timed out")
+                return self._get_fallback_insights()
+            
+            # Parse JSON response
+            try:
+                clean_response = response.strip()
+                if clean_response.startswith("```json"):
+                    clean_response = clean_response[7:]
+                if clean_response.startswith("```"):
+                    clean_response = clean_response[3:]
+                if clean_response.endswith("```"):
+                    clean_response = clean_response[:-3]
+                clean_response = clean_response.strip()
+                
+                insights = json.loads(clean_response)
+                logger.info(f"Successfully generated personalized insights")
+                return insights
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse insights JSON: {e}")
+                return self._get_fallback_insights()
+                
+        except Exception as e:
+            logger.error(f"Error generating insights: {e}", exc_info=True)
+            return self._get_fallback_insights()
+    
+    def _get_fallback_insights(self) -> Dict:
+        """Fallback insights if AI generation fails"""
+        return {
+            "emotionalPatterns": [
+                "You're building awareness of your emotional responses",
+                "You're learning to recognize patterns in relationships",
+                "You're developing healthier coping strategies"
+            ],
+            "communicationStyle": "You're on a journey of improving communication and expressing your needs more clearly.",
+            "relationshipGoals": [
+                "Build healthier relationship patterns",
+                "Strengthen emotional boundaries",
+                "Develop secure attachment style"
+            ],
+            "healingProgressScore": 65,
+            "keyInsights": {
+                "strengths": [
+                    "You're committed to personal growth",
+                    "You're using tools to support your healing",
+                    "You're building self-awareness"
+                ],
+                "areasForGrowth": [
+                    "Continue practicing emotional regulation",
+                    "Strengthen communication skills",
+                    "Build confidence in setting boundaries"
+                ],
+                "progressSigns": [
+                    "You're engaging with healing resources",
+                    "You're tracking your emotional journey",
+                    "You're seeking support when needed"
+                ]
+            },
+            "personalizedRecommendations": [
+                {
+                    "category": "Self-Care",
+                    "recommendation": "Establish a daily check-in routine",
+                    "why": "Regular self-reflection builds emotional awareness"
+                },
+                {
+                    "category": "Communication",
+                    "recommendation": "Practice 'I' statements when expressing feelings",
+                    "why": "This helps communicate needs without blame"
+                },
+                {
+                    "category": "Boundaries",
+                    "recommendation": "Start with small, clear boundaries",
+                    "why": "Building boundary-setting skills gradually increases confidence"
+                }
+            ],
+            "moodTrends": {
+                "pattern": "You're in the process of understanding your emotional landscape",
+                "triggers": ["Uncertainty in relationships", "Boundary challenges"],
+                "improvements": ["Growing self-awareness", "Seeking support"]
+            },
+            "nextSteps": [
+                "Continue daily mood tracking",
+                "Have one coaching conversation per week",
+                "Practice one new boundary this week",
+                "Journal about your feelings",
+                "Celebrate small wins"
+            ]
+        }
         self,
         prompt: str,
         user_name: Optional[str] = None
