@@ -236,7 +236,7 @@ class AIService:
     ) -> List[Dict]:
         """
         Generate fresh daily quiz questions about attachment styles
-        Fast generation with 8-second timeout
+        Uses caching to speed up - generates once per day, reuses for all users
         
         Args:
             category: Quiz category (e.g., 'attachment_style')
@@ -246,47 +246,50 @@ class AIService:
         Returns:
             List of quiz questions in frontend format: {id, question, options: [string]}
         """
+        global _quiz_cache, _quiz_cache_date
+        
         try:
-            system_message = """You are an expert psychologist. Generate attachment style quiz questions QUICKLY.
+            # Check if we have cached questions for today
+            today = date.today()
+            cache_key = f"{category}_{num_questions}"
+            
+            if _quiz_cache_date == today and cache_key in _quiz_cache:
+                logger.info(f"Using cached quiz questions for {today}")
+                return _quiz_cache[cache_key]
+            
+            # Generate new questions
+            logger.info(f"Generating new quiz questions for {today}")
+            
+            system_message = """Expert psychologist. Generate attachment quiz questions FAST.
 
-Return ONLY this JSON format (NO explanations):
-[
-  {
-    "question": "Short question here?",
-    "options": ["Option 1", "Option 2", "Option 3", "Option 4"]
-  }
-]
+Return ONLY JSON (NO text):
+[{"question":"Q?","options":["Opt1","Opt2","Opt3","Opt4"]}]
 
-Rules:
-- 4 options per question
-- Option 1 = secure, Option 2 = anxious, Option 3 = avoidant, Option 4 = mixed
-- Keep questions concise
-- Return ONLY valid JSON, nothing else"""
+Rules: 4 options, Opt1=secure, Opt2=anxious, Opt3=avoidant, Opt4=mixed. Be concise."""
             
             chat = LlmChat(
                 api_key=self.api_key,
-                session_id=f"quiz-{datetime.now().strftime('%Y%m%d-%H')}",
+                session_id=f"quiz-{today.strftime('%Y%m%d')}",
                 system_message=system_message
             ).with_model("openai", "gpt-4o-mini")
             
-            prompt = f"Generate {num_questions} attachment quiz questions. Be FAST and concise."
+            prompt = f"{num_questions} attachment questions. FAST."
             
             user_msg = UserMessage(text=prompt)
             
-            # Use asyncio timeout to limit generation time to 8 seconds
+            # 6 second timeout - faster!
             import asyncio
             try:
                 response = await asyncio.wait_for(
                     chat.send_message(user_msg),
-                    timeout=8.0  # 8 second timeout
+                    timeout=6.0
                 )
             except asyncio.TimeoutError:
-                logger.warning("Quiz generation timed out after 8 seconds, using fallback")
+                logger.warning("Quiz generation timed out, using fallback")
                 return self._get_fallback_questions()
             
             # Parse JSON response
             try:
-                # Clean the response
                 clean_response = response.strip()
                 if clean_response.startswith("```json"):
                     clean_response = clean_response[7:]
@@ -302,7 +305,11 @@ Rules:
                 for i, question in enumerate(questions):
                     question['id'] = i + 1
                 
-                logger.info(f"Successfully generated {len(questions)} quiz questions")
+                # Cache the questions for today
+                _quiz_cache[cache_key] = questions
+                _quiz_cache_date = today
+                
+                logger.info(f"Cached {len(questions)} quiz questions for {today}")
                 return questions
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse quiz questions JSON: {e}")
