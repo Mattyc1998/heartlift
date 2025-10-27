@@ -133,11 +133,13 @@ class QuizAnalysisTest:
                 return False
                 
         except Exception as e:
-            print(f"❌ Exception: {str(e)}")
+            import traceback
+            error_msg = f"{str(e)}\n{traceback.format_exc()}"
+            print(f"❌ Exception: {error_msg}")
             self.test_results.append({
                 "test": "Basic Quiz Analysis",
                 "status": "FAILED",
-                "error": str(e),
+                "error": error_msg,
                 "response_time": None
             })
             return False
