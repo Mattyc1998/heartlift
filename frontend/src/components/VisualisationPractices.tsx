@@ -175,11 +175,24 @@ export const VisualisationPractices = () => {
     setIsLoadingAudio(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('text-to-speech', {
-        body: { text: fullText, voice: 'nova' }
+      // Call new AI backend endpoint with shimmer voice (most soothing)
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const response = await fetch(`${backendUrl}/api/ai/text-to-speech`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: fullText,
+          voice: 'shimmer'  // Warm, soothing, perfect for meditation/visualization
+        })
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(`Failed to generate audio: ${response.statusText}`);
+      }
+
+      const data = await response.json();
 
       if (data.audio) {
         const audio = new Audio(`data:audio/mp3;base64,${data.audio}`);
@@ -199,13 +212,14 @@ export const VisualisationPractices = () => {
             variant: "destructive"
           });
         };
-
+        
         await audio.play();
       }
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Error playing audio:', error);
       toast({
-        title: "Audio Error",
-        description: error.message || "Failed to generate audio",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to generate audio guide",
         variant: "destructive"
       });
     } finally {
