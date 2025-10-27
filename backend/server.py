@@ -276,6 +276,130 @@ async def text_to_speech(request: TextToSpeechRequest):
         logger.error(f"Error generating TTS: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+# ============ DAILY REFLECTION ENDPOINTS ============
+
+@api_router.post("/reflections/save")
+async def save_daily_reflection(request: DailyReflectionSave):
+    """
+    Save or update daily reflection
+    """
+    try:
+        logger.info(f"Saving reflection for user {request.user_id} on {request.reflection_date}")
+        
+        # Check if reflection already exists for this user and date
+        existing = await db.daily_reflections.find_one({
+            "user_id": request.user_id,
+            "reflection_date": request.reflection_date
+        })
+        
+        now = datetime.utcnow().isoformat()
+        
+        if existing:
+            # Update existing reflection
+            logger.info(f"Updating existing reflection: {existing['_id']}")
+            update_data = {
+                "coaches_chatted_with": request.coaches_chatted_with,
+                "conversation_rating": request.conversation_rating,
+                "helpful_moments": request.helpful_moments,
+                "areas_for_improvement": request.areas_for_improvement,
+                "updated_at": now
+            }
+            
+            await db.daily_reflections.update_one(
+                {"_id": existing["_id"]},
+                {"$set": update_data}
+            )
+            
+            # Fetch updated reflection
+            updated = await db.daily_reflections.find_one({"_id": existing["_id"]})
+            updated["id"] = str(updated["_id"])
+            del updated["_id"]
+            
+            logger.info(f"Reflection updated successfully: {updated['id']}")
+            return updated
+        else:
+            # Insert new reflection
+            logger.info("Inserting new reflection")
+            reflection_id = str(uuid.uuid4())
+            reflection_data = {
+                "id": reflection_id,
+                "user_id": request.user_id,
+                "reflection_date": request.reflection_date,
+                "coaches_chatted_with": request.coaches_chatted_with,
+                "conversation_rating": request.conversation_rating,
+                "helpful_moments": request.helpful_moments,
+                "areas_for_improvement": request.areas_for_improvement,
+                "created_at": now,
+                "updated_at": now
+            }
+            
+            await db.daily_reflections.insert_one(reflection_data)
+            
+            # Remove MongoDB _id for response
+            reflection_data.pop("_id", None)
+            
+            logger.info(f"Reflection inserted successfully: {reflection_id}")
+            return reflection_data
+            
+    except Exception as e:
+        logger.error(f"Error saving reflection: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to save reflection: {str(e)}")
+
+@api_router.get("/reflections/today/{user_id}")
+async def get_today_reflection(user_id: str):
+    """
+    Get today's reflection for a user
+    """
+    try:
+        today = datetime.utcnow().date().isoformat()
+        logger.info(f"Fetching today's reflection for user {user_id} on {today}")
+        
+        reflection = await db.daily_reflections.find_one({
+            "user_id": user_id,
+            "reflection_date": today
+        })
+        
+        if reflection:
+            reflection["id"] = str(reflection.get("_id", reflection.get("id")))
+            reflection.pop("_id", None)
+            logger.info(f"Found reflection: {reflection['id']}")
+            return reflection
+        else:
+            logger.info("No reflection found for today")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Error fetching today's reflection: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to fetch reflection")
+
+@api_router.get("/reflections/past/{user_id}")
+async def get_past_reflections(user_id: str, limit: int = 30):
+    """
+    Get past reflections for a user (excluding today)
+    """
+    try:
+        today = datetime.utcnow().date().isoformat()
+        logger.info(f"Fetching past reflections for user {user_id}")
+        
+        cursor = db.daily_reflections.find({
+            "user_id": user_id,
+            "reflection_date": {"$ne": today}
+        }).sort("reflection_date", -1).limit(limit)
+        
+        reflections = await cursor.to_list(length=limit)
+        
+        # Convert MongoDB _id to id
+        for reflection in reflections:
+            reflection["id"] = str(reflection.get("_id", reflection.get("id")))
+            reflection.pop("_id", None)
+        
+        logger.info(f"Found {len(reflections)} past reflections")
+        return reflections
+        
+    except Exception as e:
+        logger.error(f"Error fetching past reflections: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to fetch past reflections")
+
 # Include the router in the main app
 app.include_router(api_router)
 
