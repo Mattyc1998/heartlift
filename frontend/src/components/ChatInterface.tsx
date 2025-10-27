@@ -399,19 +399,29 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
         throw new Error('Please sign in again to continue');
       }
 
-      const { data, error } = await supabase.functions.invoke('ai-chat', {
-        body: {
+      // Call the new AI backend endpoint
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const response = await fetch(`${backendUrl}/api/ai/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           message: userMessage.content,
-          coachId: coachPersonality,
-          conversationHistory: messages.slice(0, messageIndex - 1).map(m => ({
-            role: m.sender === 'user' ? 'user' : 'assistant',
-            content: m.content
+          coach_id: coachPersonality,
+          conversation_history: messages.slice(0, messageIndex - 1).map(m => ({
+            content: m.content,
+            sender: m.sender
           })),
-          requestRegenerate: true
-        }
+          user_name: getFirstName() || undefined
+        })
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(`Failed to regenerate response: ${response.statusText}`);
+      }
+
+      const data = await response.json();
 
       // Replace the bot response
       const updatedMessages = [...messages];
@@ -422,6 +432,10 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
       };
       
       setMessages(updatedMessages);
+
+      // Update the coach response in database
+      // Note: We need to delete and re-insert since we're regenerating
+      // The database stores messages sequentially, regeneration replaces the last coach response
       
     } catch (error) {
       console.error("Error regenerating response:", error);
