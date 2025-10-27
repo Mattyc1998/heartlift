@@ -192,7 +192,7 @@ export const DailyReflection = () => {
       if (existingReflection) {
         // Update existing reflection
         console.log('Updating existing reflection:', existingReflection.id);
-        result = await supabase
+        const { data, error } = await supabase
           .from('daily_reflections')
           .update({
             coaches_chatted_with: reflection.coaches_chatted_with,
@@ -202,19 +202,30 @@ export const DailyReflection = () => {
             updated_at: new Date().toISOString()
           })
           .eq('id', existingReflection.id)
-          .select();
+          .select('*');
+        
+        result = { data, error };
+        console.log('Update result:', result);
       } else {
         // Insert new reflection
         console.log('Inserting new reflection');
-        result = await supabase
+        const { data, error } = await supabase
           .from('daily_reflections')
           .insert(reflectionData)
-          .select();
+          .select('*');
+        
+        result = { data, error };
+        console.log('Insert result:', result);
       }
 
       if (result.error) {
         console.error("Save error:", result.error);
         throw result.error;
+      }
+
+      if (!result.data || result.data.length === 0) {
+        console.error("No data returned from save operation");
+        throw new Error("Save operation returned no data. Possible RLS policy issue.");
       }
 
       console.log('Reflection saved successfully:', result.data);
