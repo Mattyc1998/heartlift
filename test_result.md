@@ -171,15 +171,18 @@ frontend:
 
   - task: "Daily Reflection Saving"
     implemented: true
-    working: true
+    working: "NA"
     file: "/app/frontend/src/components/DailyReflection.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: true
         agent: "main"
         comment: "User reported daily reflections not saving. Reviewed code - saving logic is already correct (lines 153-200). Uses supabase.from('daily_reflections').upsert() with proper conflict resolution on user_id,reflection_date. Should be working but needs user testing to confirm."
+      - working: "NA"
+        agent: "main"
+        comment: "USER INSISTS NOT SAVING! Changed approach from upsert to manual check-then-insert/update pattern. Added extensive console logging to track save operations. Function now: 1) Checks if reflection exists for today 2) If exists, updates via .update() 3) If not, inserts via .insert() 4) Returns .select() to confirm save 5) Shows detailed error messages. Added error message display in toast. Lines 153-249 completely rewritten."
 
 metadata:
   created_by: "main_agent"
