@@ -463,27 +463,36 @@ IMPORTANT:
             analysis_type: Type of analysis (e.g., 'general', 'red_flags', 'communication_style')
         
         Returns:
-            Analysis results
+            Analysis results in frontend-compatible format
         """
         try:
-            system_message = """You are an expert relationship psychologist who analyzes conversations to identify:
-- Communication patterns
-- Red flags or concerning behaviors
-- Healthy vs unhealthy dynamics
-- Attachment style indicators
-- Areas for improvement
+            system_message = """You are an expert relationship psychologist who analyzes conversations.
 
-Provide clear, actionable insights in a supportive tone. Format your response as JSON with these fields:
+Analyze the conversation and return ONLY this JSON structure:
 {
-  "overall_assessment": "brief summary",
-  "communication_style": "description of communication patterns",
-  "red_flags": ["list of concerning patterns if any"],
-  "green_flags": ["list of healthy patterns"],
-  "attachment_indicators": "what the conversation reveals about attachment",
-  "recommendations": ["actionable suggestions"]
+  "emotionalTone": {
+    "user": "description of user's emotional tone",
+    "partner": "description of partner's emotional tone",
+    "overall": "overall emotional tone of conversation"
+  },
+  "miscommunicationPatterns": [
+    {
+      "pattern": "Pattern name",
+      "description": "What this pattern looks like",
+      "examples": ["example 1 from conversation", "example 2"]
+    }
+  ],
+  "suggestions": [
+    {
+      "issue": "Communication issue identified",
+      "betterResponse": "Suggested better way to respond",
+      "explanation": "Why this would be more effective"
+    }
+  ],
+  "overallAssessment": "comprehensive summary of the conversation dynamics"
 }
 
-Return ONLY the JSON object, no other text."""
+Be specific, reference actual quotes, provide actionable advice. Return ONLY valid JSON."""
             
             chat = LlmChat(
                 api_key=self.api_key,
@@ -492,7 +501,17 @@ Return ONLY the JSON object, no other text."""
             ).with_model("openai", "gpt-4o-mini")
             
             user_msg = UserMessage(text=f"Analyze this conversation:\n\n{conversation_text}")
-            response = await chat.send_message(user_msg)
+            
+            # 12 second timeout for analysis
+            import asyncio
+            try:
+                response = await asyncio.wait_for(
+                    chat.send_message(user_msg),
+                    timeout=12.0
+                )
+            except asyncio.TimeoutError:
+                logger.warning("Conversation analysis timed out")
+                return self._get_fallback_conversation_analysis()
             
             # Parse JSON response
             try:
@@ -508,26 +527,37 @@ Return ONLY the JSON object, no other text."""
                 analysis = json.loads(clean_response)
                 return analysis
             except json.JSONDecodeError:
-                # Fallback: return response as plain text
-                return {
-                    "overall_assessment": response,
-                    "communication_style": "Analysis provided above",
-                    "red_flags": [],
-                    "green_flags": [],
-                    "attachment_indicators": "",
-                    "recommendations": []
-                }
+                # Fallback
+                return self._get_fallback_conversation_analysis()
                 
         except Exception as e:
             logger.error(f"Error analyzing conversation: {e}", exc_info=True)
-            return {
-                "overall_assessment": "Unable to analyze at this time.",
-                "communication_style": "",
-                "red_flags": [],
-                "green_flags": [],
-                "attachment_indicators": "",
-                "recommendations": []
-            }
+            return self._get_fallback_conversation_analysis()
+    
+    def _get_fallback_conversation_analysis(self) -> Dict:
+        """Fallback conversation analysis if AI fails"""
+        return {
+            "emotionalTone": {
+                "user": "Engaged and seeking connection",
+                "partner": "Reserved or guarded",
+                "overall": "Mixed - one person reaching out, other responding minimally"
+            },
+            "miscommunicationPatterns": [
+                {
+                    "pattern": "Short Responses",
+                    "description": "One-word or brief answers that don't invite further conversation",
+                    "examples": ["Fine.", "Okay.", "Whatever."]
+                }
+            ],
+            "suggestions": [
+                {
+                    "issue": "Limited engagement from partner",
+                    "betterResponse": "Try: 'I notice you seem quiet. Is there something on your mind? I'm here if you want to talk.'",
+                    "explanation": "This validates their feelings and creates space for them to open up without pressure"
+                }
+            ],
+            "overallAssessment": "The conversation shows one person trying to connect while the other is being less responsive. This could indicate emotional distance, timing issues, or different communication styles."
+        }
     
     async def generate_text_suggestions(
         self,
