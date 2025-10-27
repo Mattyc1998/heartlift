@@ -325,7 +325,7 @@ Rules: 4 options, Opt1=secure, Opt2=anxious, Opt3=avoidant, Opt4=mixed. Be conci
         user_id: Optional[str] = None
     ) -> Dict:
         """
-        Analyze attachment style quiz results with AI
+        Analyze attachment style quiz results with AI - OPTIMIZED FOR SPEED
         
         Args:
             questions_and_answers: List of {question: str, answer: str}
@@ -335,40 +335,27 @@ Rules: 4 options, Opt1=secure, Opt2=anxious, Opt3=avoidant, Opt4=mixed. Be conci
             Analysis with attachment style and detailed insights
         """
         try:
-            system_message = """You are an expert psychologist specializing in attachment theory. Analyze quiz responses to determine attachment style.
+            system_message = """Expert psychologist. Analyze quiz responses FAST.
 
-Analyze the answers and return ONLY this JSON structure:
+Return ONLY JSON (NO explanations):
 {
   "attachmentStyle": "secure|anxious|avoidant|fearful-avoidant",
   "analysis": {
     "detailedBreakdown": {
-      "strengths": ["strength 1", "strength 2", "strength 3"],
-      "challenges": ["challenge 1", "challenge 2", "challenge 3"],
-      "relationshipPatterns": ["pattern 1", "pattern 2", "pattern 3"]
+      "strengths": ["3 strengths"],
+      "challenges": ["3 challenges"],
+      "relationshipPatterns": ["3 patterns"]
     },
-    "healingPath": "Specific, actionable guidance for growth based on their answers",
-    "triggers": ["trigger 1", "trigger 2", "trigger 3"],
+    "healingPath": "Brief guidance",
+    "triggers": ["3 triggers"],
     "copingTechniques": [
-      {
-        "technique": "Technique name",
-        "description": "How it helps",
-        "example": "Specific example"
-      },
-      {
-        "technique": "Technique name",
-        "description": "How it helps",
-        "example": "Specific example"
-      }
+      {"technique": "Name", "description": "Brief", "example": "Example"},
+      {"technique": "Name", "description": "Brief", "example": "Example"}
     ]
   }
 }
 
-IMPORTANT:
-- Base your analysis ONLY on the answers provided
-- Be specific and reference their actual responses
-- Provide actionable, practical insights
-- Keep it supportive and non-judgmental
-- Return ONLY valid JSON"""
+Be concise. Reference their answers."""
             
             chat = LlmChat(
                 api_key=self.api_key,
@@ -376,21 +363,20 @@ IMPORTANT:
                 system_message=system_message
             ).with_model("openai", "gpt-4o-mini")
             
-            # Build analysis request
-            prompt = "Analyze these quiz responses:\n\n"
-            for i, qa in enumerate(questions_and_answers, 1):
-                prompt += f"Q{i}: {qa['question']}\n"
-                prompt += f"A{i}: {qa['answer']}\n\n"
-            prompt += "Provide detailed attachment style analysis based on these specific answers."
+            # Build concise prompt
+            prompt = "Answers:\n"
+            for i, qa in enumerate(questions_and_answers[:5], 1):  # Only use first 5 for speed
+                prompt += f"{i}. {qa['answer']}\n"
+            prompt += "Analyze attachment style."
             
             user_msg = UserMessage(text=prompt)
             
-            # 10 second timeout for analysis
+            # 8 second timeout - faster!
             import asyncio
             try:
                 response = await asyncio.wait_for(
                     chat.send_message(user_msg),
-                    timeout=10.0
+                    timeout=8.0
                 )
             except asyncio.TimeoutError:
                 logger.warning("Analysis timed out, using fallback")
@@ -408,7 +394,7 @@ IMPORTANT:
                 clean_response = clean_response.strip()
                 
                 result = json.loads(clean_response)
-                logger.info(f"Successfully analyzed attachment style: {result.get('attachmentStyle')}")
+                logger.info(f"Analyzed attachment style: {result.get('attachmentStyle')}")
                 return result
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse analysis JSON: {e}")
