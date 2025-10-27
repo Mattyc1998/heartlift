@@ -303,6 +303,14 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
         throw new Error('Please sign in again to continue');
       }
 
+      // Save user message to database
+      await supabase.rpc('insert_conversation_message', {
+        p_user_id: user.id,
+        p_coach_id: coachPersonality,
+        p_message_content: inputMessage,
+        p_sender: 'user'
+      });
+
       // Call the new AI backend endpoint
       const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
       const response = await fetch(`${backendUrl}/api/ai/chat`, {
@@ -335,6 +343,14 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
       };
 
       setMessages(prev => [...prev, coachResponse]);
+      
+      // Save coach response to database
+      await supabase.rpc('insert_conversation_message', {
+        p_user_id: user.id,
+        p_coach_id: coachPersonality,
+        p_message_content: data.response,
+        p_sender: 'coach'
+      });
       
       // Update usage count
       if (!isPremium) {
