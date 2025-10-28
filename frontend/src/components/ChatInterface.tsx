@@ -353,18 +353,34 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
       
       // Update usage count
       if (!isPremium) {
-        const newUsageCount = usageCount + 1;
-        setUsageCount(newUsageCount);
-        setRemainingMessages(Math.max(0, 10 - newUsageCount));
-        
-        if (newUsageCount >= 10) {
-          setCanSendMessage(false);
-          setUpgradeModalTrigger("usage_limit");
-          setShowUpgradeModal(true);
+        // Track usage in backend
+        const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+        try {
+          const usageResponse = await fetch(`${backendUrl}/api/usage/track`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              user_id: user.id,
+              coach_id: coachPersonality
+            })
+          });
+
+          if (usageResponse.ok) {
+            const usageData = await usageResponse.json();
+            setUsageCount(usageData.message_count);
+            setRemainingMessages(usageData.remaining_messages);
+            setCanSendMessage(usageData.can_send_message);
+            
+            if (!usageData.can_send_message) {
+              setUpgradeModalTrigger("usage_limit");
+              setShowUpgradeModal(true);
+            }
+          }
+        } catch (error) {
+          console.error("Error tracking usage:", error);
         }
-        
-        // Save usage to database
-        await loadUsageCount();
       }
 
     } catch (error) {
