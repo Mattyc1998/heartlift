@@ -427,6 +427,91 @@ async def get_past_reflections(user_id: str, limit: int = 30):
         logger.error(f"Error fetching reflections: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to fetch reflections")
 
+# ============ USAGE TRACKING ENDPOINTS ============
+
+@api_router.post("/usage/track")
+async def track_message_usage(request: UsageTrackRequest):
+    """
+    Track a message sent by user (increments daily usage count)
+    """
+    try:
+        today = datetime.utcnow().date().isoformat()
+        logger.info(f"Tracking message usage for user {request.user_id} with coach {request.coach_id}")
+        
+        # Check if usage record exists for today
+        existing = await db.daily_usage.find_one({
+            "user_id": request.user_id,
+            "date": today
+        })
+        
+        if existing:
+            # Increment count
+            new_count = existing.get("message_count", 0) + 1
+            await db.daily_usage.update_one(
+                {"_id": existing["_id"]},
+                {"$set": {
+                    "message_count": new_count,
+                    "updated_at": datetime.utcnow().isoformat()
+                }}
+            )
+            logger.info(f"Updated usage count to {new_count}")
+        else:
+            # Create new usage record
+            await db.daily_usage.insert_one({
+                "user_id": request.user_id,
+                "date": today,
+                "message_count": 1,
+                "created_at": datetime.utcnow().isoformat(),
+                "updated_at": datetime.utcnow().isoformat()
+            })
+            new_count = 1
+            logger.info(f"Created new usage record with count 1")
+        
+        can_send = new_count < 10
+        remaining = max(0, 10 - new_count)
+        
+        return UsageResponse(
+            message_count=new_count,
+            can_send_message=can_send,
+            remaining_messages=remaining
+        )
+        
+    except Exception as e:
+        logger.error(f"Error tracking usage: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to track usage")
+
+@api_router.get("/usage/check/{user_id}")
+async def check_message_usage(user_id: str):
+    """
+    Check current daily usage for a user
+    """
+    try:
+        today = datetime.utcnow().date().isoformat()
+        logger.info(f"Checking usage for user {user_id}")
+        
+        usage = await db.daily_usage.find_one({
+            "user_id": user_id,
+            "date": today
+        })
+        
+        if usage:
+            count = usage.get("message_count", 0)
+        else:
+            count = 0
+        
+        can_send = count < 10
+        remaining = max(0, 10 - count)
+        
+        return UsageResponse(
+            message_count=count,
+            can_send_message=can_send,
+            remaining_messages=remaining
+        )
+        
+    except Exception as e:
+        logger.error(f"Error checking usage: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to check usage")
+
 # Include the router in the main app
 app.include_router(api_router)
 
