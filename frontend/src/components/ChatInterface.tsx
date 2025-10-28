@@ -258,15 +258,13 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
     if (!user) return;
 
     try {
-      const { data: usageData } = await supabase
-        .rpc("get_user_daily_usage", { user_uuid: user.id, coach_id: coachPersonality })
-        .single();
-
-      if (usageData) {
-        const totalUsed = usageData.message_count || 0;
-        const remaining = Math.max(0, 10 - totalUsed);
-        setUsageCount(totalUsed);
-        setRemainingMessages(remaining);
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const response = await fetch(`${backendUrl}/api/usage/check/${user.id}`);
+      
+      if (response.ok) {
+        const usageData = await response.json();
+        setUsageCount(usageData.message_count || 0);
+        setRemainingMessages(usageData.remaining_messages || 10);
         setCanSendMessage(usageData.can_send_message || false);
       }
     } catch (error) {
