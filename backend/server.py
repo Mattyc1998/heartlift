@@ -107,6 +107,16 @@ class DailyReflectionResponse(BaseModel):
     created_at: str
     updated_at: str
 
+# Usage Tracking Models
+class UsageTrackRequest(BaseModel):
+    user_id: str
+    coach_id: str
+
+class UsageResponse(BaseModel):
+    message_count: int
+    can_send_message: bool
+    remaining_messages: int
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
