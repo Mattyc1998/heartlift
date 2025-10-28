@@ -67,6 +67,27 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   }, [user, coachPersonality]);
 
   useEffect(() => {
+    // Check for midnight reset every minute
+    if (!isPremium && user) {
+      const checkMidnightReset = setInterval(() => {
+        const now = new Date();
+        const lastCheck = localStorage.getItem(`lastUsageCheck_${user.id}`);
+        const today = now.toISOString().split('T')[0];
+        
+        if (lastCheck && lastCheck !== today) {
+          // It's a new day! Reset usage
+          console.log('New day detected - resetting usage count');
+          loadUsageCount();
+        }
+        
+        localStorage.setItem(`lastUsageCheck_${user.id}`, today);
+      }, 60000); // Check every minute
+      
+      return () => clearInterval(checkMidnightReset);
+    }
+  }, [user, isPremium]);
+
+  useEffect(() => {
     // Show welcome modal when user becomes premium (only once per session)
     if (isPremium && !showWelcomeModal) {
       const hasSeenWelcome = localStorage.getItem('hasSeenPremiumWelcome');
