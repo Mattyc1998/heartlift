@@ -502,11 +502,18 @@ async def check_message_usage(user_id: str):
         can_send = count < 10
         remaining = max(0, 10 - count)
         
-        return UsageResponse(
-            message_count=count,
-            can_send_message=can_send,
-            remaining_messages=remaining
-        )
+        # Calculate time until midnight UTC (reset time)
+        now = datetime.utcnow()
+        tomorrow = datetime(now.year, now.month, now.day) + timedelta(days=1)
+        seconds_until_reset = int((tomorrow - now).total_seconds())
+        
+        return {
+            "message_count": count,
+            "can_send_message": can_send,
+            "remaining_messages": remaining,
+            "seconds_until_reset": seconds_until_reset,
+            "reset_time": tomorrow.isoformat()
+        }
         
     except Exception as e:
         logger.error(f"Error checking usage: {e}", exc_info=True)
