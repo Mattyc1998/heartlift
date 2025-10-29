@@ -159,7 +159,7 @@ export const PrivacyPolicy = () => {
                   <h4 className="font-semibold mb-2">Storage Infrastructure:</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm">
                     <li><strong>Supabase (PostgreSQL):</strong> User authentication, chat conversations, quiz results</li>
-                    <li><strong>MongoDB:</strong> Daily reflections, usage tracking data</li>
+                    <li><strong>MongoDB:</strong> Daily reflections, insights reports, usage tracking data</li>
                     <li><strong>OpenAI API:</strong> AI coach responses processed via OpenAI GPT-4o-mini (conversation data is NOT stored by OpenAI)</li>
                   </ul>
                 </div>
