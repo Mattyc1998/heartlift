@@ -66,18 +66,23 @@ export const PersonalisedInsights = () => {
     
     setIsLoading(true);
     try {
-      const { data: reports, error } = await supabase
-        .from('user_insights_reports')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      if (error) throw error;
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const response = await fetch(`${backendUrl}/api/insights/reports/${user.id}`);
       
-      if (reports && reports.length > 0) {
-        setCurrentReport(reports[0] as unknown as InsightReport);
-        setPastReports(reports as unknown as InsightReport[]);
+      if (response.ok) {
+        const reports = await response.json();
+        
+        if (reports && reports.length > 0) {
+          setCurrentReport(reports[0] as InsightReport);
+          setPastReports(reports as InsightReport[]);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading reports:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
       }
     } catch (error) {
       console.error('Error loading reports:', error);
