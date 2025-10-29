@@ -72,8 +72,18 @@ export default function TermsOfService() {
                 <li>Child abuse or child safety concerns</li>
                 <li>Domestic violence or abuse situations</li>
                 <li>Drug or substance misuse</li>
-                <li>Clinical mental health conditions requiring treatment</li>
+                <li>Sexual assault or trauma</li>
+                <li>Eating disorders</li>
+                <li>Clinical mental health conditions requiring professional treatment</li>
               </ul>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p className="font-semibold text-blue-800 mb-2">Automatic Crisis Detection:</p>
+                <p className="text-sm text-blue-700">
+                  Our AI coaches are programmed to detect crisis situations and immediately redirect users to appropriate 
+                  professional helplines rather than attempting to provide support. This is a safety feature to ensure you 
+                  get proper care when needed.
+                </p>
+              </div>
               <div className="bg-destructive/15 p-6 rounded-lg border-2 border-destructive/40 mt-4">
                 <p className="font-bold text-xl mb-4 text-destructive">🚨 Crisis Resources</p>
                 <p className="font-bold text-base mb-3 text-foreground">If you are in crisis or feel unsafe, <strong className="underline">DO NOT use HeartLift</strong>. Instead, contact your local emergency services or a trusted helpline:</p>
