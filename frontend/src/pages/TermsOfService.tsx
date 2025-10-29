@@ -162,8 +162,9 @@ export default function TermsOfService() {
                   <li>Your <strong>daily reflections are stored</strong> and accessed by AI coaches to personalize future conversations</li>
                   <li>Your <strong>conversation history is retained</strong> until you refresh the page or start a new day</li>
                   <li><strong>Quiz results and analyses</strong> are stored indefinitely for you to review your personal growth</li>
+                  <li><strong>Insights reports</strong> are generated from your conversations and reflections, stored indefinitely for you to track your journey</li>
                   <li><strong>Free users:</strong> Message counts are tracked daily (automatically deleted after 7 days)</li>
-                  <li>Your data is stored across <strong>Supabase (authentication, conversations, quizzes)</strong> and <strong>MongoDB (reflections, usage tracking)</strong></li>
+                  <li>Your data is stored across <strong>Supabase (authentication, conversations, quizzes)</strong> and <strong>MongoDB (reflections, insights reports, usage tracking)</strong></li>
                   <li><strong>AI processing:</strong> Your messages and recent reflections are sent to OpenAI GPT-4o-mini for generating coach responses (not stored by OpenAI)</li>
                 </ul>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
