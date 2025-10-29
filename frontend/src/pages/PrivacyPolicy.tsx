@@ -209,6 +209,10 @@ export const PrivacyPolicy = () => {
                   <p className="text-sm">Retained indefinitely so you can review your attachment style history and track changes over time.</p>
                 </div>
                 <div>
+                  <h4 className="font-semibold mb-2">Insights Reports:</h4>
+                  <p className="text-sm">Retained indefinitely so you can track your personal growth journey. You can view all past insights reports anytime.</p>
+                </div>
+                <div>
                   <h4 className="font-semibold mb-2">Usage Tracking Data:</h4>
                   <p className="text-sm"><strong>Automatically deleted after 7 days.</strong> Only used to enforce daily message limits for free users.</p>
                 </div>
