@@ -35,7 +35,7 @@ export const PrivacyPolicy = () => {
               Your privacy and emotional wellbeing are our top priorities
             </p>
             <p className="text-sm text-muted-foreground">
-              Effective Date: 29/09/2025
+              Effective Date: 29/10/2025 | Last Updated: 29/10/2025
             </p>
           </div>
 
