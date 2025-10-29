@@ -28,12 +28,17 @@ export const UsageCounter = ({ currentUsage, onUpgradeClick, isPremium = false }
     if (!user || isPremium) return;
 
     try {
-      const { data, error } = await supabase
-        .rpc("get_user_daily_usage", { user_uuid: user.id, coach_id: null })
-        .single();
-
-      if (error) throw error;
-      setUsageData(data);
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const response = await fetch(`${backendUrl}/api/usage/check/${user.id}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUsageData({
+          message_count: data.message_count || 0,
+          can_send_message: data.can_send_message || true,
+          hours_until_reset: Math.floor((data.seconds_until_reset || 0) / 3600)
+        });
+      }
     } catch (error) {
       console.error("Error fetching usage data:", error);
     }
