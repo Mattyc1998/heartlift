@@ -117,6 +117,30 @@ class UsageResponse(BaseModel):
     can_send_message: bool
     remaining_messages: int
 
+# Insights Models
+class InsightsSaveRequest(BaseModel):
+    user_id: str
+    insights: Dict
+    conversation_count: int
+    mood_entries_analyzed: int
+    attachment_style: str
+    healing_progress_score: int
+    analysis_period_start: str
+    analysis_period_end: str
+
+class InsightsResponse(BaseModel):
+    id: str
+    user_id: str
+    report_type: str
+    insights: Dict
+    conversation_count: int
+    mood_entries_analyzed: int
+    attachment_style: str
+    healing_progress_score: int
+    analysis_period_start: str
+    analysis_period_end: str
+    created_at: str
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
