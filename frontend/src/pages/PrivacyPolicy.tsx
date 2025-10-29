@@ -299,15 +299,31 @@ export const PrivacyPolicy = () => {
                   <li>Drug or substance abuse</li>
                   <li>Domestic abuse or violence</li>
                   <li>Child abuse</li>
+                  <li>Sexual assault or trauma</li>
+                  <li>Eating disorders</li>
+                  <li>Severe mental health crises</li>
                 </ul>
               </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm mt-2">
+                <strong>When these topics are detected,</strong> our AI coaches immediately stop and provide crisis helpline resources instead of attempting to provide support.
+              </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-3">
                 <h4 className="font-semibold mb-2 text-blue-800">Emergency Resources (UK):</h4>
                 <ul className="text-sm text-blue-700 space-y-1">
-                  <li><strong>999</strong> for emergencies</li>
-                  <li><strong>Samaritans:</strong> 116 123</li>
+                  <li><strong>Samaritans:</strong> 116 123 (24/7, free to call)</li>
+                  <li><strong>Crisis Text Line UK:</strong> Text SHOUT to 85258</li>
                   <li><strong>National Domestic Abuse Helpline:</strong> 0808 2000 247</li>
-                  <li><strong>Childline:</strong> 0800 1111</li>
+                  <li><strong>Rape Crisis England & Wales:</strong> 0808 500 2222</li>
+                  <li><strong>FRANK (Drug Support):</strong> 0300 123 6600</li>
+                </ul>
+              </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-3">
+                <h4 className="font-semibold mb-2 text-blue-800">Emergency Resources (US):</h4>
+                <ul className="text-sm text-blue-700 space-y-1">
+                  <li><strong>National Suicide Prevention Lifeline:</strong> 988 or 1-800-273-8255</li>
+                  <li><strong>Crisis Text Line:</strong> Text HOME to 741741</li>
+                  <li><strong>National Domestic Violence Hotline:</strong> 1-800-799-7233</li>
+                  <li><strong>RAINN Sexual Assault Hotline:</strong> 1-800-656-4673</li>
                 </ul>
               </div>
             </CardContent>
