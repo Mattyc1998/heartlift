@@ -185,12 +185,39 @@ export const PrivacyPolicy = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p><strong>Chat & mood data:</strong> Retained 12–24 months to allow continuity and mood tracking. After this period, data is either deleted or anonymized for system improvement.</p>
-              <p><strong>Account information:</strong> Retained until you delete your account. After deletion, all personal data is permanently removed within 30 days.</p>
-              <p><strong>Technical & analytics data:</strong> Retained 6–12 months, anonymized where possible.</p>
-              <p className="font-semibold text-primary mt-4">
-                Users can request deletion of any data at any time.
-              </p>
+              <div className="space-y-3">
+                <div>
+                  <h4 className="font-semibold mb-2">Chat Conversations:</h4>
+                  <p className="text-sm">Retained until you refresh the page or start a new day. Stored persistently in database to maintain conversation context across sessions.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Daily Reflections:</h4>
+                  <p className="text-sm">Retained indefinitely to allow you to track your personal journey. You can view all past reflections anytime.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Quiz Results:</h4>
+                  <p className="text-sm">Retained indefinitely so you can review your attachment style history and track changes over time.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Usage Tracking Data:</h4>
+                  <p className="text-sm"><strong>Automatically deleted after 7 days.</strong> Only used to enforce daily message limits for free users.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Account Information:</h4>
+                  <p className="text-sm">Retained until you delete your account. After deletion, all personal data is permanently removed within 30 days.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Technical & Analytics Data:</h4>
+                  <p className="text-sm">Retained 6–12 months, anonymized where possible.</p>
+                </div>
+              </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+                <p className="font-semibold text-blue-800">Your Data Control:</p>
+                <p className="text-sm text-blue-700 mt-2">
+                  Users can request deletion of any data at any time by contacting support@heart-lift.com. 
+                  Account deletion removes all associated data permanently within 30 days.
+                </p>
+              </div>
             </CardContent>
           </Card>
 
