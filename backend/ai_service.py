@@ -327,12 +327,20 @@ class AIService:
             # Generate new questions
             logger.info(f"Generating new quiz questions for {today}")
             
-            system_message = """Expert psychologist. Generate attachment quiz questions FAST.
+            system_message = """You are an expert psychologist creating attachment style quiz questions.
 
-Return ONLY JSON (NO text):
-[{"question":"Q?","options":["Opt1","Opt2","Opt3","Opt4"]}]
+Generate questions with DESCRIPTIVE answer options that represent different attachment styles.
 
-Rules: 4 options, Opt1=secure, Opt2=anxious, Opt3=avoidant, Opt4=mixed. Be concise."""
+CRITICAL FORMAT:
+- Return ONLY valid JSON array
+- Each question must have 4 distinct answer OPTIONS describing behaviors/feelings
+- Options should be realistic responses someone might choose
+- DO NOT use labels like "Secure", "Anxious" - use actual behavioral descriptions
+
+Example:
+[{"question":"How do you react when someone pulls away?","options":["I trust they need space and stay calm","I worry and try to reconnect immediately","I pull away too and distance myself","I feel confused and unsure how to respond"]}]
+
+Generate questions about: relationships, emotional responses, conflict, intimacy, independence."""
             
             chat = LlmChat(
                 api_key=self.api_key,
