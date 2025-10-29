@@ -248,9 +248,10 @@ class AIService:
             if user_name and not conversation_history:
                 system_message += f"\n\nThis is your first message to the user. Their name is {user_name}. Use their name ONCE in this first greeting only, then don't use it again in future messages."
             
-            # Add reflection context if available
-            if user_reflections and len(user_reflections) > 0:
-                reflection_context = "\n\n**USER'S RECENT REFLECTIONS (use this to personalize your support):**\n"
+            # Add reflection context ONLY for the first conversation of the day
+            # Check if this is the first message (no conversation history) and we have reflections
+            if user_reflections and len(user_reflections) > 0 and not conversation_history:
+                reflection_context = "\n\n**USER'S RECENT REFLECTIONS (reference naturally, don't be obvious):**\n"
                 for ref in user_reflections:
                     reflection_context += f"\n• Date: {ref.get('reflection_date')}"
                     if ref.get('areas_for_improvement'):
@@ -260,9 +261,9 @@ class AIService:
                     if ref.get('conversation_rating'):
                         reflection_context += f"\n  - Previous conversation rating: {ref.get('conversation_rating')}/5 stars"
                 
-                reflection_context += "\n\nNaturally weave these topics into the conversation when relevant. Reference what they want to explore without being too obvious about it. Make it feel personalized and thoughtful."
+                reflection_context += "\n\nYou can subtly weave these topics in if naturally relevant, but DON'T explicitly mention you saw their reflections. Keep it natural and conversational."
                 system_message += reflection_context
-                logger.info("Added reflection context to coach system message")
+                logger.info("Added reflection context for first conversation of the day")
             
             # Create chat instance
             chat = LlmChat(
