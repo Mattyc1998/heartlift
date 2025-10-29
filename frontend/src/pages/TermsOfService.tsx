@@ -103,7 +103,10 @@ export default function TermsOfService() {
                 <li>Use HeartLift only for <strong>lawful, personal, and non-commercial purposes</strong></li>
                 <li>Avoid <strong>harmful, abusive, or inappropriate behavior</strong></li>
                 <li>Respect the limits of our AI wellbeing tools</li>
-                <li><strong>Seek professional help when needed</strong></li>
+                <li><strong>Seek professional help when needed</strong> for serious mental health or crisis situations</li>
+                <li>Understand that <strong>daily reflections are accessed by AI coaches</strong> to personalize your experience</li>
+                <li>Accept that <strong>conversation history persists across sessions</strong> until refresh or new day</li>
+                <li><strong>Free tier users:</strong> Respect the 10 messages per day limit (resets at midnight UTC)</li>
               </ul>
             </section>
 
