@@ -145,11 +145,33 @@ export const PrivacyPolicy = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
-                <p><strong>Platform:</strong> We use Supabase, a secure cloud database, to store and manage data.</p>
-                <p><strong>Encryption:</strong> Data is encrypted both in transit and at rest.</p>
-                <p><strong>Access Control:</strong> Only you can access your account via secure authentication. Row Level Security (RLS) ensures data privacy.</p>
-                <p><strong>Password Protection:</strong> Leaked password protection is enabled to prevent the use of compromised passwords.</p>
-                <p><strong>Security Practices:</strong> SSL encryption, secure authentication, and regular security audits.</p>
+                <div>
+                  <h4 className="font-semibold mb-2">Storage Infrastructure:</h4>
+                  <ul className="list-disc pl-6 space-y-1 text-sm">
+                    <li><strong>Supabase (PostgreSQL):</strong> User authentication, chat conversations, quiz results</li>
+                    <li><strong>MongoDB:</strong> Daily reflections, usage tracking data</li>
+                    <li><strong>OpenAI API:</strong> AI coach responses processed via OpenAI GPT-4o-mini (conversation data is NOT stored by OpenAI)</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Security Measures:</h4>
+                  <ul className="list-disc pl-6 space-y-1 text-sm">
+                    <li><strong>Encryption:</strong> Data is encrypted both in transit (SSL/TLS) and at rest</li>
+                    <li><strong>Access Control:</strong> Only you can access your account via secure authentication</li>
+                    <li><strong>Row Level Security (RLS):</strong> Supabase enforces strict data isolation between users</li>
+                    <li><strong>Password Protection:</strong> Leaked password protection prevents use of compromised passwords</li>
+                    <li><strong>API Security:</strong> Backend APIs use secure authentication and rate limiting</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Data Processing:</h4>
+                  <ul className="list-disc pl-6 space-y-1 text-sm">
+                    <li>AI processing happens server-side through our FastAPI backend</li>
+                    <li>Conversation context (last 5 messages) sent to AI for continuity</li>
+                    <li>Your recent reflections (last 3) shared with AI coaches for personalization</li>
+                    <li>No data is stored on your device except session tokens</li>
+                  </ul>
+                </div>
               </div>
             </CardContent>
           </Card>
