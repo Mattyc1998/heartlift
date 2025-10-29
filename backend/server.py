@@ -451,6 +451,71 @@ async def get_past_reflections(user_id: str, limit: int = 30):
         logger.error(f"Error fetching reflections: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to fetch reflections")
 
+# ============ INSIGHTS ENDPOINTS ============
+
+@api_router.post("/insights/save")
+async def save_insights_report(request: InsightsSaveRequest):
+    """
+    Save a generated insights report
+    """
+    try:
+        logger.info(f"Saving insights report for user {request.user_id}")
+        
+        report_id = str(uuid.uuid4())
+        now = datetime.utcnow().isoformat()
+        
+        report_data = {
+            "id": report_id,
+            "user_id": request.user_id,
+            "report_type": "comprehensive",
+            "insights": request.insights,
+            "conversation_count": request.conversation_count,
+            "mood_entries_analyzed": request.mood_entries_analyzed,
+            "attachment_style": request.attachment_style,
+            "healing_progress_score": request.healing_progress_score,
+            "analysis_period_start": request.analysis_period_start,
+            "analysis_period_end": request.analysis_period_end,
+            "created_at": now
+        }
+        
+        await db.insights_reports.insert_one(report_data)
+        
+        # Remove MongoDB _id for response
+        report_data.pop("_id", None)
+        
+        logger.info(f"Insights report saved successfully: {report_id}")
+        return report_data
+        
+    except Exception as e:
+        logger.error(f"Error saving insights report: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to save insights report")
+
+@api_router.get("/insights/reports/{user_id}")
+async def get_user_insights_reports(user_id: str, limit: int = 10):
+    """
+    Get all insights reports for a user
+    """
+    try:
+        logger.info(f"Fetching insights reports for user {user_id}")
+        
+        cursor = db.insights_reports.find({
+            "user_id": user_id
+        }).sort("created_at", -1).limit(limit)
+        
+        reports = await cursor.to_list(length=limit)
+        
+        # Convert MongoDB _id to id
+        for report in reports:
+            report["id"] = str(report.get("_id", report.get("id")))
+            report.pop("_id", None)
+        
+        logger.info(f"Found {len(reports)} insights reports")
+        return reports
+        
+    except Exception as e:
+        logger.error(f"Error fetching insights reports: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to fetch insights reports")
+
 # ============ USAGE TRACKING ENDPOINTS ============
 
 @api_router.post("/usage/track")
