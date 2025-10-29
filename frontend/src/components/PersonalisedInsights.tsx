@@ -83,13 +83,6 @@ export const PersonalisedInsights = () => {
       setIsLoading(false);
     }
   };
-      }
-    } catch (error) {
-      console.error('Error loading reports:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const generateNewInsights = async () => {
     if (!user) return;
