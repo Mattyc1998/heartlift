@@ -43,10 +43,14 @@ export default function TermsOfService() {
                 breakups, and emotional growth. Features may include:
               </p>
               <ul className="list-disc pl-6 space-y-2 mb-4">
-                <li className="text-base">AI-powered relationship and emotional wellbeing coaching</li>
-                <li className="text-base">Personalised insights and self-reflection tools</li>
-                <li className="text-base">Emotional wellness resources</li>
-                <li className="text-base">Optional premium features for subscribers</li>
+                <li className="text-base">AI-powered relationship and emotional wellbeing coaching with 4 distinct coach personalities</li>
+                <li className="text-base">Daily attachment style quizzes with AI-generated questions</li>
+                <li className="text-base">Personalised insights based on your daily reflections</li>
+                <li className="text-base">Daily reflection tracking to help coaches personalize conversations</li>
+                <li className="text-base">Conversation history that persists across sessions</li>
+                <li className="text-base">Emotional wellness resources and crisis support redirection</li>
+                <li className="text-base">Free tier: 10 messages per day (resets at midnight UTC)</li>
+                <li className="text-base">Premium features for unlimited messaging and additional tools</li>
               </ul>
               <div className="bg-amber-500/10 border border-amber-500/30 p-5 rounded-lg mt-4">
                 <p className="font-bold text-lg mb-2 text-amber-900 dark:text-amber-200">⚠️ Important Disclaimer</p>
