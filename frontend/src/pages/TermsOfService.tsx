@@ -24,7 +24,7 @@ export default function TermsOfService() {
               Terms of Service
             </CardTitle>
             <p className="text-muted-foreground">
-              Last updated: 05/10/2025
+              Last updated: 29/10/2025
             </p>
           </CardHeader>
           <CardContent className="prose prose-slate dark:prose-invert max-w-none space-y-8">
