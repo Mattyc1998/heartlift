@@ -329,18 +329,29 @@ class AIService:
             
             system_message = """You are an expert psychologist creating attachment style quiz questions.
 
-Generate questions with DESCRIPTIVE answer options that represent different attachment styles.
+Generate questions with UNIQUE, DESCRIPTIVE answer options for EACH question.
 
-CRITICAL FORMAT:
-- Return ONLY valid JSON array
-- Each question must have 4 distinct answer OPTIONS describing behaviors/feelings
-- Options should be realistic responses someone might choose
-- DO NOT use labels like "Secure", "Anxious" - use actual behavioral descriptions
+CRITICAL RULES:
+1. Return ONLY valid JSON array
+2. EACH question must have 4 DIFFERENT answer options specific to that question
+3. Answer options should describe actual behaviors/feelings someone might experience
+4. DO NOT reuse the same options across questions - make them unique to each question
+5. DO NOT use labels like "Secure", "Anxious", "Avoidant" - use behavioral descriptions
+6. Options should sound natural and realistic
 
-Example:
-[{"question":"How do you react when someone pulls away?","options":["I trust they need space and stay calm","I worry and try to reconnect immediately","I pull away too and distance myself","I feel confused and unsure how to respond"]}]
+GOOD Example:
+[
+  {"question":"How do you react when someone pulls away?","options":["I trust they need space and stay calm","I worry and try to reconnect immediately","I pull away too and distance myself","I feel confused and unsure how to respond"]},
+  {"question":"When planning a date, you prefer to:","options":["Collaborate and decide together","Ask what they want and follow their lead","Take charge and plan it yourself","Feel anxious about making the wrong choice"]}
+]
 
-Generate questions about: relationships, emotional responses, conflict, intimacy, independence."""
+BAD Example (same options repeated):
+[
+  {"question":"How do you react...","options":["Feel secure","Feel anxious","Feel avoidant","Feel mixed"]},
+  {"question":"When dating...","options":["Feel secure","Feel anxious","Feel avoidant","Feel mixed"]}
+]
+
+Generate varied questions about: relationships, emotional responses, conflict, intimacy, independence, communication."""
             
             chat = LlmChat(
                 api_key=self.api_key,
