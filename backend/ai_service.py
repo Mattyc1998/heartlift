@@ -348,7 +348,7 @@ Generate questions about: relationships, emotional responses, conflict, intimacy
                 system_message=system_message
             ).with_model("openai", "gpt-4o-mini")
             
-            prompt = f"{num_questions} attachment questions. FAST."
+            prompt = f"Generate {num_questions} attachment style quiz questions with descriptive behavioral answer options. Return ONLY the JSON array, no additional text."
             
             user_msg = UserMessage(text=prompt)
             
