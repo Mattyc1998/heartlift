@@ -359,7 +359,7 @@ Generate varied questions about: relationships, emotional responses, conflict, i
                 system_message=system_message
             ).with_model("openai", "gpt-4o-mini")
             
-            prompt = f"Generate {num_questions} attachment style quiz questions with descriptive behavioral answer options. Return ONLY the JSON array, no additional text."
+            prompt = f"Generate {num_questions} DIVERSE attachment style quiz questions. EACH question must have UNIQUE answer options tailored to that specific question. DO NOT reuse the same 4 options. Return ONLY the JSON array."
             
             user_msg = UserMessage(text=prompt)
             
