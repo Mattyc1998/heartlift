@@ -122,9 +122,9 @@ export const UsageCounter = ({ currentUsage, onUpgradeClick, isPremium = false }
           />
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>Free daily limit</span>
-            {isAtLimit && timeLeft && (
-              <span className="text-red-600 font-medium">
-                Reset in {timeLeft}
+            {timeLeft && (
+              <span className={`font-medium ${isAtLimit ? 'text-red-600' : 'text-blue-600'}`}>
+                Resets in {timeLeft}
               </span>
             )}
           </div>
