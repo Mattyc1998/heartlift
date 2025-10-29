@@ -489,6 +489,15 @@ async def check_message_usage(user_id: str):
         today = datetime.utcnow().date().isoformat()
         logger.info(f"Checking usage for user {user_id}")
         
+        # Cleanup: Delete usage records older than 7 days (async, don't wait)
+        seven_days_ago = (datetime.utcnow().date() - timedelta(days=7)).isoformat()
+        try:
+            await db.daily_usage.delete_many({
+                "date": {"$lt": seven_days_ago}
+            })
+        except Exception as cleanup_error:
+            logger.warning(f"Cleanup failed but continuing: {cleanup_error}")
+        
         usage = await db.daily_usage.find_one({
             "user_id": user_id,
             "date": today
