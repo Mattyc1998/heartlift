@@ -125,6 +125,7 @@ export const PrivacyPolicy = () => {
               <ul className="list-disc pl-6 space-y-1">
                 <li><strong>Provide personalised AI coaching:</strong> Your daily reflections are accessed by AI coaches to tailor conversations to what you want to explore and work on</li>
                 <li><strong>Track attachment styles:</strong> Quiz results help provide personalized insights and recommendations</li>
+                <li><strong>Generate insights reports:</strong> Analyze your conversations, mood entries, and reflections to create comprehensive personalized reports</li>
                 <li><strong>Enforce usage limits:</strong> Track message counts for free users (10 messages/day, resets at midnight UTC)</li>
                 <li><strong>Improve our app and AI systems:</strong> Only anonymized data is used for service improvements</li>
                 <li><strong>Communicate important updates:</strong> Security alerts, policy changes, and feature announcements</li>
