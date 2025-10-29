@@ -52,17 +52,43 @@ export const PrivacyPolicy = () => {
                 <div>
                   <h4 className="font-semibold mb-2">Account Information</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm">
-                    <li>Name, email, and password</li>
+                    <li>Name, email, and password (stored via Supabase authentication)</li>
                     <li>User preferences and selected AI coach</li>
+                    <li>Premium subscription status</li>
                   </ul>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2">Chat & Conversation Data</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm">
-                    <li>Your messages and AI coach responses</li>
-                    <li>Conversation timestamps</li>
-                    <li>Selected coach preferences</li>
-                    <li>Mood tracking data and insights</li>
+                    <li>Your messages and AI coach responses (stored in Supabase)</li>
+                    <li>Conversation timestamps and session IDs</li>
+                    <li>Selected coach preferences and conversation history</li>
+                    <li>Messages persist across sessions until you refresh or start a new day</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Daily Reflections & Personal Data</h4>
+                  <ul className="list-disc pl-6 space-y-1 text-sm">
+                    <li>Daily reflection entries (stored in MongoDB)</li>
+                    <li>Coaches chatted with, conversation ratings, helpful moments, areas for improvement</li>
+                    <li>Used by AI coaches to personalize future conversations</li>
+                    <li>You can view and access all past reflections anytime</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Quiz & Assessment Data</h4>
+                  <ul className="list-disc pl-6 space-y-1 text-sm">
+                    <li>Attachment style quiz responses and results (stored in Supabase)</li>
+                    <li>Quiz analysis, attachment style classifications, and personalized recommendations</li>
+                    <li>Quiz completion dates and historical results</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Usage Tracking Data (Free Users)</h4>
+                  <ul className="list-disc pl-6 space-y-1 text-sm">
+                    <li>Daily message count to enforce 10 message limit (stored in MongoDB)</li>
+                    <li>Automatically resets at midnight UTC</li>
+                    <li>Retained for 7 days, then automatically deleted</li>
                   </ul>
                 </div>
                 <div>
@@ -70,6 +96,7 @@ export const PrivacyPolicy = () => {
                   <ul className="list-disc pl-6 space-y-1 text-sm">
                     <li>Device information, operating system, app version</li>
                     <li>IP address and usage analytics (for improving service)</li>
+                    <li>Error logs and performance metrics</li>
                   </ul>
                 </div>
               </div>
