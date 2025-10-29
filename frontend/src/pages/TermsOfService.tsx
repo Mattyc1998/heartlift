@@ -153,7 +153,36 @@ export default function TermsOfService() {
             </section>
 
             <section className="pb-4 border-b border-border/50">
-              <h2 className="text-2xl font-bold mb-4 text-foreground">9. Privacy</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">9. Data Collection and Usage</h2>
+              <div className="space-y-4">
+                <p className="text-base leading-relaxed">
+                  By using HeartLift, you acknowledge and agree that:
+                </p>
+                <ul className="list-disc pl-6 space-y-2 text-base">
+                  <li>Your <strong>daily reflections are stored</strong> and accessed by AI coaches to personalize future conversations</li>
+                  <li>Your <strong>conversation history is retained</strong> until you refresh the page or start a new day</li>
+                  <li><strong>Quiz results and analyses</strong> are stored indefinitely for you to review your personal growth</li>
+                  <li><strong>Free users:</strong> Message counts are tracked daily (automatically deleted after 7 days)</li>
+                  <li>Your data is stored across <strong>Supabase (authentication, conversations, quizzes)</strong> and <strong>MongoDB (reflections, usage tracking)</strong></li>
+                  <li><strong>AI processing:</strong> Your messages and recent reflections are sent to OpenAI GPT-4o-mini for generating coach responses (not stored by OpenAI)</li>
+                </ul>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+                  <p className="font-semibold text-blue-800 mb-2">Personalization Feature:</p>
+                  <p className="text-sm text-blue-700">
+                    To provide personalized coaching, your AI coaches can access your last 3 daily reflections. This helps 
+                    them understand what you're working on and naturally weave those topics into conversations. This feature 
+                    enhances your experience but requires sharing your reflection data with the AI system.
+                  </p>
+                </div>
+                <p className="text-base leading-relaxed font-medium mt-4">
+                  For complete details on how we collect, use, store, and protect your data, please review our 
+                  <strong> Privacy Policy</strong>.
+                </p>
+              </div>
+            </section>
+
+            <section className="pb-4 border-b border-border/50">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">10. Privacy</h2>
               <p className="text-base leading-relaxed">
                 <strong>Your privacy is important to us.</strong> Please review our Privacy Policy to understand how we collect, 
                 use, and protect your personal information.
@@ -161,7 +190,7 @@ export default function TermsOfService() {
             </section>
 
             <section className="pb-4 border-b border-border/50">
-              <h2 className="text-2xl font-bold mb-4 text-foreground">10. Termination</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">11. Termination</h2>
               <p className="text-base leading-relaxed">
                 We reserve the right to <strong>suspend or terminate your account</strong>, at our discretion and without notice, 
                 if you <strong>violate these Terms or misuse the Service</strong>.
@@ -169,7 +198,7 @@ export default function TermsOfService() {
             </section>
 
             <section className="pb-4 border-b border-border/50">
-              <h2 className="text-2xl font-bold mb-4 text-foreground">11. Changes to Terms</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">12. Changes to Terms</h2>
               <p className="text-base leading-relaxed">
                 We may <strong>update these Terms from time to time</strong>. The latest version will always be posted on this page 
                 with a revised "last updated" date. <strong>Continued use of the Service after changes are posted constitutes 
@@ -178,7 +207,7 @@ export default function TermsOfService() {
             </section>
 
             <section className="pb-4 border-b border-border/50">
-              <h2 className="text-2xl font-bold mb-4 text-foreground">12. Governing Law</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">13. Governing Law</h2>
               <p className="text-base leading-relaxed">
                 These Terms are governed by and construed in accordance with the <strong>laws of the United Kingdom</strong>, 
                 without regard to its conflict of law principles.
@@ -186,7 +215,7 @@ export default function TermsOfService() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold mb-4 text-foreground">13. Contact Information</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">14. Contact Information</h2>
               <p className="text-base leading-relaxed">
                 For questions, feedback, or support, please contact us at:{' '}
                 <a href="mailto:support@heart-lift.com" className="text-primary hover:underline font-semibold">
