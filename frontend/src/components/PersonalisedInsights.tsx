@@ -119,56 +119,48 @@ export const PersonalisedInsights = () => {
       const insights = await response.json();
       console.log('Received insights from backend:', insights);
 
-      // Create a temporary report object for display
-      const tempReport: InsightReport = {
-        id: `temp-${Date.now()}`,
-        report_type: 'comprehensive',
-        insights: insights,
-        conversation_count: 5,
-        mood_entries_analyzed: 10,  // Fixed: use 'analyzed' not 'analysed'
-        attachment_style: 'secure',
-        healing_progress_score: insights.healingProgressScore || 70,
-        analysis_period_start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-        analysis_period_end: new Date().toISOString(),
-        created_at: new Date().toISOString()
-      };
+      // Save to backend database
+      const saveResponse = await fetch(`${backendUrl}/api/insights/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          insights: insights,
+          conversation_count: 5,
+          mood_entries_analyzed: 10,
+          attachment_style: 'secure',
+          healing_progress_score: insights.healingProgressScore || 70,
+          analysis_period_start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+          analysis_period_end: new Date().toISOString(),
+        })
+      });
 
-      // Display the report immediately
-      setCurrentReport(tempReport);
-      setActiveTab("current");
-      
-      // Try to save to database, but don't fail if table doesn't exist
-      try {
-        const { data: savedReport, error: saveError } = await supabase
-          .from('user_insights_reports')
-          .insert({
-            user_id: user.id,
-            report_type: 'comprehensive',
-            insights: insights,
-            conversation_count: 5,
-            mood_entries_analyzed: 10,  // Fixed: use 'analyzed' not 'analysed'
-            attachment_style: 'secure',
-            healing_progress_score: insights.healingProgressScore || 70,
-            analysis_period_start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-            analysis_period_end: new Date().toISOString(),
-          })
-          .select()
-          .single();
-
-        if (!saveError && savedReport) {
-          console.log('Report saved successfully to database');
-          setCurrentReport(savedReport as unknown as InsightReport);
-          await loadReports();
-        } else {
-          console.warn('Could not save to database (table may not exist):', saveError);
-          // Still show the insights even if we can't save
-        }
-      } catch (saveException) {
-        console.warn('Database save failed, but insights are still displayed:', saveException);
-        // Insights are already displayed, so this is okay
+      if (saveResponse.ok) {
+        const savedReport = await saveResponse.json();
+        console.log('Report saved successfully:', savedReport);
+        setCurrentReport(savedReport as InsightReport);
+        await loadReports();
+        toast.success("Your personalised insights are ready and saved!");
+      } else {
+        console.error('Failed to save report');
+        // Still show the insights even if save fails
+        const tempReport: InsightReport = {
+          id: `temp-${Date.now()}`,
+          report_type: 'comprehensive',
+          insights: insights,
+          conversation_count: 5,
+          mood_entries_analyzed: 10,
+          attachment_style: 'secure',
+          healing_progress_score: insights.healingProgressScore || 70,
+          analysis_period_start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+          analysis_period_end: new Date().toISOString(),
+          created_at: new Date().toISOString()
+        };
+        setCurrentReport(tempReport);
+        toast.success("Your personalised insights are ready!");
       }
-      
-      toast.success("Your personalised insights are ready!");
       
     } catch (error) {
       console.error('Error generating insights:', error);
