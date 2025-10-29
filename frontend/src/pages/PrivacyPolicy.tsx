@@ -114,13 +114,23 @@ export const PrivacyPolicy = () => {
             <CardContent className="space-y-4">
               <p>We use your information to:</p>
               <ul className="list-disc pl-6 space-y-1">
-                <li>Provide personalised AI coaching and support</li>
-                <li>Track moods and offer insights</li>
-                <li>Improve our app and AI systems (only anonymized data)</li>
-                <li>Communicate important updates or changes</li>
+                <li><strong>Provide personalised AI coaching:</strong> Your daily reflections are accessed by AI coaches to tailor conversations to what you want to explore and work on</li>
+                <li><strong>Track attachment styles:</strong> Quiz results help provide personalized insights and recommendations</li>
+                <li><strong>Enforce usage limits:</strong> Track message counts for free users (10 messages/day, resets at midnight UTC)</li>
+                <li><strong>Improve our app and AI systems:</strong> Only anonymized data is used for service improvements</li>
+                <li><strong>Communicate important updates:</strong> Security alerts, policy changes, and feature announcements</li>
+                <li><strong>Provide crisis support:</strong> AI coaches detect sensitive topics and redirect to appropriate helplines (UK Samaritans, National Domestic Abuse Helpline, etc.)</li>
               </ul>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mt-4">
+                <p className="font-semibold text-amber-800">Important Note on Personalization:</p>
+                <p className="text-sm text-amber-700 mt-2">
+                  When you fill out daily reflections, your AI coaches can access your last 3 reflections to personalize 
+                  conversations based on what you want to explore. This helps coaches naturally weave in topics you're 
+                  working on without you having to repeat yourself.
+                </p>
+              </div>
               <p className="font-semibold text-primary mt-4">
-                Your chat data will never be shared with third parties.
+                Your chat data and reflections will NEVER be shared with third parties, sold, or used for advertising.
               </p>
             </CardContent>
           </Card>
