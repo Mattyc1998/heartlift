@@ -45,7 +45,7 @@ export default function TermsOfService() {
               <ul className="list-disc pl-6 space-y-2 mb-4">
                 <li className="text-base">AI-powered relationship and emotional wellbeing coaching with 4 distinct coach personalities</li>
                 <li className="text-base">Daily attachment style quizzes with AI-generated questions</li>
-                <li className="text-base">Personalised insights based on your daily reflections</li>
+                <li className="text-base">Personalised insights reports analyzing your emotional patterns and growth</li>
                 <li className="text-base">Daily reflection tracking to help coaches personalize conversations</li>
                 <li className="text-base">Conversation history that persists across sessions</li>
                 <li className="text-base">Emotional wellness resources and crisis support redirection</li>
