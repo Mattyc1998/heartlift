@@ -340,10 +340,17 @@ CRITICAL RULES:
 5. DO NOT use labels like "Secure", "Anxious", "Avoidant" - use behavioral descriptions
 6. Options should sound natural and realistic
 
+**CONTENT RESTRICTIONS - IMPORTANT:**
+- NO questions about physical intimacy or sexual topics
+- NO romantic dating scenarios
+- Focus on: general relationships, friendships, family, life situations, emotional responses
+- Keep content appropriate for ages 13+
+- Topics: communication, trust, independence, emotional expression, conflict resolution, support
+
 GOOD Example:
 [
-  {"question":"How do you react when someone pulls away?","options":["I trust they need space and stay calm","I worry and try to reconnect immediately","I pull away too and distance myself","I feel confused and unsure how to respond"]},
-  {"question":"When planning a date, you prefer to:","options":["Collaborate and decide together","Ask what they want and follow their lead","Take charge and plan it yourself","Feel anxious about making the wrong choice"]}
+  {"question":"How do you react when a friend needs space?","options":["I trust they need time and give them space","I worry they're upset with me and check in frequently","I take it personally and distance myself","I feel confused about what to do"]},
+  {"question":"When facing a challenge, you prefer to:","options":["Talk it through with someone I trust","Handle it completely on my own","Avoid thinking about it until necessary","Ask for help but feel guilty about it"]}
 ]
 
 BAD Example (same options repeated):
@@ -352,7 +359,7 @@ BAD Example (same options repeated):
   {"question":"When dating...","options":["Feel secure","Feel anxious","Feel avoidant","Feel mixed"]}
 ]
 
-Generate varied questions about: relationships, emotional responses, conflict, intimacy, independence, communication."""
+Generate varied questions about: friendships, family relationships, emotional expression, communication styles, conflict handling, support-seeking, independence, trust in relationships."""
             
             chat = LlmChat(
                 api_key=self.api_key,
