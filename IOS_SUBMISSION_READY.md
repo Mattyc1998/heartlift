@@ -193,8 +193,9 @@ Start your wellness journey today!
 **Secondary Category:** (optional) Health & Fitness OR Lifestyle
 
 **Age Rating:**
-- Recommended: **17+** 
-- Reason: Contains dating/relationship content
+- Recommended: **13+** 
+- Content: General relationship wellness, friendships, family dynamics, emotional intelligence
+- Quiz content: Age-appropriate questions about relationships, friendships, and life situations (no sexual or adult-only content)
 
 **Copyright:** 
 ```
