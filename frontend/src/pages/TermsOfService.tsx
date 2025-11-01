@@ -139,6 +139,9 @@ export default function TermsOfService() {
                 All content, features, designs, and functionality of HeartLift are <strong>owned by us or our licensors</strong> and are <strong>protected by copyright, 
                 trademark, and other intellectual property laws</strong>. You may <strong>not reproduce, distribute, or modify</strong> any part of the Service without written permission.
               </p>
+              <p className="text-base leading-relaxed mt-2">
+                <strong>© 2025 HeartLift.</strong> All rights reserved.
+              </p>
             </section>
 
             <section className="pb-4 border-b border-border/50">
