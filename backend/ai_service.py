@@ -1048,17 +1048,17 @@ Think: high-end lifestyle photography, not artistic painting."""
         return [
             {
                 "id": 1,
-                "question": "When my partner needs space, I usually...",
+                "question": "When a friend needs space, I usually...",
                 "options": [
-                    "Give them space while feeling secure in our connection",
+                    "Give them space while feeling secure in our friendship",
                     "Feel worried and want to check in frequently",
-                    "Feel relieved and enjoy the independence",
+                    "Feel relieved and enjoy having more time to myself",
                     "Feel confused and unsure how to respond"
                 ]
             },
             {
                 "id": 2,
-                "question": "In a disagreement, I tend to...",
+                "question": "In a disagreement with someone I care about, I tend to...",
                 "options": [
                     "Express my feelings calmly and listen to theirs",
                     "Feel intense emotions and need immediate resolution",
@@ -1068,21 +1068,21 @@ Think: high-end lifestyle photography, not artistic painting."""
             },
             {
                 "id": 3,
-                "question": "When thinking about relationships, I...",
+                "question": "When thinking about close relationships, I...",
                 "options": [
                     "Feel optimistic and trust they can be fulfilling",
-                    "Worry about being hurt or abandoned",
+                    "Worry about being hurt or let down",
                     "Prefer to maintain my independence",
-                    "Have mixed feelings about commitment"
+                    "Have mixed feelings about getting too close"
                 ]
             },
             {
                 "id": 4,
-                "question": "If my partner doesn't respond to my messages quickly, I...",
+                "question": "If someone important to me doesn't respond to my messages quickly, I...",
                 "options": [
                     "Assume they're busy and trust they'll respond when they can",
                     "Start to worry and check my phone repeatedly",
-                    "Don't really mind and prefer not to text constantly anyway",
+                    "Don't really mind and prefer not to message constantly anyway",
                     "Feel anxious but try to suppress it"
                 ]
             },
@@ -1100,25 +1100,25 @@ Think: high-end lifestyle photography, not artistic painting."""
                 "id": 6,
                 "question": "My view of myself in relationships is...",
                 "options": [
-                    "I'm worthy of love and have healthy relationships",
-                    "I need constant reassurance that I'm loved",
+                    "I'm worthy of care and have healthy connections with others",
+                    "I need constant reassurance that I'm valued",
                     "I'm fine on my own and don't need much from others",
                     "I'm not sure what I need or deserve"
                 ]
             },
             {
                 "id": 7,
-                "question": "When my partner shares their feelings with me, I...",
+                "question": "When someone I trust shares their feelings with me, I...",
                 "options": [
                     "Listen openly and appreciate their vulnerability",
                     "Feel anxious about saying the wrong thing",
-                    "Feel somewhat uncomfortable with emotional talks",
+                    "Feel somewhat uncomfortable with emotional conversations",
                     "Want to engage but also want to escape"
                 ]
             },
             {
                 "id": 8,
-                "question": "Trust in relationships...",
+                "question": "Trust in my relationships...",
                 "options": [
                     "Comes naturally when I feel respected and cared for",
                     "Is hard for me - I want to trust but fear disappointment",
@@ -1128,9 +1128,9 @@ Think: high-end lifestyle photography, not artistic painting."""
             },
             {
                 "id": 9,
-                "question": "When upset in a relationship, I prefer to...",
+                "question": "When upset with someone I care about, I prefer to...",
                 "options": [
-                    "Talk it through with my partner openly",
+                    "Talk it through with them openly",
                     "Seek immediate comfort and reassurance",
                     "Process my feelings alone first",
                     "Alternate between wanting support and pushing away"
@@ -1138,12 +1138,12 @@ Think: high-end lifestyle photography, not artistic painting."""
             },
             {
                 "id": 10,
-                "question": "My typical relationship pattern is...",
+                "question": "My typical pattern in close relationships is...",
                 "options": [
                     "Balanced between independence and connection",
-                    "Intense and often filled with anxiety",
-                    "Emotionally distant but stable",
-                    "Unpredictable and sometimes chaotic"
+                    "Intense and often filled with worry",
+                    "Emotionally reserved but stable",
+                    "Unpredictable and sometimes inconsistent"
                 ]
             }
         ]
