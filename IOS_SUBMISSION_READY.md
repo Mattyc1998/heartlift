@@ -261,7 +261,7 @@ Start your wellness journey today!
 - App is fully functional
 - No broken features or placeholder content
 - Privacy policy accessible
-- Age rating appropriate (17+)
+- Age rating appropriate (13+)
 - Crisis support properly handled
 
 ### Testing Before Submission
