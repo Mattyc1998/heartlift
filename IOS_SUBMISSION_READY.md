@@ -199,7 +199,7 @@ Start your wellness journey today!
 
 **Copyright:** 
 ```
-© 2025 [Your Name or Company Name]
+© 2025 HeartLift
 ```
 
 ### Optional but Recommended
