@@ -60,15 +60,15 @@ workflows:
       # Email notification
       email:
         recipients:
-          - your-email@example.com # Replace with your email
+          - support@heart-lift.com # Replace with your actual email
         notify:
           success: true
           failure: true
       
-      # App Store Connect publishing (uncomment when ready)
-      # app_store_connect:
-      #   auth: integration
-      #   submit_to_testflight: true
-      #   beta_groups:
-      #     - Internal Testers
-      #   submit_to_app_store: false
+      # App Store Connect publishing (ENABLED)
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        beta_groups:
+          - Internal Testers
+        submit_to_app_store: false # Set to true when ready for App Store Review
