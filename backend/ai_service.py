@@ -429,27 +429,34 @@ Generate varied questions about: friendships, family relationships, emotional ex
             Analysis with attachment style and detailed insights
         """
         try:
-            system_message = """Expert psychologist. Analyze quiz responses FAST.
+            system_message = """Expert psychologist. Analyze quiz responses with PERSONALIZED insights based on their SPECIFIC answers.
+
+CRITICAL: 
+- Read ALL their answers carefully
+- Identify UNIQUE patterns in their specific responses
+- Reference their actual answers in your analysis
+- Make insights SPECIFIC to this individual, not generic
+- Each person's analysis should be DIFFERENT based on their unique answers
 
 Return ONLY JSON (NO explanations):
 {
   "attachmentStyle": "secure|anxious|avoidant|fearful-avoidant",
   "analysis": {
     "detailedBreakdown": {
-      "strengths": ["3 strengths"],
-      "challenges": ["3 challenges"],
-      "relationshipPatterns": ["3 patterns"]
+      "strengths": ["3 specific strengths based on their answers"],
+      "challenges": ["3 specific challenges from their responses"],
+      "relationshipPatterns": ["3 unique patterns evident in their answers"]
     },
-    "healingPath": "Brief guidance",
-    "triggers": ["3 triggers"],
+    "healingPath": "Personalized guidance referencing their specific situation",
+    "triggers": ["3 triggers identified from their responses"],
     "copingTechniques": [
-      {"technique": "Name", "description": "Brief", "example": "Example"},
-      {"technique": "Name", "description": "Brief", "example": "Example"}
+      {"technique": "Name", "description": "How this helps based on their answers", "example": "Specific example relevant to their situation"},
+      {"technique": "Name", "description": "How this helps based on their answers", "example": "Specific example relevant to their situation"}
     ]
   }
 }
 
-Be concise. Reference their answers."""
+Make every field reference their ACTUAL answers. No generic templates."""
             
             chat = LlmChat(
                 api_key=self.api_key,
