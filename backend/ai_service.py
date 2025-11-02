@@ -457,11 +457,13 @@ Be concise. Reference their answers."""
                 system_message=system_message
             ).with_model("openai", "gpt-4o-mini")
             
-            # Build concise prompt
-            prompt = "Answers:\n"
-            for i, qa in enumerate(questions_and_answers[:5], 1):  # Only use first 5 for speed
-                prompt += f"{i}. {qa['answer']}\n"
-            prompt += "Analyze attachment style."
+            # Build detailed prompt with ALL answers for accurate analysis
+            prompt = f"User's Quiz Responses ({len(questions_and_answers)} questions):\n\n"
+            for i, qa in enumerate(questions_and_answers, 1):
+                prompt += f"Q{i}: {qa['question']}\n"
+                prompt += f"A{i}: {qa['answer']}\n\n"
+            
+            prompt += "\nBased on ALL these specific responses, provide a unique, personalized analysis of this individual's attachment style. Reference specific answers in your analysis to show you've considered their unique pattern."
             
             user_msg = UserMessage(text=prompt)
             
