@@ -467,12 +467,12 @@ Be concise. Reference their answers."""
             
             user_msg = UserMessage(text=prompt)
             
-            # 8 second timeout - faster!
+            # 12 second timeout - need more time for detailed analysis
             import asyncio
             try:
                 response = await asyncio.wait_for(
                     chat.send_message(user_msg),
-                    timeout=8.0
+                    timeout=12.0
                 )
             except asyncio.TimeoutError:
                 logger.warning("Analysis timed out, using fallback")
