@@ -460,7 +460,7 @@ Make every field reference their ACTUAL answers. No generic templates."""
             
             chat = LlmChat(
                 api_key=self.api_key,
-                session_id=f"quiz-analysis-{datetime.now().timestamp()}",
+                session_id=f"quiz-analysis-{user_id or 'anon'}-{datetime.now().timestamp()}",
                 system_message=system_message
             ).with_model("openai", "gpt-4o-mini")
             
