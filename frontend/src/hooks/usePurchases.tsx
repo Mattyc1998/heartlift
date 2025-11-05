@@ -10,6 +10,7 @@ export function usePurchases() {
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
   const { toast } = useToast();
+  const { checkSubscription } = useAuth(); // Get checkSubscription from AuthContext
 
   // Initialize and check subscription status
   useEffect(() => {
