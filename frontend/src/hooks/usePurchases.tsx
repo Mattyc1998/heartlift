@@ -94,6 +94,10 @@ export function usePurchases() {
       
       if (result) {
         await checkSubscriptionStatus();
+        
+        // 🚨 CRITICAL: Immediately refresh AuthContext so all components see new status
+        await checkSubscription();
+        
         toast({
           title: "💝 Healing Kit Unlocked!",
           description: "Your complete break-up recovery package is now available.",
