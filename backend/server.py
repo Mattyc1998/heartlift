@@ -521,11 +521,26 @@ async def get_user_insights_reports(user_id: str, limit: int = 10):
 @api_router.post("/usage/track")
 async def track_message_usage(request: UsageTrackRequest):
     """
-    Track a message sent by user (increments daily usage count)
+    Track message usage for free users ONLY
+    Premium users bypass all limits
     """
     try:
+        logger.info(f"Tracking usage for user {request.user_id}")
+        
+        # 🚨 CHECK PREMIUM STATUS FIRST - Premium users have unlimited messages
+        subscription = await db.subscriptions.find_one({"user_id": request.user_id})
+        
+        if subscription and subscription.get("has_premium", False):
+            logger.info(f"✅ User {request.user_id} is PREMIUM - unlimited messages")
+            return UsageResponse(
+                message_count=999,  # Show as unlimited
+                can_send_message=True,
+                remaining_messages=999  # Show as unlimited
+            )
+        
+        # Free user - track usage and enforce 10 message limit
         today = datetime.utcnow().date().isoformat()
-        logger.info(f"Tracking message usage for user {request.user_id} with coach {request.coach_id}")
+        logger.info(f"Tracking message usage for FREE user {request.user_id} with coach {request.coach_id}")
         
         # Check if usage record exists for today
         existing = await db.daily_usage.find_one({
