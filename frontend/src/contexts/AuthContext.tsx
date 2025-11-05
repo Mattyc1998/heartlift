@@ -93,12 +93,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error('[AuthContext] Error checking subscription:', error);
     }
   };
-        console.error('[AuthContext] Error checking healing kit:', healingKitResponse.error);
-      }
-    } catch (error) {
-      console.error('Error checking subscription:', error);
-    }
-  };
 
   useEffect(() => {
     // Set up auth state listener
