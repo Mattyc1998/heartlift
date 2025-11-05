@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { purchaseService } from '@/services/purchaseService';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function usePurchases() {
   const [isPremium, setIsPremium] = useState(false);
