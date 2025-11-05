@@ -588,10 +588,28 @@ async def track_message_usage(request: UsageTrackRequest):
 async def check_message_usage(user_id: str):
     """
     Check current daily usage for a user
+    Premium users have unlimited messages
     """
     try:
-        today = datetime.utcnow().date().isoformat()
         logger.info(f"Checking usage for user {user_id}")
+        
+        # 🚨 CHECK PREMIUM STATUS FIRST - Premium users have unlimited messages
+        subscription = await db.subscriptions.find_one({"user_id": user_id})
+        
+        if subscription and subscription.get("has_premium", False):
+            logger.info(f"✅ User {user_id} is PREMIUM - unlimited messages")
+            return {
+                "message_count": 0,  # Don't track for premium users
+                "can_send_message": True,
+                "remaining_messages": 999,  # Show as unlimited
+                "is_premium": True,
+                "seconds_until_reset": None,  # No reset needed for premium
+                "reset_time": None
+            }
+        
+        # Free user - check usage and enforce limits
+        today = datetime.utcnow().date().isoformat()
+        logger.info(f"Checking usage for FREE user {user_id}")
         
         # Cleanup: Delete usage records older than 7 days (async, don't wait)
         seven_days_ago = (datetime.utcnow().date() - timedelta(days=7)).isoformat()
