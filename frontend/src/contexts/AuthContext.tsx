@@ -62,42 +62,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!user) return;
 
     try {
-      // Check premium status immediately with parallel calls
-      const session = await supabase.auth.getSession();
-      if (!session.data.session?.access_token) {
-        console.log('[AuthContext] No valid session token for subscription check');
-        return;
-      }
+      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL || '';
       
-      // Run both checks in parallel for faster response
-      const [subscriptionResponse, healingKitResponse] = await Promise.all([
-        supabase.functions.invoke('check-subscription', {
-          headers: {
-            Authorization: `Bearer ${session.data.session.access_token}`,
-          },
-        }),
-        supabase.rpc('user_has_healing_kit', { user_uuid: user.id })
-      ]);
+      // Check subscription status from MongoDB backend (where purchases sync)
+      const response = await fetch(`${backendUrl}/api/subscriptions/status/${user.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
 
-      // Update premium status
-      if (!subscriptionResponse.error && subscriptionResponse.data) {
-        const premiumStatus = subscriptionResponse.data.subscribed || false;
-        const planType = subscriptionResponse.data.plan_type || 'free';
+      if (response.ok) {
+        const data = await response.json();
+        const premiumStatus = data.has_premium || false;
+        const healingKitStatus = data.has_healing_kit || false;
+        
         setIsPremium(premiumStatus);
-        setSubscriptionStatus(planType);
-        // Cache premium status for immediate access
-        localStorage.setItem('isPremium', JSON.stringify(premiumStatus));
-        localStorage.setItem('subscriptionStatus', JSON.stringify(planType));
-      }
-
-      // Update healing kit status
-      if (!healingKitResponse.error) {
-        console.log('[AuthContext] Healing kit status:', healingKitResponse.data);
-        const healingKitStatus = healingKitResponse.data || false;
         setHasHealingKit(healingKitStatus);
-        // Cache healing kit status for immediate access
+        setSubscriptionStatus(premiumStatus ? 'premium' : 'free');
+        
+        // Cache for immediate access on reload
+        localStorage.setItem('isPremium', JSON.stringify(premiumStatus));
         localStorage.setItem('hasHealingKit', JSON.stringify(healingKitStatus));
+        localStorage.setItem('subscriptionStatus', JSON.stringify(premiumStatus ? 'premium' : 'free'));
+        
+        console.log('✅ [AuthContext] Subscription status updated:', { premiumStatus, healingKitStatus });
       } else {
+        console.warn('[AuthContext] Failed to check subscription status:', response.status);
+      }
+    } catch (error) {
+      console.error('[AuthContext] Error checking subscription:', error);
+    }
+  };
         console.error('[AuthContext] Error checking healing kit:', healingKitResponse.error);
       }
     } catch (error) {
