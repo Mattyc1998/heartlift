@@ -64,6 +64,10 @@ export function usePurchases() {
       
       if (result) {
         await checkSubscriptionStatus();
+        
+        // 🚨 CRITICAL: Immediately refresh AuthContext so all components see new status
+        await checkSubscription();
+        
         toast({
           title: "🎉 Welcome to Premium!",
           description: "You now have unlimited access to all features. Enjoy your journey!",
