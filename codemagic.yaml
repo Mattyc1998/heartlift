@@ -13,7 +13,7 @@ workflows:
         XCODE_WORKSPACE: "App.xcworkspace"
         XCODE_SCHEME: "App"
         BUNDLE_ID: "com.mattyc.heartlift"
-        APP_STORE_APPLE_ID: 1234567890 # Replace with your App's Apple ID from App Store Connect
+        APP_STORE_APPLE_ID: 6754944479 # HeartLift App Store Apple ID
       node: 20.11.0
       xcode: 15.2
       cocoapods: default
