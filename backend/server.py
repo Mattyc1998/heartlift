@@ -569,7 +569,7 @@ async def track_message_usage(request: UsageTrackRequest):
                 "updated_at": datetime.utcnow().isoformat()
             })
             new_count = 1
-            logger.info(f"Created new usage record with count 1")
+            logger.info("Created new usage record with count 1")
         
         can_send = new_count < 10
         remaining = max(0, 10 - new_count)
