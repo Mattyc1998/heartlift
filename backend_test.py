@@ -695,7 +695,7 @@ class HeartLiftBackendTest:
     def print_summary(self):
         """Print test summary"""
         print("\n" + "="*60)
-        print("🧪 QUIZ ANALYSIS TEST SUMMARY")
+        print("🧪 HEARTLIFT BACKEND TEST SUMMARY")
         print("="*60)
         
         passed = sum(1 for result in self.test_results if result["status"] == "PASSED")
