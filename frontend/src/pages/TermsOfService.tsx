@@ -96,9 +96,9 @@ export default function TermsOfService() {
             </section>
 
             <section className="pb-4 border-b border-border/50">
-              <h2 className="text-2xl font-bold mb-4 text-foreground">4. User Responsibilities</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">4. User Conduct and Prohibited Content</h2>
               <p className="text-base leading-relaxed mb-3 font-medium">You agree to:</p>
-              <ul className="list-disc pl-6 space-y-2 text-base">
+              <ul className="list-disc pl-6 space-y-2 text-base mb-4">
                 <li>Provide <strong>accurate, truthful information</strong> when using the Service</li>
                 <li>Use HeartLift only for <strong>lawful, personal, and non-commercial purposes</strong></li>
                 <li>Avoid <strong>harmful, abusive, or inappropriate behavior</strong></li>
@@ -108,6 +108,26 @@ export default function TermsOfService() {
                 <li>Accept that <strong>conversation history persists across sessions</strong> until refresh or new day</li>
                 <li><strong>Free tier users:</strong> Respect the 10 messages per day limit (resets at midnight UTC)</li>
               </ul>
+              
+              <div className="bg-red-50 border border-red-300 rounded-lg p-5 mt-4">
+                <p className="font-bold text-lg mb-3 text-red-800">🔞 Prohibited Content (Age 13+)</p>
+                <p className="text-base leading-relaxed text-red-900 mb-3">
+                  HeartLift is designed for ages <strong>13 and older</strong> and focuses on <strong>emotional wellbeing and relationship support</strong>. 
+                  The following content is <strong>strictly prohibited</strong>:
+                </p>
+                <ul className="list-disc pl-6 space-y-2 text-base text-red-900">
+                  <li><strong>Sexually explicit messages</strong>, sexual acts, fantasies, or explicit descriptions</li>
+                  <li><strong>Inappropriate romantic or sexual advances</strong> toward AI coaches</li>
+                  <li><strong>Sexual health questions</strong> (STIs, contraception, etc.) - Please consult NHS Sexual Health Services or your healthcare provider</li>
+                  <li>Any content that would be <strong>inappropriate for ages 13+</strong></li>
+                  <li>Harassment, threats, or abusive language</li>
+                  <li>Illegal activities or content</li>
+                </ul>
+                <p className="text-base leading-relaxed text-red-900 mt-3 font-semibold">
+                  AI coaches will <strong>immediately stop and redirect</strong> if you attempt to engage in prohibited content. 
+                  Repeated violations may result in <strong>account suspension or termination</strong>.
+                </p>
+              </div>
             </section>
 
             <section className="pb-4 border-b border-border/50">
