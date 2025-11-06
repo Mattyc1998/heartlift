@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for HeartLift Quiz Analysis
-Tests the POST /api/ai/quiz/analyze endpoint functionality
+Backend Test Suite for HeartLift Critical Fixes
+Tests the POST /api/ai/heart-vision and POST /api/ai/insights endpoints
+Plus existing quiz analysis functionality
 """
 
 import asyncio
@@ -9,6 +10,7 @@ import json
 import time
 import httpx
 import os
+import base64
 from typing import Dict, List
 
 # Get backend URL from environment
