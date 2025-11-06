@@ -210,10 +210,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Chat Conversation Persistence"
-    - "Daily Reflection Saving"
-    - "Quiz Results Saving"
-    - "Past Results Display"
+    - "HeartVisions Image Generation"
+    - "Personalized Insights Generation"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
