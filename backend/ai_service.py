@@ -1003,9 +1003,9 @@ Think: high-end lifestyle photography, not artistic painting."""
                     image_gen.generate_images(
                         prompt=enhanced_prompt,
                         model="dall-e-3",
-                        number_of_images=1,
-                        size="1024x1024",  # Standard square size
-                        quality="hd"  # HD quality for premium images
+                        number_of_images=1
+                        # Note: size and quality parameters not supported by emergentintegrations library
+                        # The library will use DALL-E 3 defaults: 1024x1024 size and standard quality
                     ),
                     timeout=45.0  # 45 second timeout for HD generation
                 )
