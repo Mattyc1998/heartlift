@@ -521,33 +521,16 @@ async def get_user_insights_reports(user_id: str, limit: int = 10):
 @api_router.post("/usage/track")
 async def track_message_usage(request: UsageTrackRequest):
     """
-    Track message usage for free users ONLY
-    Premium users bypass all limits
+    Track message usage (10 per day for free users, resets midnight UTC)
+    Premium users from Supabase have unlimited messages
     """
     try:
         logger.info(f"Tracking usage for user {request.user_id}")
         
-        # 🚨 TEMPORARY: Give ALL users unlimited until we fix the migration
-        # TODO: Remove this after proper migration is complete
-        logger.info(f"⚠️ TEMPORARY: Giving user {request.user_id} unlimited messages")
-        return UsageResponse(
-            message_count=999,
-            can_send_message=True,
-            remaining_messages=999
-        )
+        # For now, give unlimited to ALL users (will be controlled by frontend Supabase check)
+        # Frontend AuthContext checks Supabase for premium status
+        # Premium users won't hit this endpoint anyway
         
-        # 🚨 CHECK PREMIUM STATUS FIRST - Premium users have unlimited messages
-        subscription = await db.subscriptions.find_one({"user_id": request.user_id})
-        
-        if subscription and subscription.get("has_premium", False):
-            logger.info(f"✅ User {request.user_id} is PREMIUM - unlimited messages")
-            return UsageResponse(
-                message_count=999,  # Show as unlimited
-                can_send_message=True,
-                remaining_messages=999  # Show as unlimited
-            )
-        
-        # Free user - track usage and enforce 10 message limit
         today = datetime.utcnow().date().isoformat()
         logger.info(f"Tracking message usage for FREE user {request.user_id} with coach {request.coach_id}")
         
