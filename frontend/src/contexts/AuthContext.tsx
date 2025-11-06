@@ -76,6 +76,56 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const premiumStatus = data.has_premium || false;
         const healingKitStatus = data.has_healing_kit || false;
         
+        // 🚨 FALLBACK: If MongoDB has no data, check Supabase (for existing users)
+        if (!premiumStatus && !healingKitStatus) {
+          console.log('[AuthContext] MongoDB empty, checking Supabase fallback...');
+          
+          try {
+            const session = await supabase.auth.getSession();
+            if (session.data.session?.access_token) {
+              // Check Supabase for existing subscriptions
+              const [supabaseSubResponse, supabaseHealingKitResponse] = await Promise.all([
+                supabase.functions.invoke('check-subscription', {
+                  headers: { Authorization: `Bearer ${session.data.session.access_token}` }
+                }),
+                supabase.rpc('user_has_healing_kit', { user_uuid: user.id })
+              ]);
+
+              const supabasePremium = !supabaseSubResponse.error && supabaseSubResponse.data?.subscribed;
+              const supabaseHealingKit = !supabaseHealingKitResponse.error && supabaseHealingKitResponse.data;
+
+              if (supabasePremium || supabaseHealingKit) {
+                console.log('✅ [AuthContext] Found data in Supabase, migrating to MongoDB...');
+                
+                // Migrate to MongoDB by calling sync endpoint
+                await fetch(`${backendUrl}/api/subscriptions/sync`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    user_id: user.id,
+                    customer_info: { source: 'supabase_migration' },
+                    has_premium: supabasePremium,
+                    has_healing_kit: supabaseHealingKit
+                  })
+                });
+
+                setIsPremium(supabasePremium);
+                setHasHealingKit(supabaseHealingKit);
+                setSubscriptionStatus(supabasePremium ? 'premium' : 'free');
+                
+                localStorage.setItem('isPremium', JSON.stringify(supabasePremium));
+                localStorage.setItem('hasHealingKit', JSON.stringify(supabaseHealingKit));
+                localStorage.setItem('subscriptionStatus', JSON.stringify(supabasePremium ? 'premium' : 'free'));
+                
+                console.log('✅ [AuthContext] Migration complete:', { supabasePremium, supabaseHealingKit });
+                return;
+              }
+            }
+          } catch (fallbackError) {
+            console.error('[AuthContext] Supabase fallback error:', fallbackError);
+          }
+        }
+        
         setIsPremium(premiumStatus);
         setHasHealingKit(healingKitStatus);
         setSubscriptionStatus(premiumStatus ? 'premium' : 'free');
