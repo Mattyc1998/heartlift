@@ -719,20 +719,30 @@ class HeartLiftBackendTest:
         return passed, failed, warnings
 
 async def main():
-    """Run all quiz analysis tests"""
-    print("🚀 Starting HeartLift Quiz Analysis Backend Tests")
+    """Run all HeartLift backend tests including critical fixes"""
+    print("🚀 Starting HeartLift Backend Tests - Critical Fixes Validation")
     print(f"🔗 Backend URL: {BACKEND_URL}")
     print("-" * 60)
     
-    tester = QuizAnalysisTest()
+    tester = HeartLiftBackendTest()
     
-    # Run all tests
-    tests = [
+    # Run critical fix tests first
+    print("🎯 TESTING CRITICAL FIXES:")
+    critical_tests = [
+        tester.test_heart_vision_image_generation(),
+        tester.test_personalized_insights_generation()
+    ]
+    
+    print("\n📋 TESTING EXISTING FUNCTIONALITY:")
+    existing_tests = [
         tester.test_basic_quiz_analysis(),
         tester.test_response_structure_validation(),
         tester.test_performance_requirement(),
         tester.test_error_handling()
     ]
+    
+    # Run all tests
+    all_tests = critical_tests + existing_tests
     
     results = await asyncio.gather(*tests, return_exceptions=True)
     
