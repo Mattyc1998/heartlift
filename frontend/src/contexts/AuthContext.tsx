@@ -62,85 +62,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!user) return;
 
     try {
-      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL || '';
+      // Check premium status immediately with parallel calls to SUPABASE
+      const session = await supabase.auth.getSession();
+      if (!session.data.session?.access_token) {
+        console.log('[AuthContext] No valid session token for subscription check');
+        return;
+      }
       
-      // Check subscription status from MongoDB backend (where purchases sync)
-      const response = await fetch(`${backendUrl}/api/subscriptions/status/${user.id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      // Run both checks in parallel for faster response
+      const [subscriptionResponse, healingKitResponse] = await Promise.all([
+        supabase.functions.invoke('check-subscription', {
+          headers: {
+            Authorization: `Bearer ${session.data.session.access_token}`,
+          },
+        }),
+        supabase.rpc('user_has_healing_kit', { user_uuid: user.id })
+      ]);
 
-      if (response.ok) {
-        const data = await response.json();
-        const premiumStatus = data.has_premium || false;
-        const healingKitStatus = data.has_healing_kit || false;
-        
-        // 🚨 FALLBACK: If MongoDB has no data, check Supabase (for existing users)
-        if (!premiumStatus && !healingKitStatus) {
-          console.log('[AuthContext] MongoDB empty, checking Supabase fallback...');
-          
-          try {
-            const session = await supabase.auth.getSession();
-            if (session.data.session?.access_token) {
-              // Check Supabase for existing subscriptions
-              const [supabaseSubResponse, supabaseHealingKitResponse] = await Promise.all([
-                supabase.functions.invoke('check-subscription', {
-                  headers: { Authorization: `Bearer ${session.data.session.access_token}` }
-                }),
-                supabase.rpc('user_has_healing_kit', { user_uuid: user.id })
-              ]);
-
-              const supabasePremium = !supabaseSubResponse.error && supabaseSubResponse.data?.subscribed;
-              const supabaseHealingKit = !supabaseHealingKitResponse.error && supabaseHealingKitResponse.data;
-
-              if (supabasePremium || supabaseHealingKit) {
-                console.log('✅ [AuthContext] Found data in Supabase, migrating to MongoDB...');
-                
-                // Migrate to MongoDB by calling sync endpoint
-                await fetch(`${backendUrl}/api/subscriptions/sync`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    user_id: user.id,
-                    customer_info: { source: 'supabase_migration' },
-                    has_premium: supabasePremium,
-                    has_healing_kit: supabaseHealingKit
-                  })
-                });
-
-                setIsPremium(supabasePremium);
-                setHasHealingKit(supabaseHealingKit);
-                setSubscriptionStatus(supabasePremium ? 'premium' : 'free');
-                
-                localStorage.setItem('isPremium', JSON.stringify(supabasePremium));
-                localStorage.setItem('hasHealingKit', JSON.stringify(supabaseHealingKit));
-                localStorage.setItem('subscriptionStatus', JSON.stringify(supabasePremium ? 'premium' : 'free'));
-                
-                console.log('✅ [AuthContext] Migration complete:', { supabasePremium, supabaseHealingKit });
-                return;
-              }
-            }
-          } catch (fallbackError) {
-            console.error('[AuthContext] Supabase fallback error:', fallbackError);
-          }
-        }
-        
+      // Update premium status
+      if (!subscriptionResponse.error && subscriptionResponse.data) {
+        const premiumStatus = subscriptionResponse.data.subscribed || false;
+        const planType = subscriptionResponse.data.plan_type || 'free';
         setIsPremium(premiumStatus);
-        setHasHealingKit(healingKitStatus);
-        setSubscriptionStatus(premiumStatus ? 'premium' : 'free');
-        
-        // Cache for immediate access on reload
+        setSubscriptionStatus(planType);
+        // Cache premium status for immediate access
         localStorage.setItem('isPremium', JSON.stringify(premiumStatus));
+        localStorage.setItem('subscriptionStatus', JSON.stringify(planType));
+      }
+
+      // Update healing kit status
+      if (!healingKitResponse.error) {
+        console.log('[AuthContext] Healing kit status:', healingKitResponse.data);
+        const healingKitStatus = healingKitResponse.data || false;
+        setHasHealingKit(healingKitStatus);
+        // Cache healing kit status for immediate access
         localStorage.setItem('hasHealingKit', JSON.stringify(healingKitStatus));
-        localStorage.setItem('subscriptionStatus', JSON.stringify(premiumStatus ? 'premium' : 'free'));
-        
-        console.log('✅ [AuthContext] Subscription status updated:', { premiumStatus, healingKitStatus });
       } else {
-        console.warn('[AuthContext] Failed to check subscription status:', response.status);
+        console.error('[AuthContext] Error checking healing kit:', healingKitResponse.error);
       }
     } catch (error) {
-      console.error('[AuthContext] Error checking subscription:', error);
+      console.error('Error checking subscription:', error);
     }
   };
 
