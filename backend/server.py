@@ -301,19 +301,74 @@ async def generate_heart_vision(request: HeartVisionRequest):
 @api_router.post("/ai/insights")
 async def generate_insights(request: InsightsRequest):
     """
-    Generate personalized insights report
+    Generate personalized insights report based on actual user data
     """
     try:
-        # TODO: In production, fetch actual user data from database
-        # For now, using placeholder data
+        user_id = request.user_id
+        logger.info(f"Generating insights for user {user_id}")
+        
+        # Fetch actual conversation data from Supabase
+        recent_conversations = []
+        conversation_count = 0
+        
+        if supabase_client:
+            try:
+                # Get recent conversations from last 30 days
+                thirty_days_ago = (datetime.utcnow() - timedelta(days=30)).isoformat()
+                conv_response = supabase_client.table('conversation_history') \
+                    .select('message, coach_name') \
+                    .eq('user_id', user_id) \
+                    .eq('sender', 'user') \
+                    .gte('created_at', thirty_days_ago) \
+                    .order('created_at', desc=True) \
+                    .limit(50) \
+                    .execute()
+                
+                if conv_response.data:
+                    conversation_count = len(conv_response.data)
+                    # Extract conversation topics/themes from user messages
+                    recent_conversations = [msg['message'][:100] for msg in conv_response.data[:10]]
+                    logger.info(f"Found {conversation_count} conversations for user")
+            except Exception as e:
+                logger.warning(f"Could not fetch conversations from Supabase: {e}")
+        
+        # Fetch daily reflections from MongoDB
+        recent_moods = []
+        mood_entries_count = 0
+        
+        try:
+            thirty_days_ago_date = (datetime.utcnow() - timedelta(days=30)).strftime('%Y-%m-%d')
+            reflections_cursor = db.daily_reflections.find({
+                'user_id': user_id,
+                'reflection_date': {'$gte': thirty_days_ago_date}
+            }).sort('reflection_date', -1).limit(20)
+            
+            reflections = await reflections_cursor.to_list(length=20)
+            mood_entries_count = len(reflections)
+            
+            # Extract mood/emotional themes from reflections
+            for reflection in reflections[:10]:
+                if 'gratitude' in reflection:
+                    recent_moods.append(f"Grateful for: {reflection['gratitude'][:50]}")
+                if 'proud_of' in reflection:
+                    recent_moods.append(f"Proud of: {reflection['proud_of'][:50]}")
+                if 'helpful_moment' in reflection:
+                    recent_moods.append(f"Helpful: {reflection['helpful_moment'][:50]}")
+            
+            logger.info(f"Found {mood_entries_count} reflections for user")
+        except Exception as e:
+            logger.warning(f"Could not fetch reflections from MongoDB: {e}")
+        
+        # Generate insights with real data
         insights = await ai_service.generate_personalized_insights(
-            user_id=request.user_id,
-            conversation_count=5,  # Would fetch from chat_history
-            mood_entries_count=10,  # Would fetch from mood_entries
-            recent_conversations=["Setting boundaries", "Healing journey", "Self-worth"],
-            recent_moods=["hopeful", "reflective", "growing"]
+            user_id=user_id,
+            conversation_count=conversation_count,
+            mood_entries_count=mood_entries_count,
+            recent_conversations=recent_conversations if recent_conversations else ["Starting healing journey"],
+            recent_moods=recent_moods if recent_moods else ["Building self-awareness"]
         )
         
+        logger.info(f"Successfully generated insights for user {user_id}")
         return insights
         
     except Exception as e:
