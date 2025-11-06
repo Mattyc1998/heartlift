@@ -218,6 +218,36 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+  - task: "HeartVisions Image Generation"
+    implemented: true
+    working: true
+    file: "/app/backend/ai_service.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "user"
+        comment: "USER REPORTED: HeartVisions generating low quality, distorted images (glitchy cathedral example). Images don't look premium or professional."
+      - working: true
+        agent: "main"
+        comment: "FIXED IMAGE QUALITY: Changed from invalid model 'gpt-image-1' to correct 'dall-e-3' model with HD quality settings. Updated parameters: model='dall-e-3', quality='hd', size='1024x1024', timeout increased to 45s. This should produce high-quality, photorealistic images instead of distorted/glitchy ones."
+
+  - task: "Personalized Insights Generation"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py, /app/backend/ai_service.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "USER REPORTED: Generated insights and reports aren't changing or analyzing any conversations. Same generic insights every time."
+      - working: true
+        agent: "main"
+        comment: "MAJOR FIX: Insights were using hardcoded placeholder data! Added Supabase integration to backend to fetch actual conversation_history. Now fetches: 1) Real conversations from Supabase (last 30 days, up to 50 messages), 2) Real daily reflections from MongoDB, 3) Extracts actual topics/themes from user messages, 4) Extracts mood patterns from reflections. Added supabase library to requirements.txt, configured SUPABASE_URL and SUPABASE_SERVICE_KEY in backend .env. AI now analyzes REAL user data instead of generic placeholders."
+
 agent_communication:
   - agent: "main"
     message: "Fixed quiz results fetching from correct table ('quiz_results') and enhanced UI to allow viewing full details of past quiz results. Added interactive clickable past results with detailed analysis view. Users can now navigate between their quiz history and take new quizzes. Ready for backend testing to verify the quiz analysis and saving flow works end-to-end."
@@ -225,3 +255,5 @@ agent_communication:
     message: "✅ BACKEND QUIZ ANALYSIS TESTING COMPLETE: All functionality working correctly. POST /api/ai/quiz/analyze endpoint tested with sample data from review request - returns proper attachment style analysis within performance requirements. Response structure matches frontend expectations perfectly. Error handling robust. No critical issues found. Backend quiz analysis functionality is fully operational and ready for production use."
   - agent: "main"
     message: "NEW ISSUES REPORTED: 1) Daily reflections not being saved 2) Chat conversations disappearing when user clicks off chat. FIXED: Added database persistence for chat messages. Now both user messages and coach responses are saved to conversation_history table via insert_conversation_message RPC. Messages will persist across sessions until user clicks refresh or it's a new day. Daily reflection code was already correct with proper upsert logic to database. Testing needed to verify chat persistence works."
+  - agent: "main"
+    message: "🚨 CRITICAL PRE-LAUNCH FIXES: User reported 2 major issues before App Store submission: 1) HeartVisions producing low-quality glitchy images - FIXED by changing from invalid 'gpt-image-1' to correct 'dall-e-3' model with HD quality, 2) Insights not analyzing conversations - FIXED by replacing hardcoded placeholder data with real data from Supabase (conversations) and MongoDB (reflections). Backend now analyzes actual user activity. Both fixes require backend testing to verify image quality and personalized insights."
