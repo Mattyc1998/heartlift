@@ -527,6 +527,15 @@ async def track_message_usage(request: UsageTrackRequest):
     try:
         logger.info(f"Tracking usage for user {request.user_id}")
         
+        # 🚨 TEMPORARY: Give ALL users unlimited until we fix the migration
+        # TODO: Remove this after proper migration is complete
+        logger.info(f"⚠️ TEMPORARY: Giving user {request.user_id} unlimited messages")
+        return UsageResponse(
+            message_count=999,
+            can_send_message=True,
+            remaining_messages=999
+        )
+        
         # 🚨 CHECK PREMIUM STATUS FIRST - Premium users have unlimited messages
         subscription = await db.subscriptions.find_one({"user_id": request.user_id})
         
