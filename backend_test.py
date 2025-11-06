@@ -744,7 +744,7 @@ async def main():
     # Run all tests
     all_tests = critical_tests + existing_tests
     
-    results = await asyncio.gather(*tests, return_exceptions=True)
+    results = await asyncio.gather(*all_tests, return_exceptions=True)
     
     # Print summary
     passed, failed, warnings = tester.print_summary()
