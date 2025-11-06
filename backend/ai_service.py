@@ -996,16 +996,18 @@ Think: high-end lifestyle photography, not artistic painting."""
             # Initialize image generator
             image_gen = OpenAIImageGeneration(api_key=self.api_key)
             
-            # Generate image using gpt-image-1 (latest model)
+            # Generate image using dall-e-3 with HD quality for premium results
             import asyncio
             try:
                 images = await asyncio.wait_for(
                     image_gen.generate_images(
                         prompt=enhanced_prompt,
-                        model="gpt-image-1",
-                        number_of_images=1
+                        model="dall-e-3",
+                        number_of_images=1,
+                        size="1024x1024",  # Standard square size
+                        quality="hd"  # HD quality for premium images
                     ),
-                    timeout=30.0  # 30 second timeout
+                    timeout=45.0  # 45 second timeout for HD generation
                 )
             except asyncio.TimeoutError:
                 logger.error("Image generation timed out after 30 seconds")
