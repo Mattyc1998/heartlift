@@ -888,7 +888,7 @@ Create a comprehensive, personalized insights report that:
                 clean_response = clean_response.strip()
                 
                 insights = json.loads(clean_response)
-                logger.info(f"Successfully generated personalized insights")
+                logger.info("Successfully generated personalized insights")
                 return insights
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse insights JSON: {e}")
@@ -991,7 +991,7 @@ Style requirements:
 
 Think: high-end lifestyle photography, not artistic painting."""
             
-            logger.info(f"Generating HeartVision with enhanced prompt")
+            logger.info("Generating HeartVision with enhanced prompt")
             
             # Initialize image generator
             image_gen = OpenAIImageGeneration(api_key=self.api_key)
