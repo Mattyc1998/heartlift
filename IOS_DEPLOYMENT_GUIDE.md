@@ -219,7 +219,7 @@ yarn cap:open:ios
 ### Current Settings
 - **Bundle ID**: com.mattyc.heartlift
 - **App Name**: HeartLift
-- **Backend URL**: https://emotion-coach-4.preview.emergentagent.com
+- **Backend URL**: https://heartlift-launch.preview.emergentagent.com
 - **Supabase Project**: hmmimemzznsyilxqakty
 
 ### Updating Configuration

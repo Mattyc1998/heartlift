@@ -137,7 +137,7 @@ python3 generate_icons.py
 1. **Icons**: Current icons are PLACEHOLDERS. Must replace before App Store submission.
 
 2. **Backend**: App is configured to use:
-   - Backend API: https://emotion-coach-4.preview.emergentagent.com
+   - Backend API: https://heartlift-launch.preview.emergentagent.com
    - Supabase: hmmimemzznsyilxqakty.supabase.co
 
 3. **Testing**: Always test with TestFlight before public release

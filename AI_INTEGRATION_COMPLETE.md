@@ -244,7 +244,7 @@ curl -X POST http://localhost:8001/api/ai/quiz/generate \
 
 ### ✅ AI Works on iOS!
 - All AI features will work on iOS automatically
-- Backend URL is configured: `https://emotion-coach-4.preview.emergentagent.com`
+- Backend URL is configured: `https://heartlift-launch.preview.emergentagent.com`
 - iOS app will call the same backend endpoints
 - No additional iOS configuration needed
 

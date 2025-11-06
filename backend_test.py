@@ -12,7 +12,7 @@ import os
 from typing import Dict, List
 
 # Get backend URL from environment
-BACKEND_URL = "https://emotion-coach-4.preview.emergentagent.com/api"
+BACKEND_URL = "https://heartlift-launch.preview.emergentagent.com/api"
 
 class QuizAnalysisTest:
     def __init__(self):
