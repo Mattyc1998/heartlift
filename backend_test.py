@@ -16,7 +16,7 @@ from typing import Dict, List
 # Get backend URL from environment
 BACKEND_URL = "https://heartlift-launch.preview.emergentagent.com/api"
 
-class QuizAnalysisTest:
+class HeartLiftBackendTest:
     def __init__(self):
         self.backend_url = BACKEND_URL
         self.test_results = []
