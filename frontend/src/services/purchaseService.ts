@@ -138,10 +138,11 @@ class PurchaseService {
             user_id: user.id,
             email: user.email,
             plan_type: 'premium',
-            status: 'active',
-            subscribed: true,  // CRITICAL: Set this for AuthContext compatibility
+            subscribed: true,  // CRITICAL: Must be true for AuthContext
             payment_status: 'active',
             updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id'
           });
         
         if (subError) {
