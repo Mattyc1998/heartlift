@@ -62,9 +62,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!user) return;
 
     try {
-      console.log('[AuthContext] Checking Apple IAP subscription for user:', user.id);
+      console.log('[AuthContext] Checking subscription for user:', user.id);
       
-      // Check premium status from subscribers table
+      // Check premium status from subscribers table (correct field is 'subscribed')
       const { data: subscriberData, error: subError } = await supabase
         .from('subscribers')
         .select('*')
@@ -74,24 +74,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       let isPremiumActive = false;
       if (!subError && subscriberData) {
         console.log('[AuthContext] Subscriber data:', subscriberData);
-        isPremiumActive = subscriberData.status === 'active' && subscriberData.plan_type === 'premium';
+        // Check the 'subscribed' field and plan_type
+        isPremiumActive = subscriberData.subscribed === true;
       } else if (subError) {
         console.error('[AuthContext] Error fetching subscriber:', subError);
       }
 
-      // Check healing kit status from user_healing_kits table
-      const { data: healingKitData, error: kitError } = await supabase
-        .from('user_healing_kits')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
+      // Check healing kit status using the RPC function (correct table is healing_kit_purchases)
+      const { data: healingKitStatus, error: kitError } = await supabase
+        .rpc('user_has_healing_kit', { user_uuid: user.id });
 
       let hasKit = false;
-      if (!kitError && healingKitData) {
-        console.log('[AuthContext] Healing kit data:', healingKitData);
-        hasKit = healingKitData.purchased === true;
-      } else if (kitError) {
-        console.error('[AuthContext] Error fetching healing kit:', kitError);
+      if (!kitError) {
+        console.log('[AuthContext] Healing kit status:', healingKitStatus);
+        hasKit = healingKitStatus === true;
+      } else {
+        console.error('[AuthContext] Error checking healing kit:', kitError);
       }
 
       // Update state
