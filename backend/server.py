@@ -639,6 +639,37 @@ async def track_message_usage(request: UsageTrackRequest):
         logger.error(f"Error tracking usage: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to track usage")
 
+@api_router.post("/fix-premium/{user_id}")
+async def fix_premium_access(user_id: str):
+    """
+    Emergency fix for Apple IAP premium access
+    """
+    try:
+        if not supabase_client:
+            raise HTTPException(status_code=500, detail="Supabase not configured")
+        
+        logger.info(f"🚨 EMERGENCY FIX: Restoring premium for user {user_id}")
+        
+        # Update subscribers table to set premium active
+        response = supabase_client.table('subscribers').update({
+            'plan_type': 'premium',
+            'status': 'active',
+            'subscribed': True,
+            'payment_status': 'active',
+            'updated_at': datetime.utcnow().isoformat()
+        }).eq('user_id', user_id).execute()
+        
+        logger.info(f"✅ Premium fixed for user {user_id}")
+        
+        return {
+            "success": True,
+            "message": "Premium access restored",
+            "data": response.data
+        }
+    except Exception as e:
+        logger.error(f"Error fixing premium: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/usage/check/{user_id}")
 async def check_message_usage(user_id: str):
     """
