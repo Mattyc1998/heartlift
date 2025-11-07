@@ -152,13 +152,16 @@ class PurchaseService {
         }
       }
 
-      // Update Healing Kit in Supabase
+      // Update Healing Kit in Supabase (healing_kit_purchases table)
       if (hasHealingKit) {
         const { error: kitError } = await supabase
-          .from('user_healing_kits')
+          .from('healing_kit_purchases')
           .upsert({
             user_id: user.id,
-            purchased: true
+            status: 'completed',
+            purchased_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id'
           });
         
         if (kitError) {
