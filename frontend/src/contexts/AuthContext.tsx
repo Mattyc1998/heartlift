@@ -75,15 +75,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!subError && subscriberData) {
         console.log('[AuthContext] RAW Subscriber data:', JSON.stringify(subscriberData));
         
-        // PRIORITY CHECK: Apple IAP format (plan_type + status)
-        if (subscriberData.plan_type === 'premium' && subscriberData.status === 'active') {
+        // Check if premium is active
+        // EITHER: subscribed=true (works for both Stripe and Apple IAP)
+        // OR: plan_type=premium AND payment_status=active
+        if (subscriberData.subscribed === true) {
           isPremiumActive = true;
-          console.log('[AuthContext] ✅ Premium ACTIVE via Apple IAP (plan_type=premium, status=active)');
-        }
-        // FALLBACK: Stripe format (subscribed field)
-        else if (subscriberData.subscribed === true) {
+          console.log('[AuthContext] ✅ Premium ACTIVE (subscribed=true)');
+        } else if (subscriberData.plan_type === 'premium' && subscriberData.payment_status === 'active') {
           isPremiumActive = true;
-          console.log('[AuthContext] ✅ Premium ACTIVE via Stripe (subscribed=true)');
+          console.log('[AuthContext] ✅ Premium ACTIVE (plan_type=premium, payment_status=active)');
         } else {
           console.log('[AuthContext] ❌ NO PREMIUM - Data:', subscriberData);
         }
