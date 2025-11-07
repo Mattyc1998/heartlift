@@ -74,10 +74,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       let isPremiumActive = false;
       if (!subError && subscriberData) {
         console.log('[AuthContext] Subscriber data:', subscriberData);
-        // Check EITHER subscribed field (Stripe) OR plan_type + status (Apple IAP)
-        isPremiumActive = 
-          subscriberData.subscribed === true || 
-          (subscriberData.plan_type === 'premium' && subscriberData.status === 'active');
+        
+        // Check if user has premium (either format)
+        const hasAppleIAP = subscriberData.plan_type === 'premium' && subscriberData.status === 'active';
+        const hasStripe = subscriberData.subscribed === true;
+        isPremiumActive = hasAppleIAP || hasStripe;
+        
+        // AUTO-FIX: If they have Apple IAP but subscribed field is not set, fix it now
+        if (hasAppleIAP && !hasStripe) {
+          console.log('[AuthContext] Auto-fixing subscribed field for Apple IAP user');
+          await supabase
+            .from('subscribers')
+            .update({ subscribed: true, updated_at: new Date().toISOString() })
+            .eq('user_id', user.id);
+        }
       } else if (subError) {
         console.error('[AuthContext] Error fetching subscriber:', subError);
       }
