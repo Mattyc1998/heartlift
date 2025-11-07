@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('[AuthContext] Checking subscription for user:', user.id);
       
-      // Check premium status from subscribers table (correct field is 'subscribed')
+      // Check premium status from subscribers table
       const { data: subscriberData, error: subError } = await supabase
         .from('subscribers')
         .select('*')
@@ -74,8 +74,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       let isPremiumActive = false;
       if (!subError && subscriberData) {
         console.log('[AuthContext] Subscriber data:', subscriberData);
-        // Check the 'subscribed' field and plan_type
-        isPremiumActive = subscriberData.subscribed === true;
+        // Check EITHER subscribed field (Stripe) OR plan_type + status (Apple IAP)
+        isPremiumActive = 
+          subscriberData.subscribed === true || 
+          (subscriberData.plan_type === 'premium' && subscriberData.status === 'active');
       } else if (subError) {
         console.error('[AuthContext] Error fetching subscriber:', subError);
       }
