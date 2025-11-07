@@ -479,48 +479,57 @@ Generate varied questions about: friendships, family relationships, emotional ex
             Analysis with attachment style and detailed insights
         """
         try:
-            system_message = """Expert psychologist. Analyze quiz responses with PERSONALIZED insights based on their SPECIFIC answers.
+            # First, analyze answer patterns to determine attachment style
+            answer_patterns = self._analyze_answer_patterns(questions_and_answers)
+            attachment_style = answer_patterns['dominant_style']
+            
+            logger.info(f"Detected attachment style from patterns: {attachment_style}")
+            logger.info(f"Answer pattern scores: {answer_patterns['scores']}")
+            
+            system_message = f"""Expert psychologist. Analyze quiz responses with DEEPLY PERSONALIZED insights.
 
-CRITICAL: 
-- Read ALL their answers carefully
-- Identify UNIQUE patterns in their specific responses
-- Reference their actual answers in your analysis
-- Make insights SPECIFIC to this individual, not generic
-- Each person's analysis should be DIFFERENT based on their unique answers
+DETECTED ATTACHMENT STYLE: {attachment_style}
 
-Return ONLY JSON (NO explanations):
-{
-  "attachmentStyle": "secure|anxious|avoidant|fearful-avoidant",
-  "analysis": {
-    "detailedBreakdown": {
-      "strengths": ["3 specific strengths based on their answers"],
-      "challenges": ["3 specific challenges from their responses"],
-      "relationshipPatterns": ["3 unique patterns evident in their answers"]
-    },
-    "healingPath": "Personalized guidance referencing their specific situation",
-    "triggers": ["3 triggers identified from their responses"],
+CRITICAL REQUIREMENTS:
+1. The attachment style MUST be "{attachment_style}" based on their answer patterns
+2. Quote or reference SPECIFIC answers they gave (use question numbers like "In Q3, you mentioned...")
+3. Make EVERY insight unique to their exact responses - no generic statements
+4. If they answered differently from typical {attachment_style}, acknowledge that complexity
+5. Different people with same style should get VERY different analyses based on their specific words
+
+Return ONLY JSON (NO markdown, NO explanations):
+{{
+  "attachmentStyle": "{attachment_style}",
+  "analysis": {{
+    "detailedBreakdown": {{
+      "strengths": ["3 strengths citing their specific answers"],
+      "challenges": ["3 challenges from their exact responses"],
+      "relationshipPatterns": ["3 patterns referencing specific questions they answered"]
+    }},
+    "healingPath": "Personalized guidance that mentions their specific situation and words",
+    "triggers": ["3 triggers identified from their actual responses"],
     "copingTechniques": [
-      {"technique": "Name", "description": "How this helps based on their answers", "example": "Specific example relevant to their situation"},
-      {"technique": "Name", "description": "How this helps based on their answers", "example": "Specific example relevant to their situation"}
+      {{"technique": "Name", "description": "Why this helps based on what they said", "example": "Example using their situation"}},
+      {{"technique": "Name", "description": "Why this helps based on what they said", "example": "Example using their situation"}}
     ]
-  }
-}
+  }}
+}}
 
-Make every field reference their ACTUAL answers. No generic templates."""
+REMEMBER: Quote their answers! Make it personal!"""
             
             chat = LlmChat(
                 api_key=self.api_key,
-                session_id=f"quiz-analysis-{user_id or 'anon'}-{datetime.now().timestamp()}",
+                session_id=f"quiz-{user_id or 'anon'}-{datetime.now().timestamp()}-{hash(str(questions_and_answers))}",
                 system_message=system_message
             ).with_model("openai", "gpt-4o-mini")
             
             # Build detailed prompt with ALL answers for accurate analysis
-            prompt = f"User's Quiz Responses ({len(questions_and_answers)} questions):\n\n"
+            prompt = f"Analyze this person's UNIQUE responses ({len(questions_and_answers)} questions):\n\n"
             for i, qa in enumerate(questions_and_answers, 1):
                 prompt += f"Q{i}: {qa['question']}\n"
-                prompt += f"A{i}: {qa['answer']}\n\n"
+                prompt += f"Their answer: \"{qa['answer']}\"\n\n"
             
-            prompt += "\nBased on ALL these specific responses, provide a unique, personalized analysis of this individual's attachment style. Reference specific answers in your analysis to show you've considered their unique pattern."
+            prompt += f"\nBased on these SPECIFIC words and responses, provide a deeply personalized {attachment_style} analysis. Quote their actual answers to prove you read them carefully."
             
             user_msg = UserMessage(text=prompt)
             
