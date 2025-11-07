@@ -64,49 +64,47 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('[AuthContext] Checking Apple IAP subscription for user:', user.id);
       
-      // Check Apple In-App Purchase status from users table in Supabase
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('premium_subscription, premium_expires_at, healing_kit_purchased')
-        .eq('id', user.id)
-        .single();
+      // Check premium status from subscribers table
+      const { data: subscriberData, error: subError } = await supabase
+        .from('subscribers')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (userError) {
-        console.error('[AuthContext] Error fetching user subscription data:', userError);
-        return;
+      let isPremiumActive = false;
+      if (!subError && subscriberData) {
+        console.log('[AuthContext] Subscriber data:', subscriberData);
+        isPremiumActive = subscriberData.status === 'active' && subscriberData.plan_type === 'premium';
+      } else if (subError) {
+        console.error('[AuthContext] Error fetching subscriber:', subError);
       }
 
-      if (userData) {
-        console.log('[AuthContext] User subscription data:', userData);
-        
-        // Check if premium subscription is active
-        let isPremiumActive = false;
-        if (userData.premium_subscription) {
-          // Check if subscription hasn't expired
-          if (userData.premium_expires_at) {
-            const expiresAt = new Date(userData.premium_expires_at);
-            const now = new Date();
-            isPremiumActive = expiresAt > now;
-            console.log('[AuthContext] Premium expires at:', expiresAt, 'Active:', isPremiumActive);
-          } else {
-            // If no expiration date, assume it's active (lifetime or active subscription)
-            isPremiumActive = true;
-          }
-        }
+      // Check healing kit status from user_healing_kits table
+      const { data: healingKitData, error: kitError } = await supabase
+        .from('user_healing_kits')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-        // Update premium status
-        setIsPremium(isPremiumActive);
-        setSubscriptionStatus(isPremiumActive ? 'premium' : 'free');
-        localStorage.setItem('isPremium', JSON.stringify(isPremiumActive));
-        localStorage.setItem('subscriptionStatus', JSON.stringify(isPremiumActive ? 'premium' : 'free'));
-        
-        // Update healing kit status
-        const hasKit = userData.healing_kit_purchased || false;
-        setHasHealingKit(hasKit);
-        localStorage.setItem('hasHealingKit', JSON.stringify(hasKit));
-        
-        console.log('[AuthContext] Subscription check complete - Premium:', isPremiumActive, 'Healing Kit:', hasKit);
+      let hasKit = false;
+      if (!kitError && healingKitData) {
+        console.log('[AuthContext] Healing kit data:', healingKitData);
+        hasKit = healingKitData.purchased === true;
+      } else if (kitError) {
+        console.error('[AuthContext] Error fetching healing kit:', kitError);
       }
+
+      // Update state
+      setIsPremium(isPremiumActive);
+      setSubscriptionStatus(isPremiumActive ? 'premium' : 'free');
+      setHasHealingKit(hasKit);
+      
+      // Cache for immediate access
+      localStorage.setItem('isPremium', JSON.stringify(isPremiumActive));
+      localStorage.setItem('subscriptionStatus', JSON.stringify(isPremiumActive ? 'premium' : 'free'));
+      localStorage.setItem('hasHealingKit', JSON.stringify(hasKit));
+      
+      console.log('[AuthContext] Subscription check complete - Premium:', isPremiumActive, 'Healing Kit:', hasKit);
     } catch (error) {
       console.error('[AuthContext] Error checking subscription:', error);
     }
