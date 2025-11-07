@@ -107,11 +107,11 @@ user_problem_statement: "Quiz results not saving properly and users need access 
 backend:
   - task: "Quiz Analysis API"
     implemented: true
-    working: true
+    working: "NA"
     file: "/app/backend/ai_service.py, /app/backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
+    stuck_count: 1
+    priority: "critical"
+    needs_retesting: true
     status_history:
       - working: true
         agent: "main"
@@ -119,6 +119,12 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ COMPREHENSIVE TESTING COMPLETED: POST /api/ai/quiz/analyze endpoint working perfectly. Response time: 6-7 seconds (meets <10s requirement). Returns correct structure with attachmentStyle (anxious/secure/avoidant/fearful-avoidant) and complete analysis object containing detailedBreakdown, healingPath, triggers, and copingTechniques. Error handling works - gracefully handles empty questions with fallback analysis. All test scenarios from review request passed successfully."
+      - working: false
+        agent: "user"
+        comment: "🚨 CRITICAL BUG: User took quiz twice on different days (06/11 and 07/11), answered questions to get 'secure' but got 'Anxious-Preoccupied' BOTH times with IDENTICAL analysis. Quiz not analyzing actual answers - giving same generic result regardless of responses. Screenshots show exact same report with same strengths/challenges/patterns despite different answers on different days."
+      - working: "NA"
+        agent: "main"
+        comment: "MAJOR FIX APPLIED: Added answer pattern analysis before AI processing. Now: 1) Analyzes answer keywords to detect attachment style (secure/anxious/avoidant/fearful-avoidant), 2) Forces AI to use detected style and quote specific answers, 3) Enhanced system prompt to prevent generic responses - requires referencing specific question numbers and user's exact words, 4) Added hash to session ID to prevent any caching. Pattern matching uses keywords: secure (trust, comfortable, balanced), anxious (worry, fear, reassurance), avoidant (space, distance, independent), fearful-avoidant (push/pull, conflicted). Testing needed urgently."
 
   - task: "AI Coach Safety Guardrails"
     implemented: true
