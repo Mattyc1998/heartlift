@@ -566,6 +566,64 @@ REMEMBER: Quote their answers! Make it personal!"""
             logger.error(f"Error analyzing quiz: {e}", exc_info=True)
             return self._get_fallback_analysis()
     
+    def _analyze_answer_patterns(self, questions_and_answers: List[Dict]) -> Dict:
+        """
+        Analyze answer patterns to determine attachment style
+        Uses keyword matching and patterns
+        """
+        scores = {
+            'secure': 0,
+            'anxious': 0,
+            'avoidant': 0,
+            'fearful-avoidant': 0
+        }
+        
+        # Keywords associated with each style
+        patterns = {
+            'secure': [
+                'comfortable', 'trust', 'open', 'balanced', 'healthy', 'confident',
+                'communicate', 'direct', 'express', 'share', 'mutual', 'respect',
+                'independent', 'interdependent', 'secure', 'safe', 'calm'
+            ],
+            'anxious': [
+                'worry', 'fear', 'need', 'reassurance', 'abandon', 'anxious', 'insecure',
+                'clingy', 'overthink', 'doubt', 'jealous', 'constant', 'validation',
+                'afraid', 'lose', 'alone', 'rejection', 'approval', 'attention'
+            ],
+            'avoidant': [
+                'space', 'distance', 'independent', 'self-reliant', 'alone', 'withdraw',
+                'uncomfortable', 'intimacy', 'closeness', 'avoid', 'detach', 'distant',
+                'freedom', 'trapped', 'suffocated', 'private', 'self-sufficient'
+            ],
+            'fearful-avoidant': [
+                'push', 'pull', 'conflicted', 'both', 'struggle', 'want but', 'fear but',
+                'scared', 'hurt', 'protect', 'walls', 'difficult', 'trust issues',
+                'ambivalent', 'mixed', 'confused', 'contradictory'
+            ]
+        }
+        
+        # Analyze each answer
+        for qa in questions_and_answers:
+            answer = qa.get('answer', '').lower()
+            
+            for style, keywords in patterns.items():
+                # Count keyword matches
+                for keyword in keywords:
+                    if keyword in answer:
+                        scores[style] += 1
+        
+        # Determine dominant style
+        if max(scores.values()) == 0:
+            # No clear pattern, default to secure
+            dominant_style = 'secure'
+        else:
+            dominant_style = max(scores, key=scores.get)
+        
+        return {
+            'dominant_style': dominant_style,
+            'scores': scores
+        }
+    
     def _get_fallback_analysis(self) -> Dict:
         """Fallback analysis if AI fails"""
         return {
