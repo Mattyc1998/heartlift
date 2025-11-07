@@ -73,23 +73,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       let isPremiumActive = false;
       if (!subError && subscriberData) {
-        console.log('[AuthContext] Subscriber data:', subscriberData);
+        console.log('[AuthContext] RAW Subscriber data:', JSON.stringify(subscriberData));
         
-        // Check if user has premium (either format)
-        const hasAppleIAP = subscriberData.plan_type === 'premium' && subscriberData.status === 'active';
-        const hasStripe = subscriberData.subscribed === true;
-        isPremiumActive = hasAppleIAP || hasStripe;
-        
-        // AUTO-FIX: If they have Apple IAP but subscribed field is not set, fix it now
-        if (hasAppleIAP && !hasStripe) {
-          console.log('[AuthContext] Auto-fixing subscribed field for Apple IAP user');
-          await supabase
-            .from('subscribers')
-            .update({ subscribed: true, updated_at: new Date().toISOString() })
-            .eq('user_id', user.id);
+        // PRIORITY CHECK: Apple IAP format (plan_type + status)
+        if (subscriberData.plan_type === 'premium' && subscriberData.status === 'active') {
+          isPremiumActive = true;
+          console.log('[AuthContext] ✅ Premium ACTIVE via Apple IAP (plan_type=premium, status=active)');
+        }
+        // FALLBACK: Stripe format (subscribed field)
+        else if (subscriberData.subscribed === true) {
+          isPremiumActive = true;
+          console.log('[AuthContext] ✅ Premium ACTIVE via Stripe (subscribed=true)');
+        } else {
+          console.log('[AuthContext] ❌ NO PREMIUM - Data:', subscriberData);
         }
       } else if (subError) {
         console.error('[AuthContext] Error fetching subscriber:', subError);
+      } else {
+        console.log('[AuthContext] No subscriber record found for user');
       }
 
       // Check healing kit status using the RPC function (correct table is healing_kit_purchases)
