@@ -216,9 +216,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "HeartVisions Image Generation"
-    - "Personalized Insights Generation"
-  stuck_tasks: []
+    - "Quiz Analysis API"
+  stuck_tasks:
+    - "Quiz Analysis API"
   test_all: false
   test_priority: "high_first"
 
