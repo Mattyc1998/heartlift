@@ -136,8 +136,12 @@ class PurchaseService {
           .from('subscribers')
           .upsert({
             user_id: user.id,
+            email: user.email,
             plan_type: 'premium',
-            status: 'active'
+            status: 'active',
+            subscribed: true,  // CRITICAL: Set this for AuthContext compatibility
+            payment_status: 'active',
+            updated_at: new Date().toISOString()
           });
         
         if (subError) {
