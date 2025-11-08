@@ -26,6 +26,14 @@ workflows:
           cd frontend
           yarn install
       
+      - name: Create frontend environment file
+        script: |
+          cd frontend
+          echo "REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL" > .env
+          echo "VITE_SUPABASE_URL=$VITE_SUPABASE_URL" >> .env
+          echo "VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY" >> .env
+          cat .env
+      
       - name: Build web application
         script: |
           cd frontend
