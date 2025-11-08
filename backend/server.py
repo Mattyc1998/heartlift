@@ -778,6 +778,115 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@api_router.get("/admin/usage-stats")
+async def get_usage_stats(days: int = 7):
+    """
+    Get usage statistics for monitoring
+    Shows message volume, peak times, and error rates
+    """
+    try:
+        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        
+        # Total messages in period
+        total_messages = await db.usage_tracking.count_documents({
+            "timestamp": {"$gte": cutoff_date},
+            "type": "coach_chat"
+        })
+        
+        # Success rate
+        successful = await db.usage_tracking.count_documents({
+            "timestamp": {"$gte": cutoff_date},
+            "type": "coach_chat",
+            "success": True
+        })
+        
+        failed = await db.usage_tracking.count_documents({
+            "timestamp": {"$gte": cutoff_date},
+            "type": "coach_chat",
+            "success": False
+        })
+        
+        success_rate = (successful / total_messages * 100) if total_messages > 0 else 100
+        
+        # Messages by day
+        pipeline = [
+            {
+                "$match": {
+                    "timestamp": {"$gte": cutoff_date},
+                    "type": "coach_chat"
+                }
+            },
+            {
+                "$group": {
+                    "_id": {
+                        "$dateToString": {
+                            "format": "%Y-%m-%d",
+                            "date": "$timestamp"
+                        }
+                    },
+                    "count": {"$sum": 1}
+                }
+            },
+            {"$sort": {"_id": 1}}
+        ]
+        
+        daily_stats = await db.usage_tracking.aggregate(pipeline).to_list(length=days)
+        
+        # Messages by hour (peak times)
+        hour_pipeline = [
+            {
+                "$match": {
+                    "timestamp": {"$gte": cutoff_date},
+                    "type": "coach_chat"
+                }
+            },
+            {
+                "$group": {
+                    "_id": {"$hour": "$timestamp"},
+                    "count": {"$sum": 1}
+                }
+            },
+            {"$sort": {"_id": 1}}
+        ]
+        
+        hourly_stats = await db.usage_tracking.aggregate(hour_pipeline).to_list(length=24)
+        
+        # Most popular coaches
+        coach_pipeline = [
+            {
+                "$match": {
+                    "timestamp": {"$gte": cutoff_date},
+                    "type": "coach_chat",
+                    "success": True
+                }
+            },
+            {
+                "$group": {
+                    "_id": "$coach_id",
+                    "count": {"$sum": 1}
+                }
+            },
+            {"$sort": {"count": -1}}
+        ]
+        
+        coach_stats = await db.usage_tracking.aggregate(coach_pipeline).to_list(length=10)
+        
+        return {
+            "period_days": days,
+            "total_messages": total_messages,
+            "successful_messages": successful,
+            "failed_messages": failed,
+            "success_rate": round(success_rate, 2),
+            "daily_breakdown": daily_stats,
+            "peak_hours": hourly_stats,
+            "popular_coaches": coach_stats,
+            "average_per_day": round(total_messages / days, 1) if days > 0 else 0
+        }
+        
+    except Exception as e:
+        logger.error(f"Error fetching usage stats: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to fetch stats")
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
