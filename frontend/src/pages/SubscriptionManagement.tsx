@@ -314,9 +314,12 @@ export const SubscriptionManagement = () => {
           <div className="border-t pt-6">
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
               <h4 className="font-medium text-amber-800 mb-2">Cancellation Policy</h4>
-              <p className="text-sm text-amber-700">
+              <p className="text-sm text-amber-700 mb-2">
                 You can cancel your subscription at any time. Your access will continue until the end of your current billing period. 
                 No refunds are provided for partial periods.
+              </p>
+              <p className="text-sm text-amber-700 font-medium">
+                For iOS: Manage your subscription through Apple Settings → [Your Name] → Subscriptions
               </p>
             </div>
 
@@ -327,7 +330,7 @@ export const SubscriptionManagement = () => {
               className="w-full md:w-auto"
             >
               <X className="w-4 h-4 mr-2" />
-              {cancelling ? "Opening..." : "Manage Billing & Cancellation"}
+              {cancelling ? "Opening..." : "Manage Subscription"}
             </Button>
           </div>
         </CardContent>
