@@ -206,10 +206,40 @@ async def ai_chat(request: ChatRequest):
             user_reflections=user_reflections
         )
         
+        # Track usage for monitoring
+        try:
+            await db.usage_tracking.insert_one({
+                "type": "coach_chat",
+                "coach_id": request.coach_id,
+                "user_id": request.user_id,
+                "session_id": session_id,
+                "timestamp": datetime.utcnow(),
+                "message_length": len(request.message),
+                "response_length": len(response),
+                "success": True
+            })
+        except Exception as track_error:
+            logger.warning(f"Failed to track usage: {track_error}")
+            # Don't fail the request if tracking fails
+        
         return ChatResponse(response=response, session_id=session_id)
         
     except Exception as e:
         logger.error(f"Error in ai_chat endpoint: {e}", exc_info=True)
+        
+        # Track failed request
+        try:
+            await db.usage_tracking.insert_one({
+                "type": "coach_chat",
+                "coach_id": request.coach_id,
+                "user_id": request.user_id,
+                "timestamp": datetime.utcnow(),
+                "success": False,
+                "error": str(e)
+            })
+        except Exception as track_error:
+            logger.warning(f"Failed to track error: {track_error}")
+        
         raise HTTPException(status_code=500, detail="Failed to get AI response")
 
 @api_router.post("/ai/quiz/generate")
