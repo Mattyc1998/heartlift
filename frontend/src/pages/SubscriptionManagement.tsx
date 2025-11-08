@@ -52,23 +52,39 @@ export const SubscriptionManagement = () => {
   const handleCancelSubscription = async () => {
     setCancelling(true);
     try {
-      const { data, error } = await supabase.functions.invoke('customer-portal', {
-        headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-        },
-      });
+      // For iOS users with Apple In-App Purchases, direct them to Apple's subscription management
+      // Check if running in Capacitor/iOS
+      const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      const isCapacitor = window.location.protocol === 'capacitor:' || window.location.protocol === 'ionic:';
+      
+      if (isIOS || isCapacitor) {
+        // Open Apple's subscription management page
+        // This works on iOS devices and will open the Settings app
+        window.open('https://apps.apple.com/account/subscriptions', '_blank');
+        
+        toast({
+          title: "Apple Subscription Management",
+          description: "Opening Apple's subscription settings where you can manage or cancel your subscription.",
+        });
+      } else {
+        // For web users (Stripe subscriptions - if any)
+        const { data, error } = await supabase.functions.invoke('customer-portal', {
+          headers: {
+            Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          },
+        });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      if (data?.url) {
-        window.open(data.url, '_blank');
+        if (data?.url) {
+          window.open(data.url, '_blank');
+        }
       }
     } catch (error) {
-      console.error('Error opening customer portal:', error);
+      console.error('Error opening subscription management:', error);
       toast({
-        title: "Error",
-        description: "Failed to open subscription management. Please try again.",
-        variant: "destructive",
+        title: "Subscription Management",
+        description: "To manage your Apple subscription, go to: Settings > [Your Name] > Subscriptions on your iPhone/iPad.",
       });
     } finally {
       setCancelling(false);
