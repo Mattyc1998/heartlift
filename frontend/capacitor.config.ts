@@ -3,7 +3,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.mattyc.heartlift',
   appName: 'HeartLift',
-  webDir: 'dist',
+  webDir: 'build',
   bundledWebRuntime: false,
   plugins: {
     SplashScreen: {
