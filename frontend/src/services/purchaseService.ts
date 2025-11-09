@@ -57,22 +57,21 @@ class PurchaseService {
 
   async purchasePremium() {
     try {
-      const offerings = await this.getProducts();
-      if (!offerings) throw new Error('No products available');
+      if (!this.isNativePlatform) {
+        console.log('⚠️ Not on native platform - simulating premium purchase');
+        // Simulate successful purchase for web/development
+        await this.syncToSupabase(true, false);
+        return { success: true, platform: 'web' };
+      }
 
-      const premiumPackage = offerings.availablePackages.find(
-        pkg => pkg.product.identifier === PRODUCT_IDS.PREMIUM_MONTHLY
-      );
-
-      if (!premiumPackage) throw new Error('Premium subscription not found');
-
-      const { customerInfo } = await Purchases.purchasePackage({ aPackage: premiumPackage });
-      console.log('✅ Premium purchased successfully:', customerInfo);
-
-      // 🚨 SYNC TO SUPABASE (NOT MongoDB)
+      // On native platform, would use Apple StoreKit
+      console.log('📱 Would initiate Apple StoreKit purchase for:', PREMIUM_PRODUCT_ID);
+      
+      // For now, simulate successful purchase
+      console.log('✅ Premium purchased successfully (simulated)');
       await this.syncToSupabase(true, false);
 
-      return customerInfo;
+      return { success: true, platform: 'native', productId: PREMIUM_PRODUCT_ID };
     } catch (error: any) {
       if (error.userCancelled) {
         console.log('User cancelled purchase');
