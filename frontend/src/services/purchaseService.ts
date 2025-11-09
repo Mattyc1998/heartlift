@@ -34,8 +34,21 @@ class PurchaseService {
 
   async getProducts() {
     try {
-      const offerings = await Purchases.getOfferings();
-      return offerings.current;
+      if (!this.isNativePlatform) {
+        console.log('⚠️ Not on native platform - returning mock products');
+        return {
+          premium: { id: PREMIUM_PRODUCT_ID, price: '$9.99' },
+          healingKit: { id: HEALING_KIT_PRODUCT_ID, price: '$19.99' }
+        };
+      }
+
+      // On native platform, we would use Apple StoreKit
+      // For now, return mock data until native implementation
+      console.log('📱 Native platform detected - would use StoreKit');
+      return {
+        premium: { id: PREMIUM_PRODUCT_ID, price: '$9.99' },
+        healingKit: { id: HEALING_KIT_PRODUCT_ID, price: '$19.99' }
+      };
     } catch (error) {
       console.error('❌ Failed to get products:', error);
       throw error;
