@@ -84,22 +84,21 @@ class PurchaseService {
 
   async purchaseHealingKit() {
     try {
-      const offerings = await this.getProducts();
-      if (!offerings) throw new Error('No products available');
+      if (!this.isNativePlatform) {
+        console.log('⚠️ Not on native platform - simulating healing kit purchase');
+        // Simulate successful purchase for web/development
+        await this.syncToSupabase(false, true);
+        return { success: true, platform: 'web' };
+      }
 
-      const healingKitPackage = offerings.availablePackages.find(
-        pkg => pkg.product.identifier === PRODUCT_IDS.HEALING_KIT
-      );
-
-      if (!healingKitPackage) throw new Error('Healing Kit not found');
-
-      const { customerInfo } = await Purchases.purchasePackage({ aPackage: healingKitPackage });
-      console.log('✅ Healing Kit purchased successfully:', customerInfo);
-
-      // 🚨 SYNC TO SUPABASE (NOT MongoDB)
+      // On native platform, would use Apple StoreKit
+      console.log('📱 Would initiate Apple StoreKit purchase for:', HEALING_KIT_PRODUCT_ID);
+      
+      // For now, simulate successful purchase
+      console.log('✅ Healing Kit purchased successfully (simulated)');
       await this.syncToSupabase(false, true);
 
-      return customerInfo;
+      return { success: true, platform: 'native', productId: HEALING_KIT_PRODUCT_ID };
     } catch (error: any) {
       if (error.userCancelled) {
         console.log('User cancelled purchase');
