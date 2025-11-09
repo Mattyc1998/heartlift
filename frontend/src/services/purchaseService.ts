@@ -111,18 +111,42 @@ class PurchaseService {
 
   async restorePurchases() {
     try {
-      const { customerInfo } = await Purchases.restorePurchases();
-      console.log('✅ Purchases restored:', customerInfo);
+      if (!this.isNativePlatform) {
+        console.log('⚠️ Not on native platform - checking Supabase for existing purchases');
+        
+        // Check Supabase for existing purchases
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('No user logged in');
 
-      // Check what was restored and sync to Supabase
-      const hasPremium = customerInfo.entitlements.active['premium'] !== undefined;
-      const hasHealingKit = customerInfo.nonSubscriptionTransactions.some(
-        tx => tx.productIdentifier === PRODUCT_IDS.HEALING_KIT
-      );
+        const [subResult, kitResult] = await Promise.all([
+          supabase.from('subscribers').select('subscribed').eq('user_id', user.id).single(),
+          supabase.from('healing_kit_purchases').select('status').eq('user_id', user.id).single()
+        ]);
 
-      await this.syncToSupabase(hasPremium, hasHealingKit);
+        const hasPremium = subResult.data?.subscribed || false;
+        const hasHealingKit = kitResult.data?.status === 'completed';
 
-      return customerInfo;
+        console.log('✅ Purchases restored from Supabase:', { hasPremium, hasHealingKit });
+        return { hasPremium, hasHealingKit, platform: 'web' };
+      }
+
+      // On native platform, would use Apple StoreKit to restore
+      console.log('📱 Would restore purchases via Apple StoreKit');
+      
+      // For now, check Supabase as fallback
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user logged in');
+
+      const [subResult, kitResult] = await Promise.all([
+        supabase.from('subscribers').select('subscribed').eq('user_id', user.id).single(),
+        supabase.from('healing_kit_purchases').select('status').eq('user_id', user.id).single()
+      ]);
+
+      const hasPremium = subResult.data?.subscribed || false;
+      const hasHealingKit = kitResult.data?.status === 'completed';
+
+      console.log('✅ Purchases restored (simulated):', { hasPremium, hasHealingKit });
+      return { hasPremium, hasHealingKit, platform: 'native' };
     } catch (error) {
       console.error('❌ Failed to restore purchases:', error);
       throw error;
