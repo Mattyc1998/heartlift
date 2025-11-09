@@ -150,7 +150,7 @@ const Index = () => {
         />
       )}
 
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pt-safe" style={{ paddingTop: 'max(env(safe-area-inset-top), 1rem)' }}>
         
         {/* Subscription Status Banner */}
         <SubscriptionStatusBanner />
