@@ -160,12 +160,9 @@ class PurchaseService {
   private async syncToSupabase(hasPremium: boolean, hasHealingKit: boolean) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        console.warn('No user logged in, cannot sync');
-        return;
-      }
+      if (!user) throw new Error('No user logged in');
 
-      console.log(`🔄 Syncing to Supabase: Premium=${hasPremium}, HealingKit=${hasHealingKit}`);
+      console.log('🔄 Syncing purchase status to Supabase...');
 
       // Update Premium subscription in Supabase
       if (hasPremium) {
@@ -208,10 +205,30 @@ class PurchaseService {
         }
       }
 
-      console.log('✅ Successfully synced to Supabase!');
+      console.log('✅ All purchases synced to Supabase');
     } catch (error) {
-      console.error('❌ Failed to sync to Supabase:', error);
-      // Don't throw - purchase was successful, sync can be retried
+      console.error('❌ Failed to sync purchases to Supabase:', error);
+      throw error;
+    }
+  }
+
+  async checkPurchaseStatus() {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return { hasPremium: false, hasHealingKit: false };
+
+      const [subResult, kitResult] = await Promise.all([
+        supabase.from('subscribers').select('subscribed').eq('user_id', user.id).single(),
+        supabase.from('healing_kit_purchases').select('status').eq('user_id', user.id).single()
+      ]);
+
+      return {
+        hasPremium: subResult.data?.subscribed || false,
+        hasHealingKit: kitResult.data?.status === 'completed'
+      };
+    } catch (error) {
+      console.error('❌ Failed to check purchase status:', error);
+      return { hasPremium: false, hasHealingKit: false };
     }
   }
 }
