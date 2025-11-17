@@ -15,37 +15,23 @@ from supabase import create_client, Client
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-# Use Emergent's MONGODB_URI in production, fallback to local MONGO_URL for development
-mongo_url = os.environ.get('MONGODB_URI') or os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+# Configure logging FIRST
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Initialize MongoDB client
-client = AsyncIOMotorClient(mongo_url)
-
-# Extract database name: either from MONGODB_URI path or DB_NAME env var
-if 'MONGODB_URI' in os.environ and '/' in mongo_url.split('://')[-1]:
-    # Extract database name from URI (everything after the last /)
-    uri_parts = mongo_url.split('/')
-    if len(uri_parts) > 3 and uri_parts[-1]:
-        # URI has database name: mongodb://host:port/dbname
-        db_name = uri_parts[-1].split('?')[0]  # Remove query params if any
-        logger.info(f"Using database from MONGODB_URI: {db_name}")
-    else:
-        db_name = os.environ.get('DB_NAME', 'test_database')
-        logger.info(f"Using DB_NAME env var: {db_name}")
-else:
-    db_name = os.environ.get('DB_NAME', 'test_database')
-    logger.info(f"Using DB_NAME env var: {db_name}")
-
-db = client[db_name]
-logger.info(f"MongoDB connected to: {mongo_url.split('@')[-1] if '@' in mongo_url else mongo_url}")
-
-# Supabase connection (for reading conversation history)
+# Supabase connection
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
 SUPABASE_SERVICE_KEY = os.environ.get('SUPABASE_SERVICE_KEY', '')
-supabase_client: Optional[Client] = None
-if SUPABASE_URL and SUPABASE_SERVICE_KEY:
-    supabase_client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+
+if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
+    logger.error("❌ SUPABASE_URL and SUPABASE_SERVICE_KEY must be set in environment")
+    raise RuntimeError("Supabase credentials not configured")
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+logger.info(f"✅ Supabase connected to: {SUPABASE_URL}")
 
 # Create the main app without a prefix
 app = FastAPI()
@@ -171,19 +157,26 @@ class InsightsResponse(BaseModel):
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Hello World - Powered by Supabase"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.dict()
-    status_obj = StatusCheck(**status_dict)
-    _ = await db.status_checks.insert_one(status_obj.dict())
-    return status_obj
+    """Create a status check (for testing)"""
+    try:
+        status_obj = StatusCheck(client_name=input.client_name)
+        
+        # Insert into Supabase (not critical, just for testing)
+        # We'll skip this for now as it's just a test endpoint
+        
+        return status_obj
+    except Exception as e:
+        logger.error(f"Error creating status check: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/status", response_model=List[StatusCheck])
+@api_router.get("/status")
 async def get_status_checks():
-    status_checks = await db.status_checks.find().to_list(1000)
-    return [StatusCheck(**status_check) for status_check in status_checks]
+    """Get status checks (for testing)"""
+    return {"message": "Status check endpoint - MongoDB removed, using Supabase"}
 
 # ============ AI ENDPOINTS ============
 
@@ -204,14 +197,18 @@ async def ai_chat(request: ChatRequest):
         if request.user_id:
             try:
                 logger.info(f"Fetching reflections for user {request.user_id} to personalize chat")
-                cursor = db.daily_reflections.find({
-                    "user_id": request.user_id
-                }).sort("reflection_date", -1).limit(3)  # Get last 3 reflections
                 
-                reflections = await cursor.to_list(length=3)
-                if reflections:
-                    user_reflections = reflections
-                    logger.info(f"Found {len(reflections)} reflections for context")
+                # Fetch from Supabase daily_reflections table
+                response = supabase.table('daily_reflections') \
+                    .select('*') \
+                    .eq('user_id', request.user_id) \
+                    .order('reflection_date', desc=True) \
+                    .limit(3) \
+                    .execute()
+                
+                if response.data:
+                    user_reflections = response.data
+                    logger.info(f"Found {len(response.data)} reflections for context")
             except Exception as e:
                 logger.warning(f"Could not fetch reflections: {e}")
                 # Continue without reflections if fetch fails
@@ -227,16 +224,16 @@ async def ai_chat(request: ChatRequest):
         
         # Track usage for monitoring
         try:
-            await db.usage_tracking.insert_one({
+            supabase.table('usage_tracking').insert({
                 "type": "coach_chat",
                 "coach_id": request.coach_id,
                 "user_id": request.user_id,
                 "session_id": session_id,
-                "timestamp": datetime.utcnow(),
+                "timestamp": datetime.utcnow().isoformat(),
                 "message_length": len(request.message),
                 "response_length": len(response),
                 "success": True
-            })
+            }).execute()
         except Exception as track_error:
             logger.warning(f"Failed to track usage: {track_error}")
             # Don't fail the request if tracking fails
@@ -248,14 +245,14 @@ async def ai_chat(request: ChatRequest):
         
         # Track failed request
         try:
-            await db.usage_tracking.insert_one({
+            supabase.table('usage_tracking').insert({
                 "type": "coach_chat",
                 "coach_id": request.coach_id,
                 "user_id": request.user_id,
-                "timestamp": datetime.utcnow(),
+                "timestamp": datetime.utcnow().isoformat(),
                 "success": False,
                 "error": str(e)
-            })
+            }).execute()
         except Exception as track_error:
             logger.warning(f"Failed to track error: {track_error}")
         
@@ -360,53 +357,55 @@ async def generate_insights(request: InsightsRequest):
         recent_conversations = []
         conversation_count = 0
         
-        if supabase_client:
-            try:
-                # Get recent conversations from last 30 days
-                thirty_days_ago = (datetime.utcnow() - timedelta(days=30)).isoformat()
-                conv_response = supabase_client.table('conversation_history') \
-                    .select('message, coach_name') \
-                    .eq('user_id', user_id) \
-                    .eq('sender', 'user') \
-                    .gte('created_at', thirty_days_ago) \
-                    .order('created_at', desc=True) \
-                    .limit(50) \
-                    .execute()
-                
-                if conv_response.data:
-                    conversation_count = len(conv_response.data)
-                    # Extract conversation topics/themes from user messages
-                    recent_conversations = [msg['message'][:100] for msg in conv_response.data[:10]]
-                    logger.info(f"Found {conversation_count} conversations for user")
-            except Exception as e:
-                logger.warning(f"Could not fetch conversations from Supabase: {e}")
+        try:
+            # Get recent conversations from last 30 days
+            thirty_days_ago = (datetime.utcnow() - timedelta(days=30)).isoformat()
+            conv_response = supabase.table('conversation_history') \
+                .select('message, coach_name') \
+                .eq('user_id', user_id) \
+                .eq('sender', 'user') \
+                .gte('created_at', thirty_days_ago) \
+                .order('created_at', desc=True) \
+                .limit(50) \
+                .execute()
+            
+            if conv_response.data:
+                conversation_count = len(conv_response.data)
+                # Extract conversation topics/themes from user messages
+                recent_conversations = [msg['message'][:100] for msg in conv_response.data[:10]]
+                logger.info(f"Found {conversation_count} conversations for user")
+        except Exception as e:
+            logger.warning(f"Could not fetch conversations from Supabase: {e}")
         
-        # Fetch daily reflections from MongoDB
+        # Fetch daily reflections from Supabase
         recent_moods = []
         mood_entries_count = 0
         
         try:
             thirty_days_ago_date = (datetime.utcnow() - timedelta(days=30)).strftime('%Y-%m-%d')
-            reflections_cursor = db.daily_reflections.find({
-                'user_id': user_id,
-                'reflection_date': {'$gte': thirty_days_ago_date}
-            }).sort('reflection_date', -1).limit(20)
+            reflections_response = supabase.table('daily_reflections') \
+                .select('*') \
+                .eq('user_id', user_id) \
+                .gte('reflection_date', thirty_days_ago_date) \
+                .order('reflection_date', desc=True) \
+                .limit(20) \
+                .execute()
             
-            reflections = await reflections_cursor.to_list(length=20)
+            reflections = reflections_response.data if reflections_response.data else []
             mood_entries_count = len(reflections)
             
             # Extract mood/emotional themes from reflections
             for reflection in reflections[:10]:
-                if 'gratitude' in reflection:
-                    recent_moods.append(f"Grateful for: {reflection['gratitude'][:50]}")
-                if 'proud_of' in reflection:
+                if reflection.get('grateful_for'):
+                    recent_moods.append(f"Grateful for: {reflection['grateful_for'][:50]}")
+                if reflection.get('proud_of'):
                     recent_moods.append(f"Proud of: {reflection['proud_of'][:50]}")
-                if 'helpful_moment' in reflection:
+                if reflection.get('helpful_moment'):
                     recent_moods.append(f"Helpful: {reflection['helpful_moment'][:50]}")
             
             logger.info(f"Found {mood_entries_count} reflections for user")
         except Exception as e:
-            logger.warning(f"Could not fetch reflections from MongoDB: {e}")
+            logger.warning(f"Could not fetch reflections from Supabase: {e}")
         
         # Generate insights with real data
         insights = await ai_service.generate_personalized_insights(
@@ -452,16 +451,19 @@ async def save_daily_reflection(request: DailyReflectionSave):
         logger.info(f"Saving reflection for user {request.user_id} on {request.reflection_date}")
         
         # Check if reflection already exists for this user and date
-        existing = await db.daily_reflections.find_one({
-            "user_id": request.user_id,
-            "reflection_date": request.reflection_date
-        })
+        existing_response = supabase.table('daily_reflections') \
+            .select('*') \
+            .eq('user_id', request.user_id) \
+            .eq('reflection_date', request.reflection_date) \
+            .execute()
         
         now = datetime.utcnow().isoformat()
         
-        if existing:
+        if existing_response.data and len(existing_response.data) > 0:
             # Update existing reflection
-            logger.info(f"Updating existing reflection: {existing['_id']}")
+            existing = existing_response.data[0]
+            logger.info(f"Updating existing reflection: {existing['id']}")
+            
             update_data = {
                 "coaches_chatted_with": request.coaches_chatted_with,
                 "conversation_rating": request.conversation_rating,
@@ -470,41 +472,31 @@ async def save_daily_reflection(request: DailyReflectionSave):
                 "updated_at": now
             }
             
-            await db.daily_reflections.update_one(
-                {"_id": existing["_id"]},
-                {"$set": update_data}
-            )
+            updated_response = supabase.table('daily_reflections') \
+                .update(update_data) \
+                .eq('id', existing['id']) \
+                .execute()
             
-            # Fetch updated reflection
-            updated = await db.daily_reflections.find_one({"_id": existing["_id"]})
-            updated["id"] = str(updated["_id"])
-            del updated["_id"]
-            
-            logger.info(f"Reflection updated successfully: {updated['id']}")
-            return updated
+            logger.info(f"Reflection updated successfully: {existing['id']}")
+            return updated_response.data[0] if updated_response.data else existing
         else:
             # Insert new reflection
             logger.info("Inserting new reflection")
-            reflection_id = str(uuid.uuid4())
             reflection_data = {
-                "id": reflection_id,
                 "user_id": request.user_id,
                 "reflection_date": request.reflection_date,
                 "coaches_chatted_with": request.coaches_chatted_with,
                 "conversation_rating": request.conversation_rating,
                 "helpful_moments": request.helpful_moments,
                 "areas_for_improvement": request.areas_for_improvement,
-                "created_at": now,
-                "updated_at": now
             }
             
-            await db.daily_reflections.insert_one(reflection_data)
+            insert_response = supabase.table('daily_reflections') \
+                .insert(reflection_data) \
+                .execute()
             
-            # Remove MongoDB _id for response
-            reflection_data.pop("_id", None)
-            
-            logger.info(f"Reflection inserted successfully: {reflection_id}")
-            return reflection_data
+            logger.info(f"Reflection inserted successfully")
+            return insert_response.data[0] if insert_response.data else reflection_data
             
     except Exception as e:
         logger.error(f"Error saving reflection: {e}", exc_info=True)
@@ -519,16 +511,15 @@ async def get_today_reflection(user_id: str):
         today = datetime.utcnow().date().isoformat()
         logger.info(f"Fetching today's reflection for user {user_id} on {today}")
         
-        reflection = await db.daily_reflections.find_one({
-            "user_id": user_id,
-            "reflection_date": today
-        })
+        response = supabase.table('daily_reflections') \
+            .select('*') \
+            .eq('user_id', user_id) \
+            .eq('reflection_date', today) \
+            .execute()
         
-        if reflection:
-            reflection["id"] = str(reflection.get("_id", reflection.get("id")))
-            reflection.pop("_id", None)
-            logger.info(f"Found reflection: {reflection['id']}")
-            return reflection
+        if response.data and len(response.data) > 0:
+            logger.info(f"Found reflection: {response.data[0]['id']}")
+            return response.data[0]
         else:
             logger.info("No reflection found for today")
             return None
@@ -545,16 +536,14 @@ async def get_past_reflections(user_id: str, limit: int = 30):
     try:
         logger.info(f"Fetching ALL reflections for user {user_id}")
         
-        cursor = db.daily_reflections.find({
-            "user_id": user_id
-        }).sort("reflection_date", -1).limit(limit)
+        response = supabase.table('daily_reflections') \
+            .select('*') \
+            .eq('user_id', user_id) \
+            .order('reflection_date', desc=True) \
+            .limit(limit) \
+            .execute()
         
-        reflections = await cursor.to_list(length=limit)
-        
-        # Convert MongoDB _id to id
-        for reflection in reflections:
-            reflection["id"] = str(reflection.get("_id", reflection.get("id")))
-            reflection.pop("_id", None)
+        reflections = response.data if response.data else []
         
         logger.info(f"Found {len(reflections)} reflections")
         return reflections
@@ -573,30 +562,22 @@ async def save_insights_report(request: InsightsSaveRequest):
     try:
         logger.info(f"Saving insights report for user {request.user_id}")
         
-        report_id = str(uuid.uuid4())
         now = datetime.utcnow().isoformat()
         
         report_data = {
-            "id": report_id,
             "user_id": request.user_id,
             "report_type": "comprehensive",
             "insights": request.insights,
-            "conversation_count": request.conversation_count,
-            "mood_entries_analyzed": request.mood_entries_analyzed,
-            "attachment_style": request.attachment_style,
-            "healing_progress_score": request.healing_progress_score,
-            "analysis_period_start": request.analysis_period_start,
-            "analysis_period_end": request.analysis_period_end,
-            "created_at": now
+            "period_start": request.analysis_period_start,
+            "period_end": request.analysis_period_end,
         }
         
-        await db.insights_reports.insert_one(report_data)
+        response = supabase.table('insights_reports') \
+            .insert(report_data) \
+            .execute()
         
-        # Remove MongoDB _id for response
-        report_data.pop("_id", None)
-        
-        logger.info(f"Insights report saved successfully: {report_id}")
-        return report_data
+        logger.info(f"Insights report saved successfully")
+        return response.data[0] if response.data else report_data
         
     except Exception as e:
         logger.error(f"Error saving insights report: {e}", exc_info=True)
@@ -610,16 +591,14 @@ async def get_user_insights_reports(user_id: str, limit: int = 10):
     try:
         logger.info(f"Fetching insights reports for user {user_id}")
         
-        cursor = db.insights_reports.find({
-            "user_id": user_id
-        }).sort("created_at", -1).limit(limit)
+        response = supabase.table('insights_reports') \
+            .select('*') \
+            .eq('user_id', user_id) \
+            .order('created_at', desc=True) \
+            .limit(limit) \
+            .execute()
         
-        reports = await cursor.to_list(length=limit)
-        
-        # Convert MongoDB _id to id
-        for report in reports:
-            report["id"] = str(report.get("_id", report.get("id")))
-            report.pop("_id", None)
+        reports = response.data if response.data else []
         
         logger.info(f"Found {len(reports)} insights reports")
         return reports
@@ -647,31 +626,34 @@ async def track_message_usage(request: UsageTrackRequest):
         logger.info(f"Tracking message usage for FREE user {request.user_id} with coach {request.coach_id}")
         
         # Check if usage record exists for today
-        existing = await db.daily_usage.find_one({
-            "user_id": request.user_id,
-            "date": today
-        })
+        existing_response = supabase.table('daily_usage') \
+            .select('*') \
+            .eq('user_id', request.user_id) \
+            .eq('date', today) \
+            .execute()
         
-        if existing:
+        if existing_response.data and len(existing_response.data) > 0:
             # Increment count
+            existing = existing_response.data[0]
             new_count = existing.get("message_count", 0) + 1
-            await db.daily_usage.update_one(
-                {"_id": existing["_id"]},
-                {"$set": {
+            
+            supabase.table('daily_usage') \
+                .update({
                     "message_count": new_count,
                     "updated_at": datetime.utcnow().isoformat()
-                }}
-            )
+                }) \
+                .eq('id', existing['id']) \
+                .execute()
+            
             logger.info(f"Updated usage count to {new_count}")
         else:
             # Create new usage record
-            await db.daily_usage.insert_one({
+            supabase.table('daily_usage').insert({
                 "user_id": request.user_id,
                 "date": today,
                 "message_count": 1,
-                "created_at": datetime.utcnow().isoformat(),
-                "updated_at": datetime.utcnow().isoformat()
-            })
+            }).execute()
+            
             new_count = 1
             logger.info("Created new usage record with count 1")
         
@@ -694,13 +676,10 @@ async def fix_premium_access(user_id: str):
     Emergency fix for Apple IAP premium access
     """
     try:
-        if not supabase_client:
-            raise HTTPException(status_code=500, detail="Supabase not configured")
-        
         logger.info(f"🚨 EMERGENCY FIX: Restoring premium for user {user_id}")
         
         # Update subscribers table to set premium active
-        response = supabase_client.table('subscribers').update({
+        response = supabase.table('subscribers').update({
             'plan_type': 'premium',
             'status': 'active',
             'subscribed': True,
@@ -729,39 +708,39 @@ async def check_message_usage(user_id: str):
         logger.info(f"Checking usage for user {user_id}")
         
         # 🚨 CHECK PREMIUM STATUS FIRST - Premium users have unlimited messages
-        subscription = await db.subscriptions.find_one({"user_id": user_id})
+        # Check subscribers table for premium status
+        subscriber_response = supabase.table('subscribers') \
+            .select('*') \
+            .eq('user_id', user_id) \
+            .execute()
         
-        if subscription and subscription.get("has_premium", False):
-            logger.info(f"✅ User {user_id} is PREMIUM - unlimited messages")
-            return {
-                "message_count": 0,  # Don't track for premium users
-                "can_send_message": True,
-                "remaining_messages": 999,  # Show as unlimited
-                "is_premium": True,
-                "seconds_until_reset": None,  # No reset needed for premium
-                "reset_time": None
-            }
+        if subscriber_response.data and len(subscriber_response.data) > 0:
+            subscriber = subscriber_response.data[0]
+            has_premium = subscriber.get("subscribed", False) or subscriber.get("status") == "active"
+            
+            if has_premium:
+                logger.info(f"✅ User {user_id} is PREMIUM - unlimited messages")
+                return {
+                    "message_count": 0,  # Don't track for premium users
+                    "can_send_message": True,
+                    "remaining_messages": 999,  # Show as unlimited
+                    "is_premium": True,
+                    "seconds_until_reset": None,  # No reset needed for premium
+                    "reset_time": None
+                }
         
         # Free user - check usage and enforce limits
         today = datetime.utcnow().date().isoformat()
         logger.info(f"Checking usage for FREE user {user_id}")
         
-        # Cleanup: Delete usage records older than 7 days (async, don't wait)
-        seven_days_ago = (datetime.utcnow().date() - timedelta(days=7)).isoformat()
-        try:
-            await db.daily_usage.delete_many({
-                "date": {"$lt": seven_days_ago}
-            })
-        except Exception as cleanup_error:
-            logger.warning(f"Cleanup failed but continuing: {cleanup_error}")
+        usage_response = supabase.table('daily_usage') \
+            .select('*') \
+            .eq('user_id', user_id) \
+            .eq('date', today) \
+            .execute()
         
-        usage = await db.daily_usage.find_one({
-            "user_id": user_id,
-            "date": today
-        })
-        
-        if usage:
-            count = usage.get("message_count", 0)
+        if usage_response.data and len(usage_response.data) > 0:
+            count = usage_response.data[0].get("message_count", 0)
         else:
             count = 0
         
@@ -801,94 +780,37 @@ app.add_middleware(
 async def get_usage_stats(days: int = 7):
     """
     Get usage statistics for monitoring
-    Shows message volume, peak times, and error rates
+    Shows message volume and success rates
     """
     try:
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        cutoff_date = (datetime.utcnow() - timedelta(days=days)).isoformat()
         
-        # Total messages in period
-        total_messages = await db.usage_tracking.count_documents({
-            "timestamp": {"$gte": cutoff_date},
-            "type": "coach_chat"
-        })
+        # Get all usage tracking from Supabase
+        response = supabase.table('usage_tracking') \
+            .select('*') \
+            .eq('type', 'coach_chat') \
+            .gte('timestamp', cutoff_date) \
+            .execute()
         
-        # Success rate
-        successful = await db.usage_tracking.count_documents({
-            "timestamp": {"$gte": cutoff_date},
-            "type": "coach_chat",
-            "success": True
-        })
+        all_messages = response.data if response.data else []
+        total_messages = len(all_messages)
         
-        failed = await db.usage_tracking.count_documents({
-            "timestamp": {"$gte": cutoff_date},
-            "type": "coach_chat",
-            "success": False
-        })
+        # Count successful and failed
+        successful = sum(1 for msg in all_messages if msg.get('success', True))
+        failed = total_messages - successful
         
         success_rate = (successful / total_messages * 100) if total_messages > 0 else 100
         
-        # Messages by day
-        pipeline = [
-            {
-                "$match": {
-                    "timestamp": {"$gte": cutoff_date},
-                    "type": "coach_chat"
-                }
-            },
-            {
-                "$group": {
-                    "_id": {
-                        "$dateToString": {
-                            "format": "%Y-%m-%d",
-                            "date": "$timestamp"
-                        }
-                    },
-                    "count": {"$sum": 1}
-                }
-            },
-            {"$sort": {"_id": 1}}
-        ]
+        # Group by coach for popular coaches
+        coach_counts = {}
+        for msg in all_messages:
+            if msg.get('success', True):
+                coach_id = msg.get('coach_id', 'unknown')
+                coach_counts[coach_id] = coach_counts.get(coach_id, 0) + 1
         
-        daily_stats = await db.usage_tracking.aggregate(pipeline).to_list(length=days)
-        
-        # Messages by hour (peak times)
-        hour_pipeline = [
-            {
-                "$match": {
-                    "timestamp": {"$gte": cutoff_date},
-                    "type": "coach_chat"
-                }
-            },
-            {
-                "$group": {
-                    "_id": {"$hour": "$timestamp"},
-                    "count": {"$sum": 1}
-                }
-            },
-            {"$sort": {"_id": 1}}
-        ]
-        
-        hourly_stats = await db.usage_tracking.aggregate(hour_pipeline).to_list(length=24)
-        
-        # Most popular coaches
-        coach_pipeline = [
-            {
-                "$match": {
-                    "timestamp": {"$gte": cutoff_date},
-                    "type": "coach_chat",
-                    "success": True
-                }
-            },
-            {
-                "$group": {
-                    "_id": "$coach_id",
-                    "count": {"$sum": 1}
-                }
-            },
-            {"$sort": {"count": -1}}
-        ]
-        
-        coach_stats = await db.usage_tracking.aggregate(coach_pipeline).to_list(length=10)
+        popular_coaches = [{"_id": coach, "count": count} 
+                          for coach, count in sorted(coach_counts.items(), 
+                                                     key=lambda x: x[1], reverse=True)]
         
         return {
             "period_days": days,
@@ -896,9 +818,7 @@ async def get_usage_stats(days: int = 7):
             "successful_messages": successful,
             "failed_messages": failed,
             "success_rate": round(success_rate, 2),
-            "daily_breakdown": daily_stats,
-            "peak_hours": hourly_stats,
-            "popular_coaches": coach_stats,
+            "popular_coaches": popular_coaches[:10],
             "average_per_day": round(total_messages / days, 1) if days > 0 else 0
         }
         
@@ -906,13 +826,7 @@ async def get_usage_stats(days: int = 7):
         logger.error(f"Error fetching usage stats: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to fetch stats")
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
 @app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+async def shutdown():
+    """Cleanup on shutdown"""
+    logger.info("Application shutting down")
