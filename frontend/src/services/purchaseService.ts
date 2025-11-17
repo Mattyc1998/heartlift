@@ -1,13 +1,14 @@
+import { Purchases } from '@revenuecat/purchases-capacitor';
 import { supabase } from '@/integrations/supabase/client';
-import { Capacitor } from '@capacitor/core';
 
-// Product IDs
-const PREMIUM_PRODUCT_ID = 'com.mattyc.heartlift.premium.monthly';
-const HEALING_KIT_PRODUCT_ID = 'com.mattyc.heartlift.healingkit';
+// Product IDs matching App Store Connect
+export const PRODUCT_IDS = {
+  PREMIUM_MONTHLY: 'com.mattyc.heartlift.premium.monthly',
+  HEALING_KIT: 'com.mattyc.heartlift.healingkit'
+};
 
 class PurchaseService {
   private initialized = false;
-  private isNativePlatform = false;
 
   async initialize(userId: string): Promise<void> {
     if (this.initialized) {
@@ -16,18 +17,18 @@ class PurchaseService {
     }
 
     try {
-      this.isNativePlatform = Capacitor.isNativePlatform();
+      // Get RevenueCat API key from environment
+      const REVENUECAT_API_KEY = import.meta.env.VITE_REVENUECAT_API_KEY || 'appl_sibzKJJEoGylRMhTqXeehSmVWoZ';
       
-      if (!this.isNativePlatform) {
-        console.log('⚠️ Not on native platform - IAP disabled');
-        this.initialized = true;
-        return;
-      }
-
-      console.log('✅ Purchase service initialized for user:', userId);
+      await Purchases.configure({
+        apiKey: REVENUECAT_API_KEY,
+        appUserID: userId,
+      });
+      
+      console.log('✅ RevenueCat initialized for user:', userId);
       this.initialized = true;
     } catch (error) {
-      console.error('❌ Failed to initialize purchase service:', error);
+      console.error('❌ Failed to initialize RevenueCat:', error);
       throw error;
     }
   }
