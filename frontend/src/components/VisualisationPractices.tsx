@@ -176,7 +176,7 @@ export const VisualisationPractices = () => {
     
     try {
       // Call backend with OpenAI TTS - shimmer voice (most soothing)
-      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
       const response = await fetch(`${backendUrl}/api/ai/text-to-speech`, {
         method: 'POST',
         headers: {

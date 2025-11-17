@@ -87,7 +87,7 @@ export function HeartVisions() {
 
     try {
       // Call new AI backend endpoint for image generation
-      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
       const response = await fetch(`${backendUrl}/api/ai/heart-vision`, {
         method: 'POST',
         headers: {

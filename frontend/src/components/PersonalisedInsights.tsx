@@ -66,7 +66,7 @@ export const PersonalisedInsights = () => {
     
     setIsLoading(true);
     try {
-      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
       const response = await fetch(`${backendUrl}/api/insights/reports/${user.id}`);
       
       if (response.ok) {
@@ -92,7 +92,7 @@ export const PersonalisedInsights = () => {
       toast.info("Analyzing your conversations and generating personalised insights...");
       
       // Call new AI backend endpoint
-      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
       const response = await fetch(`${backendUrl}/api/ai/insights`, {
         method: 'POST',
         headers: {

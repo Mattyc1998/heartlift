@@ -279,7 +279,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
     if (!user) return;
 
     try {
-      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
       const response = await fetch(`${backendUrl}/api/usage/check/${user.id}`);
       
       if (response.ok) {
@@ -331,7 +331,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
       });
 
       // Call the new AI backend endpoint
-      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
       const response = await fetch(`${backendUrl}/api/ai/chat`, {
         method: 'POST',
         headers: {
@@ -375,7 +375,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
       // Update usage count
       if (!isPremium) {
         // Track usage in backend
-        const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
         try {
           const usageResponse = await fetch(`${backendUrl}/api/usage/track`, {
             method: 'POST',
@@ -436,7 +436,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
       }
 
       // Call the new AI backend endpoint
-      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
       const response = await fetch(`${backendUrl}/api/ai/chat`, {
         method: 'POST',
         headers: {

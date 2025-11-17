@@ -78,7 +78,7 @@ export const DailyReflection = () => {
     setIsLoading(true);
     try {
       const today = new Date().toISOString().split('T')[0];
-      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
       
       console.log(`Loading today's reflection from backend: ${backendUrl}/api/reflections/today/${user.id}`);
       
@@ -130,7 +130,7 @@ export const DailyReflection = () => {
     if (!user) return;
     
     try {
-      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
       
       console.log(`Loading past reflections from backend: ${backendUrl}/api/reflections/past/${user.id}`);
       
@@ -201,7 +201,7 @@ export const DailyReflection = () => {
 
       console.log('Reflection data to save:', JSON.stringify(reflectionData, null, 2));
 
-      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
       console.log('Backend URL:', backendUrl);
       
       const fullUrl = `${backendUrl}/api/reflections/save`;

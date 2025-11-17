@@ -28,7 +28,7 @@ export const UsageCounter = ({ currentUsage, onUpgradeClick, isPremium = false }
     if (!user || isPremium) return;
 
     try {
-      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
       const response = await fetch(`${backendUrl}/api/usage/check/${user.id}`);
       
       if (response.ok) {

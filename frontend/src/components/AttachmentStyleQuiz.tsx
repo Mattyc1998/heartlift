@@ -451,7 +451,7 @@ export const AttachmentStyleQuiz = () => {
       console.log('Loading daily AI-generated questions...');
       
       // Call the new AI backend endpoint
-      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
       const response = await fetch(`${backendUrl}/api/ai/quiz/generate`, {
         method: 'POST',
         headers: {
@@ -670,7 +670,7 @@ export const AttachmentStyleQuiz = () => {
       }));
 
       // Call new AI backend endpoint for analysis
-      const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
       const response = await fetch(`${backendUrl}/api/ai/quiz/analyze`, {
         method: 'POST',
         headers: {
