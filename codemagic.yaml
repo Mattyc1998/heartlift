@@ -32,6 +32,8 @@ workflows:
           echo "REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL" > .env
           echo "VITE_SUPABASE_URL=$VITE_SUPABASE_URL" >> .env
           echo "VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY" >> .env
+          echo "VITE_REVENUECAT_API_KEY=$VITE_REVENUECAT_API_KEY" >> .env
+          echo "Environment variables configured:"
           cat .env
       
       - name: Build web application
