@@ -145,10 +145,30 @@ class PurchaseService {
 
   async restorePurchases() {
     try {
-      if (!this.isNativePlatform) {
-        console.log('⚠️ Not on native platform - checking Supabase for existing purchases');
-        
-        // Check Supabase for existing purchases
+      if (!this.initialized) {
+        throw new Error('Purchase service not initialized');
+      }
+
+      console.log('🔄 Restoring purchases via RevenueCat...');
+      const customerInfo = await Purchases.restorePurchases();
+      
+      const hasPremium = !!customerInfo.entitlements.active['premium'];
+      const hasHealingKit = !!customerInfo.entitlements.active['healing_kit'];
+
+      console.log('✅ Purchases restored from RevenueCat:', { hasPremium, hasHealingKit });
+      
+      // Sync restored purchases to Supabase
+      if (hasPremium || hasHealingKit) {
+        await this.syncToSupabase(hasPremium, hasHealingKit);
+      }
+
+      return { hasPremium, hasHealingKit, platform: 'revenuecat' };
+    } catch (error) {
+      console.error('❌ Failed to restore purchases:', error);
+      
+      // Fallback to Supabase check
+      try {
+        console.log('🔄 Falling back to Supabase check...');
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('No user logged in');
 
@@ -160,30 +180,12 @@ class PurchaseService {
         const hasPremium = subResult.data?.subscribed || false;
         const hasHealingKit = kitResult.data?.status === 'completed';
 
-        console.log('✅ Purchases restored from Supabase:', { hasPremium, hasHealingKit });
-        return { hasPremium, hasHealingKit, platform: 'web' };
+        console.log('✅ Purchases restored from Supabase fallback:', { hasPremium, hasHealingKit });
+        return { hasPremium, hasHealingKit, platform: 'supabase' };
+      } catch (fallbackError) {
+        console.error('❌ Fallback also failed:', fallbackError);
+        throw error;
       }
-
-      // On native platform, would use Apple StoreKit to restore
-      console.log('📱 Would restore purchases via Apple StoreKit');
-      
-      // For now, check Supabase as fallback
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user logged in');
-
-      const [subResult, kitResult] = await Promise.all([
-        supabase.from('subscribers').select('subscribed').eq('user_id', user.id).single(),
-        supabase.from('healing_kit_purchases').select('status').eq('user_id', user.id).single()
-      ]);
-
-      const hasPremium = subResult.data?.subscribed || false;
-      const hasHealingKit = kitResult.data?.status === 'completed';
-
-      console.log('✅ Purchases restored (simulated):', { hasPremium, hasHealingKit });
-      return { hasPremium, hasHealingKit, platform: 'native' };
-    } catch (error) {
-      console.error('❌ Failed to restore purchases:', error);
-      throw error;
     }
   }
 
