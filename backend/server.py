@@ -19,11 +19,26 @@ load_dotenv(ROOT_DIR / '.env')
 # MongoDB connection
 # Use Emergent's MONGODB_URI in production, fallback to local MONGO_URL for development
 mongo_url = os.environ.get('MONGODB_URI') or os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
-# Extract database name from URI or use environment variable
-db_name = os.environ.get('DB_NAME', 'test_database')
-client = AsyncIOMotorClient(mongo_url)
-db = client[db_name]
 
+# Initialize MongoDB client
+client = AsyncIOMotorClient(mongo_url)
+
+# Extract database name: either from MONGODB_URI path or DB_NAME env var
+if 'MONGODB_URI' in os.environ and '/' in mongo_url.split('://')[-1]:
+    # Extract database name from URI (everything after the last /)
+    uri_parts = mongo_url.split('/')
+    if len(uri_parts) > 3 and uri_parts[-1]:
+        # URI has database name: mongodb://host:port/dbname
+        db_name = uri_parts[-1].split('?')[0]  # Remove query params if any
+        logger.info(f"Using database from MONGODB_URI: {db_name}")
+    else:
+        db_name = os.environ.get('DB_NAME', 'test_database')
+        logger.info(f"Using DB_NAME env var: {db_name}")
+else:
+    db_name = os.environ.get('DB_NAME', 'test_database')
+    logger.info(f"Using DB_NAME env var: {db_name}")
+
+db = client[db_name]
 logger.info(f"MongoDB connected to: {mongo_url.split('@')[-1] if '@' in mongo_url else mongo_url}")
 
 # Supabase connection (for reading conversation history)
