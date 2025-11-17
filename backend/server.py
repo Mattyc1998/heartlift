@@ -17,9 +17,14 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
-mongo_url = os.environ['MONGO_URL']
+# Use Emergent's MONGODB_URI in production, fallback to local MONGO_URL for development
+mongo_url = os.environ.get('MONGODB_URI') or os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+# Extract database name from URI or use environment variable
+db_name = os.environ.get('DB_NAME', 'test_database')
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[db_name]
+
+logger.info(f"MongoDB connected to: {mongo_url.split('@')[-1] if '@' in mongo_url else mongo_url}")
 
 # Supabase connection (for reading conversation history)
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
