@@ -105,21 +105,34 @@ class PurchaseService {
 
   async purchaseHealingKit() {
     try {
-      if (!this.isNativePlatform) {
-        console.log('⚠️ Not on native platform - simulating healing kit purchase');
-        // Simulate successful purchase for web/development
-        await this.syncToSupabase(false, true);
-        return { success: true, platform: 'web' };
+      if (!this.initialized) {
+        throw new Error('Purchase service not initialized');
       }
 
-      // On native platform, would use Apple StoreKit
-      console.log('📱 Would initiate Apple StoreKit purchase for:', HEALING_KIT_PRODUCT_ID);
-      
-      // For now, simulate successful purchase
-      console.log('✅ Healing Kit purchased successfully (simulated)');
-      await this.syncToSupabase(false, true);
+      const offerings = await Purchases.getOfferings();
+      const healingKitPackage = offerings.current?.availablePackages.find(
+        p => p.storeProduct.identifier === PRODUCT_IDS.HEALING_KIT
+      );
 
-      return { success: true, platform: 'native', productId: HEALING_KIT_PRODUCT_ID };
+      if (!healingKitPackage) {
+        throw new Error('Healing Kit package not found');
+      }
+
+      console.log('🛒 Initiating RevenueCat purchase for:', PRODUCT_IDS.HEALING_KIT);
+      const purchaseResult = await Purchases.purchasePackage({ aPackage: healingKitPackage });
+
+      if (purchaseResult.customerInfo.entitlements.active['healing_kit']) {
+        console.log('✅ Healing Kit purchased successfully via RevenueCat');
+        await this.syncToSupabase(false, true);
+        return { 
+          success: true, 
+          platform: 'revenuecat', 
+          productId: PRODUCT_IDS.HEALING_KIT,
+          transactionId: purchaseResult.storeTransaction?.transactionIdentifier
+        };
+      }
+
+      throw new Error('Purchase completed but entitlement not active');
     } catch (error: any) {
       if (error.userCancelled) {
         console.log('User cancelled purchase');
