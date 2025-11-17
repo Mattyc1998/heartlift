@@ -65,21 +65,34 @@ class PurchaseService {
 
   async purchasePremium() {
     try {
-      if (!this.isNativePlatform) {
-        console.log('⚠️ Not on native platform - simulating premium purchase');
-        // Simulate successful purchase for web/development
-        await this.syncToSupabase(true, false);
-        return { success: true, platform: 'web' };
+      if (!this.initialized) {
+        throw new Error('Purchase service not initialized');
       }
 
-      // On native platform, would use Apple StoreKit
-      console.log('📱 Would initiate Apple StoreKit purchase for:', PREMIUM_PRODUCT_ID);
-      
-      // For now, simulate successful purchase
-      console.log('✅ Premium purchased successfully (simulated)');
-      await this.syncToSupabase(true, false);
+      const offerings = await Purchases.getOfferings();
+      const premiumPackage = offerings.current?.availablePackages.find(
+        p => p.storeProduct.identifier === PRODUCT_IDS.PREMIUM_MONTHLY
+      );
 
-      return { success: true, platform: 'native', productId: PREMIUM_PRODUCT_ID };
+      if (!premiumPackage) {
+        throw new Error('Premium package not found');
+      }
+
+      console.log('🛒 Initiating RevenueCat purchase for:', PRODUCT_IDS.PREMIUM_MONTHLY);
+      const purchaseResult = await Purchases.purchasePackage({ aPackage: premiumPackage });
+
+      if (purchaseResult.customerInfo.entitlements.active['premium']) {
+        console.log('✅ Premium purchased successfully via RevenueCat');
+        await this.syncToSupabase(true, false);
+        return { 
+          success: true, 
+          platform: 'revenuecat', 
+          productId: PRODUCT_IDS.PREMIUM_MONTHLY,
+          transactionId: purchaseResult.storeTransaction?.transactionIdentifier
+        };
+      }
+
+      throw new Error('Purchase completed but entitlement not active');
     } catch (error: any) {
       if (error.userCancelled) {
         console.log('User cancelled purchase');
