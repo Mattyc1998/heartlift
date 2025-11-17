@@ -14,7 +14,7 @@ import base64
 from typing import Dict, List
 
 # Get backend URL from environment
-BACKEND_URL = "https://heartlift-launch.preview.emergentagent.com/api"
+BACKEND_URL = "https://aichat-heartlift.preview.emergentagent.com/api"
 
 class HeartLiftBackendTest:
     def __init__(self):

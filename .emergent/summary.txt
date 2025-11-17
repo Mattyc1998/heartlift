@@ -1,71 +1,90 @@
 <analysis>
-The AI engineer has guided the user through a significant portion of the HeartLift application's development, transitioning it from an MVP web app to an iOS-ready product. Initially, the focus was on migrating AI features from a deprecated platform to a FastAPI backend using Emergent/OpenAI, enhancing core functionalities like coach personalities, quiz generation, personalized insights, and daily reflections. Key technical decisions involved using MongoDB for dynamic data and Supabase for authentication/user profiles.
+The trajectory details a complex and challenging journey of taking the HeartLift application from an MVP to a production-ready iOS app, culminating in a major architectural shift. The initial work focused on bug fixes, feature enhancements, and preparing for App Store submission. This involved fixing AI image generation quality (DALL-E 3), making insights dynamic by connecting the backend to Supabase, and resolving a critical quiz bug.
 
-The recent phase of work has centered on preparing the app for Apple App Store submission. This involved generating marketing copy, setting up in-app purchases (Premium Subscription, Healing Kit) in App Store Connect, and addressing critical legal and compliance aspects such as hosting the Privacy Policy on GitHub Pages, ensuring age-appropriateness (13+), implementing robust safety guardrails for AI coaches (detecting sexual content, self-harm, etc.), and clarifying EULA usage. A major challenge encountered and resolved was a critical bug where users lost premium access due to a database migration issue, leading to a temporary revert and then a proper re-implementation to ensure Apple IAP data is stored in Supabase for persistence. The engineer is currently guiding the user through the final steps of App Store Connect submission, including build uploads via CodeMagic.
+A significant portion of the effort was dedicated to the CI/CD pipeline and App Store submission process. This phase was plagued by numerous issues: force-pushing to GitHub due to secret scanning blocks, multiple CodeMagic build failures due to incorrect provisioning profiles, artifact paths, and outdated Xcode versions.
+
+The most critical and frustrating phase for the user involved a recurring bug where users lost premium access. This led to an extensive and painful debugging process, uncovering a conflict between a legacy Stripe function and the new Apple IAP system. The root cause was a Supabase function overwriting IAP data. This was resolved by disabling the Stripe function and hardening the IAP logic.
+
+Finally, persistent connectivity issues with the deployed MongoDB instance led the user to make a decisive architectural change: migrate all backend data storage from MongoDB to Supabase for better reliability. The previous engineer had just begun this migration. The user's primary language is English. The next engineer should respond in English.
 </analysis>
 
 <product_requirements>
-The overarching goal for HeartLift is to deliver an iOS application, converted from an existing web app using Capacitor, ready for App Store submission via CodeMagic. The app acts as a personal AI relationship coach, focusing on emotional healing, break-ups, and attachment style awareness for users 13+.
+The primary goal is to launch a stable, fully-functional HeartLift iOS application on the Apple App Store. The app serves as an AI relationship coach for users 13+, providing features like personalized AI coaches, an attachment style quiz, daily reflections, and AI-generated images (HeartVisions).
 
-Key functionalities and requirements include:
-*   **AI Feature Migration**: Transitioning all AI functionalities (coaches, quizzes, insights, image generation, text-to-speech) from a legacy Supabase/Lovable platform to a FastAPI backend integrated with Emergent/OpenAI.
-*   **Coach Personalities**: Ensuring AI coaches (Phoenix Fire, Luna Love, River Storm, Sage Ember) maintain distinct personalities, initially limiting name usage, and later refining question-asking behavior (one thoughtful question per response).
-*   **Quiz & Insights**: Correctly generating, saving, and displaying detailed, personalized, and age-appropriate quiz results and insights, allowing access to past reports.
-*   **Daily Reflections**: Implementing persistence and viewing capabilities for daily reflections.
-*   **Usage Limits**: A 10-message daily limit for free users, resetting at midnight.
-*   **Safety & Compliance**: Implementing safety guardrails for AI coaches (redirecting sensitive topics like self-harm, abuse, sexual content to helplines), updating legal documents (Privacy Policy, Terms of Service) to reflect new data storage, and preparing app assets (icons, screenshots).
-*   **App Store Submission**: Guiding the user through all App Store Connect requirements, including marketing copy (description, keywords), age rating (13+), EULA selection (Apple's standard), and, critically, setting up two In-App Purchases:
-    *   **Premium Subscription (£11.99/month)**: Auto-renewable, for unlimited conversations and advanced features.
-    *   **Healing Kit (£4.99 one-time)**: Non-consumable, for a complete break-up recovery package.
-    *   Ensuring immediate access to purchased features post-transaction, with data stored in Supabase.
+**Key Functional Requirements:**
+- **In-App Purchases (IAP):** Implement a robust purchasing system for a monthly Premium Subscription and a one-time Healing Kit. Users must reliably retain access to their purchases across sessions.
+- **AI Features:** All AI-powered features must be functional and reliable, connecting to a live, deployed backend.
+- **Data Persistence:** All user-generated data (reflections, conversations, quiz results, purchase status) must be saved reliably.
+
+**Implementation History & Current State:**
+The project has evolved significantly. Initially, a hybrid data model was used (Supabase for auth/conversations, MongoDB for reflections/insights/usage). After numerous deployment and connectivity issues with MongoDB on the live backend, a strategic decision was made to migrate all data persistence to Supabase. This migration is the current active task. The application must be built and deployed via CodeMagic, and all necessary configurations for a successful App Store submission must be in place.
 </product_requirements>
 
 <key_technical_concepts>
-- **Capacitor**: Cross-platform web-to-native mobile app development.
-- **FastAPI**: Python web framework for backend APIs.
-- **React/Vite**: Frontend JavaScript library and build tool.
-- **Supabase**: Authentication, user data, and now, primary storage for IAP status.
-- **MongoDB**: Backend database for dynamic content (reflections, insights, usage tracking).
-- **Emergent Universal LLM Key & OpenAI APIs**: Centralized LLM access.
-- **CodeMagic**: CI/CD for cloud builds and App Store Connect integration.
-- **Apple In-App Purchases (IAP)**: Auto-renewable subscriptions and non-consumable products.
-- **GitHub Pages**: Static site hosting for the Privacy Policy.
+- **Backend:** FastAPI, Python
+- **Frontend:** React, Vite, TypeScript
+- **Mobile:** Capacitor for iOS conversion
+- **Database:** Supabase (for Auth, user data, and now all dynamic content), MongoDB (being deprecated)
+- **CI/CD & Deployment:** CodeMagic (for iOS builds), Emergent (for backend hosting)
+- **Payments:** Apple In-App Purchases (StoreKit). RevenueCat was briefly implemented and then removed.
+- **AI Services:** Emergent Universal LLM Key, OpenAI API (DALL-E 3, TTS)
 </key_technical_concepts>
 
 <code_architecture>
-The HeartLift application uses a full-stack architecture with a FastAPI backend and a React frontend, bundled into an iOS app via Capacitor.
+The application is a full-stack system with a React/Capacitor frontend and a FastAPI backend. The backend is deployed via Emergent, and the iOS app is built and deployed via CodeMagic.
 
 
 
-**Key Files and Changes:**
-- ****: *Modified* to include  to prevent API keys from being committed, which was a critical security fix for making the repo public.
-- ****: *Modified extensively* for:
-    - : Added explicit rules to detect and redirect sensitive topics (self-harm, abuse, sexual content).
-    - Coach Personalities: Updated to ensure specific question-asking patterns (one question at the end) while preserving core personalities.
-    - Quiz generation: Fixed to use all 10 answers instead of 5, improved prompts for varied analysis, and added a timestamp to the session ID to prevent cached/repeated results.
-- ****: *Modified extensively* to remove MongoDB-related subscription logic (after a failed migration attempt), ensuring all IAP status relies on Supabase.
-- ****: *Modified* to correctly check Supabase for user subscription status, rather than MongoDB or deprecated Supabase functions, to ensure immediate access to premium features after purchase. Includes an update to store  for App Store Connect integration.
-- ****: *Created and modified* to handle Apple In-App Purchases, linking to the  and  product IDs, and then syncing the purchase status to Supabase. This was re-implemented correctly after a previous attempt to use MongoDB for subscriptions failed.
-- ****: *Created and modified* as a React hook to simplify IAP logic for components, integrating with  and .
-- ****: *Modified* to include explicit Prohibited Content guidelines, disclaiming responsibility for user-generated content that violates terms (e.g., sexual, abusive), and reinforcing the app's 13+ age rating and safety guardrails.
-- ****, ****, ****, ****, ****, ****, ****: *Created* to provide comprehensive documentation and guides for App Store submission, IAP setup, social media, customer support, and specific bug fixes.
-- ****: *Created* as a standalone HTML file for public hosting, which was successfully hosted on GitHub Pages.
+- ****
+    - **Importance:** Main FastAPI application file containing all API endpoints, startup/shutdown logic, and database connections.
+    - **Summary of Changes:** This file has been heavily modified. It was updated to fetch real data from Supabase for insights, and then to use  from environment variables instead of a hardcoded . Most recently, it was the target for a full migration from MongoDB to Supabase for all data operations. The migration is currently in progress.
+
+- ****
+    - **Importance:** Manages user authentication state and, critically, their subscription/purchase status.
+    - **Summary of Changes:** This was the epicenter of the premium access bug. It was modified multiple times to fix how it checks for premium/healing kit access, moving from an incorrect check on the  table to a robust check on the  and  tables, accommodating both legacy Stripe and current Apple IAP data structures.
+
+- ****
+    - **Importance:** Handles all client-side logic for Apple In-App Purchases.
+    - **Summary of Changes:** Initially used RevenueCat. This was completely rewritten to use Apple's native StoreKit directly to simplify the stack. It was then updated again to ensure it correctly sets the  flag in the Supabase  table to prevent conflicts with legacy data checks.
+
+- ****
+    - **Importance:** Defines the CI/CD pipeline for building the iOS app.
+    - **Summary of Changes:** Underwent numerous fixes: updated Xcode version from 15.2 to 16.0 to meet Apple's SDK requirements, corrected artifact paths for the IPA file, added the  environment variable group, and updated scripts to correctly create the frontend  file using the  prefix.
+
+- ** & **
+    - **Importance:** Configure the frontend build process and Capacitor's web-to-native bridge.
+    - **Summary of Changes:** The  in  was changed from  to . Consequently, the  in  was also updated to  to fix a deployment error where the build system couldn't find the web assets.
+
+- ****
+    - **Importance:** This new file contains the SQL schema for migrating all of MongoDB's data into Supabase.
+    - **Summary of Changes:** It was just created and defines new tables: , , and .
 </code_architecture>
 
 <pending_tasks>
-- Set up CodeMagic account and connect it to the GitHub repository.
-- Obtain and upload Apple Developer Program credentials (API Key, Distribution Certificate, Provisioning Profile) to CodeMagic.
-- Trigger the first build via CodeMagic to upload the app to App Store Connect.
-- Select the uploaded build in App Store Connect for Version 1.0.
-- Address the user's latest query about app icons for App Store submission.
+- Complete the migration from MongoDB to Supabase. This involves:
+    - Running the  script in the Supabase project.
+    - Rewriting all endpoints in  that currently use MongoDB () to use the Supabase client instead.
+    - Removing the MongoDB connection logic and  dependency entirely.
+- Push all recent fixes (MongoDB-to-Supabase migration, UI padding, etc.) to GitHub.
+- Trigger a final, clean build (e.g., Build #14) on CodeMagic.
+- Thoroughly test the new build on TestFlight to confirm all features work, especially IAPs and previously MongoDB-dependent features.
+- Submit the final, working build to the App Store for review.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was guiding the user through the final stages of App Store submission. The user had successfully completed setting up the app details in App Store Connect, including promotional text, description, keywords, and creating the Premium Subscription and Healing Kit In-App Purchase products. The last major hurdle discussed was that the Add for Review button was unavailable because no app build had been uploaded yet. The AI engineer was about to provide instructions for setting up CodeMagic to build and upload the app.
+The user, after extensive and frustrating issues with the deployed backend's connection to MongoDB, made the executive decision to completely remove MongoDB from the stack and migrate all its functionality to Supabase for improved reliability and a single source of truth for data.
 
-The user then asked: what about icons?. This indicates a shift to addressing remaining asset requirements for App Store Connect. The AI engineer's last action was to acknowledge this with: GREAT CATCH! Let me check if you need to upload icons separately:. This means the current focus is on verifying and preparing the app icons for submission.
+The previous AI engineer had just begun this critical task.
+
+**Actions Taken:**
+1.  **Identified MongoDB Collections:** The engineer scanned  and identified all collections that needed to be migrated: , , , and .
+2.  **Created SQL Schema:** A new file, , was created. This file contains the  statements to replicate the structure of the MongoDB collections within Supabase.
+
+
+
+The immediate work stopped right after creating this SQL file. The next logical step is to modify the backend code to use these new tables.
 </current_work>
 
 <optional_next_step>
-Check Apple's requirements for app icons and guide the user on how to confirm if the generated icons are correctly integrated or if separate action is needed.
+I will now begin rewriting the backend endpoints in  to use the new Supabase tables defined in , replacing all MongoDB logic.
 </optional_next_step>
