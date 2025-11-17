@@ -35,20 +35,27 @@ class PurchaseService {
 
   async getProducts() {
     try {
-      if (!this.isNativePlatform) {
-        console.log('⚠️ Not on native platform - returning mock products');
+      if (!this.initialized) {
+        throw new Error('Purchase service not initialized');
+      }
+
+      const offerings = await Purchases.getOfferings();
+      
+      if (offerings.current) {
+        const products = offerings.current.availablePackages;
+        console.log('✅ Products loaded from RevenueCat:', products.length);
+        
         return {
-          premium: { id: PREMIUM_PRODUCT_ID, price: '$9.99' },
-          healingKit: { id: HEALING_KIT_PRODUCT_ID, price: '$19.99' }
+          premium: products.find(p => p.storeProduct.identifier === PRODUCT_IDS.PREMIUM_MONTHLY),
+          healingKit: products.find(p => p.storeProduct.identifier === PRODUCT_IDS.HEALING_KIT)
         };
       }
 
-      // On native platform, we would use Apple StoreKit
-      // For now, return mock data until native implementation
-      console.log('📱 Native platform detected - would use StoreKit');
+      // Fallback to mock data if no offerings
+      console.log('⚠️ No RevenueCat offerings - returning mock products');
       return {
-        premium: { id: PREMIUM_PRODUCT_ID, price: '$9.99' },
-        healingKit: { id: HEALING_KIT_PRODUCT_ID, price: '$19.99' }
+        premium: { id: PRODUCT_IDS.PREMIUM_MONTHLY, price: '$9.99' },
+        healingKit: { id: PRODUCT_IDS.HEALING_KIT, price: '$19.99' }
       };
     } catch (error) {
       console.error('❌ Failed to get products:', error);
