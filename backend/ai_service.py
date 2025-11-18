@@ -1001,6 +1001,9 @@ Create a comprehensive, personalized insights report that:
                 "Develop secure attachment style"
             ],
             "healingProgressScore": 65,
+            "attachmentStyle": "exploring",
+            "conversationCount": 0,
+            "moodEntriesAnalyzed": 0,
             "keyInsights": {
                 "strengths": [
                     "You're committed to personal growth",
