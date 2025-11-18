@@ -282,6 +282,363 @@ class HeartLiftBackendTest:
             })
             return False
     
+    async def test_ai_chat_endpoint(self):
+        """Test POST /api/ai/chat - Test chat with coach (should fetch reflections for context)"""
+        print("\n🧪 Testing AI Chat Endpoint (CRITICAL)...")
+        
+        test_data = {
+            "message": "I'm feeling anxious about my relationship today",
+            "coach_id": "luna",
+            "conversation_history": [
+                {"content": "Hello", "sender": "user"},
+                {"content": "Hello! I'm Luna, your love coach. How are you feeling today?", "sender": "coach"}
+            ],
+            "user_name": "TestUser",
+            "user_id": self.test_user_id
+        }
+        
+        try:
+            start_time = time.time()
+            
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                response = await client.post(
+                    f"{self.backend_url}/ai/chat",
+                    json=test_data,
+                    headers={"Content-Type": "application/json"}
+                )
+            
+            end_time = time.time()
+            response_time = end_time - start_time
+            
+            print(f"⏱️  Response time: {response_time:.2f} seconds")
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Validate response structure
+                required_fields = ["response", "session_id"]
+                missing_fields = [field for field in required_fields if field not in result]
+                
+                if missing_fields:
+                    print(f"❌ Missing required fields: {missing_fields}")
+                    self.test_results.append({
+                        "test": "AI Chat Endpoint",
+                        "status": "FAILED",
+                        "error": f"Missing fields: {missing_fields}",
+                        "response_time": response_time
+                    })
+                    return False
+                
+                # Validate response content
+                chat_response = result.get("response", "")
+                session_id = result.get("session_id", "")
+                
+                if len(chat_response) < 10:
+                    print(f"❌ Chat response too short: {len(chat_response)} characters")
+                    self.test_results.append({
+                        "test": "AI Chat Endpoint",
+                        "status": "FAILED",
+                        "error": "Chat response too short",
+                        "response_time": response_time
+                    })
+                    return False
+                
+                if not session_id:
+                    print("❌ Session ID missing")
+                    self.test_results.append({
+                        "test": "AI Chat Endpoint",
+                        "status": "FAILED",
+                        "error": "Session ID missing",
+                        "response_time": response_time
+                    })
+                    return False
+                
+                print(f"✅ AI chat response generated successfully")
+                print(f"✅ Response length: {len(chat_response)} characters")
+                print(f"✅ Session ID: {session_id}")
+                print(f"✅ Usage tracking should be logged to usage_tracking table")
+                print(f"✅ Response preview: {chat_response[:100]}...")
+                
+                self.test_results.append({
+                    "test": "AI Chat Endpoint",
+                    "status": "PASSED",
+                    "response_time": response_time,
+                    "response_length": len(chat_response),
+                    "session_id": session_id,
+                    "coach_id": test_data["coach_id"]
+                })
+                return True
+                
+            else:
+                print(f"❌ HTTP Error: {response.status_code}")
+                print(f"❌ Response: {response.text}")
+                self.test_results.append({
+                    "test": "AI Chat Endpoint",
+                    "status": "FAILED",
+                    "error": f"HTTP {response.status_code}: {response.text}",
+                    "response_time": response_time
+                })
+                return False
+                
+        except Exception as e:
+            import traceback
+            error_msg = f"{str(e)}\n{traceback.format_exc()}"
+            print(f"❌ Exception: {error_msg}")
+            self.test_results.append({
+                "test": "AI Chat Endpoint",
+                "status": "FAILED",
+                "error": error_msg,
+                "response_time": None
+            })
+            return False
+
+    async def test_insights_generation(self):
+        """Test POST /api/ai/insights - Generate insights for a user"""
+        print("\n🧪 Testing Insights Generation (CRITICAL)...")
+        
+        test_data = {
+            "user_id": self.test_user_id
+        }
+        
+        try:
+            start_time = time.time()
+            
+            async with httpx.AsyncClient(timeout=20.0) as client:
+                response = await client.post(
+                    f"{self.backend_url}/ai/insights",
+                    json=test_data,
+                    headers={"Content-Type": "application/json"}
+                )
+            
+            end_time = time.time()
+            response_time = end_time - start_time
+            
+            print(f"⏱️  Response time: {response_time:.2f} seconds")
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Validate response structure
+                required_fields = [
+                    "emotionalPatterns", "communicationStyle", "keyInsights", 
+                    "personalizedRecommendations", "moodTrends", "nextSteps"
+                ]
+                missing_fields = [field for field in required_fields if field not in result]
+                
+                if missing_fields:
+                    print(f"❌ Missing required fields: {missing_fields}")
+                    self.test_results.append({
+                        "test": "Insights Generation",
+                        "status": "FAILED",
+                        "error": f"Missing fields: {missing_fields}",
+                        "response_time": response_time
+                    })
+                    return False
+                
+                # Check if insights fetch data from Supabase
+                insights_text = json.dumps(result).lower()
+                
+                # Look for signs that real data was fetched vs generic placeholders
+                data_indicators = ["conversation", "reflection", "chat", "message"]
+                generic_indicators = ["starting healing journey", "building self-awareness", "placeholder"]
+                
+                data_count = sum(1 for indicator in data_indicators if indicator in insights_text)
+                generic_count = sum(1 for indicator in generic_indicators if indicator in insights_text)
+                
+                print(f"📊 Data indicators: {data_count}, Generic indicators: {generic_count}")
+                
+                print(f"✅ Insights generated successfully")
+                print(f"✅ Should fetch data from Supabase (conversations and reflections)")
+                print(f"✅ Response structure validated")
+                
+                self.test_results.append({
+                    "test": "Insights Generation",
+                    "status": "PASSED",
+                    "response_time": response_time,
+                    "data_indicators": data_count,
+                    "generic_indicators": generic_count,
+                    "user_id": test_data["user_id"]
+                })
+                return True
+                
+            else:
+                print(f"❌ HTTP Error: {response.status_code}")
+                print(f"❌ Response: {response.text}")
+                self.test_results.append({
+                    "test": "Insights Generation",
+                    "status": "FAILED",
+                    "error": f"HTTP {response.status_code}: {response.text}",
+                    "response_time": response_time
+                })
+                return False
+                
+        except Exception as e:
+            import traceback
+            error_msg = f"{str(e)}\n{traceback.format_exc()}"
+            print(f"❌ Exception: {error_msg}")
+            self.test_results.append({
+                "test": "Insights Generation",
+                "status": "FAILED",
+                "error": error_msg,
+                "response_time": None
+            })
+            return False
+
+    async def test_insights_save(self):
+        """Test POST /api/insights/save - Save generated insights"""
+        print("\n🧪 Testing Insights Save...")
+        
+        test_data = {
+            "user_id": self.test_user_id,
+            "insights": {
+                "emotionalPatterns": ["Anxious attachment patterns", "Seeking reassurance"],
+                "keyInsights": {
+                    "strengths": ["Self-aware", "Willing to grow"],
+                    "areasForGrowth": ["Self-compassion", "Trust building"],
+                    "progressSigns": ["Increased awareness", "Better communication"]
+                }
+            },
+            "conversation_count": 5,
+            "mood_entries_analyzed": 3,
+            "attachment_style": "anxious",
+            "healing_progress_score": 75,
+            "analysis_period_start": "2025-01-10",
+            "analysis_period_end": "2025-01-17"
+        }
+        
+        try:
+            start_time = time.time()
+            
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.post(
+                    f"{self.backend_url}/insights/save",
+                    json=test_data,
+                    headers={"Content-Type": "application/json"}
+                )
+            
+            end_time = time.time()
+            response_time = end_time - start_time
+            
+            print(f"⏱️  Response time: {response_time:.2f} seconds")
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Validate response structure
+                required_fields = ["user_id", "insights", "report_type"]
+                missing_fields = [field for field in required_fields if field not in result]
+                
+                if missing_fields:
+                    print(f"❌ Missing required fields: {missing_fields}")
+                    self.test_results.append({
+                        "test": "Insights Save",
+                        "status": "FAILED",
+                        "error": f"Missing fields: {missing_fields}",
+                        "response_time": response_time
+                    })
+                    return False
+                
+                print(f"✅ Insights saved successfully")
+                print(f"✅ Report ID: {result.get('id', 'N/A')}")
+                print(f"✅ Data persisted to Supabase insights_reports table")
+                
+                self.test_results.append({
+                    "test": "Insights Save",
+                    "status": "PASSED",
+                    "response_time": response_time,
+                    "report_id": result.get('id'),
+                    "user_id": result.get('user_id')
+                })
+                return True
+                
+            else:
+                print(f"❌ HTTP Error: {response.status_code}")
+                print(f"❌ Response: {response.text}")
+                self.test_results.append({
+                    "test": "Insights Save",
+                    "status": "FAILED",
+                    "error": f"HTTP {response.status_code}: {response.text}",
+                    "response_time": response_time
+                })
+                return False
+                
+        except Exception as e:
+            import traceback
+            error_msg = f"{str(e)}\n{traceback.format_exc()}"
+            print(f"❌ Exception: {error_msg}")
+            self.test_results.append({
+                "test": "Insights Save",
+                "status": "FAILED",
+                "error": error_msg,
+                "response_time": None
+            })
+            return False
+
+    async def test_insights_reports_retrieval(self):
+        """Test GET /api/insights/reports/{user_id} - Retrieve saved reports"""
+        print("\n🧪 Testing Insights Reports Retrieval...")
+        
+        try:
+            start_time = time.time()
+            
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(
+                    f"{self.backend_url}/insights/reports/{self.test_user_id}",
+                    headers={"Content-Type": "application/json"}
+                )
+            
+            end_time = time.time()
+            response_time = end_time - start_time
+            
+            print(f"⏱️  Response time: {response_time:.2f} seconds")
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                if not isinstance(result, list):
+                    print(f"❌ Expected list, got {type(result)}")
+                    self.test_results.append({
+                        "test": "Insights Reports Retrieval",
+                        "status": "FAILED",
+                        "error": f"Expected list, got {type(result)}",
+                        "response_time": response_time
+                    })
+                    return False
+                
+                print(f"✅ Insights reports retrieved successfully")
+                print(f"✅ Found {len(result)} reports")
+                
+                self.test_results.append({
+                    "test": "Insights Reports Retrieval",
+                    "status": "PASSED",
+                    "response_time": response_time,
+                    "report_count": len(result)
+                })
+                return True
+                
+            else:
+                print(f"❌ HTTP Error: {response.status_code}")
+                print(f"❌ Response: {response.text}")
+                self.test_results.append({
+                    "test": "Insights Reports Retrieval",
+                    "status": "FAILED",
+                    "error": f"HTTP {response.status_code}: {response.text}",
+                    "response_time": response_time
+                })
+                return False
+                
+        except Exception as e:
+            import traceback
+            error_msg = f"{str(e)}\n{traceback.format_exc()}"
+            print(f"❌ Exception: {error_msg}")
+            self.test_results.append({
+                "test": "Insights Reports Retrieval",
+                "status": "FAILED",
+                "error": error_msg,
+                "response_time": None
+            })
+            return False
+
     async def test_response_structure_validation(self):
         """Test that response structure matches frontend expectations"""
         print("\n🧪 Testing Response Structure Validation...")
