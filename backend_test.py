@@ -20,6 +20,10 @@ class HeartLiftBackendTest:
     def __init__(self):
         self.backend_url = BACKEND_URL
         self.test_results = []
+        # Test data as suggested in review request
+        self.test_user_id = "11111111-1111-1111-1111-111111111111"
+        self.test_reflection_date = "2025-01-17"
+        self.coach_ids = ["luna", "sage", "phoenix", "river"]
         
     async def test_basic_quiz_analysis(self):
         """Test basic quiz analysis with sample questions and answers"""
