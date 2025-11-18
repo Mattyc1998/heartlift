@@ -878,6 +878,435 @@ class HeartLiftBackendTest:
             })
             return False
     
+    async def test_quiz_generation(self):
+        """Test POST /api/ai/quiz/generate - Generate quiz questions"""
+        print("\n🧪 Testing Quiz Generation...")
+        
+        test_data = {
+            "category": "attachment_style",
+            "num_questions": 5
+        }
+        
+        try:
+            start_time = time.time()
+            
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                response = await client.post(
+                    f"{self.backend_url}/ai/quiz/generate",
+                    json=test_data,
+                    headers={"Content-Type": "application/json"}
+                )
+            
+            end_time = time.time()
+            response_time = end_time - start_time
+            
+            print(f"⏱️  Response time: {response_time:.2f} seconds")
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Validate response structure
+                if "questions" not in result:
+                    print("❌ Missing 'questions' field")
+                    self.test_results.append({
+                        "test": "Quiz Generation",
+                        "status": "FAILED",
+                        "error": "Missing 'questions' field",
+                        "response_time": response_time
+                    })
+                    return False
+                
+                questions = result.get("questions", [])
+                if len(questions) != 5:
+                    print(f"❌ Expected 5 questions, got {len(questions)}")
+                    self.test_results.append({
+                        "test": "Quiz Generation",
+                        "status": "FAILED",
+                        "error": f"Expected 5 questions, got {len(questions)}",
+                        "response_time": response_time
+                    })
+                    return False
+                
+                print(f"✅ Quiz generation successful")
+                print(f"✅ Generated {len(questions)} questions")
+                
+                self.test_results.append({
+                    "test": "Quiz Generation",
+                    "status": "PASSED",
+                    "response_time": response_time,
+                    "question_count": len(questions)
+                })
+                return True
+                
+            else:
+                print(f"❌ HTTP Error: {response.status_code}")
+                print(f"❌ Response: {response.text}")
+                self.test_results.append({
+                    "test": "Quiz Generation",
+                    "status": "FAILED",
+                    "error": f"HTTP {response.status_code}: {response.text}",
+                    "response_time": response_time
+                })
+                return False
+                
+        except Exception as e:
+            import traceback
+            error_msg = f"{str(e)}\n{traceback.format_exc()}"
+            print(f"❌ Exception: {error_msg}")
+            self.test_results.append({
+                "test": "Quiz Generation",
+                "status": "FAILED",
+                "error": error_msg,
+                "response_time": None
+            })
+            return False
+
+    async def test_quiz_analysis(self):
+        """Test POST /api/ai/quiz/analyze - Analyze quiz results"""
+        print("\n🧪 Testing Quiz Analysis...")
+        
+        test_data = {
+            "questions_and_answers": [
+                {"question": "When facing a disagreement with your partner, you tend to:", "answer": "Become anxious and seek immediate resolution"},
+                {"question": "How do you typically react when your partner needs space?", "answer": "Feel abandoned or anxious"},
+                {"question": "In relationships, you generally:", "answer": "Seek constant reassurance"}
+            ],
+            "user_id": self.test_user_id
+        }
+        
+        try:
+            start_time = time.time()
+            
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                response = await client.post(
+                    f"{self.backend_url}/ai/quiz/analyze",
+                    json=test_data,
+                    headers={"Content-Type": "application/json"}
+                )
+            
+            end_time = time.time()
+            response_time = end_time - start_time
+            
+            print(f"⏱️  Response time: {response_time:.2f} seconds")
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Validate response structure
+                required_fields = ["attachmentStyle", "analysis"]
+                missing_fields = [field for field in required_fields if field not in result]
+                
+                if missing_fields:
+                    print(f"❌ Missing required fields: {missing_fields}")
+                    self.test_results.append({
+                        "test": "Quiz Analysis",
+                        "status": "FAILED",
+                        "error": f"Missing fields: {missing_fields}",
+                        "response_time": response_time
+                    })
+                    return False
+                
+                attachment_style = result.get("attachmentStyle")
+                valid_styles = ["secure", "anxious", "avoidant", "fearful-avoidant"]
+                
+                if attachment_style not in valid_styles:
+                    print(f"❌ Invalid attachment style: {attachment_style}")
+                    self.test_results.append({
+                        "test": "Quiz Analysis",
+                        "status": "FAILED",
+                        "error": f"Invalid attachment style: {attachment_style}",
+                        "response_time": response_time
+                    })
+                    return False
+                
+                print(f"✅ Quiz analysis successful")
+                print(f"✅ Attachment Style: {attachment_style}")
+                print(f"✅ Analysis structure validated")
+                
+                self.test_results.append({
+                    "test": "Quiz Analysis",
+                    "status": "PASSED",
+                    "response_time": response_time,
+                    "attachment_style": attachment_style
+                })
+                return True
+                
+            else:
+                print(f"❌ HTTP Error: {response.status_code}")
+                print(f"❌ Response: {response.text}")
+                self.test_results.append({
+                    "test": "Quiz Analysis",
+                    "status": "FAILED",
+                    "error": f"HTTP {response.status_code}: {response.text}",
+                    "response_time": response_time
+                })
+                return False
+                
+        except Exception as e:
+            import traceback
+            error_msg = f"{str(e)}\n{traceback.format_exc()}"
+            print(f"❌ Exception: {error_msg}")
+            self.test_results.append({
+                "test": "Quiz Analysis",
+                "status": "FAILED",
+                "error": error_msg,
+                "response_time": None
+            })
+            return False
+
+    async def test_heart_vision_generation(self):
+        """Test POST /api/ai/heart-vision - Generate image (test with simple prompt)"""
+        print("\n🧪 Testing HeartVision Generation...")
+        
+        test_data = {
+            "prompt": "a peaceful sunrise over calm water",
+            "user_name": "TestUser"
+        }
+        
+        try:
+            start_time = time.time()
+            
+            async with httpx.AsyncClient(timeout=50.0) as client:
+                response = await client.post(
+                    f"{self.backend_url}/ai/heart-vision",
+                    json=test_data,
+                    headers={"Content-Type": "application/json"}
+                )
+            
+            end_time = time.time()
+            response_time = end_time - start_time
+            
+            print(f"⏱️  Response time: {response_time:.2f} seconds")
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Validate response structure
+                required_fields = ["image_base64", "caption"]
+                missing_fields = [field for field in required_fields if field not in result]
+                
+                if missing_fields:
+                    print(f"❌ Missing required fields: {missing_fields}")
+                    self.test_results.append({
+                        "test": "HeartVision Generation",
+                        "status": "FAILED",
+                        "error": f"Missing fields: {missing_fields}",
+                        "response_time": response_time
+                    })
+                    return False
+                
+                # Validate image_base64 is valid base64
+                image_base64 = result.get("image_base64")
+                if image_base64:
+                    try:
+                        decoded = base64.b64decode(image_base64)
+                        if len(decoded) > 1000:
+                            print(f"✅ Valid base64 image data ({len(decoded)} bytes)")
+                        else:
+                            print(f"⚠️  Image data seems small ({len(decoded)} bytes)")
+                    except Exception as e:
+                        print(f"❌ Invalid base64 image data: {e}")
+                        self.test_results.append({
+                            "test": "HeartVision Generation",
+                            "status": "FAILED",
+                            "error": f"Invalid base64 data: {e}",
+                            "response_time": response_time
+                        })
+                        return False
+                
+                print(f"✅ HeartVision generation successful")
+                print(f"✅ Caption: {result.get('caption', 'N/A')[:100]}...")
+                
+                self.test_results.append({
+                    "test": "HeartVision Generation",
+                    "status": "PASSED",
+                    "response_time": response_time,
+                    "image_size": len(decoded) if 'decoded' in locals() else 0
+                })
+                return True
+                
+            else:
+                print(f"❌ HTTP Error: {response.status_code}")
+                print(f"❌ Response: {response.text}")
+                self.test_results.append({
+                    "test": "HeartVision Generation",
+                    "status": "FAILED",
+                    "error": f"HTTP {response.status_code}: {response.text}",
+                    "response_time": response_time
+                })
+                return False
+                
+        except Exception as e:
+            import traceback
+            error_msg = f"{str(e)}\n{traceback.format_exc()}"
+            print(f"❌ Exception: {error_msg}")
+            self.test_results.append({
+                "test": "HeartVision Generation",
+                "status": "FAILED",
+                "error": error_msg,
+                "response_time": None
+            })
+            return False
+
+    async def test_text_suggestions(self):
+        """Test POST /api/ai/text-suggestions - Generate text suggestions"""
+        print("\n🧪 Testing Text Suggestions...")
+        
+        test_data = {
+            "context": "relationship communication",
+            "situation": "apologizing after an argument",
+            "tone": "balanced"
+        }
+        
+        try:
+            start_time = time.time()
+            
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                response = await client.post(
+                    f"{self.backend_url}/ai/text-suggestions",
+                    json=test_data,
+                    headers={"Content-Type": "application/json"}
+                )
+            
+            end_time = time.time()
+            response_time = end_time - start_time
+            
+            print(f"⏱️  Response time: {response_time:.2f} seconds")
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Validate response structure
+                if "suggestions" not in result:
+                    print("❌ Missing 'suggestions' field")
+                    self.test_results.append({
+                        "test": "Text Suggestions",
+                        "status": "FAILED",
+                        "error": "Missing 'suggestions' field",
+                        "response_time": response_time
+                    })
+                    return False
+                
+                suggestions = result.get("suggestions", [])
+                if len(suggestions) < 1:
+                    print("❌ No suggestions generated")
+                    self.test_results.append({
+                        "test": "Text Suggestions",
+                        "status": "FAILED",
+                        "error": "No suggestions generated",
+                        "response_time": response_time
+                    })
+                    return False
+                
+                print(f"✅ Text suggestions generated successfully")
+                print(f"✅ Generated {len(suggestions)} suggestions")
+                
+                self.test_results.append({
+                    "test": "Text Suggestions",
+                    "status": "PASSED",
+                    "response_time": response_time,
+                    "suggestion_count": len(suggestions)
+                })
+                return True
+                
+            else:
+                print(f"❌ HTTP Error: {response.status_code}")
+                print(f"❌ Response: {response.text}")
+                self.test_results.append({
+                    "test": "Text Suggestions",
+                    "status": "FAILED",
+                    "error": f"HTTP {response.status_code}: {response.text}",
+                    "response_time": response_time
+                })
+                return False
+                
+        except Exception as e:
+            import traceback
+            error_msg = f"{str(e)}\n{traceback.format_exc()}"
+            print(f"❌ Exception: {error_msg}")
+            self.test_results.append({
+                "test": "Text Suggestions",
+                "status": "FAILED",
+                "error": error_msg,
+                "response_time": None
+            })
+            return False
+
+    async def test_admin_usage_stats(self):
+        """Test GET /api/admin/usage-stats - Verify stats endpoint works with new structure"""
+        print("\n🧪 Testing Admin Usage Stats...")
+        
+        try:
+            start_time = time.time()
+            
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(
+                    f"{self.backend_url}/admin/usage-stats?days=7",
+                    headers={"Content-Type": "application/json"}
+                )
+            
+            end_time = time.time()
+            response_time = end_time - start_time
+            
+            print(f"⏱️  Response time: {response_time:.2f} seconds")
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Validate response structure
+                required_fields = ["period_days", "total_messages", "successful_messages", "failed_messages", "success_rate"]
+                missing_fields = [field for field in required_fields if field not in result]
+                
+                if missing_fields:
+                    print(f"❌ Missing required fields: {missing_fields}")
+                    self.test_results.append({
+                        "test": "Admin Usage Stats",
+                        "status": "FAILED",
+                        "error": f"Missing fields: {missing_fields}",
+                        "response_time": response_time
+                    })
+                    return False
+                
+                total_messages = result.get("total_messages", 0)
+                success_rate = result.get("success_rate", 0)
+                
+                print(f"✅ Admin stats retrieved successfully")
+                print(f"✅ Total messages: {total_messages}")
+                print(f"✅ Success rate: {success_rate}%")
+                print(f"✅ Stats endpoint works with new Supabase structure")
+                
+                self.test_results.append({
+                    "test": "Admin Usage Stats",
+                    "status": "PASSED",
+                    "response_time": response_time,
+                    "total_messages": total_messages,
+                    "success_rate": success_rate
+                })
+                return True
+                
+            else:
+                print(f"❌ HTTP Error: {response.status_code}")
+                print(f"❌ Response: {response.text}")
+                self.test_results.append({
+                    "test": "Admin Usage Stats",
+                    "status": "FAILED",
+                    "error": f"HTTP {response.status_code}: {response.text}",
+                    "response_time": response_time
+                })
+                return False
+                
+        except Exception as e:
+            import traceback
+            error_msg = f"{str(e)}\n{traceback.format_exc()}"
+            print(f"❌ Exception: {error_msg}")
+            self.test_results.append({
+                "test": "Admin Usage Stats",
+                "status": "FAILED",
+                "error": error_msg,
+                "response_time": None
+            })
+            return False
+
     async def test_performance_requirement(self):
         """Test that analysis completes within 10 seconds"""
         print("\n🧪 Testing Performance Requirement (< 10 seconds)...")
