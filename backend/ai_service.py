@@ -540,15 +540,15 @@ REMEMBER: Quote their answers! Make it personal!"""
             
             user_msg = UserMessage(text=prompt)
             
-            # 12 second timeout - need more time for detailed analysis
+            # 20 second timeout - need more time for detailed analysis
             import asyncio
             try:
                 response = await asyncio.wait_for(
                     chat.send_message(user_msg),
-                    timeout=12.0
+                    timeout=20.0
                 )
             except asyncio.TimeoutError:
-                logger.warning("Analysis timed out, using fallback")
+                logger.warning("Analysis timed out after 20s, using fallback")
                 return self._get_fallback_analysis()
             
             # Parse JSON response
