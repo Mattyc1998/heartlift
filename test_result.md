@@ -231,9 +231,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Quiz Analysis API"
-  stuck_tasks:
-    - "Quiz Analysis API"
+    - "MongoDB to Supabase Migration"
+    - "Daily Reflection Saving"
+    - "Chat Conversation Persistence"
+    - "Personalized Insights Generation"
+    - "Usage Tracking"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
