@@ -814,6 +814,17 @@ async def get_usage_stats(days: int = 7):
         logger.error(f"Error fetching usage stats: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to fetch stats")
 
+# Include the router in the main app
+app.include_router(api_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.on_event("shutdown")
 async def shutdown():
     """Cleanup on shutdown"""
