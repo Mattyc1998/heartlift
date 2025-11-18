@@ -378,38 +378,45 @@ class AIService:
             # Generate new questions
             logger.info(f"Generating new quiz questions for {today}")
             
-            system_message = """You are an expert psychologist creating attachment style quiz questions.
+            system_message = """You are an expert psychologist creating FRESH daily attachment style quiz questions for ages 13+.
 
-Generate questions with UNIQUE, DESCRIPTIVE answer options for EACH question.
+**AGE APPROPRIATENESS (13+) - STRICT REQUIREMENTS:**
+- NO sexual content or romantic/dating scenarios
+- Focus on: FAMILY relationships, FRIENDSHIPS, school/work, life situations, emotional responses
+- Use relatable scenarios for teenagers and adults
+- Topics: communication with parents/siblings, friendships, trust, independence, emotions, conflict resolution, support
 
-CRITICAL RULES:
-1. Return ONLY valid JSON array
-2. EACH question must have 4 DIFFERENT answer options specific to that question
-3. Answer options should describe actual behaviors/feelings someone might experience
-4. DO NOT reuse the same options across questions - make them unique to each question
-5. DO NOT use labels like "Secure", "Anxious", "Avoidant" - use behavioral descriptions
-6. Options should sound natural and realistic
+**CONTENT FOCUS:**
+Generate questions about:
+1. Family dynamics (parents, siblings, relatives)
+2. Friendships and social connections
+3. Emotional expression and regulation
+4. Communication styles
+5. Trust and independence
+6. Handling conflicts
+7. Seeking and giving support
+8. Life challenges and decision-making
 
-**CONTENT RESTRICTIONS - IMPORTANT:**
-- NO questions about physical intimacy or sexual topics
-- NO romantic dating scenarios
-- Focus on: general relationships, friendships, family, life situations, emotional responses
-- Keep content appropriate for ages 13+
-- Topics: communication, trust, independence, emotional expression, conflict resolution, support
+**FORMAT RULES:**
+1. Return ONLY valid JSON array - no markdown, no explanations
+2. EACH question must have 4 UNIQUE answer options specific to that question
+3. Answer options describe actual behaviors/feelings (NOT labels like "Secure" or "Anxious")
+4. Make options sound natural and realistic
+5. DO NOT reuse the same options across questions
 
-GOOD Example:
+**GOOD Example:**
 [
-  {"question":"How do you react when a friend needs space?","options":["I trust they need time and give them space","I worry they're upset with me and check in frequently","I take it personally and distance myself","I feel confused about what to do"]},
-  {"question":"When facing a challenge, you prefer to:","options":["Talk it through with someone I trust","Handle it completely on my own","Avoid thinking about it until necessary","Ask for help but feel guilty about it"]}
+  {"question":"When your parent asks about your day, you usually:","options":["Share openly about what happened","Give short answers and keep things private","Tell them everything and ask what they think","Share some things but leave out details"]},
+  {"question":"If a friend cancels plans last minute, you:","options":["Understand they have their reasons and reschedule","Feel hurt and wonder if they still like you","Feel relieved to have free time","Get upset but don't say anything"]}
 ]
 
-BAD Example (same options repeated):
+**BAD Example (generic/repeated options):**
 [
-  {"question":"How do you react...","options":["Feel secure","Feel anxious","Feel avoidant","Feel mixed"]},
-  {"question":"When dating...","options":["Feel secure","Feel anxious","Feel avoidant","Feel mixed"]}
+  {"question":"How do you feel...","options":["Secure","Anxious","Avoidant","Mixed"]},
+  {"question":"When someone...","options":["Secure","Anxious","Avoidant","Mixed"]}
 ]
 
-Generate varied questions about: friendships, family relationships, emotional expression, communication styles, conflict handling, support-seeking, independence, trust in relationships."""
+Generate FRESH, VARIED questions that feel natural for everyday life situations."""
             
             chat = LlmChat(
                 api_key=self.api_key,
@@ -417,19 +424,19 @@ Generate varied questions about: friendships, family relationships, emotional ex
                 system_message=system_message
             ).with_model("openai", "gpt-4o-mini")
             
-            prompt = f"Generate {num_questions} DIVERSE attachment style quiz questions. EACH question must have UNIQUE answer options tailored to that specific question. DO NOT reuse the same 4 options. Return ONLY the JSON array."
+            prompt = f"Generate {num_questions} FRESH daily quiz questions about family, friendships, and life situations (ages 13+). Each question MUST have 4 UNIQUE answer options. Return ONLY the JSON array, no markdown."
             
             user_msg = UserMessage(text=prompt)
             
-            # 6 second timeout - faster!
+            # Increased timeout to 15 seconds for better reliability
             import asyncio
             try:
                 response = await asyncio.wait_for(
                     chat.send_message(user_msg),
-                    timeout=6.0
+                    timeout=15.0
                 )
             except asyncio.TimeoutError:
-                logger.warning("Quiz generation timed out, using fallback")
+                logger.warning("Quiz generation timed out after 15s, using fallback")
                 return self._get_fallback_questions()
             
             # Parse JSON response
