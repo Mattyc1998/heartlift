@@ -243,13 +243,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "MongoDB to Supabase Migration"
-    - "Daily Reflection Saving"
-    - "Personalized Insights Generation"
-    - "Usage Tracking"
+    - "Quiz Analysis API"
   stuck_tasks:
-    - "MongoDB to Supabase Migration"
-    - "Daily Reflection Saving"
+    - "Quiz Analysis API"
   test_all: false
   test_priority: "stuck_first"
 
