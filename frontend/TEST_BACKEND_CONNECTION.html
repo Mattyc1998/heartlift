@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Backend Connection Test</title>
+</head>
+<body>
+    <h1>Backend Connection Test</h1>
+    <button onclick="testBackend()">Test Backend Connection</button>
+    <button onclick="testQuiz()">Test Quiz Generation</button>
+    <div id="results" style="margin-top: 20px; font-family: monospace;"></div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:8001';
+        
+        function log(message) {
+            document.getElementById('results').innerHTML += message + '<br>';
+        }
+        
+        async function testBackend() {
+            document.getElementById('results').innerHTML = '';
+            log('Testing backend connection...');
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/`);
+                const data = await response.json();
+                log('✅ Backend responds: ' + JSON.stringify(data));
+            } catch (error) {
+                log('❌ Backend error: ' + error.message);
+            }
+        }
+        
+        async function testQuiz() {
+            document.getElementById('results').innerHTML = '';
+            log('Testing quiz generation...');
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/ai/quiz/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        category: 'attachment_style',
+                        num_questions: 5
+                    })
+                });
+                
+                if (!response.ok) {
+                    log('❌ HTTP ' + response.status + ': ' + response.statusText);
+                    return;
+                }
+                
+                const data = await response.json();
+                log('✅ Quiz generated!');
+                log('First question: ' + data.questions[0].question);
+            } catch (error) {
+                log('❌ Quiz error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
