@@ -962,6 +962,20 @@ Create a comprehensive, personalized insights report that:
                 clean_response = clean_response.strip()
                 
                 insights = json.loads(clean_response)
+                
+                # Add metadata fields that frontend expects
+                insights['conversationCount'] = conversation_count
+                insights['moodEntriesAnalyzed'] = mood_entries_count
+                
+                # Determine attachment style based on conversation count and emotional patterns
+                # This is a simple heuristic - in a real app, you'd use quiz results
+                if conversation_count >= 10:
+                    insights['attachmentStyle'] = 'secure'
+                elif conversation_count >= 5:
+                    insights['attachmentStyle'] = 'anxious-preoccupied'
+                else:
+                    insights['attachmentStyle'] = 'exploring'
+                
                 logger.info("Successfully generated personalized insights")
                 return insights
             except json.JSONDecodeError as e:
