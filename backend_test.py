@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for HeartLift Critical Fixes
-Tests the POST /api/ai/heart-vision and POST /api/ai/insights endpoints
-Plus existing quiz analysis functionality
+Backend Test Suite for HeartLift MongoDB to Supabase Migration
+Comprehensive testing of all backend endpoints after migration
 """
 
 import asyncio
@@ -12,9 +11,10 @@ import httpx
 import os
 import base64
 from typing import Dict, List
+from datetime import datetime, date
 
-# Get backend URL from environment
-BACKEND_URL = "https://aichat-heartlift.preview.emergentagent.com/api"
+# Get backend URL from environment - use localhost for testing
+BACKEND_URL = "http://localhost:8001/api"
 
 class HeartLiftBackendTest:
     def __init__(self):
