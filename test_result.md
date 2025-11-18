@@ -252,7 +252,7 @@ test_plan:
 
   - task: "Usage Tracking"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "critical"
@@ -261,6 +261,9 @@ test_plan:
       - working: false
         agent: "testing"
         comment: "❌ USAGE TRACKING FAILING: POST /api/usage/track returns HTTP 500 error due to foreign key constraint violation 'daily_usage_user_id_fkey'. Test user '11111111-1111-1111-1111-111111111111' doesn't exist in users table. GET /api/usage/check works correctly and shows proper free user limits (10 messages). Backend logic is correct but requires valid user records in users table for foreign key constraints."
+      - working: true
+        agent: "testing"
+        comment: "✅ USAGE TRACKING FIXED: POST /api/usage/track now works perfectly (0.43s response). Test user created in auth.users table resolved foreign key constraint. Successfully tracks message count (1), shows can_send_message (true), remaining_messages (9). Data persists correctly to Supabase daily_usage table. GET /api/usage/check also working - enforces 10 message limit for free users, shows proper remaining count. Usage tracking system fully operational."
 
   - task: "HeartVisions Image Generation"
     implemented: true
