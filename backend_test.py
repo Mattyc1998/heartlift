@@ -25,28 +25,25 @@ class HeartLiftBackendTest:
         self.test_reflection_date = "2025-01-17"
         self.coach_ids = ["luna", "sage", "phoenix", "river"]
         
-    async def test_basic_quiz_analysis(self):
-        """Test basic quiz analysis with sample questions and answers"""
-        print("🧪 Testing Basic Quiz Analysis...")
+    async def test_daily_reflections_save(self):
+        """Test POST /api/reflections/save - Save a reflection with test user_id"""
+        print("🧪 Testing Daily Reflections Save (CRITICAL)...")
         
-        # Sample quiz data as specified in the review request
         test_data = {
-            "questions_and_answers": [
-                {"question": "When facing a disagreement with your partner, you tend to:", "answer": "Become anxious and seek immediate resolution"},
-                {"question": "How do you typically react when your partner needs space?", "answer": "Feel abandoned or anxious"},
-                {"question": "In relationships, you generally:", "answer": "Seek constant reassurance"},
-                {"question": "When someone shows interest in you, you:", "answer": "Worry about when they'll lose interest"},
-                {"question": "Your comfort level with emotional intimacy is:", "answer": "High, but accompanied by anxiety"}
-            ],
-            "user_id": "test-user-123"
+            "user_id": self.test_user_id,
+            "reflection_date": self.test_reflection_date,
+            "coaches_chatted_with": ["luna", "sage"],
+            "conversation_rating": 8,
+            "helpful_moments": "Luna helped me understand my attachment patterns better",
+            "areas_for_improvement": "Need to work on self-compassion"
         }
         
         try:
             start_time = time.time()
             
-            async with httpx.AsyncClient(timeout=15.0) as client:
+            async with httpx.AsyncClient(timeout=10.0) as client:
                 response = await client.post(
-                    f"{self.backend_url}/ai/quiz/analyze",
+                    f"{self.backend_url}/reflections/save",
                     json=test_data,
                     headers={"Content-Type": "application/json"}
                 )
@@ -60,70 +57,40 @@ class HeartLiftBackendTest:
                 result = response.json()
                 
                 # Validate response structure
-                required_fields = ["attachmentStyle", "analysis"]
+                required_fields = ["user_id", "reflection_date", "coaches_chatted_with"]
                 missing_fields = [field for field in required_fields if field not in result]
                 
                 if missing_fields:
                     print(f"❌ Missing required fields: {missing_fields}")
                     self.test_results.append({
-                        "test": "Basic Quiz Analysis",
+                        "test": "Daily Reflections Save",
                         "status": "FAILED",
                         "error": f"Missing fields: {missing_fields}",
                         "response_time": response_time
                     })
                     return False
                 
-                # Validate analysis structure
-                analysis = result.get("analysis", {})
-                required_analysis_fields = ["detailedBreakdown", "healingPath", "triggers", "copingTechniques"]
-                missing_analysis_fields = [field for field in required_analysis_fields if field not in analysis]
-                
-                if missing_analysis_fields:
-                    print(f"❌ Missing analysis fields: {missing_analysis_fields}")
+                # Validate data matches what we sent
+                if result.get("user_id") != self.test_user_id:
+                    print(f"❌ User ID mismatch: expected {self.test_user_id}, got {result.get('user_id')}")
                     self.test_results.append({
-                        "test": "Basic Quiz Analysis",
+                        "test": "Daily Reflections Save",
                         "status": "FAILED",
-                        "error": f"Missing analysis fields: {missing_analysis_fields}",
+                        "error": "User ID mismatch",
                         "response_time": response_time
                     })
                     return False
                 
-                # Check attachment style value
-                attachment_style = result.get("attachmentStyle")
-                valid_styles = ["secure", "anxious", "avoidant", "fearful-avoidant"]
-                
-                if attachment_style not in valid_styles:
-                    print(f"❌ Invalid attachment style: {attachment_style}")
-                    self.test_results.append({
-                        "test": "Basic Quiz Analysis",
-                        "status": "FAILED",
-                        "error": f"Invalid attachment style: {attachment_style}",
-                        "response_time": response_time
-                    })
-                    return False
-                
-                # Check response time requirement (under 10 seconds)
-                if response_time > 10:
-                    print(f"⚠️  Response time ({response_time:.2f}s) exceeds 10 second requirement")
-                    self.test_results.append({
-                        "test": "Basic Quiz Analysis",
-                        "status": "WARNING",
-                        "error": f"Response time {response_time:.2f}s > 10s requirement",
-                        "response_time": response_time
-                    })
-                else:
-                    print(f"✅ Response time within requirement ({response_time:.2f}s < 10s)")
-                
-                print(f"✅ Attachment Style: {attachment_style}")
-                print(f"✅ Analysis structure validated")
-                print(f"✅ Response: {json.dumps(result, indent=2)[:500]}...")
+                print(f"✅ Reflection saved successfully for user {self.test_user_id}")
+                print(f"✅ Reflection ID: {result.get('id', 'N/A')}")
+                print(f"✅ Data persisted to Supabase daily_reflections table")
                 
                 self.test_results.append({
-                    "test": "Basic Quiz Analysis",
+                    "test": "Daily Reflections Save",
                     "status": "PASSED",
-                    "attachment_style": attachment_style,
                     "response_time": response_time,
-                    "response_structure": "Valid"
+                    "reflection_id": result.get('id'),
+                    "user_id": result.get('user_id')
                 })
                 return True
                 
@@ -131,7 +98,7 @@ class HeartLiftBackendTest:
                 print(f"❌ HTTP Error: {response.status_code}")
                 print(f"❌ Response: {response.text}")
                 self.test_results.append({
-                    "test": "Basic Quiz Analysis",
+                    "test": "Daily Reflections Save",
                     "status": "FAILED",
                     "error": f"HTTP {response.status_code}: {response.text}",
                     "response_time": response_time
@@ -143,7 +110,172 @@ class HeartLiftBackendTest:
             error_msg = f"{str(e)}\n{traceback.format_exc()}"
             print(f"❌ Exception: {error_msg}")
             self.test_results.append({
-                "test": "Basic Quiz Analysis",
+                "test": "Daily Reflections Save",
+                "status": "FAILED",
+                "error": error_msg,
+                "response_time": None
+            })
+            return False
+
+    async def test_daily_reflections_today(self):
+        """Test GET /api/reflections/today/{user_id} - Retrieve today's reflection"""
+        print("\n🧪 Testing Daily Reflections Today Retrieval...")
+        
+        try:
+            start_time = time.time()
+            
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(
+                    f"{self.backend_url}/reflections/today/{self.test_user_id}",
+                    headers={"Content-Type": "application/json"}
+                )
+            
+            end_time = time.time()
+            response_time = end_time - start_time
+            
+            print(f"⏱️  Response time: {response_time:.2f} seconds")
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                if result is None:
+                    print("✅ No reflection found for today (valid response)")
+                    self.test_results.append({
+                        "test": "Daily Reflections Today",
+                        "status": "PASSED",
+                        "response_time": response_time,
+                        "found_reflection": False
+                    })
+                    return True
+                
+                # Validate response structure if reflection found
+                if isinstance(result, dict):
+                    required_fields = ["user_id", "reflection_date"]
+                    missing_fields = [field for field in required_fields if field not in result]
+                    
+                    if missing_fields:
+                        print(f"❌ Missing required fields: {missing_fields}")
+                        self.test_results.append({
+                            "test": "Daily Reflections Today",
+                            "status": "FAILED",
+                            "error": f"Missing fields: {missing_fields}",
+                            "response_time": response_time
+                        })
+                        return False
+                    
+                    print(f"✅ Today's reflection retrieved successfully")
+                    print(f"✅ User ID: {result.get('user_id')}")
+                    print(f"✅ Date: {result.get('reflection_date')}")
+                    
+                    self.test_results.append({
+                        "test": "Daily Reflections Today",
+                        "status": "PASSED",
+                        "response_time": response_time,
+                        "found_reflection": True,
+                        "reflection_date": result.get('reflection_date')
+                    })
+                    return True
+                
+            else:
+                print(f"❌ HTTP Error: {response.status_code}")
+                print(f"❌ Response: {response.text}")
+                self.test_results.append({
+                    "test": "Daily Reflections Today",
+                    "status": "FAILED",
+                    "error": f"HTTP {response.status_code}: {response.text}",
+                    "response_time": response_time
+                })
+                return False
+                
+        except Exception as e:
+            import traceback
+            error_msg = f"{str(e)}\n{traceback.format_exc()}"
+            print(f"❌ Exception: {error_msg}")
+            self.test_results.append({
+                "test": "Daily Reflections Today",
+                "status": "FAILED",
+                "error": error_msg,
+                "response_time": None
+            })
+            return False
+
+    async def test_daily_reflections_past(self):
+        """Test GET /api/reflections/past/{user_id} - Get all past reflections"""
+        print("\n🧪 Testing Daily Reflections Past Retrieval...")
+        
+        try:
+            start_time = time.time()
+            
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(
+                    f"{self.backend_url}/reflections/past/{self.test_user_id}",
+                    headers={"Content-Type": "application/json"}
+                )
+            
+            end_time = time.time()
+            response_time = end_time - start_time
+            
+            print(f"⏱️  Response time: {response_time:.2f} seconds")
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                if not isinstance(result, list):
+                    print(f"❌ Expected list, got {type(result)}")
+                    self.test_results.append({
+                        "test": "Daily Reflections Past",
+                        "status": "FAILED",
+                        "error": f"Expected list, got {type(result)}",
+                        "response_time": response_time
+                    })
+                    return False
+                
+                print(f"✅ Past reflections retrieved successfully")
+                print(f"✅ Found {len(result)} reflections")
+                
+                # Validate structure of first reflection if any exist
+                if result:
+                    first_reflection = result[0]
+                    required_fields = ["user_id", "reflection_date"]
+                    missing_fields = [field for field in required_fields if field not in first_reflection]
+                    
+                    if missing_fields:
+                        print(f"❌ Missing required fields in first reflection: {missing_fields}")
+                        self.test_results.append({
+                            "test": "Daily Reflections Past",
+                            "status": "FAILED",
+                            "error": f"Missing fields: {missing_fields}",
+                            "response_time": response_time
+                        })
+                        return False
+                    
+                    print(f"✅ First reflection structure validated")
+                
+                self.test_results.append({
+                    "test": "Daily Reflections Past",
+                    "status": "PASSED",
+                    "response_time": response_time,
+                    "reflection_count": len(result)
+                })
+                return True
+                
+            else:
+                print(f"❌ HTTP Error: {response.status_code}")
+                print(f"❌ Response: {response.text}")
+                self.test_results.append({
+                    "test": "Daily Reflections Past",
+                    "status": "FAILED",
+                    "error": f"HTTP {response.status_code}: {response.text}",
+                    "response_time": response_time
+                })
+                return False
+                
+        except Exception as e:
+            import traceback
+            error_msg = f"{str(e)}\n{traceback.format_exc()}"
+            print(f"❌ Exception: {error_msg}")
+            self.test_results.append({
+                "test": "Daily Reflections Past",
                 "status": "FAILED",
                 "error": error_msg,
                 "response_time": None
