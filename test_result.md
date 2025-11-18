@@ -210,11 +210,11 @@ frontend:
 
   - task: "Daily Reflection Saving"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/components/DailyReflection.tsx, /app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
@@ -225,6 +225,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "COMPLETELY BYPASSED SUPABASE RLS ISSUES! Created new backend API endpoints: POST /api/reflections/save, GET /api/reflections/today/:user_id, GET /api/reflections/past/:user_id. Now saves to MongoDB via FastAPI backend instead of direct Supabase calls. Tested with curl - WORKING PERFECTLY! Frontend updated to use backend API (lines 75-260). Backend endpoints added to server.py with proper logging."
+      - working: false
+        agent: "testing"
+        comment: "❌ DAILY REFLECTION SAVE FAILING: POST /api/reflections/save returns HTTP 500 error. Root cause: Supabase check constraint 'daily_reflections_conversation_rating_check' violation. Test data used rating=8 but constraint likely expects 1-5 or 1-10 range. Error: 'new row for relation daily_reflections violates check constraint'. Backend endpoint exists and logic is correct, but database schema constraint is too restrictive. Retrieval endpoints (today/past) work perfectly."
 
 metadata:
   created_by: "main_agent"
