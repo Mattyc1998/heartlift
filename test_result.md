@@ -285,6 +285,24 @@ test_plan:
       - working: true
         agent: "testing"
         comment: "✅ HEARTVISION WORKING PERFECTLY: POST /api/ai/heart-vision generates high-quality HD images successfully. Response time 49.85 seconds (within 50s timeout). Returns valid base64 image data (1.4MB) and descriptive caption. DALL-E 3 HD quality confirmed working. Image generation is fully operational."
+      - working: true
+        agent: "testing"
+        comment: "✅ HEARTVISION STILL WORKING: Re-verified POST /api/ai/heart-vision after database fixes. Response time 16.15 seconds, generates valid base64 image data (1.4MB), proper caption. DALL-E 3 HD quality maintained. Image generation remains fully operational."
+
+  - task: "Admin Usage Stats Endpoint"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ ADMIN STATS ENDPOINT FAILING: GET /api/admin/usage-stats returns HTTP 404. Endpoint defined after router inclusion in server.py line 779, causing it to not be registered properly with FastAPI router."
+      - working: true
+        agent: "testing"
+        comment: "✅ ADMIN STATS ENDPOINT FIXED: GET /api/admin/usage-stats now works perfectly (0.28s response). Endpoint moved to correct location in code before router inclusion. Returns proper statistics: total_messages (1), successful_messages (1), failed_messages (0), success_rate (100.0%), popular_coaches data. Reads from Supabase usage_tracking table correctly. Admin monitoring functionality fully operational."
 
   - task: "Personalized Insights Generation"
     implemented: true
