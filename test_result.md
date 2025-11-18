@@ -263,11 +263,11 @@ test_plan:
 
   - task: "Personalized Insights Generation"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py, /app/backend/ai_service.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "critical"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "user"
@@ -275,6 +275,9 @@ test_plan:
       - working: true
         agent: "main"
         comment: "MAJOR FIX: Insights were using hardcoded placeholder data! Added Supabase integration to backend to fetch actual conversation_history. Now fetches: 1) Real conversations from Supabase (last 30 days, up to 50 messages), 2) Real daily reflections from MongoDB, 3) Extracts actual topics/themes from user messages, 4) Extracts mood patterns from reflections. Added supabase library to requirements.txt, configured SUPABASE_URL and SUPABASE_SERVICE_KEY in backend .env. AI now analyzes REAL user data instead of generic placeholders."
+      - working: false
+        agent: "testing"
+        comment: "❌ INSIGHTS GENERATION ISSUES: 1) POST /api/ai/insights times out after 20 seconds due to slow AI processing, 2) POST /api/insights/save fails with HTTP 500 - foreign key constraint violation 'insights_reports_user_id_fkey' because test user doesn't exist in users table, 3) Backend logs show 'column conversation_history.message does not exist' - table schema mismatch. Insights generation logic works but database integration is broken. GET /api/insights/reports works correctly."
 
 agent_communication:
   - agent: "main"
