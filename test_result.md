@@ -246,13 +246,25 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+  - task: "Usage Tracking"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ USAGE TRACKING FAILING: POST /api/usage/track returns HTTP 500 error due to foreign key constraint violation 'daily_usage_user_id_fkey'. Test user '11111111-1111-1111-1111-111111111111' doesn't exist in users table. GET /api/usage/check works correctly and shows proper free user limits (10 messages). Backend logic is correct but requires valid user records in users table for foreign key constraints."
+
   - task: "HeartVisions Image Generation"
     implemented: true
     working: true
     file: "/app/backend/ai_service.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "user"
@@ -260,6 +272,9 @@ test_plan:
       - working: true
         agent: "main"
         comment: "FIXED IMAGE QUALITY: Changed from invalid model 'gpt-image-1' to correct 'dall-e-3' model with HD quality settings. Updated parameters: model='dall-e-3', quality='hd', size='1024x1024', timeout increased to 45s. This should produce high-quality, photorealistic images instead of distorted/glitchy ones."
+      - working: true
+        agent: "testing"
+        comment: "✅ HEARTVISION WORKING PERFECTLY: POST /api/ai/heart-vision generates high-quality HD images successfully. Response time 49.85 seconds (within 50s timeout). Returns valid base64 image data (1.4MB) and descriptive caption. DALL-E 3 HD quality confirmed working. Image generation is fully operational."
 
   - task: "Personalized Insights Generation"
     implemented: true
