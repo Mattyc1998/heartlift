@@ -1757,42 +1757,65 @@ class HeartLiftBackendTest:
         return passed, failed, warnings
 
 async def main():
-    """Run all HeartLift backend tests including critical fixes"""
-    print("🚀 Starting HeartLift Backend Tests - Critical Fixes Validation")
+    """Run comprehensive MongoDB to Supabase migration tests"""
+    print("🚀 Starting HeartLift Backend Tests - MongoDB to Supabase Migration Verification")
     print(f"🔗 Backend URL: {BACKEND_URL}")
-    print("-" * 60)
+    print(f"🧪 Test User ID: {HeartLiftBackendTest().test_user_id}")
+    print("-" * 80)
     
     tester = HeartLiftBackendTest()
     
-    # Run critical fix tests first
-    print("🎯 TESTING CRITICAL FIXES:")
+    # Run CRITICAL migration tests first
+    print("🎯 TESTING CRITICAL MIGRATION ENDPOINTS:")
     critical_tests = [
-        tester.test_heart_vision_image_generation(),
-        tester.test_personalized_insights_generation()
+        tester.test_daily_reflections_save(),
+        tester.test_daily_reflections_today(),
+        tester.test_daily_reflections_past(),
+        tester.test_ai_chat_endpoint(),
+        tester.test_insights_generation(),
+        tester.test_insights_save(),
+        tester.test_insights_reports_retrieval(),
+        tester.test_usage_tracking(),
+        tester.test_usage_check_free_user()
     ]
     
-    print("\n📋 TESTING EXISTING FUNCTIONALITY:")
-    existing_tests = [
-        tester.test_basic_quiz_analysis(),
-        tester.test_response_structure_validation(),
-        tester.test_performance_requirement(),
-        tester.test_error_handling()
+    print("\n📋 TESTING PREMIUM & AI FEATURES:")
+    additional_tests = [
+        tester.test_premium_access_check(),
+        tester.test_quiz_generation(),
+        tester.test_quiz_analysis(),
+        tester.test_heart_vision_generation(),
+        tester.test_text_suggestions(),
+        tester.test_admin_usage_stats()
     ]
     
     # Run all tests
-    all_tests = critical_tests + existing_tests
+    all_tests = critical_tests + additional_tests
     
+    print(f"\n🔄 Running {len(all_tests)} comprehensive tests...")
     results = await asyncio.gather(*all_tests, return_exceptions=True)
     
     # Print summary
     passed, failed, warnings = tester.print_summary()
     
-    # Return overall result
+    # Migration-specific summary
+    print("\n" + "="*80)
+    print("🔄 MONGODB TO SUPABASE MIGRATION VERIFICATION COMPLETE")
+    print("="*80)
+    
     if failed == 0:
-        print("\n🎉 All tests passed!")
+        print("🎉 ✅ ALL MIGRATION TESTS PASSED!")
+        print("✅ All endpoints return 200 status codes")
+        print("✅ Data is properly saved to Supabase tables")
+        print("✅ Data retrieval works correctly")
+        print("✅ No MongoDB-related errors detected")
+        print("✅ Usage tracking and limits work correctly")
+        print("✅ Migration is SUCCESSFUL!")
         return True
     else:
-        print(f"\n💥 {failed} test(s) failed!")
+        print(f"💥 ❌ {failed} MIGRATION TEST(S) FAILED!")
+        print("❌ Migration verification incomplete")
+        print("🔍 Check logs for errors: tail -n 100 /var/log/supervisor/backend.err.log")
         return False
 
 if __name__ == "__main__":
