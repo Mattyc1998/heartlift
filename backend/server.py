@@ -568,6 +568,10 @@ async def save_insights_report(request: InsightsSaveRequest):
             "user_id": request.user_id,
             "report_type": "comprehensive",
             "insights": request.insights,
+            "conversation_count": request.conversation_count,
+            "mood_entries_analyzed": request.mood_entries_analyzed,
+            "attachment_style": request.attachment_style,
+            "healing_progress_score": request.healing_progress_score,
             "period_start": request.analysis_period_start,
             "period_end": request.analysis_period_end,
         }
