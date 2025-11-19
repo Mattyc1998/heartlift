@@ -202,7 +202,6 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
             {isLoading ? "Loading..." : "Upgrade to Premium"}
           </Button>
         </div>
-        </div>
       </DialogContent>
     </Dialog>
   );
