@@ -670,6 +670,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
                   </div>
                 </div>
               )}
+              <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
           
