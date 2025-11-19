@@ -36,33 +36,45 @@ export function HeartVisions() {
   const loadVisions = async () => {
     if (!user?.id) return;
 
-    const { data, error } = await supabase
-      .from('heart_visions')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+    try {
+      // Get today's count first (fast query)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const { count } = await supabase
+        .from('heart_visions')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .gte('created_at', today.toISOString());
 
-    if (error) {
+      setDailyCount(count || 0);
+
+      // Only load gallery images when user opens gallery (lazy load)
+      if (showGallery) {
+        const { data, error } = await supabase
+          .from('heart_visions')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(20); // Only load 20 most recent images
+
+        if (error) {
+          console.error('Error loading visions:', error);
+          return;
+        }
+
+        if (data) {
+          const formattedVisions = data.map(v => ({
+            id: v.id,
+            url: v.image_url,
+            caption: v.caption,
+            prompt: v.prompt,
+            timestamp: new Date(v.created_at).getTime(),
+          }));
+          setSavedVisions(formattedVisions);
+        }
+      }
+    } catch (error) {
       console.error('Error loading visions:', error);
-      return;
-    }
-
-    if (data) {
-      const formattedVisions = data.map(v => ({
-        id: v.id,
-        url: v.image_url,
-        caption: v.caption,
-        prompt: v.prompt,
-        timestamp: new Date(v.created_at).getTime(),
-      }));
-      setSavedVisions(formattedVisions);
-      
-      // Count today's images
-      const today = new Date().toDateString();
-      const todayCount = data.filter(v => 
-        new Date(v.created_at).toDateString() === today
-      ).length;
-      setDailyCount(todayCount);
     }
   };
 
