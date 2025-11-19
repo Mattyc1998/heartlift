@@ -705,8 +705,10 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
           <div className="p-3 sm:p-4 border-t border-border flex-shrink-0 bg-background">
             <div className="flex space-x-2">
               <Input
+                ref={inputRef}
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
+                onFocus={handleInputFocus}
                 placeholder={
                   !canSendMessage && !isPremium
                     ? "Daily limit reached - upgrade to continue"
