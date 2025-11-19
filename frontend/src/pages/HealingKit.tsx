@@ -60,34 +60,34 @@ export default function HealingKit() {
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <Button
-            variant="outline"
-            onClick={() => navigate("/?tab=coaches", { replace: true })}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Coaches
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          onClick={() => navigate("/?tab=coaches", { replace: true })}
+          className="flex items-center gap-2 mb-6"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Coaches
+        </Button>
         
-        <div className="text-center mb-8 space-y-4">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="p-3 rounded-full bg-gradient-to-r from-healing to-healing-glow shadow-warm">
-              <Heart className="w-8 h-8 text-healing-foreground" />
+        <Card className="mb-8 overflow-hidden border-2 shadow-xl">
+          <div className="bg-gradient-to-br from-healing/10 via-healing/5 to-background p-8 text-center space-y-6">
+            <div className="flex items-center justify-center gap-2">
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-healing to-healing-glow shadow-2xl animate-pulse">
+                <Heart className="w-12 h-12 text-healing-foreground" />
+              </div>
             </div>
-          </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-healing to-healing-glow bg-clip-text text-transparent mb-4">
-            Your Healing Kit
-          </h1>
-          <div className="max-w-2xl mx-auto space-y-3">
-            <p className="text-lg font-semibold text-foreground">
-              Your personalised toolkit for emotional recovery and growth 💚
-            </p>
-            <p className="text-muted-foreground">
+            <div className="space-y-2">
+              <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-healing to-healing-glow bg-clip-text text-transparent">
+                Your Healing Kit
+              </h1>
+              <p className="text-xl font-semibold text-foreground">
+                Your personalised toolkit for emotional recovery and growth 💚
+              </p>
+            </div>
+            <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Navigate through heartbreak and emotional challenges with proven techniques. Track your progress, practice daily affirmations, and build the foundation for healthier relationships ahead.
             </p>
-            <div className="flex items-center justify-center gap-6 pt-2">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="w-2 h-2 bg-healing rounded-full"></div>
                 <span>30-Day Structured Plan</span>
@@ -102,7 +102,7 @@ export default function HealingKit() {
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
         <HealingKitNav activeSection={activeSection} onSectionChange={setActiveSection} />
         
