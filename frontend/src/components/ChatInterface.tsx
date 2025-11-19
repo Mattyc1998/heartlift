@@ -42,6 +42,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const [conversationLoaded, setConversationLoaded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
@@ -59,6 +60,24 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
       scrollToBottom(true);
     }
   }, [messages, isTyping]);
+
+  // When user focuses on input, scroll up to show the last coach message
+  const handleInputFocus = () => {
+    // Find the last coach message and scroll it into view
+    const lastCoachMessage = [...messages].reverse().find(m => m.sender === 'coach');
+    if (lastCoachMessage) {
+      // Scroll up so the last coach message is visible above keyboard
+      setTimeout(() => {
+        const messageElements = document.querySelectorAll('[data-message-id]');
+        const lastCoachElement = Array.from(messageElements).reverse().find(el => 
+          el.getAttribute('data-sender') === 'coach'
+        );
+        if (lastCoachElement) {
+          lastCoachElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 300); // Wait for keyboard to appear
+    }
+  };
 
   // Extract first name from user metadata or email
   const getFirstName = () => {
