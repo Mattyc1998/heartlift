@@ -168,13 +168,16 @@ class PurchaseService {
         throw new Error('Purchase service not initialized');
       }
 
-      console.log('🔄 Restoring purchases via RevenueCat...');
-      const customerInfo = await Purchases.restorePurchases();
+      console.log('🔄 Restoring purchases via Apple IAP...');
       
-      const hasPremium = !!customerInfo.entitlements.active['premium'];
-      const hasHealingKit = !!customerInfo.entitlements.active['healing_kit'];
+      // Check if user owns the products
+      const premiumProduct = IAP.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+      const healingKitProduct = IAP.get(PRODUCT_IDS.HEALING_KIT);
+      
+      const hasPremium = premiumProduct.owned;
+      const hasHealingKit = healingKitProduct.owned;
 
-      console.log('✅ Purchases restored from RevenueCat:', { hasPremium, hasHealingKit });
+      console.log('✅ Purchases restored from Apple:', { hasPremium, hasHealingKit });
       
       // Sync restored purchases to Supabase
       if (hasPremium || hasHealingKit) {
