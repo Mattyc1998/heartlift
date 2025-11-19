@@ -67,23 +67,14 @@ class PurchaseService {
         throw new Error('Purchase service not initialized');
       }
 
-      const offerings = await Purchases.getOfferings();
+      const premiumProduct = IAP.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+      const healingKitProduct = IAP.get(PRODUCT_IDS.HEALING_KIT);
       
-      if (offerings.current) {
-        const products = offerings.current.availablePackages;
-        console.log('✅ Products loaded from RevenueCat:', products.length);
-        
-        return {
-          premium: products.find(p => p.storeProduct.identifier === PRODUCT_IDS.PREMIUM_MONTHLY),
-          healingKit: products.find(p => p.storeProduct.identifier === PRODUCT_IDS.HEALING_KIT)
-        };
-      }
-
-      // Fallback to mock data if no offerings
-      console.log('⚠️ No RevenueCat offerings - returning mock products');
+      console.log('✅ Products loaded from Apple IAP');
+      
       return {
-        premium: { id: PRODUCT_IDS.PREMIUM_MONTHLY, price: '$9.99' },
-        healingKit: { id: PRODUCT_IDS.HEALING_KIT, price: '$19.99' }
+        premium: premiumProduct,
+        healingKit: healingKitProduct
       };
     } catch (error) {
       console.error('❌ Failed to get products:', error);
