@@ -121,10 +121,10 @@ export const PersonalisedInsights = () => {
         body: JSON.stringify({
           user_id: user.id,
           insights: insights,
-          conversation_count: 5,
-          mood_entries_analyzed: 10,
-          attachment_style: 'secure',
-          healing_progress_score: insights.healingProgressScore || 70,
+          conversation_count: insights.conversationCount || 0,
+          mood_entries_analyzed: insights.moodEntriesAnalyzed || 0,
+          attachment_style: insights.attachmentStyle || 'exploring',
+          healing_progress_score: insights.healingProgressScore || 65,
           analysis_period_start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
           analysis_period_end: new Date().toISOString(),
         })
