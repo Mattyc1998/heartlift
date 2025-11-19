@@ -31,7 +31,7 @@ export function HeartVisions() {
     if (user?.id) {
       loadVisions();
     }
-  }, [user?.id]);
+  }, [user?.id, showGallery]);
 
   const loadVisions = async () => {
     if (!user?.id) return;
