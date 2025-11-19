@@ -301,7 +301,7 @@ class AIService:
             # Add reflection context ONLY for the first conversation of the day
             # Check if this is the first message (no conversation history) and we have reflections
             if user_reflections and len(user_reflections) > 0 and not conversation_history:
-                reflection_context = "\n\n**USER'S RECENT REFLECTIONS (reference naturally, don't be obvious):**\n"
+                reflection_context = "\n\n**USER'S RECENT REFLECTIONS (for your awareness only - use VERY sparingly):**\n"
                 for ref in user_reflections:
                     reflection_context += f"\n• Date: {ref.get('reflection_date')}"
                     if ref.get('areas_for_improvement'):
@@ -309,9 +309,9 @@ class AIService:
                     if ref.get('helpful_moments'):
                         reflection_context += f"\n  - What helped: {ref.get('helpful_moments')}"
                     if ref.get('conversation_rating'):
-                        reflection_context += f"\n  - Previous conversation rating: {ref.get('conversation_rating')}/5 stars"
+                        reflection_context += f"\n  - Previous conversation rating: {ref.get('conversation_rating')}/10"
                 
-                reflection_context += "\n\nYou can subtly weave these topics in if naturally relevant, but DON'T explicitly mention you saw their reflections. Keep it natural and conversational."
+                reflection_context += "\n\n**IMPORTANT:** These reflections are for your context ONLY. DO NOT mention you know them unless the user brings up these exact topics themselves. Only reference them if they're directly relevant to what the user is saying right now. Otherwise, ignore them completely and have a natural conversation."
                 system_message += reflection_context
                 logger.info("Added reflection context for first conversation of the day")
             
