@@ -88,36 +88,36 @@ class PurchaseService {
         throw new Error('Purchase service not initialized');
       }
 
-      const offerings = await Purchases.getOfferings();
-      const premiumPackage = offerings.current?.availablePackages.find(
-        p => p.storeProduct.identifier === PRODUCT_IDS.PREMIUM_MONTHLY
-      );
+      console.log('🛒 Initiating Apple IAP purchase for:', PRODUCT_IDS.PREMIUM_MONTHLY);
+      
+      return new Promise((resolve, reject) => {
+        IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).approved(async (product: any) => {
+          console.log('✅ Premium subscription approved');
+          await this.syncToSupabase(true, false);
+          product.finish();
+          resolve({ 
+            success: true, 
+            platform: 'apple', 
+            productId: PRODUCT_IDS.PREMIUM_MONTHLY,
+            transactionId: product.transaction?.id
+          });
+        });
 
-      if (!premiumPackage) {
-        throw new Error('Premium package not found');
-      }
+        IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).cancelled(() => {
+          console.log('User cancelled purchase');
+          resolve(null);
+        });
 
-      console.log('🛒 Initiating RevenueCat purchase for:', PRODUCT_IDS.PREMIUM_MONTHLY);
-      const purchaseResult = await Purchases.purchasePackage({ aPackage: premiumPackage });
+        IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).error((error: any) => {
+          console.error('❌ Premium purchase failed:', error);
+          reject(error);
+        });
 
-      if (purchaseResult.customerInfo.entitlements.active['premium']) {
-        console.log('✅ Premium purchased successfully via RevenueCat');
-        await this.syncToSupabase(true, false);
-        return { 
-          success: true, 
-          platform: 'revenuecat', 
-          productId: PRODUCT_IDS.PREMIUM_MONTHLY,
-          transactionId: purchaseResult.storeTransaction?.transactionIdentifier
-        };
-      }
-
-      throw new Error('Purchase completed but entitlement not active');
+        // Trigger purchase
+        IAP.order(PRODUCT_IDS.PREMIUM_MONTHLY);
+      });
     } catch (error: any) {
-      if (error.userCancelled) {
-        console.log('User cancelled purchase');
-        return null;
-      }
-      console.error('❌ Purchase failed:', error);
+      console.error('❌ Premium purchase failed:', error);
       throw error;
     }
   }
