@@ -145,56 +145,63 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
             ))}
           </div>
 
-          <Card className="bg-gradient-to-r from-primary/10 to-primary-glow/10 border-primary/20">
-            <CardContent className="pt-6">
-              <div className="text-center space-y-4">
-                <div className="space-y-2">
-                  <div className="text-2xl font-bold">£11.99<span className="text-sm font-normal text-muted-foreground">/month</span></div>
-                  <p className="text-sm text-muted-foreground">Cancel anytime • No hidden fees</p>
+          <Card className="bg-gradient-to-br from-primary via-primary-glow to-primary/90 border-0 shadow-2xl overflow-hidden relative">
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00eiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
+            <CardContent className="pt-8 pb-8 relative z-10">
+              <div className="text-center space-y-6">
+                <div className="inline-block p-3 rounded-full bg-white/20 backdrop-blur-sm mb-2">
+                  <Crown className="w-8 h-8 text-white" />
+                </div>
+                <div className="space-y-3">
+                  <div className="text-4xl font-bold text-white drop-shadow-lg">
+                    £11.99
+                    <span className="text-lg font-normal text-white/90">/month</span>
+                  </div>
+                  <p className="text-white/90 font-medium">Cancel anytime • No hidden fees</p>
                 </div>
                 
-                <div className="flex items-center justify-center gap-4 text-sm flex-wrap">
-                  <div className="flex items-center gap-1">
-                    <Check className="w-4 h-4 text-green-500" />
-                    <span>Unlimited conversations</span>
+                <div className="grid grid-cols-2 gap-3 pt-4">
+                  <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/10 backdrop-blur-sm">
+                    <Check className="w-5 h-5 text-white" />
+                    <span className="text-sm text-white font-medium">Unlimited conversations</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Check className="w-4 h-4 text-green-500" />
-                    <span>AI insights & analysis</span>
+                  <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/10 backdrop-blur-sm">
+                    <Check className="w-5 h-5 text-white" />
+                    <span className="text-sm text-white font-medium">AI insights & analysis</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Check className="w-4 h-4 text-green-500" />
-                    <span>Guided programmes</span>
+                  <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/10 backdrop-blur-sm">
+                    <Check className="w-5 h-5 text-white" />
+                    <span className="text-sm text-white font-medium">Guided programmes</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Check className="w-4 h-4 text-green-500" />
-                    <span>Priority support</span>
+                  <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/10 backdrop-blur-sm">
+                    <Check className="w-5 h-5 text-white" />
+                    <span className="text-sm text-white font-medium">Priority support</span>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
+        </div>
 
-          <div className="flex gap-3">
-            <Button 
-              variant="outline" 
-              onClick={onClose}
-              className="flex-1"
-              disabled={isLoading}
-            >
-              <X className="w-4 h-4 mr-2" />
-              Maybe later
-            </Button>
-            <Button 
-              variant="warm" 
-              onClick={handleUpgrade}
-              className="flex-1"
-              disabled={isLoading}
-            >
-              <Crown className="w-4 h-4 mr-2" />
-              {isLoading ? "Loading..." : "Upgrade to Premium"}
-            </Button>
-          </div>
+        <div className="sticky bottom-0 bg-background pt-4 border-t flex gap-3">
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            className="flex-1 h-12"
+            disabled={isLoading}
+          >
+            <X className="w-4 h-4 mr-2" />
+            Maybe later
+          </Button>
+          <Button 
+            onClick={handleUpgrade}
+            className="flex-1 h-12 bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 text-white shadow-lg"
+            disabled={isLoading}
+          >
+            <Crown className="w-5 h-5 mr-2" />
+            {isLoading ? "Loading..." : "Upgrade to Premium"}
+          </Button>
+        </div>
         </div>
       </DialogContent>
     </Dialog>
