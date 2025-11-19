@@ -40,9 +40,19 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [upgradeModalTrigger, setUpgradeModalTrigger] = useState<"usage_limit" | "premium_teaser">("usage_limit");
   const [conversationLoaded, setConversationLoaded] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
+
+  // Auto-scroll to bottom when messages change
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isTyping]);
 
   // Extract first name from user metadata or email
   const getFirstName = () => {
