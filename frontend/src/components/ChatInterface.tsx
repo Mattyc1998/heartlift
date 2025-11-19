@@ -623,6 +623,8 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
               {messages.map((message) => (
                 <div
                   key={message.id}
+                  data-message-id={message.id}
+                  data-sender={message.sender}
                   className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
