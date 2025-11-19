@@ -74,20 +74,8 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
 
   // When user focuses on input, scroll up to show the last coach message
   const handleInputFocus = () => {
-    // Find the last coach message and scroll it into view
-    const lastCoachMessage = [...messages].reverse().find(m => m.sender === 'coach');
-    if (lastCoachMessage) {
-      // Scroll up so the last coach message is visible above keyboard
-      setTimeout(() => {
-        const messageElements = document.querySelectorAll('[data-message-id]');
-        const lastCoachElement = Array.from(messageElements).reverse().find(el => 
-          el.getAttribute('data-sender') === 'coach'
-        );
-        if (lastCoachElement) {
-          lastCoachElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 300); // Wait for keyboard to appear
-    }
+    // Don't auto-scroll - let user manually scroll if needed
+    // The keyboard will push up the view naturally on mobile
   };
 
   // Extract first name from user metadata or email
