@@ -1,4 +1,4 @@
-import { Purchases } from '@revenuecat/purchases-capacitor';
+import { InAppPurchase2 as IAP } from '@awesome-cordova-plugins/in-app-purchase-2';
 import { supabase } from '@/integrations/supabase/client';
 
 // Product IDs matching App Store Connect
@@ -9,6 +9,7 @@ export const PRODUCT_IDS = {
 
 class PurchaseService {
   private initialized = false;
+  private userId: string = '';
 
   async initialize(userId: string): Promise<void> {
     if (this.initialized) {
@@ -17,18 +18,45 @@ class PurchaseService {
     }
 
     try {
-      // Get RevenueCat API key from environment
-      const REVENUECAT_API_KEY = import.meta.env.VITE_REVENUECAT_API_KEY || 'appl_sibzKJJEoGylRMhTqXeehSmVWoZ';
+      this.userId = userId;
       
-      await Purchases.configure({
-        apiKey: REVENUECAT_API_KEY,
-        appUserID: userId,
+      // Register products with Apple IAP
+      IAP.register([
+        {
+          id: PRODUCT_IDS.PREMIUM_MONTHLY,
+          type: IAP.PAID_SUBSCRIPTION
+        },
+        {
+          id: PRODUCT_IDS.HEALING_KIT,
+          type: IAP.NON_CONSUMABLE
+        }
+      ]);
+
+      // Set up event handlers
+      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).approved(async (product: any) => {
+        console.log('✅ Premium subscription approved');
+        await this.syncToSupabase(true, false);
+        product.finish();
       });
+
+      IAP.when(PRODUCT_IDS.HEALING_KIT).approved(async (product: any) => {
+        console.log('✅ Healing Kit purchase approved');
+        await this.syncToSupabase(false, true);
+        product.finish();
+      });
+
+      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).expired(() => {
+        console.log('⚠️ Premium subscription expired');
+        this.syncToSupabase(false, false);
+      });
+
+      // Refresh products
+      IAP.refresh();
       
-      console.log('✅ RevenueCat initialized for user:', userId);
+      console.log('✅ Apple IAP initialized for user:', userId);
       this.initialized = true;
     } catch (error) {
-      console.error('❌ Failed to initialize RevenueCat:', error);
+      console.error('❌ Failed to initialize Apple IAP:', error);
       throw error;
     }
   }
