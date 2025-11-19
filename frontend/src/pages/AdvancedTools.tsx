@@ -55,16 +55,14 @@ export default function AdvancedTools() {
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <Button
-            variant="outline"
-            onClick={() => navigate("/?tab=coaches", { replace: true })}
-            className="flex items-center gap-2"
-          >
+        <Button
+          variant="outline"
+          onClick={() => navigate("/?tab=coaches", { replace: true })}
+          className="flex items-center gap-2 mb-6"
+        >
           <ArrowLeft className="w-4 h-4" />
-            Coaches
-          </Button>
-        </div>
+          Coaches
+        </Button>
         
         <Card className="mb-8 overflow-hidden border-2 shadow-xl">
           <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background p-8 text-center space-y-6">
