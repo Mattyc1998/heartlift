@@ -66,82 +66,82 @@ export default function AdvancedTools() {
           </Button>
         </div>
         
-        <div className="text-center mb-8 space-y-4">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="p-3 rounded-full bg-gradient-to-r from-primary to-primary-glow shadow-warm">
-              <Crown className="w-8 h-8 text-primary-foreground" />
+        <Card className="mb-8 overflow-hidden border-2 shadow-xl">
+          <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background p-8 text-center space-y-6">
+            <div className="flex items-center justify-center gap-2">
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-primary to-primary-glow shadow-2xl animate-pulse">
+                <Crown className="w-12 h-12 text-primary-foreground" />
+              </div>
             </div>
-          </div>
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Advanced Tools
-            </h1>
-            <Badge variant="default" className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
-              Premium
-            </Badge>
-          </div>
-          <div className="max-w-2xl mx-auto space-y-3">
-            <p className="text-lg font-semibold text-foreground">
-              Unlock deeper insights into your relationship patterns
-            </p>
-            <p className="text-muted-foreground">
+            <div className="space-y-2">
+              <div className="flex items-center justify-center gap-3">
+                <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                  Advanced Tools
+                </h1>
+                <Badge variant="default" className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground px-4 py-1 text-sm">
+                  Premium
+                </Badge>
+              </div>
+              <p className="text-xl font-semibold text-foreground">
+                Unlock deeper insights into your relationship patterns
+              </p>
+            </div>
+            <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Discover your attachment style, analyse conversations, get personalised text suggestions, and access guided programs designed to help you build healthier, more fulfilling relationships.
             </p>
           </div>
-        </div>
-
-        <Card className="p-4 mb-6">
-          <div className="flex flex-wrap gap-2 justify-center">
-            <Button
-              variant={activeSection === "quiz" ? "default" : "outline"}
-              onClick={() => setActiveSection("quiz")}
-              className="flex items-center gap-2"
-            >
-              <Heart className="w-4 h-4" />
-              Attachment Quiz
-            </Button>
-            <Button
-              variant={activeSection === "analyser" ? "default" : "outline"}
-              onClick={() => setActiveSection("analyser")}
-              className="flex-1 sm:flex-none"
-            >
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Conversation Analyser
-            </Button>
-            <Button
-              variant={activeSection === "suggestions" ? "default" : "outline"}
-              onClick={() => setActiveSection("suggestions")}
-              className="flex items-center gap-2"
-            >
-              <Bot className="w-4 h-4" />
-              Text Helper
-            </Button>
-            <Button
-              variant={activeSection === "insights" ? "default" : "outline"}
-              onClick={() => setActiveSection("insights")}
-              className="flex items-center gap-2"
-            >
-              <Brain className="w-4 h-4" />
-              Insights & Reports
-            </Button>
-            <Button
-              variant={activeSection === "programs" ? "default" : "outline"}
-              onClick={() => setActiveSection("programs")}
-              className="flex items-center gap-2"
-            >
-              <BookOpen className="w-4 h-4" />
-              Guided Programs
-            </Button>
-            <Button
-              variant={activeSection === "heartvisions" ? "default" : "outline"}
-              onClick={() => setActiveSection("heartvisions")}
-              className="flex items-center gap-2"
-            >
-              <Palette className="w-4 h-4" />
-              HeartVisions
-            </Button>
-          </div>
         </Card>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
+          <Button
+            variant={activeSection === "quiz" ? "default" : "outline"}
+            onClick={() => setActiveSection("quiz")}
+            className="h-auto py-4 flex flex-col items-center gap-2 hover:scale-105 transition-transform"
+          >
+            <Heart className="w-6 h-6" />
+            <span className="text-xs sm:text-sm font-medium">Attachment Quiz</span>
+          </Button>
+          <Button
+            variant={activeSection === "analyser" ? "default" : "outline"}
+            onClick={() => setActiveSection("analyser")}
+            className="h-auto py-4 flex flex-col items-center gap-2 hover:scale-105 transition-transform"
+          >
+            <MessageSquare className="w-6 h-6" />
+            <span className="text-xs sm:text-sm font-medium">Conversation Analyser</span>
+          </Button>
+          <Button
+            variant={activeSection === "suggestions" ? "default" : "outline"}
+            onClick={() => setActiveSection("suggestions")}
+            className="h-auto py-4 flex flex-col items-center gap-2 hover:scale-105 transition-transform"
+          >
+            <Bot className="w-6 h-6" />
+            <span className="text-xs sm:text-sm font-medium">Text Helper</span>
+          </Button>
+          <Button
+            variant={activeSection === "insights" ? "default" : "outline"}
+            onClick={() => setActiveSection("insights")}
+            className="h-auto py-4 flex flex-col items-center gap-2 hover:scale-105 transition-transform"
+          >
+            <Brain className="w-6 h-6" />
+            <span className="text-xs sm:text-sm font-medium">Insights & Reports</span>
+          </Button>
+          <Button
+            variant={activeSection === "programs" ? "default" : "outline"}
+            onClick={() => setActiveSection("programs")}
+            className="h-auto py-4 flex flex-col items-center gap-2 hover:scale-105 transition-transform"
+          >
+            <BookOpen className="w-6 h-6" />
+            <span className="text-xs sm:text-sm font-medium">Guided Programs</span>
+          </Button>
+          <Button
+            variant={activeSection === "heartvisions" ? "default" : "outline"}
+            onClick={() => setActiveSection("heartvisions")}
+            className="h-auto py-4 flex flex-col items-center gap-2 hover:scale-105 transition-transform"
+          >
+            <Palette className="w-6 h-6" />
+            <span className="text-xs sm:text-sm font-medium">HeartVisions</span>
+          </Button>
+        </div>
 
         <div className="max-w-4xl mx-auto">
           {activeSection === "quiz" && <AttachmentStyleQuiz />}
