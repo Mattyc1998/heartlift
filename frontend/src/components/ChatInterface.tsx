@@ -43,6 +43,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const prevMessageCountRef = useRef(0);
 
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
@@ -54,12 +55,22 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
     }, 100);
   };
 
-  // Scroll to bottom when new messages arrive or typing starts
+  // Only scroll when NEW messages are added (not on initial load)
   useEffect(() => {
-    if (messages.length > 0) {
+    // If message count increased (new message added), scroll down
+    if (messages.length > prevMessageCountRef.current && prevMessageCountRef.current > 0) {
       scrollToBottom(true);
     }
-  }, [messages, isTyping]);
+    // Update the previous count
+    prevMessageCountRef.current = messages.length;
+  }, [messages]);
+
+  // Scroll when typing indicator changes
+  useEffect(() => {
+    if (isTyping) {
+      scrollToBottom(true);
+    }
+  }, [isTyping]);
 
   // When user focuses on input, scroll up to show the last coach message
   const handleInputFocus = () => {
