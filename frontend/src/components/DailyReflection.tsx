@@ -116,11 +116,8 @@ export const DailyReflection = () => {
       }
     } catch (error) {
       console.error("Error loading reflection:", error);
-      toast({
-        title: "Error loading reflection",
-        description: error instanceof Error ? error.message : "Please try again.",
-        variant: "destructive"
-      });
+      // Don't show error toast on initial load - it's confusing for users
+      // Just silently fail and let them try again if needed
     } finally {
       setIsLoading(false);
     }
