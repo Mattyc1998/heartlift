@@ -600,7 +600,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
         
         <CardContent className="flex-1 flex flex-col p-0 min-h-0 overflow-hidden">
           <ScrollArea className="flex-1 px-4 h-full" type="auto">
-            <div className="space-y-4 pb-4 pt-2">
+            <div ref={messagesContainerRef} className="space-y-4 pb-4 pt-2">
               {messages.map((message) => (
                 <div
                   key={message.id}
