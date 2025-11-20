@@ -117,7 +117,7 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6 overflow-y-auto flex-1 px-6"
+        <div className="space-y-6 overflow-y-auto flex-1 px-6">
           <div className="text-center space-y-2">
             <p className="text-muted-foreground text-lg">{content.description}</p>
             <Badge variant="outline" className="bg-primary/5">
