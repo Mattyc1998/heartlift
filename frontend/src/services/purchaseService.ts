@@ -32,22 +32,51 @@ class PurchaseService {
         }
       ]);
 
-      // Set up event handlers
+      // Set up event handlers for Premium Subscription
       IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).approved(async (product: any) => {
         console.log('✅ Premium subscription approved');
         await this.syncToSupabase(true, false);
         product.finish();
       });
 
+      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).cancelled(() => {
+        console.log('❌ Premium purchase cancelled by user');
+      });
+
+      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).error((error: any) => {
+        console.error('❌ Premium purchase error:', error);
+      });
+
+      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).expired(() => {
+        console.log('⚠️ Premium subscription expired');
+        this.syncToSupabase(false, false);
+      });
+
+      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).restored(async (product: any) => {
+        console.log('🔄 Premium subscription restored');
+        await this.syncToSupabase(true, false);
+        product.finish();
+      });
+
+      // Set up event handlers for Healing Kit
       IAP.when(PRODUCT_IDS.HEALING_KIT).approved(async (product: any) => {
         console.log('✅ Healing Kit purchase approved');
         await this.syncToSupabase(false, true);
         product.finish();
       });
 
-      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).expired(() => {
-        console.log('⚠️ Premium subscription expired');
-        this.syncToSupabase(false, false);
+      IAP.when(PRODUCT_IDS.HEALING_KIT).cancelled(() => {
+        console.log('❌ Healing Kit purchase cancelled by user');
+      });
+
+      IAP.when(PRODUCT_IDS.HEALING_KIT).error((error: any) => {
+        console.error('❌ Healing Kit purchase error:', error);
+      });
+
+      IAP.when(PRODUCT_IDS.HEALING_KIT).restored(async (product: any) => {
+        console.log('🔄 Healing Kit restored');
+        await this.syncToSupabase(false, true);
+        product.finish();
       });
 
       // Refresh products
