@@ -219,7 +219,7 @@ yarn cap:open:ios
 ### Current Settings
 - **Bundle ID**: com.mattyc.heartlift
 - **App Name**: HeartLift
-- **Backend URL**: https://aichat-heartlift.preview.emergentagent.com
+- **Backend URL**: https://wellness-buddy-97.preview.emergentagent.com
 - **Supabase Project**: hmmimemzznsyilxqakty
 
 ### Updating Configuration
