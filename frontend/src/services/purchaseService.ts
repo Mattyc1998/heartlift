@@ -199,7 +199,14 @@ class PurchaseService {
 
       console.log('🔄 Restoring purchases via Apple IAP...');
       
-      // Check if user owns the products
+      // Trigger Apple's restore flow
+      // This will fire the .restored() handlers we set up in initialize()
+      IAP.restore();
+      
+      // Wait a moment for restore to complete
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Check if user owns the products after restore
       const premiumProduct = IAP.get(PRODUCT_IDS.PREMIUM_MONTHLY);
       const healingKitProduct = IAP.get(PRODUCT_IDS.HEALING_KIT);
       
