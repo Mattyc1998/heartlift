@@ -64,16 +64,21 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
           const lastMessageElement = allMessages[allMessages.length - 1];
           
           if (scrollContainer && lastMessageElement) {
-            // Calculate position to scroll UP so coach message is at TOP
-            const messageTop = (lastMessageElement as HTMLElement).offsetTop;
+            // Get the position of the last message relative to the scroll container
+            const containerRect = scrollContainer.getBoundingClientRect();
+            const messageRect = (lastMessageElement as HTMLElement).getBoundingClientRect();
             
-            // Scroll the container UP to show this message at the top
+            // Calculate how much to scroll to bring the message to the top
+            const currentScroll = scrollContainer.scrollTop;
+            const messageOffsetFromTop = messageRect.top - containerRect.top;
+            
+            // Scroll UP so the coach's message appears at the top with some padding
             scrollContainer.scrollTo({
-              top: messageTop - 20, // 20px padding from top
+              top: currentScroll + messageOffsetFromTop - 20, // 20px padding from top
               behavior: 'smooth'
             });
           }
-        }, 500); // Wait for message to render
+        }, 300); // Wait for message to render
       }
     }
     
