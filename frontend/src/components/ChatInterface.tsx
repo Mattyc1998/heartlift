@@ -43,11 +43,33 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const prevMessageCountRef = useRef(0);
 
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
 
-  // No auto-scroll - let users control their own view
+  // When coach responds, scroll UP to show their message
+  useEffect(() => {
+    // Check if a NEW message was added
+    if (messages.length > prevMessageCountRef.current && prevMessageCountRef.current > 0) {
+      const lastMessage = messages[messages.length - 1];
+      
+      // If the last message is from the COACH, scroll UP to show it
+      if (lastMessage.sender === 'coach') {
+        setTimeout(() => {
+          const allMessages = document.querySelectorAll('[data-message-id]');
+          const lastCoachElement = allMessages[allMessages.length - 1];
+          
+          if (lastCoachElement) {
+            // Scroll UP so the coach message is at the TOP of the view
+            lastCoachElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 300);
+      }
+    }
+    
+    prevMessageCountRef.current = messages.length;
+  }, [messages]);
 
   // Extract first name from user metadata or email
   const getFirstName = () => {
