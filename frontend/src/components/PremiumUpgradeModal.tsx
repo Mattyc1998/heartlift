@@ -109,15 +109,15 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col p-0">
-        <DialogHeader className="px-6 pt-6 pb-4">
+      <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col p-0 overflow-hidden">
+        <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
           <DialogTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
             <Crown className="w-6 h-6 text-yellow-500" />
             {content.title}
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6 overflow-y-auto flex-1 px-6">
+        <div className="space-y-6 overflow-y-auto flex-1 px-6 pb-6">
           <div className="text-center space-y-2">
             <p className="text-muted-foreground text-lg">{content.description}</p>
             <Badge variant="outline" className="bg-primary/5">
@@ -183,7 +183,7 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
           </Card>
         </div>
 
-        <div className="sticky bottom-0 bg-background pt-4 border-t flex gap-3">
+        <div className="shrink-0 bg-background px-6 py-4 border-t flex gap-3">
           <Button 
             variant="outline" 
             onClick={onClose}
