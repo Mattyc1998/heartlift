@@ -86,7 +86,7 @@ export const PrivacyPolicy = () => {
                 <div>
                   <h4 className="font-semibold mb-2">Insights & Reports</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm">
-                    <li>Generated personalized insights reports (stored in MongoDB)</li>
+                    <li>Generated personalized insights reports (stored in Supabase)</li>
                     <li>Analysis of emotional patterns, communication styles, and relationship goals</li>
                     <li>Healing progress scores and personalized recommendations</li>
                     <li>All past reports accessible anytime through your account</li>
