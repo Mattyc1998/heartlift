@@ -69,7 +69,7 @@ export const PrivacyPolicy = () => {
                 <div>
                   <h4 className="font-semibold mb-2">Daily Reflections & Personal Data</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm">
-                    <li>Daily reflection entries (stored in MongoDB)</li>
+                    <li>Daily reflection entries (stored in Supabase)</li>
                     <li>Coaches chatted with, conversation ratings, helpful moments, areas for improvement</li>
                     <li>Used by AI coaches to personalize future conversations</li>
                     <li>You can view and access all past reflections anytime</li>
