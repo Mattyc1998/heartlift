@@ -713,6 +713,17 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
                     sendMessage();
                   }
                 }}
+                onFocus={(e) => {
+                  // Prevent auto-scroll to input on mobile
+                  e.preventDefault();
+                  // Scroll the chat card into view instead
+                  if (chatCardRef.current) {
+                    chatCardRef.current.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start'
+                    });
+                  }
+                }}
                 className="flex-1 text-base sm:text-base py-3 px-4 sm:py-3 sm:px-4 min-h-[44px] sm:min-h-[44px]"
                 disabled={(!canSendMessage && !isPremium) || isTyping}
                 autoComplete="off"
