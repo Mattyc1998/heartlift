@@ -95,7 +95,7 @@ export const PrivacyPolicy = () => {
                 <div>
                   <h4 className="font-semibold mb-2">Usage Tracking Data (Free Users)</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm">
-                    <li>Daily message count to enforce 10 message limit (stored in MongoDB)</li>
+                    <li>Daily message count to enforce 10 message limit (stored in Supabase)</li>
                     <li>Automatically resets at midnight UTC</li>
                     <li>Retained for 7 days, then automatically deleted</li>
                   </ul>
