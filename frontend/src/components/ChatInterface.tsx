@@ -42,29 +42,38 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const [conversationLoaded, setConversationLoaded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const prevMessageCountRef = useRef(0);
 
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
 
-  // When coach responds, scroll UP to show their message
+  // When coach responds, scroll UP to show their message at the TOP
   useEffect(() => {
     // Check if a NEW message was added
     if (messages.length > prevMessageCountRef.current && prevMessageCountRef.current > 0) {
       const lastMessage = messages[messages.length - 1];
       
-      // If the last message is from the COACH, scroll UP to show it
+      // If the last message is from the COACH, scroll UP
       if (lastMessage.sender === 'coach') {
         setTimeout(() => {
+          // Find the scroll container and the last message
+          const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]');
           const allMessages = document.querySelectorAll('[data-message-id]');
-          const lastCoachElement = allMessages[allMessages.length - 1];
+          const lastMessageElement = allMessages[allMessages.length - 1];
           
-          if (lastCoachElement) {
-            // Scroll UP so the coach message is at the TOP of the view
-            lastCoachElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (scrollContainer && lastMessageElement) {
+            // Calculate position to scroll UP so coach message is at TOP
+            const messageTop = (lastMessageElement as HTMLElement).offsetTop;
+            
+            // Scroll the container UP to show this message at the top
+            scrollContainer.scrollTo({
+              top: messageTop - 20, // 20px padding from top
+              behavior: 'smooth'
+            });
           }
-        }, 300);
+        }, 500); // Wait for message to render
       }
     }
     
