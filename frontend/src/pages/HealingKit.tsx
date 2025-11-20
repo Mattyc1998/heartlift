@@ -60,14 +60,16 @@ export default function HealingKit() {
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <div className="container mx-auto px-4 py-8">
-        <Button
-          variant="outline"
-          onClick={() => navigate("/?tab=coaches", { replace: true })}
-          className="flex items-center gap-2 mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Coaches
-        </Button>
+        <div className="mt-4 mb-8">
+          <Button
+            variant="outline"
+            onClick={() => navigate("/?tab=coaches", { replace: true })}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Coaches
+          </Button>
+        </div>
         
         <Card className="mb-8 overflow-hidden border-2 shadow-xl">
           <div className="bg-gradient-to-br from-healing/10 via-healing/5 to-background p-8 text-center space-y-6">
