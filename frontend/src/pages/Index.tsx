@@ -153,11 +153,13 @@ const Index = () => {
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8" style={{ paddingTop: 'calc(env(safe-area-inset-top, 20px) + 2rem)' }}>
         
         {/* Subscription Status Banner */}
-        <SubscriptionStatusBanner />
+        <div className="mt-8">
+          <SubscriptionStatusBanner />
+        </div>
         
         {/* Welcome Message */}
         {user && (
-          <div className="mb-6 mt-4 text-center">
+          <div className="mb-8 mt-8 text-center">
             <p className="text-lg sm:text-xl text-foreground">
               Welcome back, <span className="font-semibold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">{getFirstName()}</span>! 
               <span className="block sm:inline sm:ml-1 text-muted-foreground">Your coaches are here to support you today</span>
