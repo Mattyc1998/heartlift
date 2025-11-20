@@ -50,35 +50,20 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
 
-  // When coach responds, scroll UP to show their message at the TOP
+  // When coach responds, scroll the PAGE UP to bring chat into view
   useEffect(() => {
     // Check if a NEW message was added
     if (messages.length > prevMessageCountRef.current && prevMessageCountRef.current > 0) {
       const lastMessage = messages[messages.length - 1];
       
-      // If the last message is from the COACH, scroll UP
-      if (lastMessage.sender === 'coach') {
+      // If the last message is from the COACH, scroll the PAGE UP to the chat
+      if (lastMessage.sender === 'coach' && chatCardRef.current) {
         setTimeout(() => {
-          // Find the scroll container and the last message
-          const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]');
-          const allMessages = document.querySelectorAll('[data-message-id]');
-          const lastMessageElement = allMessages[allMessages.length - 1];
-          
-          if (scrollContainer && lastMessageElement) {
-            // Get the position of the last message relative to the scroll container
-            const containerRect = scrollContainer.getBoundingClientRect();
-            const messageRect = (lastMessageElement as HTMLElement).getBoundingClientRect();
-            
-            // Calculate how much to scroll to bring the message to the top
-            const currentScroll = scrollContainer.scrollTop;
-            const messageOffsetFromTop = messageRect.top - containerRect.top;
-            
-            // Scroll UP so the coach's message appears at the top with some padding
-            scrollContainer.scrollTo({
-              top: currentScroll + messageOffsetFromTop - 20, // 20px padding from top
-              behavior: 'smooth'
-            });
-          }
+          // Scroll the entire page to bring the chat card to the top
+          chatCardRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
         }, 300); // Wait for message to render
       }
     }
