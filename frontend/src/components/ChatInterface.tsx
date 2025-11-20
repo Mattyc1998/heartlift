@@ -678,7 +678,6 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
                 ref={inputRef}
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                onFocus={handleInputFocus}
                 placeholder={
                   !canSendMessage && !isPremium
                     ? "Daily limit reached - upgrade to continue"
