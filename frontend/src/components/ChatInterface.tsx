@@ -43,40 +43,11 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const prevMessageCountRef = useRef(0);
 
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
 
-  // Auto-scroll to bottom when messages change
-  const scrollToBottom = (smooth = true) => {
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
-    }, 100);
-  };
-
-  // Only scroll when NEW messages are added (not on initial load)
-  useEffect(() => {
-    // If message count increased (new message added), scroll down
-    if (messages.length > prevMessageCountRef.current && prevMessageCountRef.current > 0) {
-      scrollToBottom(true);
-    }
-    // Update the previous count
-    prevMessageCountRef.current = messages.length;
-  }, [messages]);
-
-  // Scroll when typing indicator changes
-  useEffect(() => {
-    if (isTyping) {
-      scrollToBottom(true);
-    }
-  }, [isTyping]);
-
-  // When user focuses on input, scroll up to show the last coach message
-  const handleInputFocus = () => {
-    // Don't auto-scroll - let user manually scroll if needed
-    // The keyboard will push up the view naturally on mobile
-  };
+  // No auto-scroll - let users control their own view
 
   // Extract first name from user metadata or email
   const getFirstName = () => {
