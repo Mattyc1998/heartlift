@@ -45,6 +45,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const prevMessageCountRef = useRef(0);
+  const chatCardRef = useRef<HTMLDivElement>(null);
 
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
