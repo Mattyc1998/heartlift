@@ -183,11 +183,11 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
           </Card>
         </div>
 
-        <div className="shrink-0 bg-background px-6 py-4 border-t flex gap-3">
+        <div className="shrink-0 bg-background px-4 py-4 border-t flex flex-col sm:flex-row gap-3">
           <Button 
             variant="outline" 
             onClick={onClose}
-            className="flex-1 h-12"
+            className="w-full sm:flex-1 h-12 text-sm"
             disabled={isLoading}
           >
             <X className="w-4 h-4 mr-2" />
@@ -195,11 +195,11 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, trigger = "usage_limit", 
           </Button>
           <Button 
             onClick={handleUpgrade}
-            className="flex-1 h-12 bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 text-white shadow-lg"
+            className="w-full sm:flex-1 h-12 bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 text-white shadow-lg text-sm whitespace-nowrap"
             disabled={isLoading}
           >
-            <Crown className="w-5 h-5 mr-2" />
-            {isLoading ? "Loading..." : "Upgrade to Premium"}
+            <Crown className="w-4 h-4 mr-2 shrink-0" />
+            {isLoading ? "Loading..." : "Go Premium"}
           </Button>
         </div>
       </DialogContent>
