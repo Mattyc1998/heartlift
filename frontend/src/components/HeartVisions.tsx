@@ -240,12 +240,15 @@ export function HeartVisions() {
             Create
           </Button>
           <Button
-            onClick={() => setShowGallery(true)}
+            onClick={() => {
+              setShowGallery(true);
+              loadGallery();
+            }}
             variant={showGallery ? "default" : "outline"}
             size="sm"
           >
             <ImageIcon className="w-4 h-4 mr-2" />
-            Gallery ({savedVisions.length})
+            Gallery
           </Button>
         </div>
 
