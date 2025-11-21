@@ -50,22 +50,19 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
 
-  // When coach responds, scroll the PAGE UP to bring chat into view
+  // Auto-scroll chat messages DOWN when new messages arrive
   useEffect(() => {
-    // Check if a NEW message was added
-    if (messages.length > prevMessageCountRef.current && prevMessageCountRef.current > 0) {
-      const lastMessage = messages[messages.length - 1];
-      
-      // If the last message is from the COACH, scroll the PAGE UP to the chat
-      if (lastMessage.sender === 'coach' && chatCardRef.current) {
-        setTimeout(() => {
-          // Scroll the entire page to bring the chat card to the top
-          chatCardRef.current?.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
+    if (messages.length > prevMessageCountRef.current) {
+      setTimeout(() => {
+        // Scroll the chat messages container to the bottom
+        const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]');
+        if (scrollContainer) {
+          scrollContainer.scrollTo({
+            top: scrollContainer.scrollHeight,
+            behavior: 'smooth'
           });
-        }, 300); // Wait for message to render
-      }
+        }
+      }, 100);
     }
     
     prevMessageCountRef.current = messages.length;
