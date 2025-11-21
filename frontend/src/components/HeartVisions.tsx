@@ -29,15 +29,15 @@ export function HeartVisions() {
 
   useEffect(() => {
     if (user?.id) {
-      loadVisions();
+      loadDailyCount();
     }
-  }, [user?.id, showGallery]);
+  }, [user?.id]);
 
-  const loadVisions = async () => {
+  const loadDailyCount = async () => {
     if (!user?.id) return;
 
     try {
-      // Get today's count first (fast query)
+      // Get today's count (fast query)
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const { count } = await supabase
@@ -47,34 +47,39 @@ export function HeartVisions() {
         .gte('created_at', today.toISOString());
 
       setDailyCount(count || 0);
+    } catch (error) {
+      console.error('Error loading daily count:', error);
+    }
+  };
 
-      // Only load gallery images when user opens gallery (lazy load)
-      if (showGallery) {
-        const { data, error } = await supabase
-          .from('heart_visions')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(20); // Only load 20 most recent images
+  const loadGallery = async () => {
+    if (!user?.id) return;
 
-        if (error) {
-          console.error('Error loading visions:', error);
-          return;
-        }
+    try {
+      const { data, error } = await supabase
+        .from('heart_visions')
+        .select('id, image_url, caption, prompt, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(30); // Load 30 most recent
 
-        if (data) {
-          const formattedVisions = data.map(v => ({
-            id: v.id,
-            url: v.image_url,
-            caption: v.caption,
-            prompt: v.prompt,
-            timestamp: new Date(v.created_at).getTime(),
-          }));
-          setSavedVisions(formattedVisions);
-        }
+      if (error) {
+        console.error('Error loading gallery:', error);
+        return;
+      }
+
+      if (data) {
+        const formattedVisions = data.map(v => ({
+          id: v.id,
+          url: v.image_url,
+          caption: v.caption || '',
+          prompt: v.prompt,
+          timestamp: new Date(v.created_at).getTime(),
+        }));
+        setSavedVisions(formattedVisions);
       }
     } catch (error) {
-      console.error('Error loading visions:', error);
+      console.error('Error loading gallery:', error);
     }
   };
 
