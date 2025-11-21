@@ -711,15 +711,19 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
                   }
                 }}
                 onFocus={() => {
-                  // On mobile, scroll to keep chat visible when keyboard appears
-                  setTimeout(() => {
+                  // On mobile, keep chat card visible when keyboard appears
+                  requestAnimationFrame(() => {
                     if (chatCardRef.current) {
-                      chatCardRef.current.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
+                      const headerOffset = 60; // Account for header
+                      const elementPosition = chatCardRef.current.getBoundingClientRect().top;
+                      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                      
+                      window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
                       });
                     }
-                  }, 300);
+                  });
                 }}
                 className="flex-1 text-base sm:text-base py-3 px-4 sm:py-3 sm:px-4 min-h-[44px] sm:min-h-[44px]"
                 disabled={(!canSendMessage && !isPremium) || isTyping}
