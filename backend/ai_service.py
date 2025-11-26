@@ -359,6 +359,13 @@ class AIService:
                 system_message += reflection_context
                 logger.info("Added reflection context for first conversation of the day")
             
+            # Add yesterday's conversation memory for continuity (ONLY if this is first message of today)
+            if not conversation_history and hasattr(self, '_yesterday_summary'):
+                yesterday_context = self._yesterday_summary
+                if yesterday_context:
+                    system_message += f"\n\n**YESTERDAY'S CONVERSATION SUMMARY:**\n{yesterday_context}\n\n**IMPORTANT RULE:** Reference this ONLY ONCE at the start of your first message today (e.g., 'Hey! How did that date go yesterday?' or 'So... did you end up texting them?'). After your first message, NEVER mention yesterday again unless the user brings it up. This is just for natural continuity, not repeated checking-in."
+                    logger.info("Added yesterday's conversation summary for natural follow-up")
+            
             # Create chat instance
             chat = LlmChat(
                 api_key=self.api_key,
