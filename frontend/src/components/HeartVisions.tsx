@@ -266,7 +266,7 @@ export function HeartVisions() {
                   <div key={vision.id} className="p-4 rounded-lg bg-muted/50 border space-y-3">
                     <div className="flex justify-between items-start gap-2">
                       <p className="text-sm text-muted-foreground italic flex-1">
-                        {vision.caption || `"${vision.prompt}"`}
+                        "{vision.prompt}"
                       </p>
                       <Button
                         onClick={() => handleDeleteVision(vision.id)}
@@ -284,10 +284,46 @@ export function HeartVisions() {
                         className="w-full h-auto"
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(vision.timestamp).toLocaleDateString()} at{" "}
-                      {new Date(vision.timestamp).toLocaleTimeString()}
-                    </p>
+                    <div className="flex justify-between items-center">
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(vision.timestamp).toLocaleDateString()} at{" "}
+                        {new Date(vision.timestamp).toLocaleTimeString()}
+                      </p>
+                      <Button
+                        onClick={async () => {
+                          try {
+                            // Fetch the image as a blob
+                            const response = await fetch(vision.url);
+                            const blob = await response.blob();
+                            
+                            // Create a temporary link to download
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `heartvision-${new Date(vision.timestamp).getTime()}.png`;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            window.URL.revokeObjectURL(url);
+                            
+                            toast.success("Image downloaded!");
+                          } catch (error) {
+                            console.error('Download error:', error);
+                            toast.error("Failed to download image");
+                          }
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                          <polyline points="7 10 12 15 17 10"></polyline>
+                          <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

@@ -40,16 +40,21 @@ class PurchaseService {
       });
 
       IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).cancelled(() => {
-        console.log('❌ Premium purchase cancelled by user');
+        // This fires when user cancels DURING the purchase flow (before payment completes)
+        // NOT when they cancel an active subscription through Apple Settings
+        console.log('❌ Premium purchase cancelled during checkout');
       });
 
       IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).error((error: any) => {
         console.error('❌ Premium purchase error:', error);
       });
 
-      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).expired(() => {
-        console.log('⚠️ Premium subscription expired');
-        this.syncToSupabase(false, false);
+      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).expired(async () => {
+        // IMPORTANT: This fires at the END of the billing period, not immediately on cancellation
+        // User keeps access until subscription expires naturally
+        // This is the CORRECT behavior per Apple's subscription guidelines
+        console.log('⚠️ Premium subscription expired - revoking access');
+        await this.cancelSubscriptionInSupabase();
       });
 
       IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).restored(async (product: any) => {
@@ -191,6 +196,36 @@ class PurchaseService {
     }
   }
 
+  /**
+   * Check current subscription status from Apple and sync to Supabase
+   * Call this on app launch to detect cancelled subscriptions
+   */
+  async checkSubscriptionStatus() {
+    try {
+      if (!this.initialized) {
+        throw new Error('Purchase service not initialized');
+      }
+
+      console.log('🔍 Checking subscription status from Apple...');
+      
+      const premiumProduct = IAP.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+      const healingKitProduct = IAP.get(PRODUCT_IDS.HEALING_KIT);
+      
+      const hasPremium = premiumProduct.owned;
+      const hasHealingKit = healingKitProduct.owned;
+
+      console.log('📊 Current Apple IAP status:', { hasPremium, hasHealingKit });
+      
+      // Sync current status to Supabase
+      await this.syncToSupabase(hasPremium, hasHealingKit);
+
+      return { hasPremium, hasHealingKit };
+    } catch (error) {
+      console.error('❌ Failed to check subscription status:', error);
+      return { hasPremium: false, hasHealingKit: false };
+    }
+  }
+
   async restorePurchases() {
     try {
       if (!this.initialized) {
@@ -244,6 +279,46 @@ class PurchaseService {
         console.error('❌ Fallback also failed:', fallbackError);
         throw error;
       }
+    }
+  }
+
+  /**
+   * Cancel subscription in Supabase when Apple IAP expires
+   * 
+   * IMPORTANT: This is called when the subscription EXPIRES (at end of billing period),
+   * NOT when the user cancels through Apple Settings.
+   * 
+   * Apple's subscription model:
+   * 1. User cancels in Apple Settings → Marks as "will not renew"
+   * 2. User KEEPS premium access until billing period ends
+   * 3. At billing period end → .expired() event fires
+   * 4. Then we revoke access in Supabase
+   * 
+   * This is the CORRECT and REQUIRED behavior per Apple guidelines.
+   */
+  private async cancelSubscriptionInSupabase() {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user logged in');
+
+      console.log('🚫 Subscription expired - revoking premium access in Supabase...');
+
+      const { error } = await supabase
+        .from('subscribers')
+        .update({
+          subscribed: false,
+          payment_status: 'expired',
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
+      
+      if (error) {
+        console.error('❌ Failed to update subscription status in Supabase:', error);
+      } else {
+        console.log('✅ Premium access revoked in Supabase (subscription expired at end of billing period)');
+      }
+    } catch (error) {
+      console.error('❌ Error updating subscription status:', error);
     }
   }
 

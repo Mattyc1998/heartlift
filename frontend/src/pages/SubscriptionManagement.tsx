@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Crown, ArrowLeft, Calendar, CreditCard, X, Key, Mail, Eye, EyeOff } from "lucide-react";
+import { Crown, ArrowLeft, Calendar, CreditCard, X, Key, Mail, Eye, EyeOff, RefreshCw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { purchaseService } from "@/services/purchaseService";
 
 export const SubscriptionManagement = () => {
   const [subscriptionData, setSubscriptionData] = useState<any>(null);
@@ -19,6 +20,7 @@ export const SubscriptionManagement = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
   const { isPremium, subscriptionStatus, checkSubscription, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -88,6 +90,46 @@ export const SubscriptionManagement = () => {
       });
     } finally {
       setCancelling(false);
+    }
+  };
+
+  const handleRestorePurchases = async () => {
+    setIsRestoring(true);
+    try {
+      toast({
+        title: "Restoring Purchases",
+        description: "Checking for previous purchases...",
+      });
+
+      const result = await purchaseService.restorePurchases();
+      
+      if (result.hasPremium || result.hasHealingKit) {
+        // Refresh subscription status
+        await checkSubscription();
+        
+        toast({
+          title: "✅ Purchases Restored!",
+          description: `Successfully restored: ${result.hasPremium ? 'Premium Subscription' : ''} ${result.hasHealingKit ? 'Healing Kit' : ''}`.trim(),
+        });
+        
+        // Reload the page to reflect changes
+        window.location.reload();
+      } else {
+        toast({
+          title: "No Purchases Found",
+          description: "We couldn't find any previous purchases linked to your account.",
+          variant: "default",
+        });
+      }
+    } catch (error: any) {
+      console.error('Restore error:', error);
+      toast({
+        title: "Restore Failed",
+        description: "Could not restore purchases. Please try again or contact support if the issue persists.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRestoring(false);
     }
   };
 
@@ -218,13 +260,24 @@ export const SubscriptionManagement = () => {
               <p className="text-sm text-muted-foreground mb-3">
                 Get unlimited conversations, advanced tools, and personalised coaching
               </p>
-              <Button 
-                onClick={() => navigate('/premium-purchase', { state: { from: location.pathname + location.search } })}
-                className="w-full"
-              >
-                <Crown className="w-4 h-4 mr-2" />
-                Upgrade Now
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button 
+                  onClick={() => navigate('/premium-purchase', { state: { from: location.pathname + location.search } })}
+                  className="w-full"
+                >
+                  <Crown className="w-4 h-4 mr-2" />
+                  Upgrade Now
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={handleRestorePurchases}
+                  disabled={isRestoring}
+                  className="w-full"
+                >
+                  <RefreshCw className={`w-4 h-4 mr-2 ${isRestoring ? 'animate-spin' : ''}`} />
+                  {isRestoring ? "Restoring..." : "Restore Purchases"}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -323,15 +376,27 @@ export const SubscriptionManagement = () => {
               </p>
             </div>
 
-            <Button 
-              variant="outline" 
-              onClick={handleCancelSubscription}
-              disabled={cancelling}
-              className="w-full md:w-auto"
-            >
-              <X className="w-4 h-4 mr-2" />
-              {cancelling ? "Opening..." : "Manage Subscription"}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button 
+                variant="outline" 
+                onClick={handleCancelSubscription}
+                disabled={cancelling}
+                className="w-full sm:flex-1"
+              >
+                <X className="w-4 h-4 mr-2" />
+                {cancelling ? "Opening..." : "Manage Subscription"}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                onClick={handleRestorePurchases}
+                disabled={isRestoring}
+                className="w-full sm:flex-1"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${isRestoring ? 'animate-spin' : ''}`} />
+                {isRestoring ? "Restoring..." : "Restore Purchases"}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -7,6 +7,20 @@
   resolved "https://registry.yarnpkg.com/@alloc/quick-lru/-/quick-lru-5.2.0.tgz#7bf68b20c0a350f936915fcae06f58e32007ce30"
   integrity sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==
 
+"@awesome-cordova-plugins/core@^8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@awesome-cordova-plugins/core/-/core-8.1.0.tgz#7fdc40b90b0edad93d2afd10b6d4b84cfb0f5912"
+  integrity sha512-7NkUC2FcXSlIuIH2xc1miIdN8/by2uewrIg5JBWauN1KCzCXLhCwZ39C8nBsWxCloAxCvec+MMU5SzJGGWfjTg==
+  dependencies:
+    "@types/cordova" latest
+
+"@awesome-cordova-plugins/in-app-purchase-2@^6.7.0":
+  version "6.16.0"
+  resolved "https://registry.yarnpkg.com/@awesome-cordova-plugins/in-app-purchase-2/-/in-app-purchase-2-6.16.0.tgz#5b0b0f1f42387378e824c0089c773632284d1c20"
+  integrity sha512-t6HP+PnbUy3nK82QaCTeeYknNpKoXSNm5OG2OEEeet6PPgQ/wvc0L7T5I/wvmpfw7oLwKKoEA8eDFpZJsyyhlQ==
+  dependencies:
+    "@types/cordova" latest
+
 "@babel/helper-string-parser@^7.27.1":
   version "7.27.1"
   resolved "https://registry.yarnpkg.com/@babel/helper-string-parser/-/helper-string-parser-7.27.1.tgz#54da796097ab19ce67ed9f88b47bb2ec49367687"
@@ -1211,18 +1225,6 @@
   resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.23.0.tgz#35390d0e7779626c026b11376da6789eb8389242"
   integrity sha512-O3rHJzAQKamUz1fvE0Qaw0xSFqsA/yafi2iqeE0pvdFtCO1viYx8QL6f3Ln/aCCTLxs68SLf0KPM9eSeM8yBnA==
 
-"@revenuecat/purchases-capacitor@^11.2.9":
-  version "11.2.9"
-  resolved "https://registry.yarnpkg.com/@revenuecat/purchases-capacitor/-/purchases-capacitor-11.2.9.tgz#80575947472719a378e0440384f667b3f3366d9b"
-  integrity sha512-5GiQ7z85906xpHfbPbnDSFsX/Hyk48BzzgYCNKeXq8QOlqbC3MiQMqkh3a+h8QMJSeAPI6ZFcAOlas+3WsGr5A==
-  dependencies:
-    "@revenuecat/purchases-typescript-internal-esm" "17.12.0"
-
-"@revenuecat/purchases-typescript-internal-esm@17.12.0":
-  version "17.12.0"
-  resolved "https://registry.yarnpkg.com/@revenuecat/purchases-typescript-internal-esm/-/purchases-typescript-internal-esm-17.12.0.tgz#70429445ebe871b17597e3d44a4e809bf5d4a8a4"
-  integrity sha512-acbzLn839VDt5UWYp3rG57ruEeTrQtEeuQNgIyEDRlLbEztoDxJxb3W2vc4y+WZ9K/n6ZBAd2Zw0pj3d6m/LlQ==
-
 "@rolldown/pluginutils@1.0.0-beta.27":
   version "1.0.0-beta.27"
   resolved "https://registry.yarnpkg.com/@rolldown/pluginutils/-/pluginutils-1.0.0-beta.27.tgz#47d2bf4cef6d470b22f5831b420f8964e0bf755f"
@@ -1506,6 +1508,11 @@
   integrity sha512-pN+8UWpxZkEJ/Rnnj2v2Sxpx1WFlaa9L6a4UO89p6tTQbeo+m0MS8oYDjbggrR8QcTyjKoYWKS3xJQGr3ExT8Q==
   dependencies:
     "@tanstack/query-core" "5.90.5"
+
+"@types/cordova@latest":
+  version "11.0.3"
+  resolved "https://registry.yarnpkg.com/@types/cordova/-/cordova-11.0.3.tgz#4301b1c614899c1c99a83aac45914285462201b7"
+  integrity sha512-kyuRQ40/NWQVhqGIHq78Ehu2Bf9Mlg0LhmSmis6ZFJK7z933FRfYi8tHe/k/0fB+PGfCf95rJC6TO7dopaFvAg==
 
 "@types/d3-array@^3.0.3":
   version "3.2.2"
@@ -1990,6 +1997,11 @@ concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
   integrity sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==
+
+cordova-plugin-purchase@^13.11.1:
+  version "13.12.1"
+  resolved "https://registry.yarnpkg.com/cordova-plugin-purchase/-/cordova-plugin-purchase-13.12.1.tgz#2ff8e96ee1d60af1e36ca2aaa2a6b979b9f06bc9"
+  integrity sha512-IRYOLqv8iEn/i+JnTXZI6yITphiwO8Bn6qm0f6+5t0the9Wb/jYdk7Q6rB7l3AO21Is5AcBLptQAwLTY3tY1Rg==
 
 cross-spawn@^7.0.3, cross-spawn@^7.0.6:
   version "7.0.6"
@@ -3363,6 +3375,13 @@ run-parallel@^1.1.9:
   integrity sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==
   dependencies:
     queue-microtask "^1.2.2"
+
+rxjs@^7.8.2:
+  version "7.8.2"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.8.2.tgz#955bc473ed8af11a002a2be52071bf475638607b"
+  integrity sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==
+  dependencies:
+    tslib "^2.1.0"
 
 safe-buffer@~5.2.0:
   version "5.2.1"

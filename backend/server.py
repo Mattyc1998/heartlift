@@ -213,6 +213,45 @@ async def ai_chat(request: ChatRequest):
                 logger.warning(f"Could not fetch reflections: {e}")
                 # Continue without reflections if fetch fails
         
+        # If this is the first message of today, fetch yesterday's conversation for context
+        if request.user_id and not history_dicts:
+            try:
+                from datetime import timedelta
+                yesterday = datetime.now().date() - timedelta(days=1)
+                yesterday_start = datetime.combine(yesterday, datetime.min.time())
+                yesterday_end = datetime.combine(yesterday, datetime.max.time())
+                
+                logger.info(f"Fetching yesterday's conversation ({yesterday}) for context")
+                
+                # Fetch yesterday's messages from this coach
+                yesterday_response = supabase.table('conversation_history') \
+                    .select('message_content, sender') \
+                    .eq('user_id', request.user_id) \
+                    .eq('coach_id', request.coach_id) \
+                    .gte('created_at', yesterday_start.isoformat()) \
+                    .lte('created_at', yesterday_end.isoformat()) \
+                    .order('created_at', desc=False) \
+                    .execute()
+                
+                if yesterday_response.data and len(yesterday_response.data) > 0:
+                    # Create a summary of yesterday's key points
+                    summary_text = "Key points from yesterday:\n"
+                    user_messages = [msg for msg in yesterday_response.data if msg.get('sender') == 'user']
+                    
+                    # Get the most significant user messages (first and last few)
+                    if len(user_messages) > 0:
+                        # Take first 2 and last 2 messages for context
+                        key_messages = user_messages[:2] + user_messages[-2:] if len(user_messages) > 4 else user_messages
+                        for msg in key_messages:
+                            content = msg.get('message_content', '')[:150]  # Limit length
+                            summary_text += f"- User mentioned: {content}\n"
+                        
+                        ai_service.set_yesterday_summary(summary_text)
+                        logger.info(f"Set yesterday's summary with {len(key_messages)} key points")
+            except Exception as e:
+                logger.warning(f"Could not fetch yesterday's conversation: {e}")
+                # Continue without yesterday's context
+        
         response = await ai_service.chat_with_coach(
             coach_id=request.coach_id,
             user_message=request.message,
