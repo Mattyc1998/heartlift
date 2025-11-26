@@ -351,17 +351,38 @@ class AIService:
             # Add reflection context ONLY for the first conversation of the day
             # Check if this is the first message (no conversation history) and we have reflections
             if user_reflections and len(user_reflections) > 0 and not conversation_history:
-                reflection_context = "\n\n**USER'S RECENT REFLECTIONS (for your awareness only - use VERY sparingly):**\n"
+                reflection_context = "\n\n**USER'S RECENT REFLECTIONS (background awareness ONLY):**\n"
                 for ref in user_reflections:
                     reflection_context += f"\n• Date: {ref.get('reflection_date')}"
                     if ref.get('areas_for_improvement'):
-                        reflection_context += f"\n  - Areas to explore: {ref.get('areas_for_improvement')}"
+                        reflection_context += f"\n  - Areas they want to explore: {ref.get('areas_for_improvement')}"
                     if ref.get('helpful_moments'):
-                        reflection_context += f"\n  - What helped: {ref.get('helpful_moments')}"
+                        reflection_context += f"\n  - What helped them: {ref.get('helpful_moments')}"
                     if ref.get('conversation_rating'):
-                        reflection_context += f"\n  - Previous conversation rating: {ref.get('conversation_rating')}/10"
+                        reflection_context += f"\n  - Previous session rating: {ref.get('conversation_rating')}/10"
                 
-                reflection_context += "\n\n**IMPORTANT:** These reflections are for your context ONLY. DO NOT mention you know them unless the user brings up these exact topics themselves. Only reference them if they're directly relevant to what the user is saying right now. Otherwise, ignore them completely and have a natural conversation."
+                reflection_context += """
+
+**CRITICAL RULES FOR USING REFLECTIONS:**
+1. These are BACKGROUND CONTEXT ONLY - treat them like you overheard them, not like the user told you directly
+2. NEVER say "I see you wrote in your reflection..." or "According to your reflection..." - that breaks immersion
+3. ONLY weave them in if the user naturally brings up the EXACT SAME topic in their message to you
+4. Even then, reference it subtly and naturally, as if you just remembered: "Ah yeah, you mentioned wanting to work on that"
+5. If the user's message has NOTHING to do with these reflections, COMPLETELY IGNORE THEM
+6. Default behavior: Have a normal conversation based ONLY on what they're saying right now
+
+**Example of WRONG use:**
+User: "Hey, how are you?"
+Coach: "Hi! I saw in your reflection you wanted to work on boundaries, let's talk about that"
+
+**Example of RIGHT use:**
+User: "I'm struggling with setting boundaries again"
+Coach: "Yeah, I remember you wanted to work on that. What's happening?"
+
+OR if user doesn't mention it:
+User: "Hey, how are you?"
+Coach: "Hey! I'm good, how are you feeling today?"
+"""
                 system_message += reflection_context
                 logger.info("Added reflection context for first conversation of the day")
             
