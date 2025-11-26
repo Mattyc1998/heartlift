@@ -47,9 +47,9 @@ class PurchaseService {
         console.error('❌ Premium purchase error:', error);
       });
 
-      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).expired(() => {
+      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).expired(async () => {
         console.log('⚠️ Premium subscription expired');
-        this.syncToSupabase(false, false);
+        await this.cancelSubscriptionInSupabase();
       });
 
       IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).restored(async (product: any) => {
