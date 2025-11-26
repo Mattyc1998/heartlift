@@ -1,335 +1,419 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>HeartLift - Privacy Policy</title> <style> * { margin: 0; padding: 0; box-sizing: border-box; }
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>HeartLift - Terms of Service</title> <style> * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        line-height: 1.6;
-        color: #333;
-        background: linear-gradient(135deg, #f5f7fa 0%, #fce4ec 100%);
-        padding: 20px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.7;
+        color: #2d3748;
+        background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 50%, #ec407a 100%);
+        min-height: 100vh;
+        padding: 40px 20px;
     }
     
     .container {
         max-width: 900px;
         margin: 0 auto;
-        background: white;
-        padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.98);
+        padding: 50px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(236, 64, 122, 0.3);
+        backdrop-filter: blur(10px);
+    }
+    
+    @media (max-width: 768px) {
+        .container {
+            padding: 30px 20px;
+        }
+        body {
+            padding: 20px 10px;
+        }
     }
     
     .header {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 50px;
         padding-bottom: 30px;
-        border-bottom: 2px solid #ec407a;
+        border-bottom: 3px solid #ec407a;
     }
     
     .header h1 {
-        color: #ec407a;
-        font-size: 2.5em;
-        margin-bottom: 10px;
+        background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 3em;
+        font-weight: 800;
+        margin-bottom: 15px;
+        letter-spacing: -1px;
+    }
+    
+    @media (max-width: 768px) {
+        .header h1 {
+            font-size: 2em;
+        }
     }
     
     .header p {
-        color: #666;
+        color: #718096;
         font-size: 1.1em;
-    }
-    
-    .date {
-        color: #999;
-        font-size: 0.9em;
-        margin-top: 10px;
+        font-weight: 500;
     }
     
     .section {
-        margin-bottom: 30px;
-        padding: 25px;
-        background: #f9f9f9;
-        border-left: 4px solid #ec407a;
-        border-radius: 8px;
+        margin-bottom: 40px;
+        padding: 30px;
+        background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+        border-left: 5px solid #ec407a;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .section:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(236, 64, 122, 0.15);
     }
     
     .section h2 {
         color: #ec407a;
-        font-size: 1.8em;
-        margin-bottom: 15px;
+        font-size: 1.9em;
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .section h2::before {
+        content: "•";
+        color: #ec407a;
+        font-size: 1.2em;
     }
     
     .section h3 {
-        color: #333;
-        font-size: 1.3em;
-        margin: 20px 0 10px 0;
-    }
-    
-    .section h4 {
-        color: #555;
-        font-size: 1.1em;
-        margin: 15px 0 8px 0;
+        color: #2d3748;
+        font-size: 1.4em;
+        font-weight: 600;
+        margin: 25px 0 15px 0;
     }
     
     .section p {
-        margin-bottom: 15px;
+        margin-bottom: 18px;
+        font-size: 1.05em;
+        color: #4a5568;
+        line-height: 1.8;
     }
     
     ul {
-        margin: 10px 0 10px 30px;
+        margin: 15px 0 20px 0;
+        padding-left: 30px;
     }
     
     li {
-        margin-bottom: 8px;
+        margin-bottom: 12px;
+        color: #4a5568;
+        font-size: 1.05em;
+        line-height: 1.7;
+        position: relative;
+        padding-left: 10px;
     }
     
-    .note {
-        background: #fff3cd;
-        border: 1px solid #ffc107;
-        padding: 15px;
-        border-radius: 8px;
-        margin: 20px 0;
+    li::marker {
+        color: #ec407a;
+        font-weight: bold;
     }
     
-    .note strong {
-        color: #856404;
+    .warning {
+        background: linear-gradient(135deg, #fff9e6 0%, #fffbee 100%);
+        border: 2px solid #fbbf24;
+        border-left: 5px solid #f59e0b;
+        padding: 25px;
+        border-radius: 12px;
+        margin: 25px 0;
+        box-shadow: 0 4px 15px rgba(251, 191, 36, 0.1);
+    }
+    
+    .warning p:first-child {
+        font-size: 1.3em;
+        font-weight: 700;
+        color: #92400e;
+        margin-bottom: 12px;
     }
     
     .alert {
-        background: #f8d7da;
-        border: 1px solid #f5c6cb;
-        padding: 15px;
-        border-radius: 8px;
-        margin: 20px 0;
+        background: linear-gradient(135deg, #fee 0%, #fdd 100%);
+        border: 2px solid #f87171;
+        border-left: 5px solid #dc2626;
+        padding: 25px;
+        border-radius: 12px;
+        margin: 25px 0;
+        box-shadow: 0 4px 15px rgba(248, 113, 113, 0.15);
+    }
+    
+    .alert p:first-child {
+        font-size: 1.3em;
+        font-weight: 700;
+        color: #991b1b;
+        margin-bottom: 12px;
+    }
+    
+    .alert ul {
+        margin-top: 15px;
+    }
+    
+    .alert li {
+        color: #7f1d1d;
+        font-weight: 500;
     }
     
     .info {
-        background: #d1ecf1;
-        border: 1px solid #bee5eb;
+        background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+        border: 2px solid #38bdf8;
+        border-left: 5px solid #0ea5e9;
+        padding: 25px;
+        border-radius: 12px;
+        margin: 25px 0;
+        box-shadow: 0 4px 15px rgba(56, 189, 248, 0.1);
+    }
+    
+    .subscription-box {
+        background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+        border: 3px solid #ec407a;
+        border-radius: 15px;
+        padding: 30px;
+        margin: 30px 0;
+        box-shadow: 0 8px 30px rgba(236, 64, 122, 0.2);
+    }
+    
+    .subscription-box h3 {
+        color: #c2185b;
+        font-size: 1.6em;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .subscription-box ul {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        list-style: none;
+    }
+    
+    .subscription-box > ul > li {
+        padding: 12px 0;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 1.1em;
+    }
+    
+    .subscription-box > ul > li:last-child {
+        border-bottom: none;
+    }
+    
+    .subscription-box strong {
+        color: #c2185b;
+        font-weight: 700;
+        display: inline-block;
+        min-width: 150px;
+    }
+    
+    .subscription-box ul ul {
+        background: #fce4ec;
+        margin-top: 15px;
         padding: 15px;
         border-radius: 8px;
-        margin: 20px 0;
+    }
+    
+    .subscription-box ul ul li {
+        color: #880e4f;
+        font-weight: 500;
+        padding: 8px 0;
+        border: none;
     }
     
     a {
         color: #ec407a;
         text-decoration: none;
+        font-weight: 600;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
     }
     
     a:hover {
-        text-decoration: underline;
+        color: #d81b60;
+        border-bottom: 2px solid #ec407a;
     }
     
     strong {
         color: #ec407a;
+        font-weight: 700;
+    }
+    
+    .footer {
+        text-align: center;
+        margin-top: 50px;
+        padding-top: 30px;
+        border-top: 2px solid #f3f4f6;
+        color: #718096;
+        font-size: 0.95em;
     }
 </style>
-</head> <body> <div class="container"> <div class="header"> <h1>HeartLift Privacy Policy</h1> <p>Your privacy and emotional wellbeing are our top priorities</p> <p class="date">Effective Date: 29/10/2025 | Last Updated: 21/11/2025</p> </div>
+</head> <body> <div class="container"> <div class="header"> <h1>HeartLift Terms of Service</h1> <p>Last Updated: 29/10/2025</p> </div>
     <div class="section">
-        <h2>📋 Data We Collect</h2>
-        
-        <h4>Account Information</h4>
-        <ul>
-            <li>Name, email, and password (stored via Supabase authentication)</li>
-            <li>User preferences and selected AI coach</li>
-            <li>Premium subscription status</li>
-        </ul>
-        
-        <h4>Chat & Conversation Data</h4>
-        <ul>
-            <li>Your messages and AI coach responses (stored in Supabase)</li>
-            <li>Conversation timestamps and session IDs</li>
-            <li>Selected coach preferences and conversation history</li>
-            <li>Messages persist across sessions until you refresh or start a new day</li>
-        </ul>
-        
-        <h4>Daily Reflections & Personal Data</h4>
-        <ul>
-            <li>Daily reflection entries (stored in Supabase)</li>
-            <li>Coaches chatted with, conversation ratings, helpful moments, areas for improvement</li>
-            <li>Used by AI coaches to personalize future conversations</li>
-            <li>You can view and access all past reflections anytime</li>
-        </ul>
-        
-        <h4>Quiz & Assessment Data</h4>
-        <ul>
-            <li>Attachment style quiz responses and results (stored in Supabase)</li>
-            <li>Quiz analysis, attachment style classifications, and personalized recommendations</li>
-            <li>Quiz completion dates and historical results</li>
-        </ul>
-        
-        <h4>Insights & Reports</h4>
-        <ul>
-            <li>Generated personalized insights reports (stored in Supabase)</li>
-            <li>Analysis of emotional patterns, communication styles, and relationship goals</li>
-            <li>Healing progress scores and personalized recommendations</li>
-            <li>All past reports accessible anytime through your account</li>
-        </ul>
-        
-        <h4>Usage Tracking Data (Free Users)</h4>
-        <ul>
-            <li>Daily message count to enforce 10 message limit (stored in Supabase)</li>
-            <li>Automatically resets at midnight UTC</li>
-            <li>Retained for 7 days, then automatically deleted</li>
-        </ul>
-        
-        <h4>Technical Data</h4>
-        <ul>
-            <li>Device information, operating system, app version</li>
-            <li>IP address and usage analytics (for improving service)</li>
-            <li>Error logs and performance metrics</li>
-        </ul>
+        <h2>1. Acceptance of Terms</h2>
+        <p>By accessing or using <strong>HeartLift</strong> ("the Service"), you <strong>agree to be bound</strong> by these Terms of Service ("Terms"). If you do not agree, <strong>please do not use the Service</strong>.</p>
     </div>
 
     <div class="section">
-        <h2>🎯 How We Use Your Data</h2>
-        <p>We use your information to:</p>
+        <h2>2. Service Description</h2>
+        <p>HeartLift provides <strong>relationship wellbeing tools</strong> and <strong>AI-powered coaching experiences</strong> to support users with relationships, breakups, and emotional growth. Features may include:</p>
         <ul>
-            <li><strong>Provide personalised AI coaching:</strong> Your daily reflections are accessed by AI coaches to tailor conversations to what you want to explore and work on</li>
-            <li><strong>Track attachment styles:</strong> Quiz results help provide personalized insights and recommendations</li>
-            <li><strong>Generate insights reports:</strong> Analyze your conversations, mood entries, and reflections to create comprehensive personalized reports</li>
-            <li><strong>Enforce usage limits:</strong> Track message counts for free users (10 messages/day, resets at midnight UTC)</li>
-            <li><strong>Improve our app and AI systems:</strong> Only anonymized data is used for service improvements</li>
-            <li><strong>Communicate important updates:</strong> Security alerts, policy changes, and feature announcements</li>
-            <li><strong>Provide crisis support:</strong> AI coaches detect sensitive topics and redirect to appropriate helplines (UK Samaritans, National Domestic Abuse Helpline, etc.)</li>
+            <li>AI-powered relationship and emotional wellbeing coaching with 4 distinct coach personalities</li>
+            <li>Daily attachment style quizzes with AI-generated questions</li>
+            <li>Personalised insights reports analyzing your emotional patterns and growth</li>
+            <li>Daily reflection tracking to help coaches personalize conversations</li>
+            <li>Conversation history that persists across sessions</li>
+            <li>Emotional wellness resources and crisis support redirection</li>
+            <li>Free tier: 10 messages per day (resets at midnight UTC)</li>
+            <li>Premium features for unlimited messaging and additional tools</li>
         </ul>
         
-        <div class="note">
-            <strong>Important Note on Personalization:</strong><br>
-            When you fill out daily reflections, your AI coaches can access your last 3 reflections to personalize conversations based on what you want to explore. This helps coaches naturally weave in topics you're working on without you having to repeat yourself.
-        </div>
-        
-        <p><strong>Your chat data and reflections will NEVER be shared with third parties, sold, or used for advertising.</strong></p>
-    </div>
-
-    <div class="section">
-        <h2>🔒 Data Storage & Security</h2>
-        
-        <h4>Storage Infrastructure:</h4>
-        <ul>
-            <li><strong>Supabase (PostgreSQL):</strong> All application data including authentication, conversations, daily reflections, insights reports, usage tracking, HeartVisions gallery, and quiz results</li>
-            <li><strong>OpenAI API:</strong> AI coach responses processed via OpenAI GPT-4o-mini (conversation data is NOT stored by OpenAI)</li>
-        </ul>
-        
-        <h4>Security Measures:</h4>
-        <ul>
-            <li><strong>Encryption:</strong> Data is encrypted both in transit (SSL/TLS) and at rest</li>
-            <li><strong>Access Control:</strong> Only you can access your account via secure authentication</li>
-            <li><strong>Row Level Security (RLS):</strong> Supabase enforces strict data isolation between users</li>
-            <li><strong>Password Protection:</strong> Leaked password protection prevents use of compromised passwords</li>
-            <li><strong>API Security:</strong> Backend APIs use secure authentication and rate limiting</li>
-        </ul>
-        
-        <h4>Data Processing:</h4>
-        <ul>
-            <li>AI processing happens server-side through our FastAPI backend</li>
-            <li>Conversation context (last 5 messages) sent to AI for continuity</li>
-            <li>Your recent reflections (last 3) shared with AI coaches for personalization</li>
-            <li>No data is stored on your device except session tokens</li>
-        </ul>
-    </div>
-
-    <div class="section">
-        <h2>📅 Data Retention</h2>
-        
-        <h4>Chat Conversations:</h4>
-        <p>Retained until you refresh the page or start a new day. Stored persistently in database to maintain conversation context across sessions.</p>
-        
-        <h4>Daily Reflections:</h4>
-        <p>Retained indefinitely to allow you to track your personal journey. You can view all past reflections anytime.</p>
-        
-        <h4>Quiz Results:</h4>
-        <p>Retained indefinitely so you can review your attachment style history and track changes over time.</p>
-        
-        <h4>Insights Reports:</h4>
-        <p>Retained indefinitely so you can track your personal growth journey. You can view all past insights reports anytime.</p>
-        
-        <h4>Usage Tracking Data:</h4>
-        <p><strong>Automatically deleted after 7 days.</strong> Only used to enforce daily message limits for free users.</p>
-        
-        <h4>Account Information:</h4>
-        <p>Retained until you delete your account. After deletion, all personal data is permanently removed within 30 days.</p>
-        
-        <h4>Technical & Analytics Data:</h4>
-        <p>Retained 6–12 months, anonymized where possible.</p>
-        
-        <div class="info">
-            <strong>Your Data Control:</strong><br>
-            Users can request deletion of any data at any time by contacting <a href="mailto:support@heart-lift.com">support@heart-lift.com</a>. Account deletion removes all associated data permanently within 30 days.
+        <div class="warning">
+            <p>⚠️ Important Disclaimer</p>
+            <p>HeartLift's AI coaches are <strong>virtual wellbeing companions</strong>. They are <strong>NOT licensed therapists or medical professionals</strong>. All guidance is for <strong>informational and self-development purposes only</strong> and should <strong>NOT be considered therapy, counselling, or medical advice</strong>.</p>
         </div>
     </div>
 
     <div class="section">
-        <h2>🌍 International Data Transfers</h2>
-        <p>By using HeartLift, you consent to your data being stored and processed in the United Kingdom, which may have different data protection laws than your location.</p>
-    </div>
-
-    <div class="section">
-        <h2>🛡️ Age Restrictions</h2>
-        <p>HeartLift is intended for users <strong>13 years and older</strong>. We do not knowingly collect personal data from children under 13.</p>
-    </div>
-
-    <div class="section">
-        <h2>✅ Your Rights</h2>
-        <p>You have full control over your personal data:</p>
+        <h2>3. Service Limitations and Crisis Support</h2>
+        <p><strong>⛔ HeartLift does NOT provide professional mental health or crisis support.</strong> Our AI coaches <strong>cannot and do not assist</strong> with:</p>
         <ul>
-            <li><strong>Access:</strong> Request a copy of your stored data</li>
-            <li><strong>Deletion:</strong> Request deletion of your account and all data</li>
-            <li><strong>Portability:</strong> Export your data in a readable format</li>
-            <li><strong>Correction:</strong> Update or correct inaccurate information</li>
+            <li>Suicide ideation or self-harm</li>
+            <li>Child abuse or child safety concerns</li>
+            <li>Domestic violence or abuse situations</li>
+            <li>Drug or substance misuse</li>
+            <li>Sexual assault or trauma</li>
+            <li>Eating disorders</li>
+            <li>Clinical mental health conditions requiring professional treatment</li>
         </ul>
-        <p>To exercise these rights, contact us at <a href="mailto:support@heart-lift.com">support@heart-lift.com</a></p>
-    </div>
-
-    <div class="section">
-        <h2>⚠️ Sensitive Data & Safety</h2>
-        <p><strong>Our AI coaches provide guidance but cannot replace professional help. They do NOT provide support for:</strong></p>
         
         <div class="alert">
+            <p>🚨 Crisis Resources</p>
+            <p>If you are in crisis or feel unsafe, <strong>DO NOT use HeartLift</strong>. Instead, contact your local emergency services or a trusted helpline:</p>
             <ul>
-                <li>Suicide or self-harm</li>
-                <li>Drug or substance abuse</li>
-                <li>Domestic abuse or violence</li>
-                <li>Child abuse</li>
-                <li>Sexual assault or trauma</li>
-                <li>Eating disorders</li>
-                <li>Severe mental health crises</li>
-            </ul>
-        </div>
-        
-        <p><strong>When these topics are detected,</strong> our AI coaches immediately stop and provide crisis helpline resources instead of attempting to provide support.</p>
-        
-        <div class="info">
-            <h4>Emergency Resources (UK):</h4>
-            <ul>
-                <li><strong>Samaritans:</strong> 116 123 (24/7, free to call)</li>
-                <li><strong>Crisis Text Line UK:</strong> Text SHOUT to 85258</li>
-                <li><strong>National Domestic Abuse Helpline:</strong> 0808 2000 247</li>
-                <li><strong>Rape Crisis England & Wales:</strong> 0808 500 2222</li>
-                <li><strong>FRANK (Drug Support):</strong> 0300 123 6600</li>
-            </ul>
-        </div>
-        
-        <div class="info">
-            <h4>Emergency Resources (US):</h4>
-            <ul>
-                <li><strong>National Suicide Prevention Lifeline:</strong> 988 or 1-800-273-8255</li>
-                <li><strong>Crisis Text Line:</strong> Text HOME to 741741</li>
-                <li><strong>National Domestic Violence Hotline:</strong> 1-800-799-7233</li>
-                <li><strong>RAINN Sexual Assault Hotline:</strong> 1-800-656-4673</li>
+                <li><strong>UK:</strong> 999 (Emergency Services) / Samaritans at 116 123</li>
+                <li><strong>US:</strong> 911 (Emergency Services) / 988 Suicide & Crisis Lifeline</li>
+                <li><strong>Child Protection (UK):</strong> NSPCC – 0808 800 5000</li>
             </ul>
         </div>
     </div>
 
     <div class="section">
-        <h2>🍪 Cookies & Analytics</h2>
-        <p>We may use cookies and analytics to improve your experience. This data is anonymized and cannot identify you personally.</p>
+        <h2>4. User Conduct and Prohibited Content</h2>
+        <p>You agree to:</p>
+        <ul>
+            <li>Provide <strong>accurate, truthful information</strong> when using the Service</li>
+            <li>Use HeartLift only for <strong>lawful, personal, and non-commercial purposes</strong></li>
+            <li>Avoid <strong>harmful, abusive, or inappropriate behavior</strong></li>
+            <li>Respect the limits of our AI wellbeing tools</li>
+            <li><strong>Seek professional help when needed</strong> for serious mental health or crisis situations</li>
+        </ul>
+        
+        <div class="alert">
+            <p>🔞 Prohibited Content (Age 13+)</p>
+            <p>HeartLift is designed for ages <strong>13 and older</strong>. The following content is <strong>strictly prohibited</strong>:</p>
+            <ul>
+                <li><strong>Sexually explicit messages</strong>, sexual acts, fantasies, or explicit descriptions</li>
+                <li><strong>Inappropriate romantic or sexual advances</strong> toward AI coaches</li>
+                <li><strong>Sexual health questions</strong> (STIs, contraception, etc.)</li>
+                <li>Harassment, threats, or abusive language</li>
+                <li>Illegal activities or content</li>
+            </ul>
+            <p>AI coaches will <strong>immediately stop and redirect</strong> if you attempt to engage in prohibited content. Repeated violations may result in <strong>account suspension or termination</strong>.</p>
+        </div>
     </div>
 
     <div class="section">
-        <h2>📝 Policy Updates</h2>
-        <p>We may update this Privacy Policy occasionally. Significant changes will be communicated via in-app notifications or email. We encourage you to review this page periodically.</p>
+        <h2>5. Eligibility</h2>
+        <p>You must be <strong>at least 13 years old</strong> to use HeartLift. By using the Service, you <strong>confirm that you meet this age requirement</strong>.</p>
     </div>
 
     <div class="section">
-        <h2>📧 Contact Us</h2>
-        <p>For questions about this Privacy Policy or your data:</p>
+        <h2>6. Payment and Subscriptions</h2>
+        <p>Certain features of HeartLift require a <strong>paid subscription</strong>. Payments are securely processed through <strong>Apple's In-App Purchase (IAP) system</strong>.</p>
+        
+        <div class="subscription-box">
+            <h3>💎 HeartLift Premium Subscription</h3>
+            <ul>
+                <li><strong>Subscription Name:</strong> HeartLift Premium</li>
+                <li><strong>Price:</strong> £11.99 per month (GBP)</li>
+                <li><strong>Length:</strong> 1 month (auto-renewable)</li>
+                <li><strong>Benefits:</strong>
+                    <ul>
+                        <li>✨ Unlimited messages with all AI coaches</li>
+                        <li>📊 Access to Personalized Insights & Reports</li>
+                        <li>🎨 HeartVisions AI image generation</li>
+                        <li>💝 Advanced attachment style analysis</li>
+                        <li>🌟 Priority support</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h3>Subscription Terms:</h3>
+        <ul>
+            <li>Payment will be charged to your Apple ID account at confirmation of purchase</li>
+            <li>Subscriptions <strong>automatically renew</strong> unless cancelled at least <strong>24 hours before the end of the current period</strong></li>
+            <li>Your account will be charged for renewal <strong>within 24 hours prior to the end</strong> of the current billing period</li>
+            <li>You may <strong>manage or cancel your subscription</strong> at any time by going to your device's Account Settings → Subscriptions after purchase</li>
+            <li>Any unused portion of a free trial period, if offered, will be forfeited when you purchase a subscription</li>
+            <li><strong>No refunds:</strong> Refunds are not provided for any unused portion of the subscription term, except where required by law</li>
+        </ul>
+        
+        <p>For more information on managing subscriptions, visit: <a href="https://support.apple.com/en-us/HT202039" target="_blank">Apple Support - Manage Subscriptions</a></p>
+    </div>
+
+    <div class="section">
+        <h2>7. Intellectual Property</h2>
+        <p>All content, features, designs, and functionality of HeartLift are <strong>owned by us or our licensors</strong> and are <strong>protected by copyright, trademark, and other intellectual property laws</strong>. You may <strong>not reproduce, distribute, or modify</strong> any part of the Service without written permission.</p>
+        <p><strong>© 2025 HeartLift.</strong> All rights reserved.</p>
+    </div>
+
+    <div class="section">
+        <h2>8. Limitation of Liability</h2>
+        <p>HeartLift provides wellbeing guidance and digital support tools. We <strong>make no guarantees regarding accuracy or outcomes</strong> and are <strong>not liable for any loss, harm, or decision</strong> made based on the information provided.</p>
+        <p>The Service is provided <strong>"as is"</strong> and <strong>"as available"</strong>, without warranties of any kind.</p>
+    </div>
+
+    <div class="section">
+        <h2>9. Data Collection and Usage</h2>
+        <p>By using HeartLift, you acknowledge and agree that:</p>
+        <ul>
+            <li>Your <strong>daily reflections are stored</strong> and accessed by AI coaches to personalize future conversations</li>
+            <li>Your <strong>conversation history is retained</strong> until you refresh the page or start a new day</li>
+            <li><strong>Quiz results and analyses</strong> are stored indefinitely for you to review your personal growth</li>
+            <li>Your data is stored securely in <strong>Supabase</strong></li>
+            <li><strong>AI processing:</strong> Your messages are sent to OpenAI GPT-4o-mini for generating coach responses</li>
+        </ul>
+        <p>For full details, see our <a href="https://mattyc1998.github.io/heartlift/privacy-policy.html">Privacy Policy</a>.</p>
+    </div>
+
+    <div class="section">
+        <h2>10. Changes to Terms</h2>
+        <p>We may update these Terms from time to time. Changes will be communicated via in-app notifications or email. Continued use of the Service after changes constitutes acceptance of the revised Terms.</p>
+    </div>
+
+    <div class="section">
+        <h2>11. Termination</h2>
+        <p>We reserve the right to suspend or terminate your access to HeartLift at any time for violations of these Terms or any illegal activity.</p>
+    </div>
+
+    <div class="section">
+        <h2>12. Contact Us</h2>
+        <p>For questions about these Terms:</p>
         <p><strong>Email:</strong> <a href="mailto:support@heart-lift.com">support@heart-lift.com</a></p>
     </div>
+
+    <div class="footer">
+        <p>Made with 💖 by HeartLift</p>
+    </div>
 </div>
-</body> </html> Exit code: 0
+</body> </html>
