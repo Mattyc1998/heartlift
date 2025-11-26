@@ -284,30 +284,41 @@ class PurchaseService {
 
   /**
    * Cancel subscription in Supabase when Apple IAP expires
+   * 
+   * IMPORTANT: This is called when the subscription EXPIRES (at end of billing period),
+   * NOT when the user cancels through Apple Settings.
+   * 
+   * Apple's subscription model:
+   * 1. User cancels in Apple Settings → Marks as "will not renew"
+   * 2. User KEEPS premium access until billing period ends
+   * 3. At billing period end → .expired() event fires
+   * 4. Then we revoke access in Supabase
+   * 
+   * This is the CORRECT and REQUIRED behavior per Apple guidelines.
    */
   private async cancelSubscriptionInSupabase() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No user logged in');
 
-      console.log('🚫 Cancelling premium subscription in Supabase...');
+      console.log('🚫 Subscription expired - revoking premium access in Supabase...');
 
       const { error } = await supabase
         .from('subscribers')
         .update({
           subscribed: false,
-          payment_status: 'cancelled',
+          payment_status: 'expired',
           updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id);
       
       if (error) {
-        console.error('❌ Failed to cancel subscription in Supabase:', error);
+        console.error('❌ Failed to update subscription status in Supabase:', error);
       } else {
-        console.log('✅ Subscription cancelled in Supabase');
+        console.log('✅ Premium access revoked in Supabase (subscription expired at end of billing period)');
       }
     } catch (error) {
-      console.error('❌ Error cancelling subscription:', error);
+      console.error('❌ Error updating subscription status:', error);
     }
   }
 
