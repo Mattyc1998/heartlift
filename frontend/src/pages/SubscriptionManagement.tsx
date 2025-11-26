@@ -365,15 +365,27 @@ export const SubscriptionManagement = () => {
               </p>
             </div>
 
-            <Button 
-              variant="outline" 
-              onClick={handleCancelSubscription}
-              disabled={cancelling}
-              className="w-full md:w-auto"
-            >
-              <X className="w-4 h-4 mr-2" />
-              {cancelling ? "Opening..." : "Manage Subscription"}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button 
+                variant="outline" 
+                onClick={handleCancelSubscription}
+                disabled={cancelling}
+                className="w-full sm:flex-1"
+              >
+                <X className="w-4 h-4 mr-2" />
+                {cancelling ? "Opening..." : "Manage Subscription"}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                onClick={handleRestorePurchases}
+                disabled={isRestoring}
+                className="w-full sm:flex-1"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${isRestoring ? 'animate-spin' : ''}`} />
+                {isRestoring ? "Restoring..." : "Restore Purchases"}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
