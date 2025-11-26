@@ -260,13 +260,24 @@ export const SubscriptionManagement = () => {
               <p className="text-sm text-muted-foreground mb-3">
                 Get unlimited conversations, advanced tools, and personalised coaching
               </p>
-              <Button 
-                onClick={() => navigate('/premium-purchase', { state: { from: location.pathname + location.search } })}
-                className="w-full"
-              >
-                <Crown className="w-4 h-4 mr-2" />
-                Upgrade Now
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button 
+                  onClick={() => navigate('/premium-purchase', { state: { from: location.pathname + location.search } })}
+                  className="w-full"
+                >
+                  <Crown className="w-4 h-4 mr-2" />
+                  Upgrade Now
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={handleRestorePurchases}
+                  disabled={isRestoring}
+                  className="w-full"
+                >
+                  <RefreshCw className={`w-4 h-4 mr-2 ${isRestoring ? 'animate-spin' : ''}`} />
+                  {isRestoring ? "Restoring..." : "Restore Purchases"}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
