@@ -143,14 +143,41 @@ export default function TermsOfService() {
 
             <section className="pb-4 border-b border-border/50">
               <h2 className="text-2xl font-bold mb-4 text-foreground">6. Payment and Subscriptions</h2>
-              <p className="text-base leading-relaxed mb-3">
+              <p className="text-base leading-relaxed mb-4">
                 Certain features of HeartLift require a <strong>paid subscription</strong>. Payments are securely processed through <strong>Apple's In-App Purchase (IAP) system</strong>.
               </p>
-              <ul className="list-disc pl-6 space-y-2 mt-2 text-base">
-                <li>Subscriptions <strong>automatically renew</strong> unless cancelled at least <strong>24 hours before renewal</strong>.</li>
-                <li>Renewal charges are applied <strong>within 24 hours prior to the end</strong> of the current billing period.</li>
-                <li>You may <strong>manage or cancel your subscription</strong> at any time in your device's App Store settings.</li>
+              
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-5 mb-4">
+                <h3 className="text-xl font-bold mb-3 text-foreground">HeartLift Premium Subscription</h3>
+                <ul className="space-y-2 text-base">
+                  <li><strong>Subscription Name:</strong> HeartLift Premium</li>
+                  <li><strong>Price:</strong> £11.99 per month (GBP)</li>
+                  <li><strong>Length:</strong> 1 month (auto-renewable)</li>
+                  <li><strong>Benefits:</strong>
+                    <ul className="list-disc pl-6 mt-2 space-y-1">
+                      <li>Unlimited messages with all AI coaches</li>
+                      <li>Access to Personalized Insights & Reports</li>
+                      <li>HeartVisions AI image generation</li>
+                      <li>Advanced attachment style analysis</li>
+                      <li>Priority support</li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+
+              <h3 className="text-lg font-bold mb-3 text-foreground">Subscription Terms:</h3>
+              <ul className="list-disc pl-6 space-y-2 text-base">
+                <li>Payment will be charged to your Apple ID account at confirmation of purchase</li>
+                <li>Subscriptions <strong>automatically renew</strong> unless cancelled at least <strong>24 hours before the end of the current period</strong></li>
+                <li>Your account will be charged for renewal <strong>within 24 hours prior to the end</strong> of the current billing period</li>
+                <li>You may <strong>manage or cancel your subscription</strong> at any time by going to your device's Account Settings → Subscriptions after purchase</li>
+                <li>Any unused portion of a free trial period, if offered, will be forfeited when you purchase a subscription</li>
+                <li><strong>No refunds:</strong> Refunds are not provided for any unused portion of the subscription term, except where required by law</li>
               </ul>
+              
+              <p className="text-base leading-relaxed mt-4">
+                For more information on managing subscriptions, visit: <a href="https://support.apple.com/en-us/HT202039" target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary-glow">Apple Support - Manage Subscriptions</a>
+              </p>
             </section>
 
             <section className="pb-4 border-b border-border/50">
