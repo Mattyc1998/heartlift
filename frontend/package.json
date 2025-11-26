@@ -16,6 +16,8 @@
     "build:ios": "vite build && cap sync ios"
   },
   "dependencies": {
+    "@awesome-cordova-plugins/core": "^8.1.0",
+    "@awesome-cordova-plugins/in-app-purchase-2": "^6.7.0",
     "@capacitor/android": "^7.4.3",
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
@@ -48,8 +50,6 @@
     "@radix-ui/react-toggle": "^1.1.0",
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.4",
-    "@awesome-cordova-plugins/in-app-purchase-2": "^6.7.0",
-    "cordova-plugin-purchase": "^13.11.1",
     "@stripe/react-stripe-js": "^2.9.0",
     "@stripe/stripe-js": "^3.5.0",
     "@supabase/supabase-js": "^2.51.0",
@@ -57,6 +57,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
+    "cordova-plugin-purchase": "^13.11.1",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
     "input-otp": "^1.2.4",
