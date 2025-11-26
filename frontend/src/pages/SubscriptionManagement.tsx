@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Crown, ArrowLeft, Calendar, CreditCard, X, Key, Mail, Eye, EyeOff } from "lucide-react";
+import { Crown, ArrowLeft, Calendar, CreditCard, X, Key, Mail, Eye, EyeOff, RefreshCw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { purchaseService } from "@/services/purchaseService";
 
 export const SubscriptionManagement = () => {
   const [subscriptionData, setSubscriptionData] = useState<any>(null);
