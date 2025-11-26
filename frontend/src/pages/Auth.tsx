@@ -68,23 +68,33 @@ export const Auth = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const { error } = await signIn(signInData.email, signInData.password);
-    
-    if (error) {
+    try {
+      const { error } = await signIn(signInData.email, signInData.password);
+      
+      if (error) {
+        console.error('[Auth] Sign in error:', error);
+        toast({
+          title: "Sign in failed",
+          description: error.message || "Unable to sign in. Please check your email and password.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Welcome back!",
+          description: "You're now signed in to HeartLift.",
+        });
+        navigate('/');
+      }
+    } catch (err: any) {
+      console.error('[Auth] Unexpected sign in error:', err);
       toast({
-        title: "Sign in failed",
-        description: error.message,
+        title: "Sign in error",
+        description: "An unexpected error occurred. Please try again or contact support if the issue persists.",
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Welcome back!",
-        description: "You're now signed in to HeartLift.",
-      });
-      navigate('/');
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
