@@ -248,6 +248,35 @@ class PurchaseService {
   }
 
   /**
+   * Cancel subscription in Supabase when Apple IAP expires
+   */
+  private async cancelSubscriptionInSupabase() {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user logged in');
+
+      console.log('🚫 Cancelling premium subscription in Supabase...');
+
+      const { error } = await supabase
+        .from('subscribers')
+        .update({
+          subscribed: false,
+          payment_status: 'cancelled',
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
+      
+      if (error) {
+        console.error('❌ Failed to cancel subscription in Supabase:', error);
+      } else {
+        console.log('✅ Subscription cancelled in Supabase');
+      }
+    } catch (error) {
+      console.error('❌ Error cancelling subscription:', error);
+    }
+  }
+
+  /**
    * 🚨 CRITICAL: Sync purchase status to SUPABASE
    * This is where subscription data is stored and checked
    */
