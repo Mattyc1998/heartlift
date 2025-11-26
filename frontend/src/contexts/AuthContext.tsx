@@ -207,23 +207,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [user]);
 
   const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      console.log('[AuthContext] Attempting sign in for:', email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    // Check if user has verified their email
-    if (!error && data.user && !data.user.email_confirmed_at) {
-      // Sign out the user immediately if email is not verified
-      await supabase.auth.signOut();
+      if (error) {
+        console.error('[AuthContext] Sign in error:', error);
+        return { error };
+      }
+
+      // Check if user has verified their email
+      if (data.user && !data.user.email_confirmed_at) {
+        console.log('[AuthContext] Email not verified, signing out');
+        // Sign out the user immediately if email is not verified
+        await supabase.auth.signOut();
+        return { 
+          error: { 
+            message: "Please verify your email before signing in. Check your inbox for the verification code." 
+          } 
+        };
+      }
+
+      console.log('[AuthContext] Sign in successful for:', data.user?.email);
+      return { error: null };
+    } catch (err: any) {
+      console.error('[AuthContext] Unexpected sign in error:', err);
       return { 
         error: { 
-          message: "Please verify your email before signing in. Check your inbox for the verification code." 
+          message: err?.message || "An unexpected error occurred during sign in" 
         } 
       };
     }
-
-    return { error };
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
