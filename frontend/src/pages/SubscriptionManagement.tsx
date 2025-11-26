@@ -20,6 +20,7 @@ export const SubscriptionManagement = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
   const { isPremium, subscriptionStatus, checkSubscription, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
