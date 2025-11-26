@@ -40,7 +40,9 @@ class PurchaseService {
       });
 
       IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).cancelled(() => {
-        console.log('❌ Premium purchase cancelled by user');
+        // This fires when user cancels DURING the purchase flow (before payment completes)
+        // NOT when they cancel an active subscription through Apple Settings
+        console.log('❌ Premium purchase cancelled during checkout');
       });
 
       IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).error((error: any) => {
@@ -48,7 +50,10 @@ class PurchaseService {
       });
 
       IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).expired(async () => {
-        console.log('⚠️ Premium subscription expired');
+        // IMPORTANT: This fires at the END of the billing period, not immediately on cancellation
+        // User keeps access until subscription expires naturally
+        // This is the CORRECT behavior per Apple's subscription guidelines
+        console.log('⚠️ Premium subscription expired - revoking access');
         await this.cancelSubscriptionInSupabase();
       });
 
