@@ -93,6 +93,46 @@ export const SubscriptionManagement = () => {
     }
   };
 
+  const handleRestorePurchases = async () => {
+    setIsRestoring(true);
+    try {
+      toast({
+        title: "Restoring Purchases",
+        description: "Checking for previous purchases...",
+      });
+
+      const result = await purchaseService.restorePurchases();
+      
+      if (result.hasPremium || result.hasHealingKit) {
+        // Refresh subscription status
+        await checkSubscription();
+        
+        toast({
+          title: "✅ Purchases Restored!",
+          description: `Successfully restored: ${result.hasPremium ? 'Premium Subscription' : ''} ${result.hasHealingKit ? 'Healing Kit' : ''}`.trim(),
+        });
+        
+        // Reload the page to reflect changes
+        window.location.reload();
+      } else {
+        toast({
+          title: "No Purchases Found",
+          description: "We couldn't find any previous purchases linked to your account.",
+          variant: "default",
+        });
+      }
+    } catch (error: any) {
+      console.error('Restore error:', error);
+      toast({
+        title: "Restore Failed",
+        description: "Could not restore purchases. Please try again or contact support if the issue persists.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRestoring(false);
+    }
+  };
+
   const handlePasswordChange = async () => {
     if (!currentPassword) {
       toast({
