@@ -298,12 +298,18 @@ class AIService:
         load_dotenv(Path(__file__).parent / '.env')
         
         self.api_key = os.getenv("EMERGENT_LLM_KEY") or EMERGENT_LLM_KEY
+        self._yesterday_summary = None  # Store yesterday's conversation summary
+        
         if not self.api_key:
             logger.error("EMERGENT_LLM_KEY not found in environment!")
             # Don't raise error, just log - we'll handle it per-request
             logger.warning("AI features will not work without EMERGENT_LLM_KEY")
         else:
             logger.info(f"AIService initialized with key: {self.api_key[:15]}...")
+    
+    def set_yesterday_summary(self, summary: Optional[str]):
+        """Set the summary of yesterday's conversation for context"""
+        self._yesterday_summary = summary
     
     async def chat_with_coach(
         self,
