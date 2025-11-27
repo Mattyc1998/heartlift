@@ -54,16 +54,20 @@ export function HeartVisions() {
     }
   };
 
-  const loadGallery = async () => {
+  const loadGallery = async (loadMore = false) => {
     if (!user?.id) return;
 
     try {
+      setIsLoadingMore(true);
+      const currentCount = loadMore ? savedVisions.length : 0;
+      const pageSize = 6; // Load 6 images at a time for faster loading
+      
       const { data, error } = await supabase
         .from('heart_visions')
         .select('id, image_url, caption, prompt, created_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(30); // Load 30 most recent
+        .range(currentCount, currentCount + pageSize - 1);
 
       if (error) {
         console.error('Error loading gallery:', error);
@@ -78,10 +82,20 @@ export function HeartVisions() {
           prompt: v.prompt,
           timestamp: new Date(v.created_at).getTime(),
         }));
-        setSavedVisions(formattedVisions);
+        
+        if (loadMore) {
+          setSavedVisions(prev => [...prev, ...formattedVisions]);
+        } else {
+          setSavedVisions(formattedVisions);
+        }
+        
+        // Check if there are more images
+        setHasMoreImages(data.length === pageSize);
       }
     } catch (error) {
       console.error('Error loading gallery:', error);
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
