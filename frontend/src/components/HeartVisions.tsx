@@ -343,6 +343,20 @@ export function HeartVisions() {
                   </div>
                 ))}
               </div>
+              
+              {/* Load More Button */}
+              {hasMoreImages && savedVisions.length > 0 && (
+                <div className="flex justify-center mt-6">
+                  <Button
+                    onClick={() => loadGallery(true)}
+                    disabled={isLoadingMore}
+                    variant="outline"
+                    className="w-full max-w-xs"
+                  >
+                    {isLoadingMore ? "Loading..." : "Load More Images"}
+                  </Button>
+                </div>
+              )}
             )}
           </div>
         ) : (
