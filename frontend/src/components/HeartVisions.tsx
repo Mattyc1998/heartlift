@@ -26,6 +26,8 @@ export function HeartVisions() {
   const [savedVisions, setSavedVisions] = useState<SavedVision[]>([]);
   const [showGallery, setShowGallery] = useState(false);
   const [dailyCount, setDailyCount] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMoreImages, setHasMoreImages] = useState(true);
 
   useEffect(() => {
     if (user?.id) {
