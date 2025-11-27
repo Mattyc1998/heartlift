@@ -390,8 +390,43 @@ Coach: "Hey! I'm good, how are you feeling today?"
             if not conversation_history and hasattr(self, '_yesterday_summary'):
                 yesterday_context = self._yesterday_summary
                 if yesterday_context:
-                    system_message += f"\n\n**YESTERDAY'S CONVERSATION SUMMARY:**\n{yesterday_context}\n\n**IMPORTANT RULE:** Reference this ONLY ONCE at the start of your first message today (e.g., 'Hey! How did that date go yesterday?' or 'So... did you end up texting them?'). After your first message, NEVER mention yesterday again unless the user brings it up. This is just for natural continuity, not repeated checking-in."
-                    logger.info("Added yesterday's conversation summary for natural follow-up")
+                    import random
+                    
+                    # Vary the greeting approach for each coach
+                    greeting_styles = []
+                    if coach_id == "tough-love":
+                        greeting_styles = [
+                            "Ask about yesterday in a direct, motivating way",
+                            "Jump straight in with 'So what's the move today?'",
+                            "Start with an energizing challenge based on yesterday",
+                            "Open with 'Ready to level up from where we left off?'"
+                        ]
+                    elif coach_id == "flirty":
+                        greeting_styles = [
+                            "Ask playfully about yesterday",
+                            "Start with excitement about their growth",
+                            "Open with a confidence boost",
+                            "Begin with 'Gorgeous! What's the vibe today?'"
+                        ]
+                    elif coach_id == "therapist":
+                        greeting_styles = [
+                            "Ask thoughtfully about yesterday",
+                            "Start with 'How are you feeling about things today?'",
+                            "Open with reflection on their progress",
+                            "Begin by checking in on their emotional state"
+                        ]
+                    elif coach_id == "chill":
+                        greeting_styles = [
+                            "Ask gently about yesterday",
+                            "Start with 'How's your energy today?'",
+                            "Open with a calming check-in",
+                            "Begin with 'What does your heart need today?'"
+                        ]
+                    
+                    greeting_style = random.choice(greeting_styles) if greeting_styles else "Ask naturally about yesterday"
+                    
+                    system_message += f"\n\n**YESTERDAY'S CONVERSATION SUMMARY:**\n{yesterday_context}\n\n**IMPORTANT GREETING VARIATION:** {greeting_style}. Reference yesterday ONLY ONCE at the start. After your first message, NEVER mention yesterday again unless the user brings it up. MIX UP your greeting style every day - don't repeat the same opening!"
+                    logger.info("Added yesterday's conversation summary with greeting variety")
             
             # Create chat instance
             chat = LlmChat(

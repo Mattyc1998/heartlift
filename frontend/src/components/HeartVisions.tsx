@@ -26,6 +26,8 @@ export function HeartVisions() {
   const [savedVisions, setSavedVisions] = useState<SavedVision[]>([]);
   const [showGallery, setShowGallery] = useState(false);
   const [dailyCount, setDailyCount] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMoreImages, setHasMoreImages] = useState(true);
 
   useEffect(() => {
     if (user?.id) {
@@ -52,16 +54,20 @@ export function HeartVisions() {
     }
   };
 
-  const loadGallery = async () => {
+  const loadGallery = async (loadMore = false) => {
     if (!user?.id) return;
 
     try {
+      setIsLoadingMore(true);
+      const currentCount = loadMore ? savedVisions.length : 0;
+      const pageSize = 6; // Load 6 images at a time for faster loading
+      
       const { data, error } = await supabase
         .from('heart_visions')
         .select('id, image_url, caption, prompt, created_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(30); // Load 30 most recent
+        .range(currentCount, currentCount + pageSize - 1);
 
       if (error) {
         console.error('Error loading gallery:', error);
@@ -76,10 +82,20 @@ export function HeartVisions() {
           prompt: v.prompt,
           timestamp: new Date(v.created_at).getTime(),
         }));
-        setSavedVisions(formattedVisions);
+        
+        if (loadMore) {
+          setSavedVisions(prev => [...prev, ...formattedVisions]);
+        } else {
+          setSavedVisions(formattedVisions);
+        }
+        
+        // Check if there are more images
+        setHasMoreImages(data.length === pageSize);
       }
     } catch (error) {
       console.error('Error loading gallery:', error);
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
@@ -292,24 +308,65 @@ export function HeartVisions() {
                       <Button
                         onClick={async () => {
                           try {
-                            // Fetch the image as a blob
-                            const response = await fetch(vision.url);
-                            const blob = await response.blob();
-                            
-                            // Create a temporary link to download
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `heartvision-${new Date(vision.timestamp).getTime()}.png`;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            window.URL.revokeObjectURL(url);
-                            
-                            toast.success("Image downloaded!");
+                            // For mobile (iOS/Android), save to photo library
+                            if ('Capacitor' in window) {
+                              const { Filesystem, Directory } = await import('@capacitor/filesystem');
+                              const { Share } = await import('@capacitor/share');
+                              
+                              // Fetch the image
+                              const response = await fetch(vision.url);
+                              const blob = await response.blob();
+                              const base64 = await new Promise<string>((resolve) => {
+                                const reader = new FileReader();
+                                reader.onloadend = () => resolve(reader.result as string);
+                                reader.readAsDataURL(blob);
+                              });
+                              
+                              // Save to filesystem temporarily
+                              const fileName = `heartvision-${new Date(vision.timestamp).getTime()}.png`;
+                              const savedFile = await Filesystem.writeFile({
+                                path: fileName,
+                                data: base64,
+                                directory: Directory.Cache
+                              });
+                              
+                              // Use Share API to save to Photos
+                              await Share.share({
+                                title: 'Save HeartVision',
+                                text: 'Save this image to your photos',
+                                url: savedFile.uri,
+                                dialogTitle: 'Save to Photos'
+                              });
+                              
+                              toast({
+                                title: "Image ready!",
+                                description: "Tap 'Save Image' to add to your photos"
+                              });
+                            } else {
+                              // For web, use standard download
+                              const response = await fetch(vision.url);
+                              const blob = await response.blob();
+                              const url = window.URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = `heartvision-${new Date(vision.timestamp).getTime()}.png`;
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                              window.URL.revokeObjectURL(url);
+                              
+                              toast({
+                                title: "Downloaded!",
+                                description: "Image saved to downloads"
+                              });
+                            }
                           } catch (error) {
                             console.error('Download error:', error);
-                            toast.error("Failed to download image");
+                            toast({
+                              title: "Download failed",
+                              description: "Please try again",
+                              variant: "destructive"
+                            });
                           }
                         }}
                         variant="outline"
@@ -326,6 +383,20 @@ export function HeartVisions() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+            
+            {/* Load More Button */}
+            {savedVisions.length > 0 && hasMoreImages && (
+              <div className="flex justify-center mt-6">
+                <Button
+                  onClick={() => loadGallery(true)}
+                  disabled={isLoadingMore}
+                  variant="outline"
+                  className="w-full max-w-xs"
+                >
+                  {isLoadingMore ? "Loading..." : "Load More Images"}
+                </Button>
               </div>
             )}
           </div>
