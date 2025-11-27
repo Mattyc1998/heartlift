@@ -89,9 +89,9 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
               {/* Subtle background gradient based on feature type */}
               <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-40`} />
               <div className="relative z-10">
-                <div className="relative mb-6">
-                  <feature.icon className="w-12 h-12 sm:w-14 sm:h-14 text-primary mb-4 mx-auto group-hover:animate-bounce-gentle stroke-[1.5]" />
-                  <div className="absolute -top-2 -right-6 text-xl sm:text-2xl">{feature.emoji}</div>
+                <div className="flex items-center justify-center mb-4">
+                  <feature.icon className="w-10 h-10 sm:w-12 sm:h-12 text-primary group-hover:animate-bounce-gentle stroke-[1.5]" />
+                  <span className="text-2xl sm:text-3xl ml-2">{feature.emoji}</span>
                 </div>
                 <h3 className="font-bold text-base sm:text-lg mb-2 sm:mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
