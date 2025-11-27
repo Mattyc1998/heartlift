@@ -63,21 +63,21 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
               icon: MessageCircle,
               title: "AI Coaches with Soul",
               description: "Four unique personalities ready to support your relationship journey",
-              emoji: "🤖💖",
+              emoji: "💬",
               gradient: "from-pink-400/20 to-rose-400/20"
             },
             {
               icon: Heart,
               title: "Healing Toolkit",
               description: "No-contact tracker, daily check-ins, and personalised recovery plans",
-              emoji: "🌱💪",
+              emoji: "🩹",
               gradient: "from-green-400/20 to-emerald-400/20"
             },
             {
               icon: TrendingUp,
               title: "Growth Tracking",
               description: "Visualize your emotional journey and celebrate every milestone",
-              emoji: "📈✨",
+              emoji: "📊",
               gradient: "from-purple-400/20 to-indigo-400/20"
             }
           ].map((feature, index) => (
