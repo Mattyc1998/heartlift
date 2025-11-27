@@ -70,7 +70,7 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
               icon: Heart,
               title: "Healing Toolkit",
               description: "No-contact tracker, daily check-ins, and personalised recovery plans",
-              emoji: "🩹",
+              emoji: "🌱",
               gradient: "from-green-400/20 to-emerald-400/20"
             },
             {
