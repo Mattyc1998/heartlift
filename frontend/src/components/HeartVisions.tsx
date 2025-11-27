@@ -308,24 +308,65 @@ export function HeartVisions() {
                       <Button
                         onClick={async () => {
                           try {
-                            // Fetch the image as a blob
-                            const response = await fetch(vision.url);
-                            const blob = await response.blob();
-                            
-                            // Create a temporary link to download
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `heartvision-${new Date(vision.timestamp).getTime()}.png`;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            window.URL.revokeObjectURL(url);
-                            
-                            toast.success("Image downloaded!");
+                            // For mobile (iOS/Android), save to photo library
+                            if ('Capacitor' in window) {
+                              const { Filesystem, Directory } = await import('@capacitor/filesystem');
+                              const { Share } = await import('@capacitor/share');
+                              
+                              // Fetch the image
+                              const response = await fetch(vision.url);
+                              const blob = await response.blob();
+                              const base64 = await new Promise<string>((resolve) => {
+                                const reader = new FileReader();
+                                reader.onloadend = () => resolve(reader.result as string);
+                                reader.readAsDataURL(blob);
+                              });
+                              
+                              // Save to filesystem temporarily
+                              const fileName = `heartvision-${new Date(vision.timestamp).getTime()}.png`;
+                              const savedFile = await Filesystem.writeFile({
+                                path: fileName,
+                                data: base64,
+                                directory: Directory.Cache
+                              });
+                              
+                              // Use Share API to save to Photos
+                              await Share.share({
+                                title: 'Save HeartVision',
+                                text: 'Save this image to your photos',
+                                url: savedFile.uri,
+                                dialogTitle: 'Save to Photos'
+                              });
+                              
+                              toast({
+                                title: "Image ready!",
+                                description: "Tap 'Save Image' to add to your photos"
+                              });
+                            } else {
+                              // For web, use standard download
+                              const response = await fetch(vision.url);
+                              const blob = await response.blob();
+                              const url = window.URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = `heartvision-${new Date(vision.timestamp).getTime()}.png`;
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                              window.URL.revokeObjectURL(url);
+                              
+                              toast({
+                                title: "Downloaded!",
+                                description: "Image saved to downloads"
+                              });
+                            }
                           } catch (error) {
                             console.error('Download error:', error);
-                            toast.error("Failed to download image");
+                            toast({
+                              title: "Download failed",
+                              description: "Please try again",
+                              variant: "destructive"
+                            });
                           }
                         }}
                         variant="outline"
