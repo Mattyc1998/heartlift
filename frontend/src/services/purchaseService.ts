@@ -261,17 +261,28 @@ class PurchaseService {
    * Ensure store is initialized before allowing purchases
    */
   private async ensureInitialized(): Promise<void> {
+    console.log('🔍 [ENSURE] ensureInitialized called');
+    console.log('🔍 [ENSURE] initialized:', this.initialized);
+    console.log('🔍 [ENSURE] store exists:', !!this.store);
+    console.log('🔍 [ENSURE] userId:', this.userId);
+    
     if (!this.initialized) {
-      console.log('⚠️ Store not initialized, initializing now...');
+      console.log('⚠️ [ENSURE] Store not initialized, initializing now...');
       if (!this.userId) {
+        console.error('❌ [ENSURE] Cannot initialize - no user ID set');
         throw new Error('Cannot initialize - no user ID set');
       }
       await this.initialize(this.userId);
     }
 
+    console.log('🔍 [ENSURE] After initialize check - initialized:', this.initialized, 'store:', !!this.store);
+
     if (!this.initialized || !this.store) {
+      console.error('❌ [ENSURE] Purchase service failed to initialize');
       throw new Error('Purchase service failed to initialize');
     }
+
+    console.log('✅ [ENSURE] Store is ready for purchases');
   }
 
   async getProducts() {
