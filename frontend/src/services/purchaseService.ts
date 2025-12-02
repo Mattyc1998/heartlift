@@ -82,36 +82,68 @@ class PurchaseService {
 
   private async _doInitialize(): Promise<void> {
     try {
+      console.log('🔧 [INIT] Starting _doInitialize()');
+      
       // Check if IAP is available (only on native iOS/Android)
       if (!window.Capacitor || !window.Capacitor.isNativePlatform()) {
-        console.warn('⚠️ IAP not available on web platform - mocking initialization');
+        console.warn('⚠️ [INIT] IAP not available on web platform - mocking initialization');
         this.initialized = true;
         return;
       }
 
-      console.log('📱 Running on native platform');
+      console.log('📱 [INIT] Running on native platform, isNativePlatform:', window.Capacitor.isNativePlatform());
 
       // CRITICAL: Wait for deviceready before accessing Cordova plugins
+      console.log('⏳ [INIT] Waiting for deviceready...');
       await this.waitForDeviceReady();
-
-      console.log('✅ Device ready, setting up IAP with v13 API...');
+      console.log('✅ [INIT] Device ready event fired');
 
       // Check if CdvPurchase is available
+      console.log('🔍 [INIT] Checking if CdvPurchase is defined...');
+      console.log('🔍 [INIT] typeof CdvPurchase:', typeof CdvPurchase);
+      
       if (typeof CdvPurchase === 'undefined') {
-        console.error('❌ CdvPurchase is not defined - plugin not loaded');
+        console.error('❌ [INIT] CdvPurchase is not defined - plugin not loaded');
         throw new Error('cordova-plugin-purchase not loaded');
       }
+
+      console.log('✅ [INIT] CdvPurchase is defined');
+      console.log('🔍 [INIT] CdvPurchase object:', CdvPurchase);
+      console.log('🔍 [INIT] CdvPurchase.store:', CdvPurchase.store);
 
       // Get the store instance from cordova-plugin-purchase v13
       this.store = CdvPurchase.store;
 
       if (!this.store) {
+        console.error('❌ [INIT] CdvPurchase.store is null or undefined');
         throw new Error('CdvPurchase.store is not available');
       }
 
-      console.log('✅ Store instance obtained');
+      console.log('✅ [INIT] Store instance obtained:', this.store);
+      console.log('🔍 [INIT] Store methods:', Object.keys(this.store));
 
-      // Register products using v13 API
+      // Check if store has required methods
+      if (typeof this.store.register !== 'function') {
+        console.error('❌ [INIT] store.register is not a function');
+        throw new Error('store.register method not available');
+      }
+
+      if (typeof this.store.initialize !== 'function') {
+        console.error('❌ [INIT] store.initialize is not a function');
+        throw new Error('store.initialize method not available');
+      }
+
+      console.log('✅ [INIT] Store has required methods');
+
+      // Log product types and platform
+      console.log('🔍 [INIT] CdvPurchase.ProductType:', CdvPurchase.ProductType);
+      console.log('🔍 [INIT] CdvPurchase.Platform:', CdvPurchase.Platform);
+
+      // Register products using v13 API - MUST be before initialize()
+      console.log('📝 [INIT] Registering products...');
+      console.log('📝 [INIT] Product 1:', PRODUCT_IDS.PREMIUM_MONTHLY);
+      console.log('📝 [INIT] Product 2:', PRODUCT_IDS.HEALING_KIT);
+      
       this.store.register([
         {
           id: PRODUCT_IDS.PREMIUM_MONTHLY,
@@ -125,24 +157,27 @@ class PurchaseService {
         }
       ]);
 
-      console.log('✅ Products registered');
+      console.log('✅ [INIT] Products registered');
+      console.log('🔍 [INIT] Store products after registration:', this.store.products);
 
-      // Set up event listeners using v13 API
+      // Set up event listeners BEFORE initialize() - CRITICAL ORDER
+      console.log('🎧 [INIT] Setting up event listeners...');
+      
       this.store.when()
         .approved(async (transaction: any) => {
-          console.log('✅ Transaction approved:', transaction);
+          console.log('✅ [EVENT] Transaction approved:', transaction);
           
           // Check which product was purchased
           const isPremium = transaction.products.some((p: any) => p.id === PRODUCT_IDS.PREMIUM_MONTHLY);
           const isHealingKit = transaction.products.some((p: any) => p.id === PRODUCT_IDS.HEALING_KIT);
           
           if (isPremium) {
-            console.log('✅ Premium subscription approved');
+            console.log('✅ [EVENT] Premium subscription approved');
             await this.syncToSupabase(true, false);
           }
           
           if (isHealingKit) {
-            console.log('✅ Healing Kit purchase approved');
+            console.log('✅ [EVENT] Healing Kit purchase approved');
             await this.syncToSupabase(false, true);
           }
           
@@ -150,37 +185,73 @@ class PurchaseService {
           await transaction.finish();
         })
         .verified((receipt: any) => {
-          console.log('✅ Receipt verified:', receipt);
+          console.log('✅ [EVENT] Receipt verified:', receipt);
         })
         .unverified((receipt: any) => {
-          console.error('❌ Receipt unverified:', receipt);
+          console.error('❌ [EVENT] Receipt unverified:', receipt);
         })
         .cancelled((transaction: any) => {
-          console.log('❌ Transaction cancelled:', transaction);
+          console.log('❌ [EVENT] Transaction cancelled:', transaction);
         })
         .error((error: any) => {
-          console.error('❌ Transaction error:', error);
+          console.error('❌ [EVENT] Transaction error:', error);
         });
 
       // Handle expired subscriptions
       this.store.when()
         .expired(async (product: any) => {
-          console.log('⚠️ Product expired:', product);
+          console.log('⚠️ [EVENT] Product expired:', product);
           if (product.id === PRODUCT_IDS.PREMIUM_MONTHLY) {
-            console.log('⚠️ Premium subscription expired - revoking access');
+            console.log('⚠️ [EVENT] Premium subscription expired - revoking access');
             await this.cancelSubscriptionInSupabase();
           }
         });
 
+      console.log('✅ [INIT] Event listeners set up');
+
+      // Check StoreKit plugin status BEFORE initialize
+      try {
+        console.log('🔍 [INIT] Checking StoreKit plugin...');
+        const plugin = this.store.getPlugin();
+        console.log('🔍 [INIT] Plugin:', plugin);
+        if (plugin && plugin.ready) {
+          console.log('🔍 [INIT] Plugin ready status:', plugin.ready());
+        }
+      } catch (pluginError) {
+        console.warn('⚠️ [INIT] Could not check plugin status:', pluginError);
+      }
+
       // Initialize the store and wait for it to complete
-      console.log('🔄 Calling store.initialize()...');
+      // THIS MUST BE CALLED ONLY ONCE AND AFTER REGISTRATION
+      console.log('🚀 [INIT] Calling store.initialize() - THIS SHOULD ONLY HAPPEN ONCE');
+      console.log('🚀 [INIT] Store state before initialize:', {
+        products: this.store.products,
+        ready: this.store.ready
+      });
+
       await this.store.initialize();
       
-      console.log('✅ Store initialized successfully with v13 API');
+      console.log('✅ [INIT] store.initialize() completed');
+      console.log('🔍 [INIT] Store state after initialize:', {
+        products: this.store.products,
+        ready: this.store.ready
+      });
+      
+      // Log all registered products after initialization
+      console.log('📦 [INIT] Checking registered products...');
+      const premiumProduct = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+      const healingKitProduct = this.store.get(PRODUCT_IDS.HEALING_KIT);
+      console.log('📦 [INIT] Premium product:', premiumProduct);
+      console.log('📦 [INIT] Healing Kit product:', healingKitProduct);
+
       this.initialized = true;
+      console.log('✅✅✅ [INIT] Store initialized successfully with v13 API - initialized flag set to TRUE');
     } catch (error) {
-      console.error('❌ Failed to initialize Apple IAP:', error);
-      console.error('Error details:', error);
+      console.error('❌❌❌ [INIT] Failed to initialize Apple IAP:', error);
+      console.error('❌ [INIT] Error name:', error?.name);
+      console.error('❌ [INIT] Error message:', error?.message);
+      console.error('❌ [INIT] Error stack:', error?.stack);
+      console.error('❌ [INIT] Full error object:', JSON.stringify(error, null, 2));
       this.initialized = false;
       throw error;
     }
