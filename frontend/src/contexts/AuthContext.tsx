@@ -142,6 +142,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Check subscription when user logs in OR when we detect an existing session
         if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
           console.log('[AuthContext] User session detected, checking subscription immediately');
+          
+          // Initialize purchase service for this user
+          try {
+            await purchaseService.initialize(session.user.id);
+            console.log('[AuthContext] Purchase service initialized successfully');
+          } catch (error) {
+            console.error('[AuthContext] Failed to initialize purchase service:', error);
+          }
+          
           // Call checkSubscription synchronously to ensure immediate update
           setTimeout(() => checkSubscription(), 0);
         } else if (event === 'SIGNED_OUT') {
