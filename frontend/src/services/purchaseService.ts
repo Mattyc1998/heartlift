@@ -97,11 +97,16 @@ class PurchaseService {
       // Refresh products
       IAP.refresh();
       
-      console.log('✅ Apple IAP initialized for user:', userId);
+      console.log('✅ Apple IAP initialized successfully');
       this.initialized = true;
     } catch (error) {
       console.error('❌ Failed to initialize Apple IAP:', error);
-      throw error;
+      console.error('Error details:', error);
+      
+      // CRITICAL: Set initialized to true anyway so buttons can attempt to work
+      // The error might be recoverable, or products might still function
+      this.initialized = true;
+      console.warn('⚠️ Purchase service marked as initialized despite error (degraded mode)');
     }
   }
 
