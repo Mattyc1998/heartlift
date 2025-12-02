@@ -2,6 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 // Use the native cordova-plugin-purchase v13 API
 declare const CdvPurchase: any;
+declare const document: any;
 
 // Product IDs matching App Store Connect
 export const PRODUCT_IDS = {
@@ -11,18 +12,75 @@ export const PRODUCT_IDS = {
 
 class PurchaseService {
   private initialized = false;
+  private initializing = false;
   private userId: string = '';
   private store: any = null;
+  private deviceReadyFired = false;
+  private initPromise: Promise<void> | null = null;
 
-  async initialize(userId: string): Promise<void> {
-    if (this.initialized) {
-      console.log('Purchase service already initialized');
+  constructor() {
+    // Listen for deviceready event
+    if (typeof document !== 'undefined') {
+      document.addEventListener('deviceready', () => {
+        console.log('📱 Cordova deviceready event fired');
+        this.deviceReadyFired = true;
+      }, false);
+    }
+  }
+
+  /**
+   * Wait for Cordova deviceready event
+   */
+  private async waitForDeviceReady(): Promise<void> {
+    if (this.deviceReadyFired) {
       return;
+    }
+
+    console.log('⏳ Waiting for Cordova deviceready...');
+    
+    return new Promise((resolve) => {
+      const checkReady = () => {
+        if (this.deviceReadyFired) {
+          resolve();
+        } else {
+          setTimeout(checkReady, 100);
+        }
+      };
+      checkReady();
+    });
+  }
+
+  /**
+   * Initialize the store - MUST be called after deviceready
+   */
+  async initialize(userId: string): Promise<void> {
+    // If already initialized, return
+    if (this.initialized) {
+      console.log('✅ Purchase service already initialized');
+      return;
+    }
+
+    // If currently initializing, wait for existing init to complete
+    if (this.initializing && this.initPromise) {
+      console.log('⏳ Initialization already in progress, waiting...');
+      return this.initPromise;
     }
 
     console.log('🔧 Initializing purchase service for user:', userId);
     this.userId = userId;
+    this.initializing = true;
 
+    // Create and store the initialization promise
+    this.initPromise = this._doInitialize();
+    
+    try {
+      await this.initPromise;
+    } finally {
+      this.initializing = false;
+    }
+  }
+
+  private async _doInitialize(): Promise<void> {
     try {
       // Check if IAP is available (only on native iOS/Android)
       if (!window.Capacitor || !window.Capacitor.isNativePlatform()) {
@@ -31,13 +89,18 @@ class PurchaseService {
         return;
       }
 
+      console.log('📱 Running on native platform');
+
+      // CRITICAL: Wait for deviceready before accessing Cordova plugins
+      await this.waitForDeviceReady();
+
+      console.log('✅ Device ready, setting up IAP with v13 API...');
+
       // Check if CdvPurchase is available
       if (typeof CdvPurchase === 'undefined') {
         console.error('❌ CdvPurchase is not defined - plugin not loaded');
         throw new Error('cordova-plugin-purchase not loaded');
       }
-
-      console.log('📱 Running on native platform, setting up IAP with v13 API...');
 
       // Get the store instance from cordova-plugin-purchase v13
       this.store = CdvPurchase.store;
@@ -46,7 +109,7 @@ class PurchaseService {
         throw new Error('CdvPurchase.store is not available');
       }
 
-      console.log('✅ Store instance obtained:', this.store);
+      console.log('✅ Store instance obtained');
 
       // Register products using v13 API
       this.store.register([
@@ -109,15 +172,34 @@ class PurchaseService {
           }
         });
 
-      // Initialize the store
+      // Initialize the store and wait for it to complete
+      console.log('🔄 Calling store.initialize()...');
       await this.store.initialize();
       
-      console.log('✅ Apple IAP initialized successfully with v13 API');
+      console.log('✅ Store initialized successfully with v13 API');
       this.initialized = true;
     } catch (error) {
       console.error('❌ Failed to initialize Apple IAP:', error);
       console.error('Error details:', error);
-      throw error; // Don't mark as initialized if it fails
+      this.initialized = false;
+      throw error;
+    }
+  }
+
+  /**
+   * Ensure store is initialized before allowing purchases
+   */
+  private async ensureInitialized(): Promise<void> {
+    if (!this.initialized) {
+      console.log('⚠️ Store not initialized, initializing now...');
+      if (!this.userId) {
+        throw new Error('Cannot initialize - no user ID set');
+      }
+      await this.initialize(this.userId);
+    }
+
+    if (!this.initialized || !this.store) {
+      throw new Error('Purchase service failed to initialize');
     }
   }
 
