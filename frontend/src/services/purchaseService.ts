@@ -123,14 +123,14 @@ class PurchaseService {
 
   async getProducts() {
     try {
-      if (!this.initialized) {
+      if (!this.initialized || !this.store) {
         throw new Error('Purchase service not initialized');
       }
 
-      const premiumProduct = IAP.get(PRODUCT_IDS.PREMIUM_MONTHLY);
-      const healingKitProduct = IAP.get(PRODUCT_IDS.HEALING_KIT);
+      const premiumProduct = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+      const healingKitProduct = this.store.get(PRODUCT_IDS.HEALING_KIT);
       
-      console.log('✅ Products loaded from Apple IAP');
+      console.log('✅ Products loaded from Apple IAP:', { premiumProduct, healingKitProduct });
       
       return {
         premium: premiumProduct,
@@ -144,38 +144,25 @@ class PurchaseService {
 
   async purchasePremium() {
     try {
-      if (!this.initialized) {
+      if (!this.initialized || !this.store) {
         throw new Error('Purchase service not initialized');
       }
 
       console.log('🛒 Initiating Apple IAP purchase for:', PRODUCT_IDS.PREMIUM_MONTHLY);
       
-      return new Promise((resolve, reject) => {
-        IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).approved(async (product: any) => {
-          console.log('✅ Premium subscription approved');
-          await this.syncToSupabase(true, false);
-          product.finish();
-          resolve({ 
-            success: true, 
-            platform: 'apple', 
-            productId: PRODUCT_IDS.PREMIUM_MONTHLY,
-            transactionId: product.transaction?.id
-          });
-        });
+      const product = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+      
+      if (!product) {
+        throw new Error('Premium product not found');
+      }
 
-        IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).cancelled(() => {
-          console.log('User cancelled purchase');
-          resolve(null);
-        });
-
-        IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).error((error: any) => {
-          console.error('❌ Premium purchase failed:', error);
-          reject(error);
-        });
-
-        // Trigger purchase
-        IAP.order(PRODUCT_IDS.PREMIUM_MONTHLY);
-      });
+      // Order the product using v13 API
+      const offer = product.getOffer();
+      await this.store.order(offer);
+      
+      console.log('✅ Premium purchase initiated');
+      
+      return { success: true };
     } catch (error: any) {
       console.error('❌ Premium purchase failed:', error);
       throw error;
@@ -184,38 +171,25 @@ class PurchaseService {
 
   async purchaseHealingKit() {
     try {
-      if (!this.initialized) {
+      if (!this.initialized || !this.store) {
         throw new Error('Purchase service not initialized');
       }
 
       console.log('🛒 Initiating Apple IAP purchase for:', PRODUCT_IDS.HEALING_KIT);
       
-      return new Promise((resolve, reject) => {
-        IAP.when(PRODUCT_IDS.HEALING_KIT).approved(async (product: any) => {
-          console.log('✅ Healing Kit purchased successfully');
-          await this.syncToSupabase(false, true);
-          product.finish();
-          resolve({ 
-            success: true, 
-            platform: 'apple', 
-            productId: PRODUCT_IDS.HEALING_KIT,
-            transactionId: product.transaction?.id
-          });
-        });
+      const product = this.store.get(PRODUCT_IDS.HEALING_KIT);
+      
+      if (!product) {
+        throw new Error('Healing Kit product not found');
+      }
 
-        IAP.when(PRODUCT_IDS.HEALING_KIT).cancelled(() => {
-          console.log('User cancelled purchase');
-          resolve(null);
-        });
-
-        IAP.when(PRODUCT_IDS.HEALING_KIT).error((error: any) => {
-          console.error('❌ Healing Kit purchase failed:', error);
-          reject(error);
-        });
-
-        // Trigger purchase
-        IAP.order(PRODUCT_IDS.HEALING_KIT);
-      });
+      // Order the product using v13 API
+      const offer = product.getOffer();
+      await this.store.order(offer);
+      
+      console.log('✅ Healing Kit purchase initiated');
+      
+      return { success: true };
     } catch (error: any) {
       console.error('❌ Healing Kit purchase failed:', error);
       throw error;
@@ -228,17 +202,17 @@ class PurchaseService {
    */
   async checkSubscriptionStatus() {
     try {
-      if (!this.initialized) {
+      if (!this.initialized || !this.store) {
         throw new Error('Purchase service not initialized');
       }
 
       console.log('🔍 Checking subscription status from Apple...');
       
-      const premiumProduct = IAP.get(PRODUCT_IDS.PREMIUM_MONTHLY);
-      const healingKitProduct = IAP.get(PRODUCT_IDS.HEALING_KIT);
+      const premiumProduct = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+      const healingKitProduct = this.store.get(PRODUCT_IDS.HEALING_KIT);
       
-      const hasPremium = premiumProduct.owned;
-      const hasHealingKit = healingKitProduct.owned;
+      const hasPremium = premiumProduct?.owned || false;
+      const hasHealingKit = healingKitProduct?.owned || false;
 
       console.log('📊 Current Apple IAP status:', { hasPremium, hasHealingKit });
       
@@ -254,25 +228,24 @@ class PurchaseService {
 
   async restorePurchases() {
     try {
-      if (!this.initialized) {
+      if (!this.initialized || !this.store) {
         throw new Error('Purchase service not initialized');
       }
 
       console.log('🔄 Restoring purchases via Apple IAP...');
       
-      // Trigger Apple's restore flow
-      // This will fire the .restored() handlers we set up in initialize()
-      IAP.restore();
+      // Trigger Apple's restore flow using v13 API
+      await this.store.restorePurchases();
       
       // Wait a moment for restore to complete
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Check if user owns the products after restore
-      const premiumProduct = IAP.get(PRODUCT_IDS.PREMIUM_MONTHLY);
-      const healingKitProduct = IAP.get(PRODUCT_IDS.HEALING_KIT);
+      const premiumProduct = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+      const healingKitProduct = this.store.get(PRODUCT_IDS.HEALING_KIT);
       
-      const hasPremium = premiumProduct.owned;
-      const hasHealingKit = healingKitProduct.owned;
+      const hasPremium = premiumProduct?.owned || false;
+      const hasHealingKit = healingKitProduct?.owned || false;
 
       console.log('✅ Purchases restored from Apple:', { hasPremium, hasHealingKit });
       
@@ -281,7 +254,7 @@ class PurchaseService {
         await this.syncToSupabase(hasPremium, hasHealingKit);
       }
 
-      return { hasPremium, hasHealingKit, platform: 'revenuecat' };
+      return { hasPremium, hasHealingKit, platform: 'apple' };
     } catch (error) {
       console.error('❌ Failed to restore purchases:', error);
       
