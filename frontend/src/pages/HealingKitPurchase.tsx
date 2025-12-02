@@ -7,12 +7,14 @@ import { ArrowLeft, Heart, Calendar, BookOpen, Target, Award, Sparkles } from "l
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { purchaseService } from "@/services/purchaseService";
 
 export const HealingKitPurchase = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as any)?.from as string | undefined;
   const { user } = useAuth();
+  const [isPurchasing, setIsPurchasing] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -94,13 +96,41 @@ export const HealingKitPurchase = () => {
             </div>
 
 
-            {/* Additional Purchase Options */}
+            {/* Purchase Button */}
             <div className="border-t pt-6 space-y-4">
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button variant="outline" className="flex-1 sm:flex-none">
-                  Buy Healing Kit
-                </Button>
-              </div>
+              <Button 
+                onClick={async () => {
+                  setIsPurchasing(true);
+                  try {
+                    toast.loading("Opening purchase...");
+                    const result = await purchaseService.buyHealingKit();
+                    
+                    if (result.success) {
+                      toast.success("Healing Kit unlocked! 💚");
+                      // Navigate to healing kit after successful purchase
+                      setTimeout(() => {
+                        navigate('/healing-kit');
+                      }, 1500);
+                    } else {
+                      toast.error(result.error || "Purchase failed. Please try again.");
+                    }
+                  } catch (error: any) {
+                    console.error('Purchase error:', error);
+                    toast.error(error?.message || "Unable to complete purchase");
+                  } finally {
+                    setIsPurchasing(false);
+                  }
+                }}
+                disabled={isPurchasing}
+                className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity"
+              >
+                <Heart className="w-5 h-5 mr-2" />
+                {isPurchasing ? "Processing..." : "Get Healing Kit - £4.99"}
+              </Button>
+              
+              <p className="text-xs text-center text-muted-foreground">
+                One-time purchase. Lifetime access included.
+              </p>
             </div>
           </CardContent>
         </Card>
