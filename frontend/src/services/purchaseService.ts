@@ -400,6 +400,70 @@ class PurchaseService {
       return { hasPremium: false, hasHealingKit: false };
     }
   }
+
+  /**
+   * Purchase Premium Subscription
+   */
+  async buyPremium(): Promise<{ success: boolean; error?: string }> {
+    try {
+      if (!this.initialized) {
+        throw new Error('Purchase service not initialized');
+      }
+
+      console.log('🛒 Initiating premium purchase...');
+      
+      const product = IAP.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+      
+      if (!product) {
+        throw new Error('Premium subscription product not found');
+      }
+
+      // Request order
+      const order = await IAP.order(PRODUCT_IDS.PREMIUM_MONTHLY);
+      
+      console.log('✅ Premium purchase initiated:', order);
+      
+      return { success: true };
+    } catch (error: any) {
+      console.error('❌ Premium purchase failed:', error);
+      return { 
+        success: false, 
+        error: error?.message || 'Failed to purchase premium subscription' 
+      };
+    }
+  }
+
+  /**
+   * Purchase Healing Kit
+   */
+  async buyHealingKit(): Promise<{ success: boolean; error?: string }> {
+    try {
+      if (!this.initialized) {
+        throw new Error('Purchase service not initialized');
+      }
+
+      console.log('🛒 Initiating healing kit purchase...');
+      
+      const product = IAP.get(PRODUCT_IDS.HEALING_KIT);
+      
+      if (!product) {
+        throw new Error('Healing Kit product not found');
+      }
+
+      // Request order
+      const order = await IAP.order(PRODUCT_IDS.HEALING_KIT);
+      
+      console.log('✅ Healing Kit purchase initiated:', order);
+      
+      return { success: true };
+    } catch (error: any) {
+      console.error('❌ Healing Kit purchase failed:', error);
+      return { 
+        success: false, 
+        error: error?.message || 'Failed to purchase Healing Kit' 
+      };
+    }
+  }
 }
 
 export const purchaseService = new PurchaseService();
