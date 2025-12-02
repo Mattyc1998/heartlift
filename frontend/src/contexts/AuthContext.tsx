@@ -185,6 +185,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       setSession(session);
       setUser(session?.user ?? null);
+      
+      // Initialize purchase service if user exists
+      if (session?.user) {
+        try {
+          await purchaseService.initialize(session.user.id);
+          console.log('[AuthContext] Purchase service initialized for existing session');
+        } catch (error) {
+          console.error('[AuthContext] Failed to initialize purchase service:', error);
+        }
+      }
+      
       setLoading(false);
       
       // Check subscription for existing session immediately
