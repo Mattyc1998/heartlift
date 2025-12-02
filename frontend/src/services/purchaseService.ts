@@ -12,6 +12,7 @@ export const PRODUCT_IDS = {
 class PurchaseService {
   private initialized = false;
   private userId: string = '';
+  private store: any = null;
 
   async initialize(userId: string): Promise<void> {
     if (this.initialized) {
@@ -30,85 +31,93 @@ class PurchaseService {
         return;
       }
 
-      console.log('📱 Running on native platform, setting up IAP...');
+      // Check if CdvPurchase is available
+      if (typeof CdvPurchase === 'undefined') {
+        console.error('❌ CdvPurchase is not defined - plugin not loaded');
+        throw new Error('cordova-plugin-purchase not loaded');
+      }
 
-      // Register products with Apple IAP
-      IAP.register([
+      console.log('📱 Running on native platform, setting up IAP with v13 API...');
+
+      // Get the store instance from cordova-plugin-purchase v13
+      this.store = CdvPurchase.store;
+
+      if (!this.store) {
+        throw new Error('CdvPurchase.store is not available');
+      }
+
+      console.log('✅ Store instance obtained:', this.store);
+
+      // Register products using v13 API
+      this.store.register([
         {
           id: PRODUCT_IDS.PREMIUM_MONTHLY,
-          type: IAP.PAID_SUBSCRIPTION
+          type: CdvPurchase.ProductType.PAID_SUBSCRIPTION,
+          platform: CdvPurchase.Platform.APPLE_APPSTORE
         },
         {
           id: PRODUCT_IDS.HEALING_KIT,
-          type: IAP.NON_CONSUMABLE
+          type: CdvPurchase.ProductType.NON_CONSUMABLE,
+          platform: CdvPurchase.Platform.APPLE_APPSTORE
         }
       ]);
 
-      // Set up event handlers for Premium Subscription
-      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).approved(async (product: any) => {
-        console.log('✅ Premium subscription approved');
-        await this.syncToSupabase(true, false);
-        product.finish();
-      });
+      console.log('✅ Products registered');
 
-      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).cancelled(() => {
-        // This fires when user cancels DURING the purchase flow (before payment completes)
-        // NOT when they cancel an active subscription through Apple Settings
-        console.log('❌ Premium purchase cancelled during checkout');
-      });
+      // Set up event listeners using v13 API
+      this.store.when()
+        .approved(async (transaction: any) => {
+          console.log('✅ Transaction approved:', transaction);
+          
+          // Check which product was purchased
+          const isPremium = transaction.products.some((p: any) => p.id === PRODUCT_IDS.PREMIUM_MONTHLY);
+          const isHealingKit = transaction.products.some((p: any) => p.id === PRODUCT_IDS.HEALING_KIT);
+          
+          if (isPremium) {
+            console.log('✅ Premium subscription approved');
+            await this.syncToSupabase(true, false);
+          }
+          
+          if (isHealingKit) {
+            console.log('✅ Healing Kit purchase approved');
+            await this.syncToSupabase(false, true);
+          }
+          
+          // Finish the transaction
+          await transaction.finish();
+        })
+        .verified((receipt: any) => {
+          console.log('✅ Receipt verified:', receipt);
+        })
+        .unverified((receipt: any) => {
+          console.error('❌ Receipt unverified:', receipt);
+        })
+        .cancelled((transaction: any) => {
+          console.log('❌ Transaction cancelled:', transaction);
+        })
+        .error((error: any) => {
+          console.error('❌ Transaction error:', error);
+        });
 
-      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).error((error: any) => {
-        console.error('❌ Premium purchase error:', error);
-      });
+      // Handle expired subscriptions
+      this.store.when()
+        .expired(async (product: any) => {
+          console.log('⚠️ Product expired:', product);
+          if (product.id === PRODUCT_IDS.PREMIUM_MONTHLY) {
+            console.log('⚠️ Premium subscription expired - revoking access');
+            await this.cancelSubscriptionInSupabase();
+          }
+        });
 
-      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).expired(async () => {
-        // IMPORTANT: This fires at the END of the billing period, not immediately on cancellation
-        // User keeps access until subscription expires naturally
-        // This is the CORRECT behavior per Apple's subscription guidelines
-        console.log('⚠️ Premium subscription expired - revoking access');
-        await this.cancelSubscriptionInSupabase();
-      });
-
-      IAP.when(PRODUCT_IDS.PREMIUM_MONTHLY).restored(async (product: any) => {
-        console.log('🔄 Premium subscription restored');
-        await this.syncToSupabase(true, false);
-        product.finish();
-      });
-
-      // Set up event handlers for Healing Kit
-      IAP.when(PRODUCT_IDS.HEALING_KIT).approved(async (product: any) => {
-        console.log('✅ Healing Kit purchase approved');
-        await this.syncToSupabase(false, true);
-        product.finish();
-      });
-
-      IAP.when(PRODUCT_IDS.HEALING_KIT).cancelled(() => {
-        console.log('❌ Healing Kit purchase cancelled by user');
-      });
-
-      IAP.when(PRODUCT_IDS.HEALING_KIT).error((error: any) => {
-        console.error('❌ Healing Kit purchase error:', error);
-      });
-
-      IAP.when(PRODUCT_IDS.HEALING_KIT).restored(async (product: any) => {
-        console.log('🔄 Healing Kit restored');
-        await this.syncToSupabase(false, true);
-        product.finish();
-      });
-
-      // Refresh products
-      IAP.refresh();
+      // Initialize the store
+      await this.store.initialize();
       
-      console.log('✅ Apple IAP initialized successfully');
+      console.log('✅ Apple IAP initialized successfully with v13 API');
       this.initialized = true;
     } catch (error) {
       console.error('❌ Failed to initialize Apple IAP:', error);
       console.error('Error details:', error);
-      
-      // CRITICAL: Set initialized to true anyway so buttons can attempt to work
-      // The error might be recoverable, or products might still function
-      this.initialized = true;
-      console.warn('⚠️ Purchase service marked as initialized despite error (degraded mode)');
+      throw error; // Don't mark as initialized if it fails
     }
   }
 
