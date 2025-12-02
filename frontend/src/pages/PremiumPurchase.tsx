@@ -97,13 +97,45 @@ export const PremiumPurchase = () => {
             </div>
 
 
-            {/* Additional Purchase Options */}
+            {/* Purchase Button */}
             <div className="border-t pt-6 space-y-4">
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button variant="outline" className="flex-1 sm:flex-none">
-                  Buy Premium
-                </Button>
-              </div>
+              <Button 
+                onClick={async () => {
+                  setIsPurchasing(true);
+                  try {
+                    toast.loading("Opening purchase...");
+                    const result = await purchaseService.buyPremium();
+                    
+                    if (result.success) {
+                      toast.success("Welcome to Premium! 🎉");
+                      // Navigate back after successful purchase
+                      setTimeout(() => {
+                        if (from === 'home') {
+                          navigate('/');
+                        } else {
+                          navigate('/?tab=coaches');
+                        }
+                      }, 1500);
+                    } else {
+                      toast.error(result.error || "Purchase failed. Please try again.");
+                    }
+                  } catch (error: any) {
+                    console.error('Purchase error:', error);
+                    toast.error(error?.message || "Unable to complete purchase");
+                  } finally {
+                    setIsPurchasing(false);
+                  }
+                }}
+                disabled={isPurchasing}
+                className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity"
+              >
+                <Crown className="w-5 h-5 mr-2" />
+                {isPurchasing ? "Processing..." : "Go Premium - £11.99/month"}
+              </Button>
+              
+              <p className="text-xs text-center text-muted-foreground">
+                Cancel anytime in your Apple settings. Subscription auto-renews monthly.
+              </p>
             </div>
           </CardContent>
         </Card>
