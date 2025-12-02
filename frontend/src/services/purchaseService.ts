@@ -1,5 +1,7 @@
-import { InAppPurchase2 as IAP } from '@awesome-cordova-plugins/in-app-purchase-2';
 import { supabase } from '@/integrations/supabase/client';
+
+// Use the native cordova-plugin-purchase v13 API
+declare const CdvPurchase: any;
 
 // Product IDs matching App Store Connect
 export const PRODUCT_IDS = {
