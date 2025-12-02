@@ -205,9 +205,7 @@ class PurchaseService {
 
   async getProducts() {
     try {
-      if (!this.initialized || !this.store) {
-        throw new Error('Purchase service not initialized');
-      }
+      await this.ensureInitialized();
 
       const premiumProduct = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
       const healingKitProduct = this.store.get(PRODUCT_IDS.HEALING_KIT);
@@ -226,9 +224,7 @@ class PurchaseService {
 
   async purchasePremium() {
     try {
-      if (!this.initialized || !this.store) {
-        throw new Error('Purchase service not initialized');
-      }
+      await this.ensureInitialized();
 
       console.log('🛒 Initiating Apple IAP purchase for:', PRODUCT_IDS.PREMIUM_MONTHLY);
       
@@ -240,6 +236,10 @@ class PurchaseService {
 
       // Order the product using v13 API
       const offer = product.getOffer();
+      if (!offer) {
+        throw new Error('No offer available for premium subscription');
+      }
+
       await this.store.order(offer);
       
       console.log('✅ Premium purchase initiated');
@@ -253,9 +253,7 @@ class PurchaseService {
 
   async purchaseHealingKit() {
     try {
-      if (!this.initialized || !this.store) {
-        throw new Error('Purchase service not initialized');
-      }
+      await this.ensureInitialized();
 
       console.log('🛒 Initiating Apple IAP purchase for:', PRODUCT_IDS.HEALING_KIT);
       
@@ -267,6 +265,10 @@ class PurchaseService {
 
       // Order the product using v13 API
       const offer = product.getOffer();
+      if (!offer) {
+        throw new Error('No offer available for Healing Kit');
+      }
+
       await this.store.order(offer);
       
       console.log('✅ Healing Kit purchase initiated');
