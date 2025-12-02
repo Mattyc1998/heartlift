@@ -171,7 +171,7 @@ frontend/ios/
 - **Routing**: React Router DOM 6.26.2
 
 ### Backend Integration
-- **Backend URL**: https://wellness-buddy-97.preview.emergentagent.com
+- **Backend URL**: https://iosapp-launch.preview.emergentagent.com
 - **Authentication**: Supabase (hmmimemzznsyilxqakty.supabase.co) ✅ VERIFIED
 - **Payments**: Stripe (@stripe/stripe-js, @stripe/react-stripe-js)
 
@@ -254,7 +254,7 @@ yarn cap:open:ios     # Open in Xcode
 VITE_SUPABASE_PROJECT_ID=hmmimemzznsyilxqakty
 VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGc...
 VITE_SUPABASE_URL=https://hmmimemzznsyilxqakty.supabase.co
-REACT_APP_BACKEND_URL=https://wellness-buddy-97.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://iosapp-launch.preview.emergentagent.com
 WDS_SOCKET_PORT=443
 REACT_APP_ENABLE_VISUAL_EDITS=true
 ENABLE_HEALTH_CHECK=false
