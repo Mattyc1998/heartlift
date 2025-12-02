@@ -485,9 +485,7 @@ class PurchaseService {
    */
   async buyPremium(): Promise<{ success: boolean; error?: string }> {
     try {
-      if (!this.initialized || !this.store) {
-        throw new Error('Purchase service not initialized');
-      }
+      await this.ensureInitialized();
 
       console.log('🛒 Initiating premium purchase...');
       
@@ -522,9 +520,7 @@ class PurchaseService {
    */
   async buyHealingKit(): Promise<{ success: boolean; error?: string }> {
     try {
-      if (!this.initialized || !this.store) {
-        throw new Error('Purchase service not initialized');
-      }
+      await this.ensureInitialized();
 
       console.log('🛒 Initiating healing kit purchase...');
       
