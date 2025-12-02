@@ -566,30 +566,41 @@ class PurchaseService {
    * Purchase Premium Subscription
    */
   async buyPremium(): Promise<{ success: boolean; error?: string }> {
+    console.log('🛒 [BUY_PREMIUM] buyPremium() called');
     try {
+      console.log('🛒 [BUY_PREMIUM] Ensuring initialized...');
       await this.ensureInitialized();
+      console.log('✅ [BUY_PREMIUM] Store is initialized');
 
-      console.log('🛒 Initiating premium purchase...');
-      
+      console.log('🛒 [BUY_PREMIUM] Getting product:', PRODUCT_IDS.PREMIUM_MONTHLY);
       const product = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+      console.log('🔍 [BUY_PREMIUM] Product:', product);
       
       if (!product) {
+        console.error('❌ [BUY_PREMIUM] Premium subscription product not found');
         throw new Error('Premium subscription product not found');
       }
 
+      console.log('✅ [BUY_PREMIUM] Product found, getting offer...');
       // Request order using v13 API
       const offer = product.getOffer();
+      console.log('🔍 [BUY_PREMIUM] Offer:', offer);
+      
       if (!offer) {
+        console.error('❌ [BUY_PREMIUM] No offer available for premium subscription');
         throw new Error('No offer available for premium subscription');
       }
 
+      console.log('✅ [BUY_PREMIUM] Offer found, placing order...');
       await this.store.order(offer);
       
-      console.log('✅ Premium purchase initiated');
+      console.log('✅✅ [BUY_PREMIUM] Premium purchase initiated successfully');
       
       return { success: true };
     } catch (error: any) {
-      console.error('❌ Premium purchase failed:', error);
+      console.error('❌❌ [BUY_PREMIUM] Premium purchase failed:', error);
+      console.error('❌ [BUY_PREMIUM] Error message:', error?.message);
+      console.error('❌ [BUY_PREMIUM] Error stack:', error?.stack);
       return { 
         success: false, 
         error: error?.message || 'Failed to purchase premium subscription' 
@@ -601,30 +612,41 @@ class PurchaseService {
    * Purchase Healing Kit
    */
   async buyHealingKit(): Promise<{ success: boolean; error?: string }> {
+    console.log('🛒 [BUY_KIT] buyHealingKit() called');
     try {
+      console.log('🛒 [BUY_KIT] Ensuring initialized...');
       await this.ensureInitialized();
+      console.log('✅ [BUY_KIT] Store is initialized');
 
-      console.log('🛒 Initiating healing kit purchase...');
-      
+      console.log('🛒 [BUY_KIT] Getting product:', PRODUCT_IDS.HEALING_KIT);
       const product = this.store.get(PRODUCT_IDS.HEALING_KIT);
+      console.log('🔍 [BUY_KIT] Product:', product);
       
       if (!product) {
+        console.error('❌ [BUY_KIT] Healing Kit product not found');
         throw new Error('Healing Kit product not found');
       }
 
+      console.log('✅ [BUY_KIT] Product found, getting offer...');
       // Request order using v13 API
       const offer = product.getOffer();
+      console.log('🔍 [BUY_KIT] Offer:', offer);
+      
       if (!offer) {
+        console.error('❌ [BUY_KIT] No offer available for Healing Kit');
         throw new Error('No offer available for Healing Kit');
       }
 
+      console.log('✅ [BUY_KIT] Offer found, placing order...');
       await this.store.order(offer);
       
-      console.log('✅ Healing Kit purchase initiated');
+      console.log('✅✅ [BUY_KIT] Healing Kit purchase initiated successfully');
       
       return { success: true };
     } catch (error: any) {
-      console.error('❌ Healing Kit purchase failed:', error);
+      console.error('❌❌ [BUY_KIT] Healing Kit purchase failed:', error);
+      console.error('❌ [BUY_KIT] Error message:', error?.message);
+      console.error('❌ [BUY_KIT] Error stack:', error?.stack);
       return { 
         success: false, 
         error: error?.message || 'Failed to purchase Healing Kit' 
