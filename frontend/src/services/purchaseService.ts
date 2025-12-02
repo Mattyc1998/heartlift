@@ -405,22 +405,27 @@ class PurchaseService {
    */
   async buyPremium(): Promise<{ success: boolean; error?: string }> {
     try {
-      if (!this.initialized) {
+      if (!this.initialized || !this.store) {
         throw new Error('Purchase service not initialized');
       }
 
       console.log('🛒 Initiating premium purchase...');
       
-      const product = IAP.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+      const product = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
       
       if (!product) {
         throw new Error('Premium subscription product not found');
       }
 
-      // Request order
-      const order = await IAP.order(PRODUCT_IDS.PREMIUM_MONTHLY);
+      // Request order using v13 API
+      const offer = product.getOffer();
+      if (!offer) {
+        throw new Error('No offer available for premium subscription');
+      }
+
+      await this.store.order(offer);
       
-      console.log('✅ Premium purchase initiated:', order);
+      console.log('✅ Premium purchase initiated');
       
       return { success: true };
     } catch (error: any) {
@@ -437,22 +442,27 @@ class PurchaseService {
    */
   async buyHealingKit(): Promise<{ success: boolean; error?: string }> {
     try {
-      if (!this.initialized) {
+      if (!this.initialized || !this.store) {
         throw new Error('Purchase service not initialized');
       }
 
       console.log('🛒 Initiating healing kit purchase...');
       
-      const product = IAP.get(PRODUCT_IDS.HEALING_KIT);
+      const product = this.store.get(PRODUCT_IDS.HEALING_KIT);
       
       if (!product) {
         throw new Error('Healing Kit product not found');
       }
 
-      // Request order
-      const order = await IAP.order(PRODUCT_IDS.HEALING_KIT);
+      // Request order using v13 API
+      const offer = product.getOffer();
+      if (!offer) {
+        throw new Error('No offer available for Healing Kit');
+      }
+
+      await this.store.order(offer);
       
-      console.log('✅ Healing Kit purchase initiated:', order);
+      console.log('✅ Healing Kit purchase initiated');
       
       return { success: true };
     } catch (error: any) {
