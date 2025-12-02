@@ -286,9 +286,7 @@ class PurchaseService {
    */
   async checkSubscriptionStatus() {
     try {
-      if (!this.initialized || !this.store) {
-        throw new Error('Purchase service not initialized');
-      }
+      await this.ensureInitialized();
 
       console.log('🔍 Checking subscription status from Apple...');
       
@@ -312,9 +310,7 @@ class PurchaseService {
 
   async restorePurchases() {
     try {
-      if (!this.initialized || !this.store) {
-        throw new Error('Purchase service not initialized');
-      }
+      await this.ensureInitialized();
 
       console.log('🔄 Restoring purchases via Apple IAP...');
       
