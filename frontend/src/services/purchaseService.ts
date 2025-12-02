@@ -17,9 +17,19 @@ class PurchaseService {
       return;
     }
 
+    console.log('🔧 Initializing purchase service for user:', userId);
+    this.userId = userId;
+
     try {
-      this.userId = userId;
-      
+      // Check if IAP is available (only on native iOS/Android)
+      if (!window.Capacitor || !window.Capacitor.isNativePlatform()) {
+        console.warn('⚠️ IAP not available on web platform - mocking initialization');
+        this.initialized = true;
+        return;
+      }
+
+      console.log('📱 Running on native platform, setting up IAP...');
+
       // Register products with Apple IAP
       IAP.register([
         {
