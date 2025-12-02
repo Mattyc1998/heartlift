@@ -7,12 +7,14 @@ import { ArrowLeft, Heart, Calendar, BookOpen, Target, Award, Sparkles } from "l
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { purchaseService } from "@/services/purchaseService";
 
 export const HealingKitPurchase = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as any)?.from as string | undefined;
   const { user } = useAuth();
+  const [isPurchasing, setIsPurchasing] = useState(false);
 
   useEffect(() => {
     if (!user) {
