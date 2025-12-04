@@ -161,51 +161,59 @@ class PurchaseService {
       console.log('🔍 [INIT] Store products after registration:', this.store.products);
 
       // Set up event listeners BEFORE initialize() - CRITICAL ORDER
+      // NOTE: In v13 API, each event listener needs a SEPARATE store.when() call
       console.log('🎧 [INIT] Setting up event listeners...');
       
-      this.store.when()
-        .approved(async (transaction: any) => {
-          console.log('✅ [EVENT] Transaction approved:', transaction);
-          
-          // Check which product was purchased
-          const isPremium = transaction.products.some((p: any) => p.id === PRODUCT_IDS.PREMIUM_MONTHLY);
-          const isHealingKit = transaction.products.some((p: any) => p.id === PRODUCT_IDS.HEALING_KIT);
-          
-          if (isPremium) {
-            console.log('✅ [EVENT] Premium subscription approved');
-            await this.syncToSupabase(true, false);
-          }
-          
-          if (isHealingKit) {
-            console.log('✅ [EVENT] Healing Kit purchase approved');
-            await this.syncToSupabase(false, true);
-          }
-          
-          // Finish the transaction
-          await transaction.finish();
-        })
-        .verified((receipt: any) => {
-          console.log('✅ [EVENT] Receipt verified:', receipt);
-        })
-        .unverified((receipt: any) => {
-          console.error('❌ [EVENT] Receipt unverified:', receipt);
-        })
-        .cancelled((transaction: any) => {
-          console.log('❌ [EVENT] Transaction cancelled:', transaction);
-        })
-        .error((error: any) => {
-          console.error('❌ [EVENT] Transaction error:', error);
-        });
+      // Approved transactions
+      this.store.when().approved(async (transaction: any) => {
+        console.log('✅ [EVENT] Transaction approved:', transaction);
+        
+        // Check which product was purchased
+        const isPremium = transaction.products.some((p: any) => p.id === PRODUCT_IDS.PREMIUM_MONTHLY);
+        const isHealingKit = transaction.products.some((p: any) => p.id === PRODUCT_IDS.HEALING_KIT);
+        
+        if (isPremium) {
+          console.log('✅ [EVENT] Premium subscription approved');
+          await this.syncToSupabase(true, false);
+        }
+        
+        if (isHealingKit) {
+          console.log('✅ [EVENT] Healing Kit purchase approved');
+          await this.syncToSupabase(false, true);
+        }
+        
+        // Finish the transaction
+        await transaction.finish();
+      });
+
+      // Verified receipts
+      this.store.when().verified((receipt: any) => {
+        console.log('✅ [EVENT] Receipt verified:', receipt);
+      });
+
+      // Unverified receipts
+      this.store.when().unverified((receipt: any) => {
+        console.error('❌ [EVENT] Receipt unverified:', receipt);
+      });
+
+      // Cancelled transactions
+      this.store.when().cancelled((transaction: any) => {
+        console.log('❌ [EVENT] Transaction cancelled:', transaction);
+      });
+
+      // Error handling
+      this.store.when().error((error: any) => {
+        console.error('❌ [EVENT] Transaction error:', error);
+      });
 
       // Handle expired subscriptions
-      this.store.when()
-        .expired(async (product: any) => {
-          console.log('⚠️ [EVENT] Product expired:', product);
-          if (product.id === PRODUCT_IDS.PREMIUM_MONTHLY) {
-            console.log('⚠️ [EVENT] Premium subscription expired - revoking access');
-            await this.cancelSubscriptionInSupabase();
-          }
-        });
+      this.store.when().expired(async (product: any) => {
+        console.log('⚠️ [EVENT] Product expired:', product);
+        if (product.id === PRODUCT_IDS.PREMIUM_MONTHLY) {
+          console.log('⚠️ [EVENT] Premium subscription expired - revoking access');
+          await this.cancelSubscriptionInSupabase();
+        }
+      });
 
       console.log('✅ [INIT] Event listeners set up');
 
