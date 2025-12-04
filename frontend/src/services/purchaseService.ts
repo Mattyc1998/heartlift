@@ -207,59 +207,35 @@ class PurchaseService {
   }
 
   async purchasePremium() {
+    console.log('🛒 [PURCHASE_PREMIUM] purchasePremium() called - MINIMAL approach');
     try {
       await this.ensureInitialized();
 
-      console.log('🛒 Initiating Apple IAP purchase for:', PRODUCT_IDS.PREMIUM_MONTHLY);
+      console.log('🛒 [PURCHASE_PREMIUM] Calling store.order() for:', PRODUCT_IDS.PREMIUM_MONTHLY);
+      this.store.order(PRODUCT_IDS.PREMIUM_MONTHLY);
       
-      const product = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
-      
-      if (!product) {
-        throw new Error('Premium product not found');
-      }
-
-      // Order the product using v13 API
-      const offer = product.getOffer();
-      if (!offer) {
-        throw new Error('No offer available for premium subscription');
-      }
-
-      await this.store.order(offer);
-      
-      console.log('✅ Premium purchase initiated');
+      console.log('✅ [PURCHASE_PREMIUM] Order called - Apple will show payment UI');
       
       return { success: true };
     } catch (error: any) {
-      console.error('❌ Premium purchase failed:', error);
+      console.error('❌ [PURCHASE_PREMIUM] Purchase failed:', error);
       throw error;
     }
   }
 
   async purchaseHealingKit() {
+    console.log('🛒 [PURCHASE_KIT] purchaseHealingKit() called - MINIMAL approach');
     try {
       await this.ensureInitialized();
 
-      console.log('🛒 Initiating Apple IAP purchase for:', PRODUCT_IDS.HEALING_KIT);
+      console.log('🛒 [PURCHASE_KIT] Calling store.order() for:', PRODUCT_IDS.HEALING_KIT);
+      this.store.order(PRODUCT_IDS.HEALING_KIT);
       
-      const product = this.store.get(PRODUCT_IDS.HEALING_KIT);
-      
-      if (!product) {
-        throw new Error('Healing Kit product not found');
-      }
-
-      // Order the product using v13 API
-      const offer = product.getOffer();
-      if (!offer) {
-        throw new Error('No offer available for Healing Kit');
-      }
-
-      await this.store.order(offer);
-      
-      console.log('✅ Healing Kit purchase initiated');
+      console.log('✅ [PURCHASE_KIT] Order called - Apple will show payment UI');
       
       return { success: true };
     } catch (error: any) {
-      console.error('❌ Healing Kit purchase failed:', error);
+      console.error('❌ [PURCHASE_KIT] Purchase failed:', error);
       throw error;
     }
   }
