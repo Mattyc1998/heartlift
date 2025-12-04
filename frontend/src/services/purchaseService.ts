@@ -465,44 +465,23 @@ class PurchaseService {
   }
 
   /**
-   * Purchase Premium Subscription
+   * Purchase Premium Subscription - MINIMAL approach
    */
   async buyPremium(): Promise<{ success: boolean; error?: string }> {
-    console.log('🛒 [BUY_PREMIUM] buyPremium() called');
+    console.log('🛒 [BUY_PREMIUM] buyPremium() called - MINIMAL approach');
     try {
-      console.log('🛒 [BUY_PREMIUM] Ensuring initialized...');
       await this.ensureInitialized();
       console.log('✅ [BUY_PREMIUM] Store is initialized');
 
-      console.log('🛒 [BUY_PREMIUM] Getting product:', PRODUCT_IDS.PREMIUM_MONTHLY);
-      const product = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
-      console.log('🔍 [BUY_PREMIUM] Product:', product);
+      // Just call order - Apple handles the rest
+      console.log('🛒 [BUY_PREMIUM] Calling store.order() for:', PRODUCT_IDS.PREMIUM_MONTHLY);
+      this.store.order(PRODUCT_IDS.PREMIUM_MONTHLY);
       
-      if (!product) {
-        console.error('❌ [BUY_PREMIUM] Premium subscription product not found');
-        throw new Error('Premium subscription product not found');
-      }
-
-      console.log('✅ [BUY_PREMIUM] Product found, getting offer...');
-      // Request order using v13 API
-      const offer = product.getOffer();
-      console.log('🔍 [BUY_PREMIUM] Offer:', offer);
-      
-      if (!offer) {
-        console.error('❌ [BUY_PREMIUM] No offer available for premium subscription');
-        throw new Error('No offer available for premium subscription');
-      }
-
-      console.log('✅ [BUY_PREMIUM] Offer found, placing order...');
-      await this.store.order(offer);
-      
-      console.log('✅✅ [BUY_PREMIUM] Premium purchase initiated successfully');
+      console.log('✅ [BUY_PREMIUM] Order called - Apple will show payment UI');
       
       return { success: true };
     } catch (error: any) {
-      console.error('❌❌ [BUY_PREMIUM] Premium purchase failed:', error);
-      console.error('❌ [BUY_PREMIUM] Error message:', error?.message);
-      console.error('❌ [BUY_PREMIUM] Error stack:', error?.stack);
+      console.error('❌ [BUY_PREMIUM] Purchase failed:', error);
       return { 
         success: false, 
         error: error?.message || 'Failed to purchase premium subscription' 
@@ -511,44 +490,23 @@ class PurchaseService {
   }
 
   /**
-   * Purchase Healing Kit
+   * Purchase Healing Kit - MINIMAL approach
    */
   async buyHealingKit(): Promise<{ success: boolean; error?: string }> {
-    console.log('🛒 [BUY_KIT] buyHealingKit() called');
+    console.log('🛒 [BUY_KIT] buyHealingKit() called - MINIMAL approach');
     try {
-      console.log('🛒 [BUY_KIT] Ensuring initialized...');
       await this.ensureInitialized();
       console.log('✅ [BUY_KIT] Store is initialized');
 
-      console.log('🛒 [BUY_KIT] Getting product:', PRODUCT_IDS.HEALING_KIT);
-      const product = this.store.get(PRODUCT_IDS.HEALING_KIT);
-      console.log('🔍 [BUY_KIT] Product:', product);
+      // Just call order - Apple handles the rest
+      console.log('🛒 [BUY_KIT] Calling store.order() for:', PRODUCT_IDS.HEALING_KIT);
+      this.store.order(PRODUCT_IDS.HEALING_KIT);
       
-      if (!product) {
-        console.error('❌ [BUY_KIT] Healing Kit product not found');
-        throw new Error('Healing Kit product not found');
-      }
-
-      console.log('✅ [BUY_KIT] Product found, getting offer...');
-      // Request order using v13 API
-      const offer = product.getOffer();
-      console.log('🔍 [BUY_KIT] Offer:', offer);
-      
-      if (!offer) {
-        console.error('❌ [BUY_KIT] No offer available for Healing Kit');
-        throw new Error('No offer available for Healing Kit');
-      }
-
-      console.log('✅ [BUY_KIT] Offer found, placing order...');
-      await this.store.order(offer);
-      
-      console.log('✅✅ [BUY_KIT] Healing Kit purchase initiated successfully');
+      console.log('✅ [BUY_KIT] Order called - Apple will show payment UI');
       
       return { success: true };
     } catch (error: any) {
-      console.error('❌❌ [BUY_KIT] Healing Kit purchase failed:', error);
-      console.error('❌ [BUY_KIT] Error message:', error?.message);
-      console.error('❌ [BUY_KIT] Error stack:', error?.stack);
+      console.error('❌ [BUY_KIT] Purchase failed:', error);
       return { 
         success: false, 
         error: error?.message || 'Failed to purchase Healing Kit' 
