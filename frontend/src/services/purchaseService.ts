@@ -82,7 +82,7 @@ class PurchaseService {
 
   private async _doInitialize(): Promise<void> {
     try {
-      console.log('🔧 [INIT] Starting _doInitialize()');
+      console.log('🔧 [INIT] Starting MINIMAL initialization (no event listeners)');
       
       // Check if IAP is available (only on native iOS/Android)
       if (!window.Capacitor || !window.Capacitor.isNativePlatform()) {
@@ -91,7 +91,7 @@ class PurchaseService {
         return;
       }
 
-      console.log('📱 [INIT] Running on native platform, isNativePlatform:', window.Capacitor.isNativePlatform());
+      console.log('📱 [INIT] Running on native platform');
 
       // CRITICAL: Wait for deviceready before accessing Cordova plugins
       console.log('⏳ [INIT] Waiting for deviceready...');
@@ -100,7 +100,6 @@ class PurchaseService {
 
       // Check if CdvPurchase is available
       console.log('🔍 [INIT] Checking if CdvPurchase is defined...');
-      console.log('🔍 [INIT] typeof CdvPurchase:', typeof CdvPurchase);
       
       if (typeof CdvPurchase === 'undefined') {
         console.error('❌ [INIT] CdvPurchase is not defined - plugin not loaded');
@@ -108,10 +107,8 @@ class PurchaseService {
       }
 
       console.log('✅ [INIT] CdvPurchase is defined');
-      console.log('🔍 [INIT] CdvPurchase object:', CdvPurchase);
-      console.log('🔍 [INIT] CdvPurchase.store:', CdvPurchase.store);
 
-      // Get the store instance from cordova-plugin-purchase v13
+      // Get the store instance
       this.store = CdvPurchase.store;
 
       if (!this.store) {
@@ -119,30 +116,10 @@ class PurchaseService {
         throw new Error('CdvPurchase.store is not available');
       }
 
-      console.log('✅ [INIT] Store instance obtained:', this.store);
-      console.log('🔍 [INIT] Store methods:', Object.keys(this.store));
+      console.log('✅ [INIT] Store instance obtained');
 
-      // Check if store has required methods
-      if (typeof this.store.register !== 'function') {
-        console.error('❌ [INIT] store.register is not a function');
-        throw new Error('store.register method not available');
-      }
-
-      if (typeof this.store.initialize !== 'function') {
-        console.error('❌ [INIT] store.initialize is not a function');
-        throw new Error('store.initialize method not available');
-      }
-
-      console.log('✅ [INIT] Store has required methods');
-
-      // Log product types and platform
-      console.log('🔍 [INIT] CdvPurchase.ProductType:', CdvPurchase.ProductType);
-      console.log('🔍 [INIT] CdvPurchase.Platform:', CdvPurchase.Platform);
-
-      // Register products using v13 API - MUST be before initialize()
-      console.log('📝 [INIT] Registering products...');
-      console.log('📝 [INIT] Product 1:', PRODUCT_IDS.PREMIUM_MONTHLY);
-      console.log('📝 [INIT] Product 2:', PRODUCT_IDS.HEALING_KIT);
+      // STEP 1: Register products - NO EVENT LISTENERS
+      console.log('📝 [INIT] Registering products (MINIMAL approach)...');
       
       this.store.register([
         {
@@ -158,108 +135,25 @@ class PurchaseService {
       ]);
 
       console.log('✅ [INIT] Products registered');
-      console.log('🔍 [INIT] Store products after registration:', this.store.products);
 
-      // Set up event listeners BEFORE initialize() - CRITICAL ORDER
-      // NOTE: v13 uses PER-PRODUCT event listeners with store.when(productId)
-      console.log('🎧 [INIT] Setting up event listeners...');
-      
-      // Premium subscription event listeners
-      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).updated(async (product: any) => {
-        console.log('📦 [EVENT] Premium product updated, state:', product.state, 'owned:', product.owned);
-      });
+      // STEP 2: Initialize - Apple StoreKit will handle everything
+      console.log('🚀 [INIT] Calling store.initialize() with platform...');
 
-      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).approved(async (product: any) => {
-        console.log('✅ [EVENT] Premium subscription approved');
-        await this.syncToSupabase(true, false);
-        product.finish();
-      });
-
-      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).verified(async (product: any) => {
-        console.log('✅ [EVENT] Premium subscription verified');
-      });
-
-      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).owned((product: any) => {
-        console.log('✅ [EVENT] Premium subscription owned');
-      });
-
-      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).cancelled((product: any) => {
-        console.log('❌ [EVENT] Premium subscription cancelled');
-      });
-
-      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).expired(async (product: any) => {
-        console.log('⚠️ [EVENT] Premium subscription expired');
-        await this.cancelSubscriptionInSupabase();
-      });
-
-      // Healing Kit event listeners
-      this.store.when(PRODUCT_IDS.HEALING_KIT).updated(async (product: any) => {
-        console.log('📦 [EVENT] Healing Kit product updated, state:', product.state, 'owned:', product.owned);
-      });
-
-      this.store.when(PRODUCT_IDS.HEALING_KIT).approved(async (product: any) => {
-        console.log('✅ [EVENT] Healing Kit approved');
-        await this.syncToSupabase(false, true);
-        product.finish();
-      });
-
-      this.store.when(PRODUCT_IDS.HEALING_KIT).verified(async (product: any) => {
-        console.log('✅ [EVENT] Healing Kit verified');
-      });
-
-      this.store.when(PRODUCT_IDS.HEALING_KIT).owned((product: any) => {
-        console.log('✅ [EVENT] Healing Kit owned');
-      });
-
-      this.store.when(PRODUCT_IDS.HEALING_KIT).cancelled((product: any) => {
-        console.log('❌ [EVENT] Healing Kit cancelled');
-      });
-
-      console.log('✅ [INIT] Event listeners set up');
-
-      // Check StoreKit plugin status BEFORE initialize
-      try {
-        console.log('🔍 [INIT] Checking StoreKit plugin...');
-        const plugin = this.store.getPlugin();
-        console.log('🔍 [INIT] Plugin:', plugin);
-        if (plugin && plugin.ready) {
-          console.log('🔍 [INIT] Plugin ready status:', plugin.ready());
-        }
-      } catch (pluginError) {
-        console.warn('⚠️ [INIT] Could not check plugin status:', pluginError);
-      }
-
-      // Initialize the store and wait for it to complete
-      // THIS MUST BE CALLED ONLY ONCE AND AFTER REGISTRATION
-      console.log('🚀 [INIT] Calling store.initialize() - THIS SHOULD ONLY HAPPEN ONCE');
-      console.log('🚀 [INIT] Store state before initialize:', {
-        products: this.store.products,
-        ready: this.store.ready
-      });
-
-      await this.store.initialize();
+      await this.store.initialize([CdvPurchase.Platform.APPLE_APPSTORE]);
       
       console.log('✅ [INIT] store.initialize() completed');
-      console.log('🔍 [INIT] Store state after initialize:', {
-        products: this.store.products,
-        ready: this.store.ready
-      });
       
-      // Log all registered products after initialization
-      console.log('📦 [INIT] Checking registered products...');
+      // Check if products loaded
       const premiumProduct = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
       const healingKitProduct = this.store.get(PRODUCT_IDS.HEALING_KIT);
       console.log('📦 [INIT] Premium product:', premiumProduct);
       console.log('📦 [INIT] Healing Kit product:', healingKitProduct);
 
       this.initialized = true;
-      console.log('✅✅✅ [INIT] Store initialized successfully with v13 API - initialized flag set to TRUE');
+      console.log('✅✅✅ [INIT] Store ready - Apple will handle purchase flow');
     } catch (error) {
       console.error('❌❌❌ [INIT] Failed to initialize Apple IAP:', error);
-      console.error('❌ [INIT] Error name:', error?.name);
-      console.error('❌ [INIT] Error message:', error?.message);
-      console.error('❌ [INIT] Error stack:', error?.stack);
-      console.error('❌ [INIT] Full error object:', JSON.stringify(error, null, 2));
+      console.error('❌ [INIT] Error:', error);
       this.initialized = false;
       throw error;
     }
