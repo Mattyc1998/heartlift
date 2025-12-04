@@ -161,56 +161,58 @@ class PurchaseService {
       console.log('🔍 [INIT] Store products after registration:', this.store.products);
 
       // Set up event listeners BEFORE initialize() - CRITICAL ORDER
-      // NOTE: v13 uses product and receipt update events, not transaction events
+      // NOTE: v13 uses PER-PRODUCT event listeners with store.when(productId)
       console.log('🎧 [INIT] Setting up event listeners...');
       
-      // Listen for product updates (this is the main event in v13)
-      this.store.when().productUpdated(async (product: any) => {
-        console.log('📦 [EVENT] Product updated:', product.id, 'state:', product.state);
-        
-        // Check if product is owned (successfully purchased)
-        if (product.owned) {
-          console.log('✅ [EVENT] Product owned:', product.id);
-          
-          if (product.id === PRODUCT_IDS.PREMIUM_MONTHLY) {
-            console.log('✅ [EVENT] Premium subscription owned');
-            await this.syncToSupabase(true, false);
-          }
-          
-          if (product.id === PRODUCT_IDS.HEALING_KIT) {
-            console.log('✅ [EVENT] Healing Kit owned');
-            await this.syncToSupabase(false, true);
-          }
-        }
-        
-        // Check if product expired
-        if (product.state === 'expired') {
-          console.log('⚠️ [EVENT] Product expired:', product.id);
-          if (product.id === PRODUCT_IDS.PREMIUM_MONTHLY) {
-            console.log('⚠️ [EVENT] Premium subscription expired - revoking access');
-            await this.cancelSubscriptionInSupabase();
-          }
-        }
+      // Premium subscription event listeners
+      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).updated(async (product: any) => {
+        console.log('📦 [EVENT] Premium product updated, state:', product.state, 'owned:', product.owned);
       });
 
-      // Listen for receipt updates
-      this.store.when().receiptUpdated((receipt: any) => {
-        console.log('🧾 [EVENT] Receipt updated:', receipt);
+      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).approved(async (product: any) => {
+        console.log('✅ [EVENT] Premium subscription approved');
+        await this.syncToSupabase(true, false);
+        product.finish();
       });
 
-      // Listen for transaction updates (handles approved, finished, etc.)
-      this.store.when().transactionUpdated((transaction: any) => {
-        console.log('💳 [EVENT] Transaction updated:', transaction.state, 'for product:', transaction.products);
-        
-        // Auto-finish approved transactions
-        if (transaction.state === CdvPurchase.TransactionState.APPROVED) {
-          console.log('✅ [EVENT] Transaction approved, finishing...');
-          transaction.finish();
-        }
-        
-        if (transaction.state === CdvPurchase.TransactionState.FINISHED) {
-          console.log('✅ [EVENT] Transaction finished');
-        }
+      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).verified(async (product: any) => {
+        console.log('✅ [EVENT] Premium subscription verified');
+      });
+
+      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).owned((product: any) => {
+        console.log('✅ [EVENT] Premium subscription owned');
+      });
+
+      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).cancelled((product: any) => {
+        console.log('❌ [EVENT] Premium subscription cancelled');
+      });
+
+      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).expired(async (product: any) => {
+        console.log('⚠️ [EVENT] Premium subscription expired');
+        await this.cancelSubscriptionInSupabase();
+      });
+
+      // Healing Kit event listeners
+      this.store.when(PRODUCT_IDS.HEALING_KIT).updated(async (product: any) => {
+        console.log('📦 [EVENT] Healing Kit product updated, state:', product.state, 'owned:', product.owned);
+      });
+
+      this.store.when(PRODUCT_IDS.HEALING_KIT).approved(async (product: any) => {
+        console.log('✅ [EVENT] Healing Kit approved');
+        await this.syncToSupabase(false, true);
+        product.finish();
+      });
+
+      this.store.when(PRODUCT_IDS.HEALING_KIT).verified(async (product: any) => {
+        console.log('✅ [EVENT] Healing Kit verified');
+      });
+
+      this.store.when(PRODUCT_IDS.HEALING_KIT).owned((product: any) => {
+        console.log('✅ [EVENT] Healing Kit owned');
+      });
+
+      this.store.when(PRODUCT_IDS.HEALING_KIT).cancelled((product: any) => {
+        console.log('❌ [EVENT] Healing Kit cancelled');
       });
 
       console.log('✅ [INIT] Event listeners set up');
