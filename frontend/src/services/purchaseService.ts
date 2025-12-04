@@ -161,57 +161,55 @@ class PurchaseService {
       console.log('🔍 [INIT] Store products after registration:', this.store.products);
 
       // Set up event listeners BEFORE initialize() - CRITICAL ORDER
-      // NOTE: In v13 API, each event listener needs a SEPARATE store.when() call
+      // NOTE: v13 uses product and receipt update events, not transaction events
       console.log('🎧 [INIT] Setting up event listeners...');
       
-      // Approved transactions
-      this.store.when().approved(async (transaction: any) => {
-        console.log('✅ [EVENT] Transaction approved:', transaction);
+      // Listen for product updates (this is the main event in v13)
+      this.store.when().productUpdated(async (product: any) => {
+        console.log('📦 [EVENT] Product updated:', product.id, 'state:', product.state);
         
-        // Check which product was purchased
-        const isPremium = transaction.products.some((p: any) => p.id === PRODUCT_IDS.PREMIUM_MONTHLY);
-        const isHealingKit = transaction.products.some((p: any) => p.id === PRODUCT_IDS.HEALING_KIT);
-        
-        if (isPremium) {
-          console.log('✅ [EVENT] Premium subscription approved');
-          await this.syncToSupabase(true, false);
+        // Check if product is owned (successfully purchased)
+        if (product.owned) {
+          console.log('✅ [EVENT] Product owned:', product.id);
+          
+          if (product.id === PRODUCT_IDS.PREMIUM_MONTHLY) {
+            console.log('✅ [EVENT] Premium subscription owned');
+            await this.syncToSupabase(true, false);
+          }
+          
+          if (product.id === PRODUCT_IDS.HEALING_KIT) {
+            console.log('✅ [EVENT] Healing Kit owned');
+            await this.syncToSupabase(false, true);
+          }
         }
         
-        if (isHealingKit) {
-          console.log('✅ [EVENT] Healing Kit purchase approved');
-          await this.syncToSupabase(false, true);
+        // Check if product expired
+        if (product.state === 'expired') {
+          console.log('⚠️ [EVENT] Product expired:', product.id);
+          if (product.id === PRODUCT_IDS.PREMIUM_MONTHLY) {
+            console.log('⚠️ [EVENT] Premium subscription expired - revoking access');
+            await this.cancelSubscriptionInSupabase();
+          }
+        }
+      });
+
+      // Listen for receipt updates
+      this.store.when().receiptUpdated((receipt: any) => {
+        console.log('🧾 [EVENT] Receipt updated:', receipt);
+      });
+
+      // Listen for transaction updates (handles approved, finished, etc.)
+      this.store.when().transactionUpdated((transaction: any) => {
+        console.log('💳 [EVENT] Transaction updated:', transaction.state, 'for product:', transaction.products);
+        
+        // Auto-finish approved transactions
+        if (transaction.state === CdvPurchase.TransactionState.APPROVED) {
+          console.log('✅ [EVENT] Transaction approved, finishing...');
+          transaction.finish();
         }
         
-        // Finish the transaction
-        await transaction.finish();
-      });
-
-      // Verified receipts
-      this.store.when().verified((receipt: any) => {
-        console.log('✅ [EVENT] Receipt verified:', receipt);
-      });
-
-      // Unverified receipts
-      this.store.when().unverified((receipt: any) => {
-        console.error('❌ [EVENT] Receipt unverified:', receipt);
-      });
-
-      // Cancelled transactions
-      this.store.when().cancelled((transaction: any) => {
-        console.log('❌ [EVENT] Transaction cancelled:', transaction);
-      });
-
-      // Error handling
-      this.store.when().error((error: any) => {
-        console.error('❌ [EVENT] Transaction error:', error);
-      });
-
-      // Handle expired subscriptions
-      this.store.when().expired(async (product: any) => {
-        console.log('⚠️ [EVENT] Product expired:', product);
-        if (product.id === PRODUCT_IDS.PREMIUM_MONTHLY) {
-          console.log('⚠️ [EVENT] Premium subscription expired - revoking access');
-          await this.cancelSubscriptionInSupabase();
+        if (transaction.state === CdvPurchase.TransactionState.FINISHED) {
+          console.log('✅ [EVENT] Transaction finished');
         }
       });
 
