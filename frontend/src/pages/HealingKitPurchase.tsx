@@ -18,6 +18,7 @@ export const HealingKitPurchase = () => {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [alreadyOwned, setAlreadyOwned] = useState(false);
   const [checkingOwnership, setCheckingOwnership] = useState(true);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     if (!user) {
