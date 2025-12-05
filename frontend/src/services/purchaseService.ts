@@ -136,7 +136,44 @@ class PurchaseService {
 
       console.log('✅ [INIT] Products registered');
 
-      // STEP 2: Initialize - Apple StoreKit will handle everything
+      // STEP 2: Set up event listeners to handle approved purchases
+      console.log('🎧 [INIT] Setting up purchase event listeners...');
+
+      // Premium subscription - handle approved purchases
+      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).approved(async (product: any) => {
+        console.log('✅ [EVENT] Premium subscription APPROVED!', product);
+        try {
+          await this.syncToSupabase(true, false);
+          console.log('✅ [EVENT] Premium synced to Supabase');
+          product.finish();
+          console.log('✅ [EVENT] Premium transaction finished');
+        } catch (error) {
+          console.error('❌ [EVENT] Error syncing premium:', error);
+        }
+      });
+
+      // Healing Kit - handle approved purchases
+      this.store.when(PRODUCT_IDS.HEALING_KIT).approved(async (product: any) => {
+        console.log('✅ [EVENT] Healing Kit APPROVED!', product);
+        try {
+          await this.syncToSupabase(false, true);
+          console.log('✅ [EVENT] Healing Kit synced to Supabase');
+          product.finish();
+          console.log('✅ [EVENT] Healing Kit transaction finished');
+        } catch (error) {
+          console.error('❌ [EVENT] Error syncing healing kit:', error);
+        }
+      });
+
+      // Handle expired subscriptions
+      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).expired(async (product: any) => {
+        console.log('⚠️ [EVENT] Premium subscription EXPIRED');
+        await this.cancelSubscriptionInSupabase();
+      });
+
+      console.log('✅ [INIT] Event listeners set up');
+
+      // STEP 3: Initialize - Apple StoreKit will handle everything
       console.log('🚀 [INIT] Calling store.initialize() with platform...');
 
       await this.store.initialize([CdvPurchase.Platform.APPLE_APPSTORE]);
