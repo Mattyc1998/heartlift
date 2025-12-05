@@ -441,19 +441,46 @@ class PurchaseService {
   }
 
   /**
-   * Purchase Premium Subscription - MINIMAL approach
+   * Purchase Premium Subscription - Get offer first, then order
    */
   async buyPremium(): Promise<{ success: boolean; error?: string }> {
-    console.log('🛒 [BUY_PREMIUM] buyPremium() called - MINIMAL approach');
+    console.log('🛒 [BUY_PREMIUM] buyPremium() called');
     try {
       await this.ensureInitialized();
       console.log('✅ [BUY_PREMIUM] Store is initialized');
 
-      // Just call order - Apple handles the rest
-      console.log('🛒 [BUY_PREMIUM] Calling store.order() for:', PRODUCT_IDS.PREMIUM_MONTHLY);
-      this.store.order(PRODUCT_IDS.PREMIUM_MONTHLY);
+      // Get the product
+      const product = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+      console.log('🛒 [BUY_PREMIUM] Product:', product);
       
-      console.log('✅ [BUY_PREMIUM] Order called - Apple will show payment UI');
+      if (!product) {
+        console.error('❌ [BUY_PREMIUM] Product not found');
+        throw new Error('Premium product not found. Please try again.');
+      }
+
+      // Check if product is valid
+      if (!product.canPurchase) {
+        console.error('❌ [BUY_PREMIUM] Product cannot be purchased');
+        throw new Error('This product is not available for purchase.');
+      }
+
+      // Get the offer from the product
+      const offers = product.offers;
+      console.log('🛒 [BUY_PREMIUM] Product offers:', offers);
+      
+      if (!offers || offers.length === 0) {
+        console.error('❌ [BUY_PREMIUM] No offers available');
+        throw new Error('No purchase offers available. Please try again.');
+      }
+
+      const offer = offers[0];
+      console.log('🛒 [BUY_PREMIUM] Using offer:', offer);
+
+      // Order the offer (this triggers Apple payment sheet)
+      console.log('🛒 [BUY_PREMIUM] Calling store.order() with offer');
+      await this.store.order(offer);
+      
+      console.log('✅ [BUY_PREMIUM] Order placed - Apple payment UI should appear');
       
       return { success: true };
     } catch (error: any) {
@@ -466,19 +493,46 @@ class PurchaseService {
   }
 
   /**
-   * Purchase Healing Kit - MINIMAL approach
+   * Purchase Healing Kit - Get offer first, then order
    */
   async buyHealingKit(): Promise<{ success: boolean; error?: string }> {
-    console.log('🛒 [BUY_KIT] buyHealingKit() called - MINIMAL approach');
+    console.log('🛒 [BUY_KIT] buyHealingKit() called');
     try {
       await this.ensureInitialized();
       console.log('✅ [BUY_KIT] Store is initialized');
 
-      // Just call order - Apple handles the rest
-      console.log('🛒 [BUY_KIT] Calling store.order() for:', PRODUCT_IDS.HEALING_KIT);
-      this.store.order(PRODUCT_IDS.HEALING_KIT);
+      // Get the product
+      const product = this.store.get(PRODUCT_IDS.HEALING_KIT);
+      console.log('🛒 [BUY_KIT] Product:', product);
       
-      console.log('✅ [BUY_KIT] Order called - Apple will show payment UI');
+      if (!product) {
+        console.error('❌ [BUY_KIT] Product not found');
+        throw new Error('Healing Kit not found. Please try again.');
+      }
+
+      // Check if product is valid
+      if (!product.canPurchase) {
+        console.error('❌ [BUY_KIT] Product cannot be purchased');
+        throw new Error('This product is not available for purchase.');
+      }
+
+      // Get the offer from the product
+      const offers = product.offers;
+      console.log('🛒 [BUY_KIT] Product offers:', offers);
+      
+      if (!offers || offers.length === 0) {
+        console.error('❌ [BUY_KIT] No offers available');
+        throw new Error('No purchase offers available. Please try again.');
+      }
+
+      const offer = offers[0];
+      console.log('🛒 [BUY_KIT] Using offer:', offer);
+
+      // Order the offer (this triggers Apple payment sheet)
+      console.log('🛒 [BUY_KIT] Calling store.order() with offer');
+      await this.store.order(offer);
+      
+      console.log('✅ [BUY_KIT] Order placed - Apple payment UI should appear');
       
       return { success: true };
     } catch (error: any) {
