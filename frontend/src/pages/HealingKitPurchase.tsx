@@ -15,12 +15,35 @@ export const HealingKitPurchase = () => {
   const from = (location.state as any)?.from as string | undefined;
   const { user } = useAuth();
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [alreadyOwned, setAlreadyOwned] = useState(false);
+  const [checkingOwnership, setCheckingOwnership] = useState(true);
 
   useEffect(() => {
     if (!user) {
       navigate('/auth');
       return;
     }
+
+    // Check if user already owns healing kit
+    const checkOwnership = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('healing_kit_purchases')
+          .select('status')
+          .eq('user_id', user.id)
+          .single();
+
+        if (data?.status === 'completed') {
+          setAlreadyOwned(true);
+        }
+      } catch (error) {
+        console.error('Error checking ownership:', error);
+      } finally {
+        setCheckingOwnership(false);
+      }
+    };
+
+    checkOwnership();
   }, [user, navigate]);
 
   const features = useMemo(() => [
