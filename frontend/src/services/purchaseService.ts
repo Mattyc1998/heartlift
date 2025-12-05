@@ -211,11 +211,57 @@ class PurchaseService {
 
       this.initialized = true;
       console.log('✅✅✅ [INIT] Store ready - Apple will handle purchase flow');
+
+      // CRITICAL: Check subscription status after initialization
+      console.log('🔍 [INIT] Checking subscription status on launch...');
+      await this.checkSubscriptionStatus();
     } catch (error) {
       console.error('❌❌❌ [INIT] Failed to initialize Apple IAP:', error);
       console.error('❌ [INIT] Error:', error);
       this.initialized = false;
       throw error;
+    }
+  }
+
+  /**
+   * Check current subscription status from Apple and sync to Supabase
+   * CRITICAL: This handles cancellations and expirations
+   * Call this:
+   * - After store initialization
+   * - On app resume/foreground
+   * - Before checking feature access
+   */
+  async checkSubscriptionStatus(): Promise<{ isPremium: boolean; hasHealingKit: boolean }> {
+    console.log('🔍 [STATUS] Checking subscription status from Apple...');
+    
+    try {
+      if (!this.initialized || !this.store) {
+        console.warn('⚠️ [STATUS] Store not initialized, skipping status check');
+        return { isPremium: false, hasHealingKit: false };
+      }
+
+      // Get products from store
+      const premiumProduct = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+      const healingKitProduct = this.store.get(PRODUCT_IDS.HEALING_KIT);
+
+      console.log('📦 [STATUS] Premium product:', premiumProduct);
+      console.log('📦 [STATUS] Healing Kit product:', healingKitProduct);
+
+      // Check if user owns them
+      const isPremium = premiumProduct && premiumProduct.owned ? true : false;
+      const hasHealingKit = healingKitProduct && healingKitProduct.owned ? true : false;
+
+      console.log('📊 [STATUS] Current ownership:', { isPremium, hasHealingKit });
+
+      // Sync to Supabase - this updates the database with current status
+      // If user cancelled subscription, owned will be false and we'll lock features
+      await this.syncToSupabase(isPremium, hasHealingKit);
+      console.log('✅ [STATUS] Status synced to Supabase');
+
+      return { isPremium, hasHealingKit };
+    } catch (error) {
+      console.error('❌ [STATUS] Error checking subscription status:', error);
+      return { isPremium: false, hasHealingKit: false };
     }
   }
 
