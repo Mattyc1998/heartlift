@@ -137,66 +137,64 @@ class PurchaseService {
 
       console.log('✅ [INIT] Products registered');
 
-      // STEP 2: Set up event listeners to handle approved purchases
-      console.log('🎧 [INIT] Setting up purchase event listeners...');
+      // STEP 2: Set up ONLY the .approved() listener (the only one that works in v13)
+      console.log('🎧 [INIT] Setting up .approved() listener...');
 
-      // Premium subscription - handle approved purchases
-      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).approved(async (product: any) => {
-        console.log('✅ [EVENT] Premium subscription APPROVED!', product);
+      // Single global approved handler for ALL purchases
+      this.store.when().approved(async (transaction: any) => {
+        console.log('✅ [EVENT] Purchase APPROVED!', transaction);
+        
         try {
-          await this.syncToSupabase(true, false);
-          console.log('✅ [EVENT] Premium synced to Supabase');
-          product.finish();
-          console.log('✅ [EVENT] Premium transaction finished');
+          // Check which products were purchased
+          const products = transaction.products || [];
+          let isPremium = false;
+          let isHealingKit = false;
+
+          for (const product of products) {
+            if (product.id === PRODUCT_IDS.PREMIUM_MONTHLY) {
+              isPremium = true;
+            }
+            if (product.id === PRODUCT_IDS.HEALING_KIT) {
+              isHealingKit = true;
+            }
+          }
+
+          console.log('✅ [EVENT] Products in transaction:', { isPremium, isHealingKit });
+
+          // Sync to Supabase
+          if (isPremium || isHealingKit) {
+            await this.syncToSupabase(isPremium, isHealingKit);
+            console.log('✅ [EVENT] Synced to Supabase');
+          }
+
+          // Finish the transaction
+          transaction.finish();
+          console.log('✅ [EVENT] Transaction finished');
           
-          // Resolve pending purchase promise
-          const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.PREMIUM_MONTHLY);
-          if (resolver) {
-            resolver.resolve();
+          // Resolve pending purchase promises
+          if (isPremium && this.pendingPurchaseResolvers.has(PRODUCT_IDS.PREMIUM_MONTHLY)) {
+            const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+            resolver!.resolve();
             this.pendingPurchaseResolvers.delete(PRODUCT_IDS.PREMIUM_MONTHLY);
           }
-        } catch (error) {
-          console.error('❌ [EVENT] Error syncing premium:', error);
-          const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.PREMIUM_MONTHLY);
-          if (resolver) {
-            resolver.reject(error);
-            this.pendingPurchaseResolvers.delete(PRODUCT_IDS.PREMIUM_MONTHLY);
-          }
-        }
-      });
-
-      // Healing Kit - handle approved purchases
-      this.store.when(PRODUCT_IDS.HEALING_KIT).approved(async (product: any) => {
-        console.log('✅ [EVENT] Healing Kit APPROVED!', product);
-        try {
-          await this.syncToSupabase(false, true);
-          console.log('✅ [EVENT] Healing Kit synced to Supabase');
-          product.finish();
-          console.log('✅ [EVENT] Healing Kit transaction finished');
           
-          // Resolve pending purchase promise
-          const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.HEALING_KIT);
-          if (resolver) {
-            resolver.resolve();
+          if (isHealingKit && this.pendingPurchaseResolvers.has(PRODUCT_IDS.HEALING_KIT)) {
+            const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.HEALING_KIT);
+            resolver!.resolve();
             this.pendingPurchaseResolvers.delete(PRODUCT_IDS.HEALING_KIT);
           }
         } catch (error) {
-          console.error('❌ [EVENT] Error syncing healing kit:', error);
-          const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.HEALING_KIT);
-          if (resolver) {
+          console.error('❌ [EVENT] Error handling approval:', error);
+          
+          // Reject all pending promises
+          for (const [productId, resolver] of this.pendingPurchaseResolvers.entries()) {
             resolver.reject(error);
-            this.pendingPurchaseResolvers.delete(PRODUCT_IDS.HEALING_KIT);
           }
+          this.pendingPurchaseResolvers.clear();
         }
       });
 
-      // Handle expired subscriptions
-      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).expired(async (product: any) => {
-        console.log('⚠️ [EVENT] Premium subscription EXPIRED');
-        await this.cancelSubscriptionInSupabase();
-      });
-
-      console.log('✅ [INIT] Event listeners set up');
+      console.log('✅ [INIT] Approved listener set up');
 
       // STEP 3: Initialize - Apple StoreKit will handle everything
       console.log('🚀 [INIT] Calling store.initialize() with platform...');
