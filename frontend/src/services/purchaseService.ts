@@ -17,6 +17,7 @@ class PurchaseService {
   private store: any = null;
   private deviceReadyFired = false;
   private initPromise: Promise<void> | null = null;
+  private pendingPurchaseResolvers: Map<string, { resolve: () => void; reject: (error: any) => void }> = new Map();
 
   constructor() {
     // Listen for deviceready event
