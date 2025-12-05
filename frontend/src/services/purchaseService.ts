@@ -165,6 +165,10 @@ class PurchaseService {
           if (isPremium || isHealingKit) {
             await this.syncToSupabase(isPremium, isHealingKit);
             console.log('✅ [EVENT] Synced to Supabase');
+            
+            // Wait a moment to ensure Supabase has fully processed the update
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            console.log('✅ [EVENT] Waited for Supabase to process');
           }
 
           // Finish the transaction
