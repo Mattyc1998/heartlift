@@ -57,8 +57,18 @@ export const HealingKitPurchase = () => {
   ], []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary/30 to-accent/30 p-4">
-      <div className="max-w-2xl mx-auto pt-8">
+    <>
+      <PurchaseSuccessModal 
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          navigate('/healing-kit');
+        }}
+        type="healingkit"
+      />
+      
+      <div className="min-h-screen bg-gradient-to-br from-secondary/30 to-accent/30 p-4">
+        <div className="max-w-2xl mx-auto pt-8">
         <Button 
           variant="ghost" 
           onClick={() => {
