@@ -366,34 +366,6 @@ class PurchaseService {
     }
   }
 
-  /**
-   * Check current subscription status from Apple and sync to Supabase
-   * Call this on app launch to detect cancelled subscriptions
-   */
-  async checkSubscriptionStatus() {
-    try {
-      await this.ensureInitialized();
-
-      console.log('🔍 Checking subscription status from Apple...');
-      
-      const premiumProduct = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
-      const healingKitProduct = this.store.get(PRODUCT_IDS.HEALING_KIT);
-      
-      const hasPremium = premiumProduct?.owned || false;
-      const hasHealingKit = healingKitProduct?.owned || false;
-
-      console.log('📊 Current Apple IAP status:', { hasPremium, hasHealingKit });
-      
-      // Sync current status to Supabase
-      await this.syncToSupabase(hasPremium, hasHealingKit);
-
-      return { hasPremium, hasHealingKit };
-    } catch (error) {
-      console.error('❌ Failed to check subscription status:', error);
-      return { hasPremium: false, hasHealingKit: false };
-    }
-  }
-
   async restorePurchases() {
     try {
       await this.ensureInitialized();
