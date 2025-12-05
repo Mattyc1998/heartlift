@@ -204,5 +204,6 @@ export const PremiumPurchase = () => {
         </Card>
       </div>
     </div>
+    </>
   );
 };
