@@ -207,14 +207,24 @@ class PurchaseService {
   }
 
   async purchasePremium() {
-    console.log('🛒 [PURCHASE_PREMIUM] purchasePremium() called - MINIMAL approach');
+    console.log('🛒 [PURCHASE_PREMIUM] purchasePremium() called');
     try {
       await this.ensureInitialized();
 
-      console.log('🛒 [PURCHASE_PREMIUM] Calling store.order() for:', PRODUCT_IDS.PREMIUM_MONTHLY);
-      this.store.order(PRODUCT_IDS.PREMIUM_MONTHLY);
+      const product = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
       
-      console.log('✅ [PURCHASE_PREMIUM] Order called - Apple will show payment UI');
+      if (!product || !product.canPurchase) {
+        throw new Error('Premium product not available for purchase');
+      }
+
+      const offers = product.offers;
+      if (!offers || offers.length === 0) {
+        throw new Error('No purchase offers available');
+      }
+
+      await this.store.order(offers[0]);
+      
+      console.log('✅ [PURCHASE_PREMIUM] Order placed');
       
       return { success: true };
     } catch (error: any) {
@@ -224,14 +234,24 @@ class PurchaseService {
   }
 
   async purchaseHealingKit() {
-    console.log('🛒 [PURCHASE_KIT] purchaseHealingKit() called - MINIMAL approach');
+    console.log('🛒 [PURCHASE_KIT] purchaseHealingKit() called');
     try {
       await this.ensureInitialized();
 
-      console.log('🛒 [PURCHASE_KIT] Calling store.order() for:', PRODUCT_IDS.HEALING_KIT);
-      this.store.order(PRODUCT_IDS.HEALING_KIT);
+      const product = this.store.get(PRODUCT_IDS.HEALING_KIT);
       
-      console.log('✅ [PURCHASE_KIT] Order called - Apple will show payment UI');
+      if (!product || !product.canPurchase) {
+        throw new Error('Healing Kit not available for purchase');
+      }
+
+      const offers = product.offers;
+      if (!offers || offers.length === 0) {
+        throw new Error('No purchase offers available');
+      }
+
+      await this.store.order(offers[0]);
+      
+      console.log('✅ [PURCHASE_KIT] Order placed');
       
       return { success: true };
     } catch (error: any) {
