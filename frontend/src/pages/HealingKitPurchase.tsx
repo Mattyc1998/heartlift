@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { purchaseService } from "@/services/purchaseService";
+import { PurchaseSuccessModal } from "@/components/PurchaseSuccessModal";
 
 export const HealingKitPurchase = () => {
   const navigate = useNavigate();
@@ -15,12 +16,36 @@ export const HealingKitPurchase = () => {
   const from = (location.state as any)?.from as string | undefined;
   const { user } = useAuth();
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [alreadyOwned, setAlreadyOwned] = useState(false);
+  const [checkingOwnership, setCheckingOwnership] = useState(true);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     if (!user) {
       navigate('/auth');
       return;
     }
+
+    // Check if user already owns healing kit
+    const checkOwnership = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('healing_kit_purchases')
+          .select('status')
+          .eq('user_id', user.id)
+          .single();
+
+        if (data?.status === 'completed') {
+          setAlreadyOwned(true);
+        }
+      } catch (error) {
+        console.error('Error checking ownership:', error);
+      } finally {
+        setCheckingOwnership(false);
+      }
+    };
+
+    checkOwnership();
   }, [user, navigate]);
 
   const features = useMemo(() => [
@@ -32,8 +57,18 @@ export const HealingKitPurchase = () => {
   ], []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary/30 to-accent/30 p-4">
-      <div className="max-w-2xl mx-auto pt-8">
+    <>
+      <PurchaseSuccessModal 
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          navigate('/healing-kit');
+        }}
+        type="healingkit"
+      />
+      
+      <div className="min-h-screen bg-gradient-to-br from-secondary/30 to-accent/30 p-4">
+        <div className="max-w-2xl mx-auto pt-8">
         <Button 
           variant="ghost" 
           onClick={() => {
@@ -96,45 +131,66 @@ export const HealingKitPurchase = () => {
             </div>
 
 
-            {/* Purchase Button */}
+            {/* Purchase Button or Already Owned Message */}
             <div className="border-t pt-6 space-y-4">
-              <Button 
-                onClick={async () => {
-                  setIsPurchasing(true);
-                  try {
-                    toast.loading("Opening purchase...");
-                    const result = await purchaseService.buyHealingKit();
-                    
-                    if (result.success) {
-                      toast.success("Healing Kit unlocked! 💚");
-                      // Navigate to healing kit after successful purchase
-                      setTimeout(() => {
-                        navigate('/healing-kit');
-                      }, 1500);
-                    } else {
-                      toast.error(result.error || "Purchase failed. Please try again.");
-                    }
-                  } catch (error: any) {
-                    console.error('Purchase error:', error);
-                    toast.error(error?.message || "Unable to complete purchase");
-                  } finally {
-                    setIsPurchasing(false);
-                  }
-                }}
-                disabled={isPurchasing}
-                className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity"
-              >
-                <Heart className="w-5 h-5 mr-2" />
-                {isPurchasing ? "Processing..." : "Get Healing Kit - £4.99"}
-              </Button>
-              
-              <p className="text-xs text-center text-muted-foreground">
-                One-time purchase. Lifetime access included.
-              </p>
+              {alreadyOwned ? (
+                <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center">
+                  <Heart className="w-8 h-8 text-primary mx-auto mb-2" />
+                  <p className="text-lg font-semibold text-foreground">You already own the Healing Kit! 💚</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Your 30-day healing journey is ready and waiting for you.
+                  </p>
+                  <Button 
+                    onClick={() => navigate('/healing-kit')}
+                    className="mt-4"
+                  >
+                    Start Healing Journey
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button 
+                    onClick={async () => {
+                      setIsPurchasing(true);
+                      const loadingToast = toast.loading("Opening purchase...");
+                      try {
+                        const result = await purchaseService.buyHealingKit();
+                        
+                        // Dismiss the loading toast
+                        toast.dismiss(loadingToast);
+                        
+                        if (result.success) {
+                          setAlreadyOwned(true);
+                          // Show success modal
+                          setShowSuccessModal(true);
+                        } else {
+                          toast.error(result.error || "Purchase failed. Please try again.");
+                        }
+                      } catch (error: any) {
+                        toast.dismiss(loadingToast);
+                        console.error('Purchase error:', error);
+                        toast.error(error?.message || "Unable to complete purchase");
+                      } finally {
+                        setIsPurchasing(false);
+                      }
+                    }}
+                    disabled={isPurchasing || checkingOwnership}
+                    className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity"
+                  >
+                    <Heart className="w-5 h-5 mr-2" />
+                    {isPurchasing ? "Processing..." : checkingOwnership ? "Loading..." : "Get Healing Kit - £4.99"}
+                  </Button>
+                  
+                  <p className="text-xs text-center text-muted-foreground">
+                    One-time purchase. Lifetime access included.
+                  </p>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
     </div>
+    </>
   );
 };

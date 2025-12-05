@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { purchaseService } from "@/services/purchaseService";
+import { PurchaseSuccessModal } from "@/components/PurchaseSuccessModal";
 
 export const PremiumPurchase = () => {
   const navigate = useNavigate();
@@ -15,12 +16,36 @@ export const PremiumPurchase = () => {
   const from = (location.state as any)?.from as string | undefined;
   const { user } = useAuth();
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [alreadyOwned, setAlreadyOwned] = useState(false);
+  const [checkingOwnership, setCheckingOwnership] = useState(true);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     if (!user) {
       navigate('/auth');
       return;
     }
+
+    // Check if user already owns premium
+    const checkOwnership = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('subscribers')
+          .select('subscribed')
+          .eq('user_id', user.id)
+          .single();
+
+        if (data?.subscribed) {
+          setAlreadyOwned(true);
+        }
+      } catch (error) {
+        console.error('Error checking ownership:', error);
+      } finally {
+        setCheckingOwnership(false);
+      }
+    };
+
+    checkOwnership();
   }, [user, navigate]);
 
   const features = useMemo(() => [
@@ -35,8 +60,22 @@ export const PremiumPurchase = () => {
   ], []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary/30 to-accent/30 p-4">
-      <div className="max-w-2xl mx-auto pt-8">
+    <>
+      <PurchaseSuccessModal 
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          if (from === 'home') {
+            navigate('/');
+          } else {
+            navigate('/?tab=coaches');
+          }
+        }}
+        type="premium"
+      />
+      
+      <div className="min-h-screen bg-gradient-to-br from-secondary/30 to-accent/30 p-4">
+        <div className="max-w-2xl mx-auto pt-8">
         <Button 
           variant="ghost" 
           onClick={() => {
@@ -97,49 +136,74 @@ export const PremiumPurchase = () => {
             </div>
 
 
-            {/* Purchase Button */}
+            {/* Purchase Button or Already Owned Message */}
             <div className="border-t pt-6 space-y-4">
-              <Button 
-                onClick={async () => {
-                  setIsPurchasing(true);
-                  try {
-                    toast.loading("Opening purchase...");
-                    const result = await purchaseService.buyPremium();
-                    
-                    if (result.success) {
-                      toast.success("Welcome to Premium! 🎉");
-                      // Navigate back after successful purchase
-                      setTimeout(() => {
-                        if (from === 'home') {
-                          navigate('/');
+              {alreadyOwned ? (
+                <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center">
+                  <Crown className="w-8 h-8 text-primary mx-auto mb-2" />
+                  <p className="text-lg font-semibold text-foreground">You already have Premium! 🎉</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    All premium features are unlocked and ready to use.
+                  </p>
+                  <Button 
+                    onClick={() => {
+                      if (from === 'home') {
+                        navigate('/');
+                      } else {
+                        navigate('/?tab=coaches');
+                      }
+                    }}
+                    className="mt-4"
+                    variant="outline"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to App
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button 
+                    onClick={async () => {
+                      setIsPurchasing(true);
+                      const loadingToast = toast.loading("Opening purchase...");
+                      try {
+                        const result = await purchaseService.buyPremium();
+                        
+                        // Dismiss the loading toast
+                        toast.dismiss(loadingToast);
+                        
+                        if (result.success) {
+                          setAlreadyOwned(true);
+                          // Show success modal
+                          setShowSuccessModal(true);
                         } else {
-                          navigate('/?tab=coaches');
+                          toast.error(result.error || "Purchase failed. Please try again.");
                         }
-                      }, 1500);
-                    } else {
-                      toast.error(result.error || "Purchase failed. Please try again.");
-                    }
-                  } catch (error: any) {
-                    console.error('Purchase error:', error);
-                    toast.error(error?.message || "Unable to complete purchase");
-                  } finally {
-                    setIsPurchasing(false);
-                  }
-                }}
-                disabled={isPurchasing}
-                className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity"
-              >
-                <Crown className="w-5 h-5 mr-2" />
-                {isPurchasing ? "Processing..." : "Go Premium - £11.99/month"}
-              </Button>
-              
-              <p className="text-xs text-center text-muted-foreground">
-                Cancel anytime in your Apple settings. Subscription auto-renews monthly.
-              </p>
+                      } catch (error: any) {
+                        toast.dismiss(loadingToast);
+                        console.error('Purchase error:', error);
+                        toast.error(error?.message || "Unable to complete purchase");
+                      } finally {
+                        setIsPurchasing(false);
+                      }
+                    }}
+                    disabled={isPurchasing || checkingOwnership}
+                    className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity"
+                  >
+                    <Crown className="w-5 h-5 mr-2" />
+                    {isPurchasing ? "Processing..." : checkingOwnership ? "Loading..." : "Go Premium - £11.99/month"}
+                  </Button>
+                  
+                  <p className="text-xs text-center text-muted-foreground">
+                    Cancel anytime in your Apple settings. Subscription auto-renews monthly.
+                  </p>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
     </div>
+    </>
   );
 };

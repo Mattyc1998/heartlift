@@ -17,6 +17,7 @@ class PurchaseService {
   private store: any = null;
   private deviceReadyFired = false;
   private initPromise: Promise<void> | null = null;
+  private pendingPurchaseResolvers: Map<string, { resolve: () => void; reject: (error: any) => void }> = new Map();
 
   constructor() {
     // Listen for deviceready event
@@ -136,7 +137,68 @@ class PurchaseService {
 
       console.log('✅ [INIT] Products registered');
 
-      // STEP 2: Initialize - Apple StoreKit will handle everything
+      // STEP 2: Set up event listeners to handle approved purchases
+      console.log('🎧 [INIT] Setting up purchase event listeners...');
+
+      // Premium subscription - handle approved purchases
+      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).approved(async (product: any) => {
+        console.log('✅ [EVENT] Premium subscription APPROVED!', product);
+        try {
+          await this.syncToSupabase(true, false);
+          console.log('✅ [EVENT] Premium synced to Supabase');
+          product.finish();
+          console.log('✅ [EVENT] Premium transaction finished');
+          
+          // Resolve pending purchase promise
+          const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+          if (resolver) {
+            resolver.resolve();
+            this.pendingPurchaseResolvers.delete(PRODUCT_IDS.PREMIUM_MONTHLY);
+          }
+        } catch (error) {
+          console.error('❌ [EVENT] Error syncing premium:', error);
+          const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+          if (resolver) {
+            resolver.reject(error);
+            this.pendingPurchaseResolvers.delete(PRODUCT_IDS.PREMIUM_MONTHLY);
+          }
+        }
+      });
+
+      // Healing Kit - handle approved purchases
+      this.store.when(PRODUCT_IDS.HEALING_KIT).approved(async (product: any) => {
+        console.log('✅ [EVENT] Healing Kit APPROVED!', product);
+        try {
+          await this.syncToSupabase(false, true);
+          console.log('✅ [EVENT] Healing Kit synced to Supabase');
+          product.finish();
+          console.log('✅ [EVENT] Healing Kit transaction finished');
+          
+          // Resolve pending purchase promise
+          const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.HEALING_KIT);
+          if (resolver) {
+            resolver.resolve();
+            this.pendingPurchaseResolvers.delete(PRODUCT_IDS.HEALING_KIT);
+          }
+        } catch (error) {
+          console.error('❌ [EVENT] Error syncing healing kit:', error);
+          const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.HEALING_KIT);
+          if (resolver) {
+            resolver.reject(error);
+            this.pendingPurchaseResolvers.delete(PRODUCT_IDS.HEALING_KIT);
+          }
+        }
+      });
+
+      // Handle expired subscriptions
+      this.store.when(PRODUCT_IDS.PREMIUM_MONTHLY).expired(async (product: any) => {
+        console.log('⚠️ [EVENT] Premium subscription EXPIRED');
+        await this.cancelSubscriptionInSupabase();
+      });
+
+      console.log('✅ [INIT] Event listeners set up');
+
+      // STEP 3: Initialize - Apple StoreKit will handle everything
       console.log('🚀 [INIT] Calling store.initialize() with platform...');
 
       await this.store.initialize([CdvPurchase.Platform.APPLE_APPSTORE]);
@@ -461,7 +523,7 @@ class PurchaseService {
   }
 
   /**
-   * Purchase Premium Subscription - Get offer first, then order
+   * Purchase Premium Subscription - Wait for approval
    */
   async buyPremium(): Promise<{ success: boolean; error?: string }> {
     console.log('🛒 [BUY_PREMIUM] buyPremium() called');
@@ -496,15 +558,32 @@ class PurchaseService {
       const offer = offers[0];
       console.log('🛒 [BUY_PREMIUM] Using offer:', offer);
 
+      // Create promise that waits for approval
+      const purchasePromise = new Promise<void>((resolve, reject) => {
+        this.pendingPurchaseResolvers.set(PRODUCT_IDS.PREMIUM_MONTHLY, { resolve, reject });
+        
+        // Timeout after 5 minutes
+        setTimeout(() => {
+          if (this.pendingPurchaseResolvers.has(PRODUCT_IDS.PREMIUM_MONTHLY)) {
+            this.pendingPurchaseResolvers.delete(PRODUCT_IDS.PREMIUM_MONTHLY);
+            reject(new Error('Purchase timeout'));
+          }
+        }, 300000);
+      });
+
       // Order the offer (this triggers Apple payment sheet)
       console.log('🛒 [BUY_PREMIUM] Calling store.order() with offer');
       await this.store.order(offer);
+      console.log('✅ [BUY_PREMIUM] Order called - waiting for approval...');
       
-      console.log('✅ [BUY_PREMIUM] Order placed - Apple payment UI should appear');
+      // Wait for the purchase to be approved
+      await purchasePromise;
+      console.log('✅✅ [BUY_PREMIUM] Purchase approved and synced!');
       
       return { success: true };
     } catch (error: any) {
       console.error('❌ [BUY_PREMIUM] Purchase failed:', error);
+      this.pendingPurchaseResolvers.delete(PRODUCT_IDS.PREMIUM_MONTHLY);
       return { 
         success: false, 
         error: error?.message || 'Failed to purchase premium subscription' 
@@ -513,7 +592,7 @@ class PurchaseService {
   }
 
   /**
-   * Purchase Healing Kit - Get offer first, then order
+   * Purchase Healing Kit - Wait for approval
    */
   async buyHealingKit(): Promise<{ success: boolean; error?: string }> {
     console.log('🛒 [BUY_KIT] buyHealingKit() called');
@@ -548,15 +627,32 @@ class PurchaseService {
       const offer = offers[0];
       console.log('🛒 [BUY_KIT] Using offer:', offer);
 
+      // Create promise that waits for approval
+      const purchasePromise = new Promise<void>((resolve, reject) => {
+        this.pendingPurchaseResolvers.set(PRODUCT_IDS.HEALING_KIT, { resolve, reject });
+        
+        // Timeout after 5 minutes
+        setTimeout(() => {
+          if (this.pendingPurchaseResolvers.has(PRODUCT_IDS.HEALING_KIT)) {
+            this.pendingPurchaseResolvers.delete(PRODUCT_IDS.HEALING_KIT);
+            reject(new Error('Purchase timeout'));
+          }
+        }, 300000);
+      });
+
       // Order the offer (this triggers Apple payment sheet)
       console.log('🛒 [BUY_KIT] Calling store.order() with offer');
       await this.store.order(offer);
+      console.log('✅ [BUY_KIT] Order called - waiting for approval...');
       
-      console.log('✅ [BUY_KIT] Order placed - Apple payment UI should appear');
+      // Wait for the purchase to be approved
+      await purchasePromise;
+      console.log('✅✅ [BUY_KIT] Purchase approved and synced!');
       
       return { success: true };
     } catch (error: any) {
       console.error('❌ [BUY_KIT] Purchase failed:', error);
+      this.pendingPurchaseResolvers.delete(PRODUCT_IDS.HEALING_KIT);
       return { 
         success: false, 
         error: error?.message || 'Failed to purchase Healing Kit' 
