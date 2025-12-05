@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { DebugConsole } from "@/components/DebugConsole";
+import { purchaseService } from "@/services/purchaseService";
 import Index from "./pages/Index";
 import { Auth } from "./pages/Auth";
 import { PremiumSuccess } from "./pages/PremiumSuccess";
@@ -22,35 +24,57 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <DebugConsole />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/premium-success" element={<PremiumSuccess />} />
-            <Route path="/premium-purchase" element={<PremiumPurchase />} />
-            <Route path="/healing-kit-purchase" element={<HealingKitPurchase />} />
-            <Route path="/subscription-management" element={<SubscriptionManagement />} />
-            <Route path="/healing-kit" element={<HealingKit />} />
-            <Route path="/advanced-tools" element={<AdvancedTools />} />
-            <Route path="/password-reset" element={<PasswordReset />} />
-            <Route path="/reset-password" element={<PasswordResetForm />} />
-            <Route path="/verify-email" element={<EmailVerification />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/terms-of-service" element={<TermsOfService />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  useEffect(() => {
+    // Listen for app state changes (resume/active)
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        console.log('[App] App resumed - checking subscription status');
+        try {
+          await purchaseService.checkSubscriptionStatus();
+        } catch (error) {
+          console.error('[App] Error checking subscription on resume:', error);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <DebugConsole />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/premium-success" element={<PremiumSuccess />} />
+              <Route path="/premium-purchase" element={<PremiumPurchase />} />
+              <Route path="/healing-kit-purchase" element={<HealingKitPurchase />} />
+              <Route path="/subscription-management" element={<SubscriptionManagement />} />
+              <Route path="/healing-kit" element={<HealingKit />} />
+              <Route path="/advanced-tools" element={<AdvancedTools />} />
+              <Route path="/password-reset" element={<PasswordReset />} />
+              <Route path="/reset-password" element={<PasswordResetForm />} />
+              <Route path="/verify-email" element={<EmailVerification />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
