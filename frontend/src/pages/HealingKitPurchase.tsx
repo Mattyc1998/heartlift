@@ -150,12 +150,9 @@ export const HealingKitPurchase = () => {
                         toast.dismiss(loadingToast);
                         
                         if (result.success) {
-                          toast.success("💚 Healing Kit unlocked! Your journey begins now!");
                           setAlreadyOwned(true);
-                          // Navigate to healing kit after successful purchase
-                          setTimeout(() => {
-                            navigate('/healing-kit');
-                          }, 2000);
+                          // Show success modal
+                          setShowSuccessModal(true);
                         } else {
                           toast.error(result.error || "Purchase failed. Please try again.");
                         }
