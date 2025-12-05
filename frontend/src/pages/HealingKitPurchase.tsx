@@ -191,5 +191,6 @@ export const HealingKitPurchase = () => {
         </Card>
       </div>
     </div>
+    </>
   );
 };
