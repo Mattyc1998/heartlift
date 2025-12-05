@@ -159,16 +159,9 @@ export const PremiumPurchase = () => {
                         toast.dismiss(loadingToast);
                         
                         if (result.success) {
-                          toast.success("🎉 Welcome to Premium! All features unlocked!");
                           setAlreadyOwned(true);
-                          // Navigate back after successful purchase
-                          setTimeout(() => {
-                            if (from === 'home') {
-                              navigate('/');
-                            } else {
-                              navigate('/?tab=coaches');
-                            }
-                          }, 2000);
+                          // Show success modal
+                          setShowSuccessModal(true);
                         } else {
                           toast.error(result.error || "Purchase failed. Please try again.");
                         }
