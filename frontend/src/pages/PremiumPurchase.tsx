@@ -120,45 +120,76 @@ export const PremiumPurchase = () => {
             </div>
 
 
-            {/* Purchase Button */}
+            {/* Purchase Button or Already Owned Message */}
             <div className="border-t pt-6 space-y-4">
-              <Button 
-                onClick={async () => {
-                  setIsPurchasing(true);
-                  try {
-                    toast.loading("Opening purchase...");
-                    const result = await purchaseService.buyPremium();
-                    
-                    if (result.success) {
-                      toast.success("Welcome to Premium! 🎉");
-                      // Navigate back after successful purchase
-                      setTimeout(() => {
-                        if (from === 'home') {
-                          navigate('/');
+              {alreadyOwned ? (
+                <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center">
+                  <Crown className="w-8 h-8 text-primary mx-auto mb-2" />
+                  <p className="text-lg font-semibold text-foreground">You already have Premium! 🎉</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    All premium features are unlocked and ready to use.
+                  </p>
+                  <Button 
+                    onClick={() => {
+                      if (from === 'home') {
+                        navigate('/');
+                      } else {
+                        navigate('/?tab=coaches');
+                      }
+                    }}
+                    className="mt-4"
+                    variant="outline"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to App
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button 
+                    onClick={async () => {
+                      setIsPurchasing(true);
+                      const loadingToast = toast.loading("Opening purchase...");
+                      try {
+                        const result = await purchaseService.buyPremium();
+                        
+                        // Dismiss the loading toast
+                        toast.dismiss(loadingToast);
+                        
+                        if (result.success) {
+                          toast.success("🎉 Welcome to Premium! All features unlocked!");
+                          setAlreadyOwned(true);
+                          // Navigate back after successful purchase
+                          setTimeout(() => {
+                            if (from === 'home') {
+                              navigate('/');
+                            } else {
+                              navigate('/?tab=coaches');
+                            }
+                          }, 2000);
                         } else {
-                          navigate('/?tab=coaches');
+                          toast.error(result.error || "Purchase failed. Please try again.");
                         }
-                      }, 1500);
-                    } else {
-                      toast.error(result.error || "Purchase failed. Please try again.");
-                    }
-                  } catch (error: any) {
-                    console.error('Purchase error:', error);
-                    toast.error(error?.message || "Unable to complete purchase");
-                  } finally {
-                    setIsPurchasing(false);
-                  }
-                }}
-                disabled={isPurchasing}
-                className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity"
-              >
-                <Crown className="w-5 h-5 mr-2" />
-                {isPurchasing ? "Processing..." : "Go Premium - £11.99/month"}
-              </Button>
-              
-              <p className="text-xs text-center text-muted-foreground">
-                Cancel anytime in your Apple settings. Subscription auto-renews monthly.
-              </p>
+                      } catch (error: any) {
+                        toast.dismiss(loadingToast);
+                        console.error('Purchase error:', error);
+                        toast.error(error?.message || "Unable to complete purchase");
+                      } finally {
+                        setIsPurchasing(false);
+                      }
+                    }}
+                    disabled={isPurchasing || checkingOwnership}
+                    className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity"
+                  >
+                    <Crown className="w-5 h-5 mr-2" />
+                    {isPurchasing ? "Processing..." : checkingOwnership ? "Loading..." : "Go Premium - £11.99/month"}
+                  </Button>
+                  
+                  <p className="text-xs text-center text-muted-foreground">
+                    Cancel anytime in your Apple settings. Subscription auto-renews monthly.
+                  </p>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
