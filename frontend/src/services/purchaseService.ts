@@ -523,7 +523,7 @@ class PurchaseService {
   }
 
   /**
-   * Purchase Premium Subscription - Get offer first, then order
+   * Purchase Premium Subscription - Wait for approval
    */
   async buyPremium(): Promise<{ success: boolean; error?: string }> {
     console.log('🛒 [BUY_PREMIUM] buyPremium() called');
@@ -558,15 +558,32 @@ class PurchaseService {
       const offer = offers[0];
       console.log('🛒 [BUY_PREMIUM] Using offer:', offer);
 
+      // Create promise that waits for approval
+      const purchasePromise = new Promise<void>((resolve, reject) => {
+        this.pendingPurchaseResolvers.set(PRODUCT_IDS.PREMIUM_MONTHLY, { resolve, reject });
+        
+        // Timeout after 5 minutes
+        setTimeout(() => {
+          if (this.pendingPurchaseResolvers.has(PRODUCT_IDS.PREMIUM_MONTHLY)) {
+            this.pendingPurchaseResolvers.delete(PRODUCT_IDS.PREMIUM_MONTHLY);
+            reject(new Error('Purchase timeout'));
+          }
+        }, 300000);
+      });
+
       // Order the offer (this triggers Apple payment sheet)
       console.log('🛒 [BUY_PREMIUM] Calling store.order() with offer');
       await this.store.order(offer);
+      console.log('✅ [BUY_PREMIUM] Order called - waiting for approval...');
       
-      console.log('✅ [BUY_PREMIUM] Order placed - Apple payment UI should appear');
+      // Wait for the purchase to be approved
+      await purchasePromise;
+      console.log('✅✅ [BUY_PREMIUM] Purchase approved and synced!');
       
       return { success: true };
     } catch (error: any) {
       console.error('❌ [BUY_PREMIUM] Purchase failed:', error);
+      this.pendingPurchaseResolvers.delete(PRODUCT_IDS.PREMIUM_MONTHLY);
       return { 
         success: false, 
         error: error?.message || 'Failed to purchase premium subscription' 
