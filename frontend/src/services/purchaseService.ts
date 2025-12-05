@@ -148,8 +148,20 @@ class PurchaseService {
           console.log('✅ [EVENT] Premium synced to Supabase');
           product.finish();
           console.log('✅ [EVENT] Premium transaction finished');
+          
+          // Resolve pending purchase promise
+          const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+          if (resolver) {
+            resolver.resolve();
+            this.pendingPurchaseResolvers.delete(PRODUCT_IDS.PREMIUM_MONTHLY);
+          }
         } catch (error) {
           console.error('❌ [EVENT] Error syncing premium:', error);
+          const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+          if (resolver) {
+            resolver.reject(error);
+            this.pendingPurchaseResolvers.delete(PRODUCT_IDS.PREMIUM_MONTHLY);
+          }
         }
       });
 
@@ -161,8 +173,20 @@ class PurchaseService {
           console.log('✅ [EVENT] Healing Kit synced to Supabase');
           product.finish();
           console.log('✅ [EVENT] Healing Kit transaction finished');
+          
+          // Resolve pending purchase promise
+          const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.HEALING_KIT);
+          if (resolver) {
+            resolver.resolve();
+            this.pendingPurchaseResolvers.delete(PRODUCT_IDS.HEALING_KIT);
+          }
         } catch (error) {
           console.error('❌ [EVENT] Error syncing healing kit:', error);
+          const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.HEALING_KIT);
+          if (resolver) {
+            resolver.reject(error);
+            this.pendingPurchaseResolvers.delete(PRODUCT_IDS.HEALING_KIT);
+          }
         }
       });
 
