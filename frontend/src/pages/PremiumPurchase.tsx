@@ -178,6 +178,7 @@ export const PremiumPurchase = () => {
                         if (result.success) {
                           console.log('✅ [PURCHASE] ========== PURCHASE SUCCESS ==========');
                           console.log('✅ [PURCHASE] Purchase result:', result);
+                          alert('💰 PURCHASE SUCCESS - about to unlock Premium');
                           
                           // CRITICAL: UNLOCK FEATURES IMMEDIATELY - NO WAITING
                           console.log('✅ [PURCHASE] About to call unlockPremium()...');
@@ -188,6 +189,7 @@ export const PremiumPurchase = () => {
                           console.log('✅ [PURCHASE] Checking isPremium from context...');
                           console.log('✅ [PURCHASE] isPremium:', isPremium);
                           console.log('✅ [PURCHASE] localStorage isPremium:', localStorage.getItem('isPremium'));
+                          alert(`📊 AFTER UNLOCK\nContext isPremium: ${isPremium}\nLocalStorage: ${localStorage.getItem('isPremium')}`);
                           
                           setAlreadyOwned(true);
                           setWasAlreadyOwned(hadPremiumBefore);

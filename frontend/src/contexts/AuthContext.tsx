@@ -365,6 +365,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Function to unlock features IMMEDIATELY after purchase
   const unlockPremium = () => {
     console.log('[AuthContext] 🔓 unlockPremium() CALLED');
+    alert('🔓 UNLOCK PREMIUM CALLED');
     console.log('[AuthContext] 📊 Before unlock - isPremium:', isPremium);
     setIsPremium(true);
     console.log('[AuthContext] ✅ setIsPremium(true) executed');
@@ -373,16 +374,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('isPremium', 'true');
     localStorage.setItem('subscriptionStatus', JSON.stringify('premium'));
     console.log('[AuthContext] 💾 localStorage updated - isPremium: true');
+    alert(`✅ PREMIUM UNLOCKED\nState: ${isPremium}\nLocalStorage: ${localStorage.getItem('isPremium')}`);
     console.log('[AuthContext] 📊 After unlock - isPremium:', isPremium);
   };
 
   const unlockHealingKit = () => {
     console.log('[AuthContext] 🔓 unlockHealingKit() CALLED');
+    alert('🔓 UNLOCK HEALING KIT CALLED');
     console.log('[AuthContext] 📊 Before unlock - hasHealingKit:', hasHealingKit);
     setHasHealingKit(true);
     console.log('[AuthContext] ✅ setHasHealingKit(true) executed');
     localStorage.setItem('hasHealingKit', 'true');
     console.log('[AuthContext] 💾 localStorage updated - hasHealingKit: true');
+    alert(`✅ HEALING KIT UNLOCKED\nState: ${hasHealingKit}\nLocalStorage: ${localStorage.getItem('hasHealingKit')}`);
     console.log('[AuthContext] 📊 After unlock - hasHealingKit:', hasHealingKit);
   };
 

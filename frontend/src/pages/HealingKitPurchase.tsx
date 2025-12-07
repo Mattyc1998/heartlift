@@ -169,6 +169,7 @@ export const HealingKitPurchase = () => {
                         if (result.success) {
                           console.log('✅ [PURCHASE] ========== PURCHASE SUCCESS ==========');
                           console.log('✅ [PURCHASE] Purchase result:', result);
+                          alert('💰 PURCHASE SUCCESS - about to unlock');
                           
                           // CRITICAL: UNLOCK FEATURES IMMEDIATELY - NO WAITING
                           console.log('✅ [PURCHASE] About to call unlockHealingKit()...');
@@ -179,6 +180,7 @@ export const HealingKitPurchase = () => {
                           console.log('✅ [PURCHASE] Checking hasHealingKit from context...');
                           console.log('✅ [PURCHASE] hasHealingKit:', hasHealingKit);
                           console.log('✅ [PURCHASE] localStorage hasHealingKit:', localStorage.getItem('hasHealingKit'));
+                          alert(`📊 AFTER UNLOCK\nContext hasHealingKit: ${hasHealingKit}\nLocalStorage: ${localStorage.getItem('hasHealingKit')}`);
                           
                           setAlreadyOwned(true);
                           setWasAlreadyOwned(hadHealingKitBefore);
