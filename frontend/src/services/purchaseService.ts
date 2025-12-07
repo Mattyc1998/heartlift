@@ -142,29 +142,39 @@ class PurchaseService {
 
       // Single global approved handler for ALL purchases
       this.store.when().approved(async (transaction: any) => {
-        console.log('✅ [EVENT] Purchase APPROVED!', transaction);
+        console.log('✅ [EVENT] ========== PURCHASE APPROVED ==========');
+        console.log('✅ [EVENT] Transaction:', transaction);
         
         try {
           // Check which products were purchased
           const products = transaction.products || [];
+          console.log('✅ [EVENT] Transaction products array:', products);
+          
           let isPremium = false;
           let isHealingKit = false;
 
           for (const product of products) {
+            console.log('✅ [EVENT] Checking product:', product.id);
             if (product.id === PRODUCT_IDS.PREMIUM_MONTHLY) {
               isPremium = true;
+              console.log('✅ [EVENT] ✓ Premium detected');
             }
             if (product.id === PRODUCT_IDS.HEALING_KIT) {
               isHealingKit = true;
+              console.log('✅ [EVENT] ✓ Healing Kit detected');
             }
           }
 
-          console.log('✅ [EVENT] Products in transaction:', { isPremium, isHealingKit });
+          console.log('✅ [EVENT] Final detection:', { isPremium, isHealingKit });
 
           // Sync to Supabase
           if (isPremium || isHealingKit) {
+            console.log('✅ [EVENT] Starting Supabase sync...');
             await this.syncToSupabase(isPremium, isHealingKit);
-            console.log('✅ [EVENT] Synced to Supabase');
+            console.log('✅ [EVENT] ✓ Synced to Supabase');
+          } else {
+            console.warn('⚠️ [EVENT] No products matched for sync');
+          }
             
             // Wait a moment to ensure Supabase has fully processed the update
             await new Promise(resolve => setTimeout(resolve, 1000));
