@@ -155,6 +155,10 @@ export const HealingKitPurchase = () => {
                     onClick={async () => {
                       setIsPurchasing(true);
                       const loadingToast = toast.loading("Opening purchase...");
+                      
+                      // Check if user already owned it BEFORE purchase
+                      const hadHealingKitBefore = alreadyOwned;
+                      
                       try {
                         const result = await purchaseService.buyHealingKit();
                         
@@ -167,6 +171,7 @@ export const HealingKitPurchase = () => {
                           localStorage.removeItem('hasHealingKit');
                           
                           setAlreadyOwned(true);
+                          setWasAlreadyOwned(hadHealingKitBefore);
                           // Show success modal
                           setShowSuccessModal(true);
                         } else {
