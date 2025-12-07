@@ -176,16 +176,24 @@ export const PremiumPurchase = () => {
                         toast.dismiss(loadingToast);
                         
                         if (result.success) {
-                          console.log('✅ [PURCHASE] Purchase successful!');
+                          console.log('✅ [PURCHASE] ========== PURCHASE SUCCESS ==========');
+                          console.log('✅ [PURCHASE] Purchase result:', result);
                           
                           // CRITICAL: UNLOCK FEATURES IMMEDIATELY - NO WAITING
+                          console.log('✅ [PURCHASE] About to call unlockPremium()...');
                           unlockPremium();
-                          console.log('✅ [PURCHASE] Premium unlocked in local state');
+                          console.log('✅ [PURCHASE] unlockPremium() called');
+                          
+                          // Check state immediately after
+                          console.log('✅ [PURCHASE] Checking isPremium from context...');
+                          console.log('✅ [PURCHASE] isPremium:', isPremium);
+                          console.log('✅ [PURCHASE] localStorage isPremium:', localStorage.getItem('isPremium'));
                           
                           setAlreadyOwned(true);
                           setWasAlreadyOwned(hadPremiumBefore);
                           
                           // Show success modal - Supabase sync happens in background
+                          console.log('✅ [PURCHASE] Showing success modal...');
                           setShowSuccessModal(true);
                         } else {
                           toast.error(result.error || "Purchase failed. Please try again.");

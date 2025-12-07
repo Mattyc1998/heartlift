@@ -167,16 +167,24 @@ export const HealingKitPurchase = () => {
                         toast.dismiss(loadingToast);
                         
                         if (result.success) {
-                          console.log('✅ [PURCHASE] Purchase successful!');
+                          console.log('✅ [PURCHASE] ========== PURCHASE SUCCESS ==========');
+                          console.log('✅ [PURCHASE] Purchase result:', result);
                           
                           // CRITICAL: UNLOCK FEATURES IMMEDIATELY - NO WAITING
+                          console.log('✅ [PURCHASE] About to call unlockHealingKit()...');
                           unlockHealingKit();
-                          console.log('✅ [PURCHASE] Healing Kit unlocked in local state');
+                          console.log('✅ [PURCHASE] unlockHealingKit() called');
+                          
+                          // Check state immediately after
+                          console.log('✅ [PURCHASE] Checking hasHealingKit from context...');
+                          console.log('✅ [PURCHASE] hasHealingKit:', hasHealingKit);
+                          console.log('✅ [PURCHASE] localStorage hasHealingKit:', localStorage.getItem('hasHealingKit'));
                           
                           setAlreadyOwned(true);
                           setWasAlreadyOwned(hadHealingKitBefore);
                           
                           // Show success modal - Supabase sync happens in background
+                          console.log('✅ [PURCHASE] Showing success modal...');
                           setShowSuccessModal(true);
                         } else {
                           toast.error(result.error || "Purchase failed. Please try again.");

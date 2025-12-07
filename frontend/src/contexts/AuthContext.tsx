@@ -364,17 +364,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Function to unlock features IMMEDIATELY after purchase
   const unlockPremium = () => {
-    console.log('[AuthContext] 🔓 UNLOCKING PREMIUM IMMEDIATELY');
+    console.log('[AuthContext] 🔓 unlockPremium() CALLED');
+    console.log('[AuthContext] 📊 Before unlock - isPremium:', isPremium);
     setIsPremium(true);
+    console.log('[AuthContext] ✅ setIsPremium(true) executed');
     setSubscriptionStatus('premium');
+    console.log('[AuthContext] ✅ setSubscriptionStatus(premium) executed');
     localStorage.setItem('isPremium', 'true');
     localStorage.setItem('subscriptionStatus', JSON.stringify('premium'));
+    console.log('[AuthContext] 💾 localStorage updated - isPremium: true');
+    console.log('[AuthContext] 📊 After unlock - isPremium:', isPremium);
   };
 
   const unlockHealingKit = () => {
-    console.log('[AuthContext] 🔓 UNLOCKING HEALING KIT IMMEDIATELY');
+    console.log('[AuthContext] 🔓 unlockHealingKit() CALLED');
+    console.log('[AuthContext] 📊 Before unlock - hasHealingKit:', hasHealingKit);
     setHasHealingKit(true);
+    console.log('[AuthContext] ✅ setHasHealingKit(true) executed');
     localStorage.setItem('hasHealingKit', 'true');
+    console.log('[AuthContext] 💾 localStorage updated - hasHealingKit: true');
+    console.log('[AuthContext] 📊 After unlock - hasHealingKit:', hasHealingKit);
   };
 
   // Function to lock features when subscription expires
