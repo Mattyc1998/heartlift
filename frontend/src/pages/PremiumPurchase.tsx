@@ -181,7 +181,9 @@ export const PremiumPurchase = () => {
                           localStorage.removeItem('hasHealingKit');
                           
                           // Refresh subscription status from Supabase
+                          // This ensures AuthContext has the latest data
                           await checkSubscription();
+                          console.log('✅ [PURCHASE] AuthContext refreshed after premium purchase');
                           
                           setAlreadyOwned(true);
                           setWasAlreadyOwned(hadPremiumBefore);
