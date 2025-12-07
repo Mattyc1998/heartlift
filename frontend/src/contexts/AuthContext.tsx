@@ -424,20 +424,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log('[AuthContext] 📊 Supabase status:', { isPremiumFromDB, hasHealingKitFromDB });
 
-      // Update local state based on Supabase
-      if (isPremiumFromDB) {
+      // CRITICAL FIX: Check localStorage FIRST - it's the source of truth for recent purchases
+      const localIsPremium = localStorage.getItem('isPremium') === 'true';
+      const localHasHealingKit = localStorage.getItem('hasHealingKit') === 'true';
+
+      // Update local state based on Supabase OR localStorage (whichever is true)
+      // This prevents race conditions where DB sync is slower than local state update
+      if (isPremiumFromDB || localIsPremium) {
         unlockPremium();
       } else {
         lockPremium();
       }
 
-      if (hasHealingKitFromDB) {
+      if (hasHealingKitFromDB || localHasHealingKit) {
         unlockHealingKit();
       } else {
         lockHealingKit();
       }
 
-      return { isPremium: isPremiumFromDB, hasHealingKit: hasHealingKitFromDB };
+      console.log('[AuthContext] ✅ Final state - Premium:', (isPremiumFromDB || localIsPremium), 'HealingKit:', (hasHealingKitFromDB || localHasHealingKit));
+
+      return { isPremium: isPremiumFromDB || localIsPremium, hasHealingKit: hasHealingKitFromDB || localHasHealingKit };
     } catch (error) {
       console.error('[AuthContext] ❌ Error checking Supabase:', error);
       return { isPremium: false, hasHealingKit: false };
