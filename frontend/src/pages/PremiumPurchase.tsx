@@ -70,6 +70,7 @@ export const PremiumPurchase = () => {
           window.location.href = '/?tab=coaches';
         }}
         type="premium"
+        wasAlreadyOwned={wasAlreadyOwned}
       />
       
       <div className="min-h-screen bg-gradient-to-br from-secondary/30 to-accent/30 p-4">
