@@ -66,34 +66,38 @@ const AppContent = () => {
   }, [checkSupabaseSubscriptionStatus]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/premium-success" element={<PremiumSuccess />} />
-              <Route path="/premium-purchase" element={<PremiumPurchase />} />
-              <Route path="/healing-kit-purchase" element={<HealingKitPurchase />} />
-              <Route path="/subscription-management" element={<SubscriptionManagement />} />
-              <Route path="/healing-kit" element={<HealingKit />} />
-              <Route path="/advanced-tools" element={<AdvancedTools />} />
-              <Route path="/password-reset" element={<PasswordReset />} />
-              <Route path="/reset-password" element={<PasswordResetForm />} />
-              <Route path="/verify-email" element={<EmailVerification />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-of-service" element={<TermsOfService />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/premium-success" element={<PremiumSuccess />} />
+        <Route path="/premium-purchase" element={<PremiumPurchase />} />
+        <Route path="/healing-kit-purchase" element={<HealingKitPurchase />} />
+        <Route path="/subscription-management" element={<SubscriptionManagement />} />
+        <Route path="/healing-kit" element={<HealingKit />} />
+        <Route path="/advanced-tools" element={<AdvancedTools />} />
+        <Route path="/password-reset" element={<PasswordReset />} />
+        <Route path="/reset-password" element={<PasswordResetForm />} />
+        <Route path="/verify-email" element={<EmailVerification />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
   );
 };
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <AppContent />
+      </AuthProvider>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;
