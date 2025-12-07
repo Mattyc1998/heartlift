@@ -66,8 +66,8 @@ export const PremiumPurchase = () => {
         isOpen={showSuccessModal}
         onClose={() => {
           setShowSuccessModal(false);
-          // Navigate to coaches WITHOUT page reload
-          navigate('/?tab=coaches', { replace: true });
+          // FORCE page reload to get fresh AuthContext with updated subscription
+          window.location.href = '/?tab=coaches';
         }}
         type="premium"
         wasAlreadyOwned={wasAlreadyOwned}
