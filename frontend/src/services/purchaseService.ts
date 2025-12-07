@@ -167,34 +167,39 @@ class PurchaseService {
 
           console.log('✅ [EVENT] Final detection:', { isPremium, isHealingKit });
 
-          // Sync to Supabase
-          if (isPremium || isHealingKit) {
-            console.log('✅ [EVENT] Starting Supabase sync...');
-            await this.syncToSupabase(isPremium, isHealingKit);
-            console.log('✅ [EVENT] ✓ Synced to Supabase');
-            
-            // Wait a moment to ensure Supabase has fully processed the update
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            console.log('✅ [EVENT] Waited for Supabase to process');
-          } else {
-            console.warn('⚠️ [EVENT] No products matched for sync');
-          }
-
-          // Finish the transaction
-          transaction.finish();
-          console.log('✅ [EVENT] Transaction finished');
-          
-          // Resolve pending purchase promises
+          // CRITICAL: Resolve pending purchase promises IMMEDIATELY
+          // This allows the UI to unlock features instantly via localStorage
           if (isPremium && this.pendingPurchaseResolvers.has(PRODUCT_IDS.PREMIUM_MONTHLY)) {
             const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.PREMIUM_MONTHLY);
             resolver!.resolve();
             this.pendingPurchaseResolvers.delete(PRODUCT_IDS.PREMIUM_MONTHLY);
+            console.log('✅ [EVENT] Premium promise resolved (UI can unlock now)');
           }
           
           if (isHealingKit && this.pendingPurchaseResolvers.has(PRODUCT_IDS.HEALING_KIT)) {
             const resolver = this.pendingPurchaseResolvers.get(PRODUCT_IDS.HEALING_KIT);
             resolver!.resolve();
             this.pendingPurchaseResolvers.delete(PRODUCT_IDS.HEALING_KIT);
+            console.log('✅ [EVENT] Healing Kit promise resolved (UI can unlock now)');
+          }
+
+          // Finish the transaction IMMEDIATELY (don't block on Supabase)
+          transaction.finish();
+          console.log('✅ [EVENT] Transaction finished');
+
+          // BACKGROUND SYNC: Sync to Supabase WITHOUT blocking (no await at call site)
+          if (isPremium || isHealingKit) {
+            console.log('🔄 [EVENT] Starting background Supabase sync...');
+            this.syncToSupabase(isPremium, isHealingKit)
+              .then(() => {
+                console.log('✅ [EVENT] ✓ Background sync to Supabase completed');
+              })
+              .catch((error) => {
+                console.error('❌ [EVENT] Background sync failed:', error);
+                // Features are already unlocked locally, so this is non-critical
+              });
+          } else {
+            console.warn('⚠️ [EVENT] No products matched for sync');
           }
         } catch (error) {
           console.error('❌ [EVENT] Error handling approval:', error);
