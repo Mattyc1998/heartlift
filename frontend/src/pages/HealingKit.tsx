@@ -12,15 +12,71 @@ import { Button } from "@/components/ui/button";
 import { Heart, ArrowLeft } from "lucide-react";
 
 export default function HealingKit() {
-  const { user, hasHealingKit } = useAuth();
+  const { user, hasHealingKit, checkSubscription } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("plan");
+  const [isCheckingOwnership, setIsCheckingOwnership] = useState(true);
+  const [actuallyOwnsKit, setActuallyOwnsKit] = useState(false);
+
+  // CRITICAL: Re-check ownership from Supabase on mount
+  useState(() => {
+    const recheckOwnership = async () => {
+      if (!user) {
+        setIsCheckingOwnership(false);
+        return;
+      }
+
+      try {
+        console.log('[HealingKit] Re-checking ownership from Supabase...');
+        
+        // Check directly from Supabase - don't trust cached state
+        const { data, error } = await supabase
+          .from('healing_kit_purchases')
+          .select('status')
+          .eq('user_id', user.id)
+          .single();
+
+        console.log('[HealingKit] Supabase check result:', data);
+
+        if (data?.status === 'completed') {
+          console.log('[HealingKit] ✅ User owns healing kit!');
+          setActuallyOwnsKit(true);
+          
+          // Also refresh AuthContext for consistency
+          await checkSubscription();
+        } else {
+          console.log('[HealingKit] ❌ User does not own healing kit');
+          setActuallyOwnsKit(false);
+        }
+      } catch (error) {
+        console.error('[HealingKit] Error checking ownership:', error);
+        // If error, fall back to AuthContext state
+        setActuallyOwnsKit(hasHealingKit);
+      } finally {
+        setIsCheckingOwnership(false);
+      }
+    };
+
+    recheckOwnership();
+  });
 
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
 
-  if (!hasHealingKit) {
+  // Show loading while checking ownership
+  if (isCheckingOwnership) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
+        <Card className="p-8 text-center max-w-md mx-auto">
+          <p className="text-muted-foreground">Loading...</p>
+        </Card>
+      </div>
+    );
+  }
+
+  // Check ACTUAL ownership from Supabase, not just cached AuthContext
+  if (!actuallyOwnsKit) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
         <Card className="p-8 text-center max-w-md mx-auto">
@@ -30,7 +86,7 @@ export default function HealingKit() {
             You need to purchase the Healing Kit to access these features.
           </p>
           <button 
-            onClick={() => window.location.href = '/'}
+            onClick={() => navigate('/', { replace: true })}
             className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90"
           >
             Return to Home
