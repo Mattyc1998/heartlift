@@ -14,7 +14,7 @@ export const PremiumPurchase = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as any)?.from as string | undefined;
-  const { user, checkSubscription } = useAuth();
+  const { user, checkSubscription, unlockPremium } = useAuth();
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [alreadyOwned, setAlreadyOwned] = useState(false);
   const [checkingOwnership, setCheckingOwnership] = useState(true);
@@ -176,25 +176,16 @@ export const PremiumPurchase = () => {
                         toast.dismiss(loadingToast);
                         
                         if (result.success) {
-                          console.log('✅ [PURCHASE] Purchase successful, refreshing subscription...');
+                          console.log('✅ [PURCHASE] Purchase successful!');
                           
-                          // CRITICAL: Clear cache and refresh BEFORE showing modal
-                          localStorage.removeItem('subscriptionStatus');
-                          localStorage.removeItem('hasHealingKit');
-                          
-                          // Wait for sync to complete and AuthContext to refresh
-                          await new Promise(resolve => setTimeout(resolve, 2000));
-                          
-                          // Refresh subscription status from Supabase
-                          await checkSubscription();
-                          console.log('✅ [PURCHASE] AuthContext refreshed after premium purchase');
-                          
-                          // Wait another moment to ensure state updates
-                          await new Promise(resolve => setTimeout(resolve, 500));
+                          // CRITICAL: UNLOCK FEATURES IMMEDIATELY - NO WAITING
+                          unlockPremium();
+                          console.log('✅ [PURCHASE] Premium unlocked in local state');
                           
                           setAlreadyOwned(true);
                           setWasAlreadyOwned(hadPremiumBefore);
-                          // Show success modal
+                          
+                          // Show success modal - Supabase sync happens in background
                           setShowSuccessModal(true);
                         } else {
                           toast.error(result.error || "Purchase failed. Please try again.");

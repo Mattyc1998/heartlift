@@ -15,6 +15,11 @@ interface AuthContextType {
   hasHealingKit: boolean;
   subscriptionStatus: 'free' | 'premium';
   checkSubscription: () => Promise<void>;
+  unlockPremium: () => void;
+  unlockHealingKit: () => void;
+  lockPremium: () => void;
+  lockHealingKit: () => void;
+  checkSupabaseSubscriptionStatus: () => Promise<{ isPremium: boolean; hasHealingKit: boolean }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -357,6 +362,75 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Function to unlock features IMMEDIATELY after purchase
+  const unlockPremium = () => {
+    console.log('[AuthContext] 🔓 UNLOCKING PREMIUM IMMEDIATELY');
+    setIsPremium(true);
+    setSubscriptionStatus('premium');
+    localStorage.setItem('isPremium', 'true');
+    localStorage.setItem('subscriptionStatus', JSON.stringify('premium'));
+  };
+
+  const unlockHealingKit = () => {
+    console.log('[AuthContext] 🔓 UNLOCKING HEALING KIT IMMEDIATELY');
+    setHasHealingKit(true);
+    localStorage.setItem('hasHealingKit', 'true');
+  };
+
+  // Function to lock features when subscription expires
+  const lockPremium = () => {
+    console.log('[AuthContext] 🔒 LOCKING PREMIUM - subscription expired/cancelled');
+    setIsPremium(false);
+    setSubscriptionStatus('free');
+    localStorage.setItem('isPremium', 'false');
+    localStorage.setItem('subscriptionStatus', JSON.stringify('free'));
+  };
+
+  const lockHealingKit = () => {
+    console.log('[AuthContext] 🔒 LOCKING HEALING KIT - subscription expired/cancelled');
+    setHasHealingKit(false);
+    localStorage.setItem('hasHealingKit', 'false');
+  };
+
+  // Check Supabase subscription status and update local state
+  const checkSupabaseSubscriptionStatus = async (): Promise<{ isPremium: boolean; hasHealingKit: boolean }> => {
+    if (!user) {
+      return { isPremium: false, hasHealingKit: false };
+    }
+
+    console.log('[AuthContext] 🔍 Checking Supabase for subscription status...');
+
+    try {
+      const [subResult, kitResult] = await Promise.all([
+        supabase.from('subscribers').select('subscribed').eq('user_id', user.id).single(),
+        supabase.from('healing_kit_purchases').select('status').eq('user_id', user.id).single()
+      ]);
+
+      const isPremiumFromDB = subResult.data?.subscribed || false;
+      const hasHealingKitFromDB = kitResult.data?.status === 'completed';
+
+      console.log('[AuthContext] 📊 Supabase status:', { isPremiumFromDB, hasHealingKitFromDB });
+
+      // Update local state based on Supabase
+      if (isPremiumFromDB) {
+        unlockPremium();
+      } else {
+        lockPremium();
+      }
+
+      if (hasHealingKitFromDB) {
+        unlockHealingKit();
+      } else {
+        lockHealingKit();
+      }
+
+      return { isPremium: isPremiumFromDB, hasHealingKit: hasHealingKitFromDB };
+    } catch (error) {
+      console.error('[AuthContext] ❌ Error checking Supabase:', error);
+      return { isPremium: false, hasHealingKit: false };
+    }
+  };
+
   const value = {
     user,
     session,
@@ -369,6 +443,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     hasHealingKit,
     subscriptionStatus,
     checkSubscription,
+    unlockPremium,
+    unlockHealingKit,
+    lockPremium,
+    lockHealingKit,
+    checkSupabaseSubscriptionStatus,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
