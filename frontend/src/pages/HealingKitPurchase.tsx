@@ -161,6 +161,10 @@ export const HealingKitPurchase = () => {
                         toast.dismiss(loadingToast);
                         
                         if (result.success) {
+                          // Clear cached subscription status to force refresh
+                          localStorage.removeItem('subscriptionStatus');
+                          localStorage.removeItem('hasHealingKit');
+                          
                           setAlreadyOwned(true);
                           // Show success modal
                           setShowSuccessModal(true);
