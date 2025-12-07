@@ -13,9 +13,27 @@ import { Button } from "@/components/ui/button";
 import { Heart, ArrowLeft } from "lucide-react";
 
 export default function HealingKit() {
-  const { user, hasHealingKit } = useAuth();
+  const { user, hasHealingKit, unlockHealingKit } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("plan");
+  const [isChecking, setIsChecking] = useState(true);
+
+  // CRITICAL FIX: Sync Context with localStorage on page load
+  useEffect(() => {
+    const storedValue = localStorage.getItem('hasHealingKit');
+    console.log('[HealingKit] 🔄 Syncing with localStorage on mount...');
+    console.log('[HealingKit] localStorage hasHealingKit:', storedValue);
+    console.log('[HealingKit] Context hasHealingKit:', hasHealingKit);
+    
+    if (storedValue === 'true' && !hasHealingKit) {
+      console.log('[HealingKit] ⚠️ MISMATCH DETECTED - localStorage is true but context is false');
+      console.log('[HealingKit] 🔧 FIXING: Calling unlockHealingKit() to sync context...');
+      alert('🔧 FIXING STATE\nLocalStorage shows you own it\nSyncing context now...');
+      unlockHealingKit();
+    }
+    
+    setIsChecking(false);
+  }, [hasHealingKit, unlockHealingKit]);
 
   console.log('[HealingKit] ========== PAGE LOAD ==========');
   console.log('[HealingKit] Checking access...');
