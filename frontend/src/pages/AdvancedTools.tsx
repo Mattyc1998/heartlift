@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useNavigate } from "react-router-dom";
 import { AttachmentStyleQuiz } from "@/components/AttachmentStyleQuiz";
@@ -13,9 +13,23 @@ import { Button } from "@/components/ui/button";
 import { Crown, Heart, Target, ArrowLeft, MessageSquare, Bot, Brain, BookOpen, Palette } from "lucide-react";
 
 export default function AdvancedTools() {
-  const { user, isPremium } = useAuth();
+  const { user, isPremium, unlockPremium } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("quiz");
+
+  // CRITICAL FIX: Sync Context with localStorage on page load
+  useEffect(() => {
+    const storedValue = localStorage.getItem('isPremium');
+    console.log('[AdvancedTools] 🔄 Syncing with localStorage on mount...');
+    console.log('[AdvancedTools] localStorage isPremium:', storedValue);
+    console.log('[AdvancedTools] Context isPremium:', isPremium);
+    
+    if (storedValue === 'true' && !isPremium) {
+      console.log('[AdvancedTools] ⚠️ MISMATCH DETECTED - localStorage is true but context is false');
+      console.log('[AdvancedTools] 🔧 FIXING: Calling unlockPremium() to sync context...');
+      unlockPremium();
+    }
+  }, [isPremium, unlockPremium]);
 
   if (!user) {
     return <Navigate to="/auth" replace />;
