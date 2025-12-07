@@ -171,6 +171,12 @@ export const PremiumPurchase = () => {
                         
                         if (result.success) {
                           setAlreadyOwned(true);
+                          // Force refresh subscription status from AuthContext
+                          if (user) {
+                            const { default: { checkSubscription } } = await import('@/contexts/AuthContext');
+                            // Refresh immediately
+                            setTimeout(() => window.location.reload(), 100);
+                          }
                           // Show success modal
                           setShowSuccessModal(true);
                         } else {
