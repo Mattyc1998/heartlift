@@ -16,36 +16,14 @@ export const PremiumPurchase = () => {
   const from = (location.state as any)?.from as string | undefined;
   const { user } = useAuth();
   const [isPurchasing, setIsPurchasing] = useState(false);
-  const [alreadyOwned, setAlreadyOwned] = useState(false);
-  const [checkingOwnership, setCheckingOwnership] = useState(true);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [alreadyOwnedMessage, setAlreadyOwnedMessage] = useState(false);
 
   useEffect(() => {
     if (!user) {
       navigate('/auth');
       return;
     }
-
-    // Check if user already owns premium
-    const checkOwnership = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('subscribers')
-          .select('subscribed')
-          .eq('user_id', user.id)
-          .single();
-
-        if (data?.subscribed) {
-          setAlreadyOwned(true);
-        }
-      } catch (error) {
-        console.error('Error checking ownership:', error);
-      } finally {
-        setCheckingOwnership(false);
-      }
-    };
-
-    checkOwnership();
   }, [user, navigate]);
 
   const features = useMemo(() => [
