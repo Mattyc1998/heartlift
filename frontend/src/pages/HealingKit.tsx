@@ -20,7 +20,7 @@ export default function HealingKit() {
   const [actuallyOwnsKit, setActuallyOwnsKit] = useState(false);
 
   // CRITICAL: Re-check ownership from Supabase on mount
-  useState(() => {
+  useEffect(() => {
     const recheckOwnership = async () => {
       if (!user) {
         setIsCheckingOwnership(false);
