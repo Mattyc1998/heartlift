@@ -62,8 +62,8 @@ export const HealingKitPurchase = () => {
         isOpen={showSuccessModal}
         onClose={() => {
           setShowSuccessModal(false);
-          // Navigate to healing kit page immediately
-          navigate('/healing-kit');
+          // Force page reload to refresh subscription status
+          window.location.href = '/healing-kit';
         }}
         type="healingkit"
       />
