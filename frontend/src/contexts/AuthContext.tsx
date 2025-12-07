@@ -17,6 +17,9 @@ interface AuthContextType {
   checkSubscription: () => Promise<void>;
   unlockPremium: () => void;
   unlockHealingKit: () => void;
+  lockPremium: () => void;
+  lockHealingKit: () => void;
+  checkSupabaseSubscriptionStatus: () => Promise<{ isPremium: boolean; hasHealingKit: boolean }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
