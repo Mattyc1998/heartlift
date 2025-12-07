@@ -59,7 +59,7 @@ export default function HealingKit() {
     };
 
     recheckOwnership();
-  });
+  }, [user, hasHealingKit, checkSubscription]);
 
   if (!user) {
     return <Navigate to="/auth" replace />;
