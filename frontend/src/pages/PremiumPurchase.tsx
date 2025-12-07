@@ -66,8 +66,8 @@ export const PremiumPurchase = () => {
         isOpen={showSuccessModal}
         onClose={() => {
           setShowSuccessModal(false);
-          // Force page reload to refresh subscription status
-          window.location.href = '/?tab=coaches';
+          // Navigate to coaches WITHOUT page reload
+          navigate('/?tab=coaches', { replace: true });
         }}
         type="premium"
         wasAlreadyOwned={wasAlreadyOwned}
