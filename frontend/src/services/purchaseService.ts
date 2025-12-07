@@ -172,13 +172,12 @@ class PurchaseService {
             console.log('✅ [EVENT] Starting Supabase sync...');
             await this.syncToSupabase(isPremium, isHealingKit);
             console.log('✅ [EVENT] ✓ Synced to Supabase');
-          } else {
-            console.warn('⚠️ [EVENT] No products matched for sync');
-          }
             
             // Wait a moment to ensure Supabase has fully processed the update
             await new Promise(resolve => setTimeout(resolve, 1000));
             console.log('✅ [EVENT] Waited for Supabase to process');
+          } else {
+            console.warn('⚠️ [EVENT] No products matched for sync');
           }
 
           // Finish the transaction
