@@ -63,8 +63,8 @@ export const HealingKitPurchase = () => {
         isOpen={showSuccessModal}
         onClose={() => {
           setShowSuccessModal(false);
-          // Navigate to healing kit WITHOUT page reload
-          navigate('/healing-kit', { replace: true });
+          // FORCE page reload to get fresh AuthContext with updated hasHealingKit
+          window.location.href = '/healing-kit';
         }}
         type="healingkit"
         wasAlreadyOwned={wasAlreadyOwned}
