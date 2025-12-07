@@ -6,9 +6,10 @@ interface PurchaseSuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
   type: 'premium' | 'healingkit';
+  wasAlreadyOwned?: boolean;
 }
 
-export const PurchaseSuccessModal = ({ isOpen, onClose, type }: PurchaseSuccessModalProps) => {
+export const PurchaseSuccessModal = ({ isOpen, onClose, type, wasAlreadyOwned = false }: PurchaseSuccessModalProps) => {
   const premiumFeatures = [
     "Unlimited AI coach conversations",
     "Guided Programmes",
