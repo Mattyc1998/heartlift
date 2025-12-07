@@ -63,8 +63,8 @@ export const HealingKitPurchase = () => {
         isOpen={showSuccessModal}
         onClose={() => {
           setShowSuccessModal(false);
-          // FORCE page reload to get fresh AuthContext with updated hasHealingKit
-          window.location.href = '/healing-kit';
+          // Navigate - HealingKit page will re-check ownership from Supabase
+          navigate('/healing-kit', { replace: true });
         }}
         type="healingkit"
         wasAlreadyOwned={wasAlreadyOwned}
