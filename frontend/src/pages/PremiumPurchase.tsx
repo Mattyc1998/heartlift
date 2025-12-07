@@ -164,6 +164,10 @@ export const PremiumPurchase = () => {
                     onClick={async () => {
                       setIsPurchasing(true);
                       const loadingToast = toast.loading("Opening purchase...");
+                      
+                      // Check if user already owned it BEFORE purchase
+                      const hadPremiumBefore = alreadyOwned;
+                      
                       try {
                         const result = await purchaseService.buyPremium();
                         
@@ -176,6 +180,7 @@ export const PremiumPurchase = () => {
                           localStorage.removeItem('hasHealingKit');
                           
                           setAlreadyOwned(true);
+                          setWasAlreadyOwned(hadPremiumBefore);
                           // Show success modal
                           setShowSuccessModal(true);
                         } else {
