@@ -67,6 +67,7 @@ export const HealingKitPurchase = () => {
           window.location.href = '/healing-kit';
         }}
         type="healingkit"
+        wasAlreadyOwned={wasAlreadyOwned}
       />
       
       <div className="min-h-screen bg-gradient-to-br from-secondary/30 to-accent/30 p-4">
