@@ -167,25 +167,16 @@ export const HealingKitPurchase = () => {
                         toast.dismiss(loadingToast);
                         
                         if (result.success) {
-                          console.log('✅ [PURCHASE] Purchase successful, refreshing subscription...');
+                          console.log('✅ [PURCHASE] Purchase successful!');
                           
-                          // CRITICAL: Clear cache and refresh BEFORE showing modal
-                          localStorage.removeItem('subscriptionStatus');
-                          localStorage.removeItem('hasHealingKit');
-                          
-                          // Wait for sync to complete and AuthContext to refresh
-                          await new Promise(resolve => setTimeout(resolve, 2000));
-                          
-                          // Refresh subscription status from Supabase
-                          await checkSubscription();
-                          console.log('✅ [PURCHASE] AuthContext refreshed after healing kit purchase');
-                          
-                          // Wait another moment to ensure state updates
-                          await new Promise(resolve => setTimeout(resolve, 500));
+                          // CRITICAL: UNLOCK FEATURES IMMEDIATELY - NO WAITING
+                          unlockHealingKit();
+                          console.log('✅ [PURCHASE] Healing Kit unlocked in local state');
                           
                           setAlreadyOwned(true);
                           setWasAlreadyOwned(hadHealingKitBefore);
-                          // Show success modal
+                          
+                          // Show success modal - Supabase sync happens in background
                           setShowSuccessModal(true);
                         } else {
                           toast.error(result.error || "Purchase failed. Please try again.");
