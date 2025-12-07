@@ -167,14 +167,21 @@ export const HealingKitPurchase = () => {
                         toast.dismiss(loadingToast);
                         
                         if (result.success) {
-                          // Clear cached subscription status to force refresh
+                          console.log('✅ [PURCHASE] Purchase successful, refreshing subscription...');
+                          
+                          // CRITICAL: Clear cache and refresh BEFORE showing modal
                           localStorage.removeItem('subscriptionStatus');
                           localStorage.removeItem('hasHealingKit');
                           
+                          // Wait for sync to complete and AuthContext to refresh
+                          await new Promise(resolve => setTimeout(resolve, 2000));
+                          
                           // Refresh subscription status from Supabase
-                          // This ensures AuthContext has the latest data
                           await checkSubscription();
                           console.log('✅ [PURCHASE] AuthContext refreshed after healing kit purchase');
+                          
+                          // Wait another moment to ensure state updates
+                          await new Promise(resolve => setTimeout(resolve, 500));
                           
                           setAlreadyOwned(true);
                           setWasAlreadyOwned(hadHealingKitBefore);
