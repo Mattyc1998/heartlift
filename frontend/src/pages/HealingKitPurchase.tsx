@@ -171,6 +171,9 @@ export const HealingKitPurchase = () => {
                           localStorage.removeItem('subscriptionStatus');
                           localStorage.removeItem('hasHealingKit');
                           
+                          // Refresh subscription status from Supabase
+                          await checkSubscription();
+                          
                           setAlreadyOwned(true);
                           setWasAlreadyOwned(hadHealingKitBefore);
                           // Show success modal
