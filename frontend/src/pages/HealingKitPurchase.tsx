@@ -19,6 +19,7 @@ export const HealingKitPurchase = () => {
   const [alreadyOwned, setAlreadyOwned] = useState(false);
   const [checkingOwnership, setCheckingOwnership] = useState(true);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [wasAlreadyOwned, setWasAlreadyOwned] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -26,7 +27,7 @@ export const HealingKitPurchase = () => {
       return;
     }
 
-    // Check if user already owns healing kit
+    // Check if user already owns healing kit on THIS app account
     const checkOwnership = async () => {
       try {
         const { data, error } = await supabase
