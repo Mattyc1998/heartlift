@@ -14,7 +14,7 @@ export const HealingKitPurchase = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as any)?.from as string | undefined;
-  const { user } = useAuth();
+  const { user, checkSubscription } = useAuth();
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [alreadyOwned, setAlreadyOwned] = useState(false);
   const [checkingOwnership, setCheckingOwnership] = useState(true);
@@ -63,8 +63,8 @@ export const HealingKitPurchase = () => {
         isOpen={showSuccessModal}
         onClose={() => {
           setShowSuccessModal(false);
-          // Force page reload to refresh subscription status
-          window.location.href = '/healing-kit';
+          // Navigate to healing kit WITHOUT page reload
+          navigate('/healing-kit', { replace: true });
         }}
         type="healingkit"
         wasAlreadyOwned={wasAlreadyOwned}
@@ -170,6 +170,11 @@ export const HealingKitPurchase = () => {
                           // Clear cached subscription status to force refresh
                           localStorage.removeItem('subscriptionStatus');
                           localStorage.removeItem('hasHealingKit');
+                          
+                          // Refresh subscription status from Supabase
+                          // This ensures AuthContext has the latest data
+                          await checkSubscription();
+                          console.log('✅ [PURCHASE] AuthContext refreshed after healing kit purchase');
                           
                           setAlreadyOwned(true);
                           setWasAlreadyOwned(hadHealingKitBefore);
