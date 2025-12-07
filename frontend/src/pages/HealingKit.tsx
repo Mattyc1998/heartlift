@@ -17,14 +17,21 @@ export default function HealingKit() {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("plan");
 
-  console.log('[HealingKit] Loading - hasHealingKit:', hasHealingKit);
+  console.log('[HealingKit] ========== PAGE LOAD ==========');
+  console.log('[HealingKit] Checking access...');
+  console.log('[HealingKit] user:', user?.id);
+  console.log('[HealingKit] hasHealingKit from context:', hasHealingKit);
+  console.log('[HealingKit] hasHealingKit from localStorage:', localStorage.getItem('hasHealingKit'));
+  console.log('[HealingKit] Will show content?', hasHealingKit ? 'YES' : 'NO - PAYWALL');
 
   if (!user) {
+    console.log('[HealingKit] ❌ No user - redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
 
   // Check local state - this is updated immediately after purchase
   if (!hasHealingKit) {
+    console.log('[HealingKit] ❌ hasHealingKit is FALSE - showing paywall');
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
         <Card className="p-8 text-center max-w-md mx-auto">
