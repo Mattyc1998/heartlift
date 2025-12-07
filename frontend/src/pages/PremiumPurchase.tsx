@@ -180,6 +180,9 @@ export const PremiumPurchase = () => {
                           localStorage.removeItem('subscriptionStatus');
                           localStorage.removeItem('hasHealingKit');
                           
+                          // Refresh subscription status from Supabase
+                          await checkSubscription();
+                          
                           setAlreadyOwned(true);
                           setWasAlreadyOwned(hadPremiumBefore);
                           // Show success modal
