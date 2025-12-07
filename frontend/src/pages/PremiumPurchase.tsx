@@ -63,12 +63,15 @@ export const PremiumPurchase = () => {
     <>
       <PurchaseSuccessModal 
         isOpen={showSuccessModal}
-        onClose={() => {
+        onClose={async () => {
           setShowSuccessModal(false);
+          // Wait a moment for Supabase to sync
+          await new Promise(resolve => setTimeout(resolve, 500));
+          // Force refresh the page to reload subscription status
           if (from === 'home') {
-            navigate('/');
+            window.location.href = '/';
           } else {
-            navigate('/?tab=coaches');
+            window.location.href = '/?tab=coaches';
           }
         }}
         type="premium"
