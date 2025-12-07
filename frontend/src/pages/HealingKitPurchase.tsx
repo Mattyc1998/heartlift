@@ -19,6 +19,7 @@ export const HealingKitPurchase = () => {
   const [alreadyOwned, setAlreadyOwned] = useState(false);
   const [checkingOwnership, setCheckingOwnership] = useState(true);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [wasAlreadyOwned, setWasAlreadyOwned] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -26,7 +27,7 @@ export const HealingKitPurchase = () => {
       return;
     }
 
-    // Check if user already owns healing kit
+    // Check if user already owns healing kit on THIS app account
     const checkOwnership = async () => {
       try {
         const { data, error } = await supabase
@@ -60,14 +61,13 @@ export const HealingKitPurchase = () => {
     <>
       <PurchaseSuccessModal 
         isOpen={showSuccessModal}
-        onClose={async () => {
+        onClose={() => {
           setShowSuccessModal(false);
-          // Wait a moment for Supabase to sync
-          await new Promise(resolve => setTimeout(resolve, 500));
-          // Force refresh the page to reload subscription status
+          // Force page reload to refresh subscription status
           window.location.href = '/healing-kit';
         }}
         type="healingkit"
+        wasAlreadyOwned={wasAlreadyOwned}
       />
       
       <div className="min-h-screen bg-gradient-to-br from-secondary/30 to-accent/30 p-4">
@@ -156,6 +156,10 @@ export const HealingKitPurchase = () => {
                     onClick={async () => {
                       setIsPurchasing(true);
                       const loadingToast = toast.loading("Opening purchase...");
+                      
+                      // Check if user already owned it BEFORE purchase
+                      const hadHealingKitBefore = alreadyOwned;
+                      
                       try {
                         const result = await purchaseService.buyHealingKit();
                         
@@ -163,7 +167,12 @@ export const HealingKitPurchase = () => {
                         toast.dismiss(loadingToast);
                         
                         if (result.success) {
+                          // Clear cached subscription status to force refresh
+                          localStorage.removeItem('subscriptionStatus');
+                          localStorage.removeItem('hasHealingKit');
+                          
                           setAlreadyOwned(true);
+                          setWasAlreadyOwned(hadHealingKitBefore);
                           // Show success modal
                           setShowSuccessModal(true);
                         } else {

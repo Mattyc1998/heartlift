@@ -19,6 +19,7 @@ export const PremiumPurchase = () => {
   const [alreadyOwned, setAlreadyOwned] = useState(false);
   const [checkingOwnership, setCheckingOwnership] = useState(true);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [wasAlreadyOwned, setWasAlreadyOwned] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -26,7 +27,7 @@ export const PremiumPurchase = () => {
       return;
     }
 
-    // Check if user already owns premium
+    // Check if user already owns premium on THIS app account
     const checkOwnership = async () => {
       try {
         const { data, error } = await supabase
@@ -63,18 +64,13 @@ export const PremiumPurchase = () => {
     <>
       <PurchaseSuccessModal 
         isOpen={showSuccessModal}
-        onClose={async () => {
+        onClose={() => {
           setShowSuccessModal(false);
-          // Wait a moment for Supabase to sync
-          await new Promise(resolve => setTimeout(resolve, 500));
-          // Force refresh the page to reload subscription status
-          if (from === 'home') {
-            window.location.href = '/';
-          } else {
-            window.location.href = '/?tab=coaches';
-          }
+          // Force page reload to refresh subscription status
+          window.location.href = '/?tab=coaches';
         }}
         type="premium"
+        wasAlreadyOwned={wasAlreadyOwned}
       />
       
       <div className="min-h-screen bg-gradient-to-br from-secondary/30 to-accent/30 p-4">
@@ -169,6 +165,10 @@ export const PremiumPurchase = () => {
                     onClick={async () => {
                       setIsPurchasing(true);
                       const loadingToast = toast.loading("Opening purchase...");
+                      
+                      // Check if user already owned it BEFORE purchase
+                      const hadPremiumBefore = alreadyOwned;
+                      
                       try {
                         const result = await purchaseService.buyPremium();
                         
@@ -176,7 +176,12 @@ export const PremiumPurchase = () => {
                         toast.dismiss(loadingToast);
                         
                         if (result.success) {
+                          // Clear cached subscription status to force refresh
+                          localStorage.removeItem('subscriptionStatus');
+                          localStorage.removeItem('hasHealingKit');
+                          
                           setAlreadyOwned(true);
+                          setWasAlreadyOwned(hadPremiumBefore);
                           // Show success modal
                           setShowSuccessModal(true);
                         } else {

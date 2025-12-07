@@ -6,9 +6,10 @@ interface PurchaseSuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
   type: 'premium' | 'healingkit';
+  wasAlreadyOwned?: boolean;
 }
 
-export const PurchaseSuccessModal = ({ isOpen, onClose, type }: PurchaseSuccessModalProps) => {
+export const PurchaseSuccessModal = ({ isOpen, onClose, type, wasAlreadyOwned = false }: PurchaseSuccessModalProps) => {
   const premiumFeatures = [
     "Unlimited AI coach conversations",
     "Guided Programmes",
@@ -31,10 +32,16 @@ export const PurchaseSuccessModal = ({ isOpen, onClose, type }: PurchaseSuccessM
 
   const features = type === 'premium' ? premiumFeatures : healingKitFeatures;
   const icon = type === 'premium' ? <Crown className="w-16 h-16 text-primary" /> : <Heart className="w-16 h-16 text-primary" />;
-  const title = type === 'premium' ? "Welcome to Premium!" : "Healing Kit Unlocked!";
-  const subtitle = type === 'premium' 
-    ? "All premium features are now unlocked and ready to use" 
-    : "Your 30-day healing journey starts now";
+  
+  const title = wasAlreadyOwned 
+    ? (type === 'premium' ? "You Already Have Premium!" : "You Already Have the Healing Kit!")
+    : (type === 'premium' ? "Welcome to Premium!" : "Healing Kit Unlocked!");
+    
+  const subtitle = wasAlreadyOwned
+    ? "Your purchase was restored - all features are available"
+    : (type === 'premium' 
+        ? "All premium features are now unlocked and ready to use" 
+        : "Your 30-day healing journey starts now");
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
