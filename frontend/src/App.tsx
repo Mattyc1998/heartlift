@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { purchaseService } from "@/services/purchaseService";
 import Index from "./pages/Index";
 import { Auth } from "./pages/Auth";
@@ -23,16 +23,37 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => {
+// Inner component that has access to AuthContext
+const AppContent = () => {
+  const { checkSupabaseSubscriptionStatus } = useAuth();
+
   useEffect(() => {
-    // Listen for app state changes (resume/active)
+    // CRITICAL: Check Supabase on app launch
+    const initializeApp = async () => {
+      console.log('[App] 🚀 App launched - checking Supabase subscription status');
+      try {
+        await checkSupabaseSubscriptionStatus();
+      } catch (error) {
+        console.error('[App] ❌ Error checking subscription on launch:', error);
+      }
+    };
+
+    initializeApp();
+  }, [checkSupabaseSubscriptionStatus]);
+
+  useEffect(() => {
+    // CRITICAL: Check Supabase on app resume (catches expirations & cancellations)
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible') {
-        console.log('[App] App resumed - checking subscription status');
+        console.log('[App] 👁️ App resumed - checking Supabase for subscription changes');
         try {
+          // Check Supabase to catch expired/cancelled subscriptions
+          await checkSupabaseSubscriptionStatus();
+          
+          // Also check IAP store status
           await purchaseService.checkSubscriptionStatus();
         } catch (error) {
-          console.error('[App] Error checking subscription on resume:', error);
+          console.error('[App] ❌ Error checking subscription on resume:', error);
         }
       }
     };
@@ -42,7 +63,7 @@ const App = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [checkSupabaseSubscriptionStatus]);
 
   return (
     <QueryClientProvider client={queryClient}>
