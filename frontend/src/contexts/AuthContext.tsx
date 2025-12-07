@@ -357,6 +357,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Function to unlock features IMMEDIATELY after purchase
+  const unlockPremium = () => {
+    console.log('[AuthContext] 🔓 UNLOCKING PREMIUM IMMEDIATELY');
+    setIsPremium(true);
+    setSubscriptionStatus('premium');
+    localStorage.setItem('isPremium', 'true');
+    localStorage.setItem('subscriptionStatus', JSON.stringify('premium'));
+  };
+
+  const unlockHealingKit = () => {
+    console.log('[AuthContext] 🔓 UNLOCKING HEALING KIT IMMEDIATELY');
+    setHasHealingKit(true);
+    localStorage.setItem('hasHealingKit', 'true');
+  };
+
   const value = {
     user,
     session,
@@ -369,6 +384,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     hasHealingKit,
     subscriptionStatus,
     checkSubscription,
+    unlockPremium,
+    unlockHealingKit,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
