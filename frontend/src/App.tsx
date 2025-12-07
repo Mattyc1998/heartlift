@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { DebugConsole } from "@/components/DebugConsole";
 import { purchaseService } from "@/services/purchaseService";
+import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import { Auth } from "./pages/Auth";
 import { PremiumSuccess } from "./pages/PremiumSuccess";
@@ -32,6 +33,22 @@ const AppContent = () => {
     // CRITICAL: Check Supabase on app launch
     const initializeApp = async () => {
       console.log('[App] 🚀 App launched - checking Supabase subscription status');
+      
+      // Test Supabase connection first
+      console.log('[App] 🔍 Testing Supabase connection...');
+      try {
+        const { data, error } = await supabase.from('subscribers').select('id').limit(1);
+        if (error) {
+          console.error('[App] ❌ Supabase connection test FAILED:', error);
+          alert('⚠️ DATABASE CONNECTION FAILED\nPurchases may not persist!\n' + error.message);
+        } else {
+          console.log('[App] ✅ Supabase connection test PASSED');
+        }
+      } catch (testError) {
+        console.error('[App] ❌ Supabase connection test exception:', testError);
+      }
+      
+      // Now check subscription status
       try {
         await checkSupabaseSubscriptionStatus();
       } catch (error) {
