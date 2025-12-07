@@ -60,12 +60,10 @@ export const HealingKitPurchase = () => {
     <>
       <PurchaseSuccessModal 
         isOpen={showSuccessModal}
-        onClose={async () => {
+        onClose={() => {
           setShowSuccessModal(false);
-          // Wait a moment for Supabase to sync
-          await new Promise(resolve => setTimeout(resolve, 500));
-          // Force refresh the page to reload subscription status
-          window.location.href = '/healing-kit';
+          // Navigate to healing kit page immediately
+          navigate('/healing-kit');
         }}
         type="healingkit"
       />
