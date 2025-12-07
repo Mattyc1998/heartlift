@@ -14,7 +14,7 @@ export const HealingKitPurchase = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as any)?.from as string | undefined;
-  const { user, checkSubscription } = useAuth();
+  const { user, checkSubscription, unlockHealingKit } = useAuth();
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [alreadyOwned, setAlreadyOwned] = useState(false);
   const [checkingOwnership, setCheckingOwnership] = useState(true);
