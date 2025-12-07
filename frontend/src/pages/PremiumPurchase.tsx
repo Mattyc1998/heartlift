@@ -65,8 +65,8 @@ export const PremiumPurchase = () => {
         isOpen={showSuccessModal}
         onClose={() => {
           setShowSuccessModal(false);
-          // Navigate to coach conversations immediately
-          navigate('/?tab=coaches');
+          // Force page reload to refresh subscription status
+          window.location.href = '/?tab=coaches';
         }}
         type="premium"
       />
