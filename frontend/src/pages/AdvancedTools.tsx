@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Crown, Heart, Target, ArrowLeft, MessageSquare, Bot, Brain, BookOpen, Palette } from "lucide-react";
 
 export default function AdvancedTools() {
-  const { user, isPremium, unlockPremium, isLoadingPurchases } = useAuth();
+  const { user, isPremium, unlockPremium } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("quiz");
 
@@ -33,20 +33,6 @@ export default function AdvancedTools() {
 
   if (!user) {
     return <Navigate to="/auth" replace />;
-  }
-
-  // CRITICAL: Wait for purchases to load before checking access
-  if (isLoadingPurchases) {
-    console.log('[AdvancedTools] ⏳ Still loading purchases - showing loading state');
-    return (
-      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
-        <Card className="p-8 text-center max-w-md mx-auto">
-          <Crown className="w-16 h-16 mx-auto mb-4 text-primary animate-pulse" />
-          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
-          <p className="text-muted-foreground">Checking your premium access...</p>
-        </Card>
-      </div>
-    );
   }
 
   if (!isPremium) {
