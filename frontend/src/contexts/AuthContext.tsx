@@ -500,6 +500,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signOut,
     forceSignOut,
     loading,
+    isAppReady,
     isPremium,
     hasHealingKit,
     subscriptionStatus,
