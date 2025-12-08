@@ -521,10 +521,8 @@ class PurchaseService {
         if (subError) {
           console.error('❌ [SYNC] Failed to update premium in Supabase:', subError);
           console.error('❌ [SYNC] Error details:', JSON.stringify(subError));
-          alert(`❌ PREMIUM SYNC FAILED\n${subError.message}\nFeatures work locally but won't persist`);
         } else {
           console.log('✅ [SYNC] Premium updated in Supabase:', premiumData);
-          alert('✅ PREMIUM SYNCED TO DATABASE');
         }
       }
 
@@ -549,10 +547,8 @@ class PurchaseService {
         if (kitError) {
           console.error('❌ [SYNC] Failed to update healing kit in Supabase:', kitError);
           console.error('❌ [SYNC] Error details:', JSON.stringify(kitError));
-          alert(`❌ HEALING KIT SYNC FAILED\n${kitError.message}\nFeatures work locally but won't persist`);
         } else {
           console.log('✅ [SYNC] Healing Kit updated in Supabase:', kitData);
-          alert('✅ HEALING KIT SYNCED TO DATABASE');
         }
       }
 
@@ -560,7 +556,6 @@ class PurchaseService {
     } catch (error: any) {
       console.error('❌ [SYNC] Failed to sync purchases to Supabase:', error);
       console.error('❌ [SYNC] Error stack:', error?.stack);
-      alert(`❌ DATABASE SYNC ERROR\n${error?.message || 'Unknown error'}\nCheck console logs`);
       throw error;
     }
   }

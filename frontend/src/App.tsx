@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { DebugConsole } from "@/components/DebugConsole";
 import { purchaseService } from "@/services/purchaseService";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
@@ -40,7 +39,6 @@ const AppContent = () => {
         const { data, error } = await supabase.from('subscribers').select('id').limit(1);
         if (error) {
           console.error('[App] ❌ Supabase connection test FAILED:', error);
-          alert('⚠️ DATABASE CONNECTION FAILED\nPurchases may not persist!\n' + error.message);
         } else {
           console.log('[App] ✅ Supabase connection test PASSED');
         }
@@ -112,7 +110,6 @@ const App = () => (
       <AuthProvider>
         <Toaster />
         <Sonner />
-        <DebugConsole />
         <AppContent />
       </AuthProvider>
     </TooltipProvider>
