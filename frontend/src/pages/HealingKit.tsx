@@ -28,7 +28,6 @@ export default function HealingKit() {
     if (storedValue === 'true' && !hasHealingKit) {
       console.log('[HealingKit] ⚠️ MISMATCH DETECTED - localStorage is true but context is false');
       console.log('[HealingKit] 🔧 FIXING: Calling unlockHealingKit() to sync context...');
-      alert('🔧 FIXING STATE\nLocalStorage shows you own it\nSyncing context now...');
       unlockHealingKit();
     }
     
