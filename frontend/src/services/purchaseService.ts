@@ -483,14 +483,28 @@ class PurchaseService {
    */
   private async syncToSupabase(hasPremium: boolean, hasHealingKit: boolean) {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user logged in');
+      console.log('🔄 [SYNC] Starting Supabase sync...');
+      console.log('🔄 [SYNC] hasPremium:', hasPremium, 'hasHealingKit:', hasHealingKit);
+      
+      // CRITICAL: Get authenticated user
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error('❌ [SYNC] Auth error:', authError);
+        throw new Error('Failed to get authenticated user: ' + authError.message);
+      }
+      
+      if (!user) {
+        console.error('❌ [SYNC] No authenticated user found');
+        throw new Error('No user logged in - cannot sync to Supabase');
+      }
 
-      console.log('🔄 Syncing purchase status to Supabase...');
+      console.log('✅ [SYNC] Authenticated user:', user.id);
 
       // Update Premium subscription in Supabase
       if (hasPremium) {
-        const { error: subError } = await supabase
+        console.log('🔄 [SYNC] Updating Premium in Supabase...');
+        const { data: premiumData, error: subError } = await supabase
           .from('subscribers')
           .upsert({
             user_id: user.id,
@@ -501,37 +515,52 @@ class PurchaseService {
             updated_at: new Date().toISOString()
           }, {
             onConflict: 'user_id'
-          });
+          })
+          .select();
         
         if (subError) {
-          console.error('❌ Failed to update premium in Supabase:', subError);
+          console.error('❌ [SYNC] Failed to update premium in Supabase:', subError);
+          console.error('❌ [SYNC] Error details:', JSON.stringify(subError));
+          alert(`❌ PREMIUM SYNC FAILED\n${subError.message}\nFeatures work locally but won't persist`);
         } else {
-          console.log('✅ Premium updated in Supabase');
+          console.log('✅ [SYNC] Premium updated in Supabase:', premiumData);
+          alert('✅ PREMIUM SYNCED TO DATABASE');
         }
       }
 
       // Update Healing Kit in Supabase (healing_kit_purchases table)
       if (hasHealingKit) {
-        const { error: kitError } = await supabase
+        console.log('🔄 [SYNC] Updating Healing Kit in Supabase...');
+        
+        // Schema requires: user_id, amount, status, purchased_at
+        const { data: kitData, error: kitError } = await supabase
           .from('healing_kit_purchases')
           .upsert({
             user_id: user.id,
+            amount: 499,  // £4.99 in pence (required by schema)
+            currency: 'gbp',
             status: 'completed',
             purchased_at: new Date().toISOString()
           }, {
             onConflict: 'user_id'
-          });
+          })
+          .select();
         
         if (kitError) {
-          console.error('❌ Failed to update healing kit in Supabase:', kitError);
+          console.error('❌ [SYNC] Failed to update healing kit in Supabase:', kitError);
+          console.error('❌ [SYNC] Error details:', JSON.stringify(kitError));
+          alert(`❌ HEALING KIT SYNC FAILED\n${kitError.message}\nFeatures work locally but won't persist`);
         } else {
-          console.log('✅ Healing Kit updated in Supabase');
+          console.log('✅ [SYNC] Healing Kit updated in Supabase:', kitData);
+          alert('✅ HEALING KIT SYNCED TO DATABASE');
         }
       }
 
-      console.log('✅ All purchases synced to Supabase');
-    } catch (error) {
-      console.error('❌ Failed to sync purchases to Supabase:', error);
+      console.log('✅ [SYNC] All purchases synced to Supabase successfully');
+    } catch (error: any) {
+      console.error('❌ [SYNC] Failed to sync purchases to Supabase:', error);
+      console.error('❌ [SYNC] Error stack:', error?.stack);
+      alert(`❌ DATABASE SYNC ERROR\n${error?.message || 'Unknown error'}\nCheck console logs`);
       throw error;
     }
   }
