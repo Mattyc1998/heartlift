@@ -403,17 +403,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Check Supabase subscription status and update local state
   const checkSupabaseSubscriptionStatus = async (): Promise<{ isPremium: boolean; hasHealingKit: boolean }> => {
-    console.log('[AuthContext] 🔍 Starting purchase status check...');
-    setIsLoadingPurchases(true);
-    
+    if (!user) {
+      return { isPremium: false, hasHealingKit: false };
+    }
+
+    console.log('[AuthContext] 🔍 Checking Supabase for subscription status...');
+
     try {
-      if (!user) {
-        console.log('[AuthContext] ⚠️ No user, skipping purchase check');
-        return { isPremium: false, hasHealingKit: false };
-      }
-
-      console.log('[AuthContext] 🔍 Checking Supabase for subscription status...');
-
       const [subResult, kitResult] = await Promise.all([
         supabase.from('subscribers').select('subscribed').eq('user_id', user.id).single(),
         supabase.from('healing_kit_purchases').select('status').eq('user_id', user.id).single()
@@ -443,15 +439,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       console.log('[AuthContext] ✅ Final state - Premium:', (isPremiumFromDB || localIsPremium), 'HealingKit:', (hasHealingKitFromDB || localHasHealingKit));
-      console.log('[AuthContext] ✅ Purchase status check complete');
 
       return { isPremium: isPremiumFromDB || localIsPremium, hasHealingKit: hasHealingKitFromDB || localHasHealingKit };
     } catch (error) {
       console.error('[AuthContext] ❌ Error checking Supabase:', error);
       return { isPremium: false, hasHealingKit: false };
-    } finally {
-      setIsLoadingPurchases(false);
-      console.log('[AuthContext] 🏁 isLoadingPurchases set to false');
     }
   };
 
