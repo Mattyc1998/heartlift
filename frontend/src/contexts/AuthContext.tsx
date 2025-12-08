@@ -57,11 +57,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     console.log('[App Init] 🚀 Initializing app...');
     setIsAppReady(false);
     
-    // SAFETY: Force ready after 5 seconds no matter what
+    // SAFETY: Force ready after 10 seconds no matter what
     const timeoutId = setTimeout(() => {
-      console.warn('[App Init] ⏱️ Init timeout (5s) - forcing app ready');
+      console.warn('[App Init] ⏱️ Init timeout (10s) - forcing app ready');
       setIsAppReady(true);
-    }, 5000);
+    }, 10000);
     
     try {
       // Check Supabase connection
@@ -69,15 +69,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (authError) {
         console.error('[App Init] ❌ Auth error:', authError);
-      } else {
-        console.log('[App Init] ✅ Supabase connected, user:', currentUser?.id || 'none');
+        return;
+      }
+      
+      console.log('[App Init] ✅ Supabase connected, user:', currentUser?.id || 'none');
+      
+      if (currentUser) {
+        // CRITICAL: Load ALL data and wait for it to be in state
+        console.log('[App Init] 📦 Loading purchases from Supabase...');
+        const purchaseStatus = await checkSupabaseSubscriptionStatus();
+        console.log('[App Init] ✅ Purchases loaded into state:', purchaseStatus);
         
-        if (currentUser) {
-          // Load purchases from Supabase
-          console.log('[App Init] 📦 Loading purchases...');
-          await checkSupabaseSubscriptionStatus();
-          console.log('[App Init] ✅ Purchases loaded');
+        // Load user profile
+        console.log('[App Init] 📦 Loading user profile...');
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', currentUser.id)
+          .single();
+        
+        if (profileError) {
+          console.error('[App Init] ⚠️ Profile load failed:', profileError);
+        } else {
+          console.log('[App Init] ✅ Profile loaded:', profile?.full_name || 'No name');
         }
+        
+        // Give React a moment to propagate state updates
+        await new Promise(resolve => setTimeout(resolve, 300));
+        console.log('[App Init] ✅ State updates propagated');
+        
+        console.log('[App Init] ✅ All critical data loaded into state');
       }
       
       console.log('[App Init] ✅ App initialized successfully');
@@ -86,7 +107,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       clearTimeout(timeoutId); // Cancel timeout if we finished
       setIsAppReady(true); // ALWAYS set to true
-      console.log('[App Init] ✅ App ready (isAppReady = true)');
+      console.log('[App Init] ✅ App ready - data is in state (isAppReady = true)');
+      console.log('[App Init] 📊 Final state - hasHealingKit:', hasHealingKit, 'isPremium:', isPremium);
     }
   };
 
