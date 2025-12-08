@@ -26,19 +26,15 @@ const queryClient = new QueryClient();
 
 // Inner component that has access to AuthContext
 const AppContent = () => {
-  const { isAppReady, checkSupabaseSubscriptionStatus } = useAuth();
+  const { isAppReady, initializeApp } = useAuth();
 
   useEffect(() => {
-    // CRITICAL: Reinitialize app on app resume (catches expirations & cancellations)
+    // CRITICAL: Reinitialize app on app resume
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible') {
-        console.log('[App] 👁️ App resumed - reinitializing app...');
+        console.log('[App] 👁️ App resumed - reinitializing...');
         try {
-          // Reinitialize purchases and data
-          await checkSupabaseSubscriptionStatus();
-          
-          // Also check IAP store status
-          await purchaseService.checkSubscriptionStatus();
+          await initializeApp();
         } catch (error) {
           console.error('[App] ❌ Error reinitializing on resume:', error);
         }
@@ -50,7 +46,7 @@ const AppContent = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [checkSupabaseSubscriptionStatus]);
+  }, [initializeApp]);
 
   // Show loading screen while app initializes
   if (!isAppReady) {
