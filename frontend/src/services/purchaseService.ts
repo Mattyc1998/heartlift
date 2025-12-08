@@ -547,10 +547,8 @@ class PurchaseService {
         if (kitError) {
           console.error('❌ [SYNC] Failed to update healing kit in Supabase:', kitError);
           console.error('❌ [SYNC] Error details:', JSON.stringify(kitError));
-          alert(`❌ HEALING KIT SYNC FAILED\n${kitError.message}\nFeatures work locally but won't persist`);
         } else {
           console.log('✅ [SYNC] Healing Kit updated in Supabase:', kitData);
-          alert('✅ HEALING KIT SYNCED TO DATABASE');
         }
       }
 
