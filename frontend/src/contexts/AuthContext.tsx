@@ -455,7 +455,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signOut,
     forceSignOut,
     loading,
-    isLoadingPurchases,
     isPremium,
     hasHealingKit,
     subscriptionStatus,
