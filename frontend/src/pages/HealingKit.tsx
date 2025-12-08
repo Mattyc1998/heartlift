@@ -13,10 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Heart, ArrowLeft } from "lucide-react";
 
 export default function HealingKit() {
-  const { user, hasHealingKit, unlockHealingKit } = useAuth();
+  const { user, hasHealingKit, unlockHealingKit, isLoadingPurchases } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("plan");
-  const [isChecking, setIsChecking] = useState(true);
 
   // CRITICAL FIX: Sync Context with localStorage on page load
   useEffect(() => {
@@ -30,13 +29,12 @@ export default function HealingKit() {
       console.log('[HealingKit] 🔧 FIXING: Calling unlockHealingKit() to sync context...');
       unlockHealingKit();
     }
-    
-    setIsChecking(false);
   }, [hasHealingKit, unlockHealingKit]);
 
   console.log('[HealingKit] ========== PAGE LOAD ==========');
   console.log('[HealingKit] Checking access...');
   console.log('[HealingKit] user:', user?.id);
+  console.log('[HealingKit] isLoadingPurchases:', isLoadingPurchases);
   console.log('[HealingKit] hasHealingKit from context:', hasHealingKit);
   console.log('[HealingKit] hasHealingKit from localStorage:', localStorage.getItem('hasHealingKit'));
   console.log('[HealingKit] Will show content?', hasHealingKit ? 'YES' : 'NO - PAYWALL');
@@ -44,6 +42,20 @@ export default function HealingKit() {
   if (!user) {
     console.log('[HealingKit] ❌ No user - redirecting to auth');
     return <Navigate to="/auth" replace />;
+  }
+
+  // CRITICAL: Wait for purchases to load before checking access
+  if (isLoadingPurchases) {
+    console.log('[HealingKit] ⏳ Still loading purchases - showing loading state');
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
+        <Card className="p-8 text-center max-w-md mx-auto">
+          <Heart className="w-16 h-16 mx-auto mb-4 text-primary animate-pulse" />
+          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+          <p className="text-muted-foreground">Checking your access...</p>
+        </Card>
+      </div>
+    );
   }
 
   // Check local state - this is updated immediately after purchase
