@@ -521,10 +521,8 @@ class PurchaseService {
         if (subError) {
           console.error('❌ [SYNC] Failed to update premium in Supabase:', subError);
           console.error('❌ [SYNC] Error details:', JSON.stringify(subError));
-          alert(`❌ PREMIUM SYNC FAILED\n${subError.message}\nFeatures work locally but won't persist`);
         } else {
           console.log('✅ [SYNC] Premium updated in Supabase:', premiumData);
-          alert('✅ PREMIUM SYNCED TO DATABASE');
         }
       }
 
