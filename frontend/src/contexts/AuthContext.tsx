@@ -378,13 +378,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const unlockHealingKit = () => {
     console.log('[AuthContext] 🔓 unlockHealingKit() CALLED');
-    alert('🔓 UNLOCK HEALING KIT CALLED');
     console.log('[AuthContext] 📊 Before unlock - hasHealingKit:', hasHealingKit);
     setHasHealingKit(true);
     console.log('[AuthContext] ✅ setHasHealingKit(true) executed');
     localStorage.setItem('hasHealingKit', 'true');
     console.log('[AuthContext] 💾 localStorage updated - hasHealingKit: true');
-    alert(`✅ HEALING KIT UNLOCKED\nState: ${hasHealingKit}\nLocalStorage: ${localStorage.getItem('hasHealingKit')}`);
     console.log('[AuthContext] 📊 After unlock - hasHealingKit:', hasHealingKit);
   };
 
