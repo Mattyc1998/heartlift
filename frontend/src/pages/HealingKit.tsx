@@ -41,9 +41,6 @@ export default function HealingKit() {
   console.log('[HealingKit] hasHealingKit from context:', hasHealingKit);
   console.log('[HealingKit] hasHealingKit from localStorage:', localStorage.getItem('hasHealingKit'));
   console.log('[HealingKit] Will show content?', hasHealingKit ? 'YES' : 'NO - PAYWALL');
-  
-  // DEBUG ALERT
-  alert(`🔍 HEALING KIT PAGE LOAD\nContext hasHealingKit: ${hasHealingKit}\nLocalStorage: ${localStorage.getItem('hasHealingKit')}\nWill show: ${hasHealingKit ? 'CONTENT' : 'PAYWALL'}`);
 
   if (!user) {
     console.log('[HealingKit] ❌ No user - redirecting to auth');
