@@ -365,7 +365,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Function to unlock features IMMEDIATELY after purchase
   const unlockPremium = () => {
     console.log('[AuthContext] 🔓 unlockPremium() CALLED');
-    alert('🔓 UNLOCK PREMIUM CALLED');
     console.log('[AuthContext] 📊 Before unlock - isPremium:', isPremium);
     setIsPremium(true);
     console.log('[AuthContext] ✅ setIsPremium(true) executed');
@@ -374,7 +373,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('isPremium', 'true');
     localStorage.setItem('subscriptionStatus', JSON.stringify('premium'));
     console.log('[AuthContext] 💾 localStorage updated - isPremium: true');
-    alert(`✅ PREMIUM UNLOCKED\nState: ${isPremium}\nLocalStorage: ${localStorage.getItem('isPremium')}`);
     console.log('[AuthContext] 📊 After unlock - isPremium:', isPremium);
   };
 
