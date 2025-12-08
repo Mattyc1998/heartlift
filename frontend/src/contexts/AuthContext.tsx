@@ -11,6 +11,8 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   forceSignOut: () => Promise<void>;
   loading: boolean;
+  isAppReady: boolean;
+  initializeApp: () => Promise<void>;
   isPremium: boolean;
   hasHealingKit: boolean;
   subscriptionStatus: 'free' | 'premium';
@@ -36,6 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAppReady, setIsAppReady] = useState(false);
   // Initialize with cached values for immediate loading
   const [isPremium, setIsPremium] = useState(() => {
     const cached = localStorage.getItem('isPremium');
@@ -49,6 +52,43 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const cached = localStorage.getItem('subscriptionStatus');
     return cached ? JSON.parse(cached) : 'free';
   });
+
+  const initializeApp = async () => {
+    console.log('[App Init] 🚀 Initializing app...');
+    setIsAppReady(false);
+    
+    // SAFETY: Force ready after 5 seconds no matter what
+    const timeoutId = setTimeout(() => {
+      console.warn('[App Init] ⏱️ Init timeout (5s) - forcing app ready');
+      setIsAppReady(true);
+    }, 5000);
+    
+    try {
+      // Check Supabase connection
+      const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error('[App Init] ❌ Auth error:', authError);
+      } else {
+        console.log('[App Init] ✅ Supabase connected, user:', currentUser?.id || 'none');
+        
+        if (currentUser) {
+          // Load purchases from Supabase
+          console.log('[App Init] 📦 Loading purchases...');
+          await checkSupabaseSubscriptionStatus();
+          console.log('[App Init] ✅ Purchases loaded');
+        }
+      }
+      
+      console.log('[App Init] ✅ App initialized successfully');
+    } catch (error) {
+      console.error('[App Init] ❌ App init failed:', error);
+    } finally {
+      clearTimeout(timeoutId); // Cancel timeout if we finished
+      setIsAppReady(true); // ALWAYS set to true
+      console.log('[App Init] ✅ App ready (isAppReady = true)');
+    }
+  };
 
   const clearAllConversations = async (userId: string) => {
     try {
@@ -222,6 +262,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    // Initialize app on mount
+    console.log('[App Init] Component mounted, initializing app...');
+    initializeApp();
   }, []);
 
   useEffect(() => {
@@ -455,6 +501,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signOut,
     forceSignOut,
     loading,
+    isAppReady,
+    initializeApp,
     isPremium,
     hasHealingKit,
     subscriptionStatus,
