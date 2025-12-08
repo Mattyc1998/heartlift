@@ -556,7 +556,6 @@ class PurchaseService {
     } catch (error: any) {
       console.error('❌ [SYNC] Failed to sync purchases to Supabase:', error);
       console.error('❌ [SYNC] Error stack:', error?.stack);
-      alert(`❌ DATABASE SYNC ERROR\n${error?.message || 'Unknown error'}\nCheck console logs`);
       throw error;
     }
   }
