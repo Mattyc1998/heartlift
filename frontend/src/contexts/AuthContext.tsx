@@ -36,7 +36,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isLoadingPurchases, setIsLoadingPurchases] = useState(true);
   // Initialize with cached values for immediate loading
   const [isPremium, setIsPremium] = useState(() => {
     const cached = localStorage.getItem('isPremium');
