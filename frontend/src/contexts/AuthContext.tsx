@@ -52,6 +52,43 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return cached ? JSON.parse(cached) : 'free';
   });
 
+  const initializeApp = async () => {
+    console.log('[App Init] 🚀 Initializing app...');
+    setIsAppReady(false);
+    
+    // SAFETY: Force ready after 5 seconds no matter what
+    const timeoutId = setTimeout(() => {
+      console.warn('[App Init] ⏱️ Init timeout (5s) - forcing app ready');
+      setIsAppReady(true);
+    }, 5000);
+    
+    try {
+      // Check Supabase connection
+      const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error('[App Init] ❌ Auth error:', authError);
+      } else {
+        console.log('[App Init] ✅ Supabase connected, user:', currentUser?.id || 'none');
+        
+        if (currentUser) {
+          // Load purchases from Supabase
+          console.log('[App Init] 📦 Loading purchases...');
+          await checkSupabaseSubscriptionStatus();
+          console.log('[App Init] ✅ Purchases loaded');
+        }
+      }
+      
+      console.log('[App Init] ✅ App initialized successfully');
+    } catch (error) {
+      console.error('[App Init] ❌ App init failed:', error);
+    } finally {
+      clearTimeout(timeoutId); // Cancel timeout if we finished
+      setIsAppReady(true); // ALWAYS set to true
+      console.log('[App Init] ✅ App ready (isAppReady = true)');
+    }
+  };
+
   const clearAllConversations = async (userId: string) => {
     try {
       // Clear all conversation history from database
