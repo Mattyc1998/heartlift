@@ -11,6 +11,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   forceSignOut: () => Promise<void>;
   loading: boolean;
+  isLoadingPurchases: boolean;
   isPremium: boolean;
   hasHealingKit: boolean;
   subscriptionStatus: 'free' | 'premium';
