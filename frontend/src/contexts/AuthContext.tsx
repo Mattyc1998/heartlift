@@ -57,11 +57,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     console.log('[App Init] 🚀 Initializing app...');
     setIsAppReady(false);
     
-    // SAFETY: Force ready after 15 seconds no matter what
+    // SAFETY: Force ready after 45 seconds no matter what (increased from 15s)
     const timeoutId = setTimeout(() => {
-      console.warn('[App Init] ⏱️ Timeout (15s) - forcing ready');
+      console.warn('[App Init] ⏱️ Timeout (45s) - forcing ready');
       setIsAppReady(true);
-    }, 15000);
+    }, 45000);
     
     try {
       // Check Supabase connection
@@ -112,38 +112,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
         
         // Purchases verified in localStorage ✓
-        // Now verify Supabase is ready for CONTENT queries (chats, journals, etc.)
-        console.log('[App Init] 🔍 Verifying Supabase connection for content queries...');
-        let connectionVerified = false;
-        let connectionAttempts = 0;
-        const maxConnectionAttempts = 20; // 20 × 200ms = 4 seconds
+        // Now verify Supabase RLS is ready for CONTENT queries with actual data
+        console.log('[App Init] 🔍 Verifying Supabase RLS policies are ready for content queries...');
+        let rlsReady = false;
+        let rlsAttempts = 0;
+        const maxRlsAttempts = 30; // 30 × 500ms = 15 seconds
         
-        while (!connectionVerified && connectionAttempts < maxConnectionAttempts) {
+        while (!rlsReady && rlsAttempts < maxRlsAttempts) {
           try {
-            // Test if Supabase can actually respond to queries
+            // Test ACTUAL content query that depends on RLS
             const { data, error } = await supabase
-              .from('profiles') // Test with profiles table
+              .from('healing_plan_days')
               .select('id')
-              .eq('id', currentUser.id)
               .limit(1);
             
-            if (!error && data !== undefined) {
-              connectionVerified = true;
-              console.log('[App Init] ✅ Supabase connection verified - content queries will work');
+            if (!error) {
+              rlsReady = true;
+              console.log('[App Init] ✅ Supabase RLS verified - content queries will work');
             } else {
-              console.log(`[App Init] Connection test ${connectionAttempts + 1}/${maxConnectionAttempts} - no response yet, error:`, error?.message);
-              await new Promise(resolve => setTimeout(resolve, 200));
-              connectionAttempts++;
+              console.log(`[App Init] RLS test ${rlsAttempts + 1}/${maxRlsAttempts} - error:`, error?.message);
+              await new Promise(resolve => setTimeout(resolve, 500));
+              rlsAttempts++;
             }
           } catch (err: any) {
-            console.log(`[App Init] Connection test ${connectionAttempts + 1} failed:`, err?.message);
-            await new Promise(resolve => setTimeout(resolve, 200));
-            connectionAttempts++;
+            console.log(`[App Init] RLS test ${rlsAttempts + 1} failed:`, err?.message);
+            await new Promise(resolve => setTimeout(resolve, 500));
+            rlsAttempts++;
           }
         }
         
-        if (!connectionVerified) {
-          console.warn('[App Init] ⚠️ Could not verify Supabase connection for queries after 4 seconds - proceeding anyway');
+        if (!rlsReady) {
+          console.warn('[App Init] ⚠️ Could not verify RLS policies after 15 seconds - proceeding anyway');
         }
         
         console.log('[App Init] ✅ All data loaded and verified');
