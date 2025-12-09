@@ -334,12 +334,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    // Initialize app on mount
-    console.log('[App Init] Component mounted, initializing app...');
-    initializeApp();
-  }, []);
-
-  useEffect(() => {
     // Only check subscription once on mount when user exists - no polling
     if (!user) return;
 
