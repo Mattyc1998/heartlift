@@ -57,11 +57,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     console.log('[App Init] 🚀 Initializing app...');
     setIsAppReady(false);
     
-    // SAFETY: Force ready after 15 seconds no matter what
+    // SAFETY: Force ready after 45 seconds no matter what (increased from 15s)
     const timeoutId = setTimeout(() => {
-      console.warn('[App Init] ⏱️ Timeout (15s) - forcing ready');
+      console.warn('[App Init] ⏱️ Timeout (45s) - forcing ready');
       setIsAppReady(true);
-    }, 15000);
+    }, 45000);
     
     try {
       // Check Supabase connection
