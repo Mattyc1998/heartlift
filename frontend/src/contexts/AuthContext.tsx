@@ -352,16 +352,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // CRITICAL: Keep checking for purchases in background if app timed out
   useEffect(() => {
-    // Only run if app is ready but no purchases loaded yet
-    if (!isAppReady || !user) return;
+    // Only start polling if app is ready AND purchases are NOT true
+    // Check the actual boolean values, not just if they exist
+    const needsPolling = isAppReady && 
+                         user &&
+                         hasHealingKit !== true && 
+                         isPremium !== true;
     
-    // If we already have purchases, no need to poll
-    if (hasHealingKit || isPremium) {
-      console.log('[AuthContext] ✅ Purchases already loaded, stopping background checks');
+    if (!needsPolling) {
+      console.log('[AuthContext] ℹ️ No polling needed:', { 
+        isAppReady, 
+        hasUser: !!user,
+        hasHealingKit, 
+        isPremium,
+        needsPolling 
+      });
       return;
     }
     
-    console.log('[AuthContext] ⏰ App ready but no purchases loaded yet, starting background checks...');
+    console.log('[AuthContext] ⏰ Starting background polling - purchases not loaded correctly');
+    console.log('[AuthContext] Current state: hasHealingKit:', hasHealingKit, 'isPremium:', isPremium);
     
     let checksPerformed = 0;
     const maxChecks = 15; // Check for 30 seconds (15 checks × 2 seconds)
@@ -378,15 +388,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       // Stop after max checks
       if (checksPerformed >= maxChecks) {
-        console.log('[AuthContext] ⏹️ Stopped background checks after 30 seconds');
+        console.log('[AuthContext] ⏹️ Stopped background polling after 30 seconds');
         clearInterval(interval);
       }
     }, 2000); // Check every 2 seconds
     
+    // Also set a timeout to clean up after 30 seconds
+    const timeoutId = setTimeout(() => {
+      clearInterval(interval);
+      console.log('[AuthContext] ⏹️ Timeout: Stopped background polling after 30s');
+    }, 30000);
+    
     // Cleanup on unmount
     return () => {
-      console.log('[AuthContext] 🛑 Cleaning up background check interval');
+      console.log('[AuthContext] 🛑 Cleaning up background polling');
       clearInterval(interval);
+      clearTimeout(timeoutId);
     };
   }, [isAppReady, hasHealingKit, isPremium, user]);
 
