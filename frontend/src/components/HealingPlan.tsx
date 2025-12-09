@@ -7,6 +7,7 @@ import { Calendar, CheckCircle, Circle, Heart, Target, MessageSquare, Lightbulb 
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { queryWithRetry } from "@/utils/supabaseHelpers";
 
 interface HealingDay {
   id: string;
@@ -41,13 +42,18 @@ export const HealingPlan = () => {
 
   const fetchHealingPlan = async () => {
     try {
-      const { data, error } = await supabase
-        .from("healing_plan_days")
-        .select("*")
-        .order("day_number");
+      const result = await queryWithRetry(
+        async () => {
+          return await supabase
+            .from("healing_plan_days")
+            .select("*")
+            .order("day_number");
+        },
+        'HealingPlan-Days'
+      );
 
-      if (error) throw error;
-      setHealingDays(data || []);
+      if (result.error) throw result.error;
+      setHealingDays(result.data || []);
       
       // Create default healing plan if none exists
       if (!data || data.length === 0) {
@@ -64,16 +70,22 @@ export const HealingPlan = () => {
 
   const fetchUserProgress = async () => {
     try {
-      const { data, error } = await supabase
-        .from("user_healing_progress")
-        .select("current_day, completed_days")
-        .eq("user_id", user?.id)
-        .single();
+      const result = await queryWithRetry(
+        async () => {
+          const { data: { user: currentUser } } = await supabase.auth.getUser();
+          return await supabase
+            .from("user_healing_progress")
+            .select("current_day, completed_days")
+            .eq("user_id", currentUser?.id)
+            .single();
+        },
+        'HealingPlan-Progress'
+      );
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (result.error && result.error.code !== 'PGRST116') throw result.error;
       
-      if (data) {
-        setUserProgress(data);
+      if (result.data) {
+        setUserProgress(result.data);
       }
     } catch (error: any) {
       console.error("Error fetching progress:", error);

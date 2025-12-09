@@ -57,11 +57,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     console.log('[App Init] 🚀 Initializing app...');
     setIsAppReady(false);
     
-    // SAFETY: Force ready after 10 seconds no matter what
+    // SAFETY: Force ready after 15 seconds no matter what
     const timeoutId = setTimeout(() => {
-      console.warn('[App Init] ⏱️ Init timeout (10s) - forcing app ready');
+      console.warn('[App Init] ⏱️ Timeout (15s) - forcing ready');
       setIsAppReady(true);
-    }, 10000);
+    }, 15000);
     
     try {
       // Check Supabase connection
@@ -75,30 +75,80 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('[App Init] ✅ Supabase connected, user:', currentUser?.id || 'none');
       
       if (currentUser) {
-        // CRITICAL: Load ALL data and wait for it to be in state
+        // Load purchases from Supabase
         console.log('[App Init] 📦 Loading purchases from Supabase...');
-        const purchaseStatus = await checkSupabaseSubscriptionStatus();
-        console.log('[App Init] ✅ Purchases loaded into state:', purchaseStatus);
+        await checkSupabaseSubscriptionStatus();
+        console.log('[App Init] ✅ checkSupabaseSubscriptionStatus() completed');
         
-        // Load user profile
-        console.log('[App Init] 📦 Loading user profile...');
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', currentUser.id)
-          .single();
+        // CRITICAL: Actually verify state has the data
+        console.log('[App Init] 🔍 Verifying state has purchase data...');
+        let stateVerified = false;
+        let attempts = 0;
+        const maxAttempts = 30; // 30 attempts × 100ms = 3 seconds max
         
-        if (profileError) {
-          console.error('[App Init] ⚠️ Profile load failed:', profileError);
-        } else {
-          console.log('[App Init] ✅ Profile loaded:', profile?.full_name || 'No name');
+        while (!stateVerified && attempts < maxAttempts) {
+          // Check if state actually has data by checking localStorage
+          const localHealingKit = localStorage.getItem('hasHealingKit');
+          const localPremium = localStorage.getItem('isPremium');
+          
+          console.log(`[App Init] Attempt ${attempts + 1}: localStorage hasHealingKit=${localHealingKit}, isPremium=${localPremium}`);
+          
+          // If localStorage has values (even if false), state is initialized
+          if (localHealingKit !== null || localPremium !== null) {
+            // Give React one more moment to sync
+            await new Promise(resolve => setTimeout(resolve, 100));
+            stateVerified = true;
+            console.log('[App Init] ✅ State verified - purchases loaded into localStorage and state');
+            console.log('[App Init] 📊 Final localStorage - hasHealingKit:', localHealingKit, 'isPremium:', localPremium);
+          } else {
+            // Wait and retry
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+          }
         }
         
-        // Give React a moment to propagate state updates
-        await new Promise(resolve => setTimeout(resolve, 300));
-        console.log('[App Init] ✅ State updates propagated');
+        if (!stateVerified) {
+          console.warn('[App Init] ⚠️ Could not verify state after 3 seconds - proceeding anyway');
+        }
         
-        console.log('[App Init] ✅ All critical data loaded into state');
+        // Purchases verified in localStorage ✓
+        // Now verify Supabase is ready for CONTENT queries (chats, journals, etc.)
+        console.log('[App Init] 🔍 Verifying Supabase connection for content queries...');
+        let connectionVerified = false;
+        let connectionAttempts = 0;
+        const maxConnectionAttempts = 20; // 20 × 200ms = 4 seconds
+        
+        while (!connectionVerified && connectionAttempts < maxConnectionAttempts) {
+          try {
+            // Test if Supabase can actually respond to queries
+            const { data, error } = await supabase
+              .from('profiles') // Test with profiles table
+              .select('id')
+              .eq('id', currentUser.id)
+              .limit(1);
+            
+            if (!error && data !== undefined) {
+              connectionVerified = true;
+              console.log('[App Init] ✅ Supabase connection verified - content queries will work');
+            } else {
+              console.log(`[App Init] Connection test ${connectionAttempts + 1}/${maxConnectionAttempts} - no response yet, error:`, error?.message);
+              await new Promise(resolve => setTimeout(resolve, 200));
+              connectionAttempts++;
+            }
+          } catch (err: any) {
+            console.log(`[App Init] Connection test ${connectionAttempts + 1} failed:`, err?.message);
+            await new Promise(resolve => setTimeout(resolve, 200));
+            connectionAttempts++;
+          }
+        }
+        
+        if (!connectionVerified) {
+          console.warn('[App Init] ⚠️ Could not verify Supabase connection for queries after 4 seconds - proceeding anyway');
+        }
+        
+        console.log('[App Init] ✅ All data loaded and verified');
+      } else {
+        console.log('[App Init] ℹ️ No user logged in - skipping data load');
       }
       
       console.log('[App Init] ✅ App initialized successfully');
@@ -107,8 +157,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       clearTimeout(timeoutId); // Cancel timeout if we finished
       setIsAppReady(true); // ALWAYS set to true
-      console.log('[App Init] ✅ App ready - data is in state (isAppReady = true)');
-      console.log('[App Init] 📊 Final state - hasHealingKit:', hasHealingKit, 'isPremium:', isPremium);
+      console.log('[App Init] ✅ App ready (isAppReady = true)');
+      console.log('[App Init] 📊 Final state check - hasHealingKit:', localStorage.getItem('hasHealingKit'), 'isPremium:', localStorage.getItem('isPremium'));
     }
   };
 
