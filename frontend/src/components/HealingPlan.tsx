@@ -70,16 +70,22 @@ export const HealingPlan = () => {
 
   const fetchUserProgress = async () => {
     try {
-      const { data, error } = await supabase
-        .from("user_healing_progress")
-        .select("current_day, completed_days")
-        .eq("user_id", user?.id)
-        .single();
+      const result = await queryWithRetry(
+        async () => {
+          const { data: { user: currentUser } } = await supabase.auth.getUser();
+          return await supabase
+            .from("user_healing_progress")
+            .select("current_day, completed_days")
+            .eq("user_id", currentUser?.id)
+            .single();
+        },
+        'HealingPlan-Progress'
+      );
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (result.error && result.error.code !== 'PGRST116') throw result.error;
       
-      if (data) {
-        setUserProgress(data);
+      if (result.data) {
+        setUserProgress(result.data);
       }
     } catch (error: any) {
       console.error("Error fetching progress:", error);
