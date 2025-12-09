@@ -7,6 +7,7 @@ import { Calendar, CheckCircle, Circle, Heart, Target, MessageSquare, Lightbulb 
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { queryWithRetry } from "@/utils/supabaseHelpers";
 
 interface HealingDay {
   id: string;
