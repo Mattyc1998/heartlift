@@ -26,17 +26,50 @@ const queryClient = new QueryClient();
 
 // Inner component that has access to AuthContext
 const AppContent = () => {
-  const { isAppReady, initializeApp } = useAuth();
+  const { checkSupabaseSubscriptionStatus } = useAuth();
 
   useEffect(() => {
-    // CRITICAL: Reinitialize app on app resume
+    // CRITICAL: Check Supabase on app launch
+    const initializeApp = async () => {
+      console.log('[App] 🚀 App launched - checking Supabase subscription status');
+      
+      // Test Supabase connection first
+      console.log('[App] 🔍 Testing Supabase connection...');
+      try {
+        const { data, error } = await supabase.from('subscribers').select('id').limit(1);
+        if (error) {
+          console.error('[App] ❌ Supabase connection test FAILED:', error);
+        } else {
+          console.log('[App] ✅ Supabase connection test PASSED');
+        }
+      } catch (testError) {
+        console.error('[App] ❌ Supabase connection test exception:', testError);
+      }
+      
+      // Now check subscription status
+      try {
+        await checkSupabaseSubscriptionStatus();
+      } catch (error) {
+        console.error('[App] ❌ Error checking subscription on launch:', error);
+      }
+    };
+
+    initializeApp();
+  }, [checkSupabaseSubscriptionStatus]);
+
+  useEffect(() => {
+    // CRITICAL: Check Supabase on app resume (catches expirations & cancellations)
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible') {
-        console.log('[App] 👁️ App resumed - reinitializing...');
+        console.log('[App] 👁️ App resumed - checking Supabase for subscription changes');
         try {
-          await initializeApp();
+          // Check Supabase to catch expired/cancelled subscriptions
+          await checkSupabaseSubscriptionStatus();
+          
+          // Also check IAP store status
+          await purchaseService.checkSubscriptionStatus();
         } catch (error) {
-          console.error('[App] ❌ Error reinitializing on resume:', error);
+          console.error('[App] ❌ Error checking subscription on resume:', error);
         }
       }
     };
@@ -46,19 +79,7 @@ const AppContent = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [initializeApp]);
-
-  // Show loading screen while app initializes
-  if (!isAppReady) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-secondary/30 to-accent/30">
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 mx-auto border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-lg font-semibold text-foreground">Loading HeartLift...</p>
-        </div>
-      </div>
-    );
-  }
+  }, [checkSupabaseSubscriptionStatus]);
 
   return (
     <BrowserRouter>
