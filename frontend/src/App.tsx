@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { purchaseService } from "@/services/purchaseService";
 import { supabase } from "@/integrations/supabase/client";
+import { DebugConsole } from "@/components/DebugConsole";
 import Index from "./pages/Index";
 import { Auth } from "./pages/Auth";
 import { PremiumSuccess } from "./pages/PremiumSuccess";
@@ -89,6 +90,7 @@ const App = () => (
       <AuthProvider>
         <Toaster />
         <Sonner />
+        <DebugConsole />
         <AppContent />
       </AuthProvider>
     </TooltipProvider>
