@@ -350,6 +350,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkSubscription();
   }, [user]);
 
+  // CRITICAL: Keep checking for purchases in background if app timed out
+  useEffect(() => {
+    // Only run if app is ready but no purchases loaded yet
+    if (!isAppReady || !user) return;
+    
+    // If we already have purchases, no need to poll
+    if (hasHealingKit || isPremium) {
+      console.log('[AuthContext] ✅ Purchases already loaded, stopping background checks');
+      return;
+    }
+    
+    console.log('[AuthContext] ⏰ App ready but no purchases loaded yet, starting background checks...');
+    
+    let checksPerformed = 0;
+    const maxChecks = 15; // Check for 30 seconds (15 checks × 2 seconds)
+    
+    const interval = setInterval(async () => {
+      checksPerformed++;
+      console.log(`[AuthContext] 🔄 Background check ${checksPerformed}/${maxChecks} for purchases...`);
+      
+      try {
+        await checkSupabaseSubscriptionStatus();
+      } catch (error) {
+        console.error('[AuthContext] Background check failed:', error);
+      }
+      
+      // Stop after max checks
+      if (checksPerformed >= maxChecks) {
+        console.log('[AuthContext] ⏹️ Stopped background checks after 30 seconds');
+        clearInterval(interval);
+      }
+    }, 2000); // Check every 2 seconds
+    
+    // Cleanup on unmount
+    return () => {
+      console.log('[AuthContext] 🛑 Cleaning up background check interval');
+      clearInterval(interval);
+    };
+  }, [isAppReady, hasHealingKit, isPremium, user]);
+
   const signIn = async (email: string, password: string) => {
     try {
       console.log('[AuthContext] Attempting sign in for:', email);
