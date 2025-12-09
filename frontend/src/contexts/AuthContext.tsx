@@ -111,6 +111,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.warn('[App Init] ⚠️ Could not verify state after 3 seconds - proceeding anyway');
         }
         
+        // Purchases verified in localStorage ✓
+        // Now verify Supabase is ready for CONTENT queries (chats, journals, etc.)
+        console.log('[App Init] 🔍 Verifying Supabase connection for content queries...');
+        let connectionVerified = false;
+        let connectionAttempts = 0;
+        const maxConnectionAttempts = 20; // 20 × 200ms = 4 seconds
+        
+        while (!connectionVerified && connectionAttempts < maxConnectionAttempts) {
+          try {
+            // Test if Supabase can actually respond to queries
+            const { data, error } = await supabase
+              .from('profiles') // Test with profiles table
+              .select('id')
+              .eq('id', currentUser.id)
+              .limit(1);
+            
+            if (!error && data !== undefined) {
+              connectionVerified = true;
+              console.log('[App Init] ✅ Supabase connection verified - content queries will work');
+            } else {
+              console.log(`[App Init] Connection test ${connectionAttempts + 1}/${maxConnectionAttempts} - no response yet, error:`, error?.message);
+              await new Promise(resolve => setTimeout(resolve, 200));
+              connectionAttempts++;
+            }
+          } catch (err: any) {
+            console.log(`[App Init] Connection test ${connectionAttempts + 1} failed:`, err?.message);
+            await new Promise(resolve => setTimeout(resolve, 200));
+            connectionAttempts++;
+          }
+        }
+        
+        if (!connectionVerified) {
+          console.warn('[App Init] ⚠️ Could not verify Supabase connection for queries after 4 seconds - proceeding anyway');
+        }
+        
         console.log('[App Init] ✅ All data loaded and verified');
       } else {
         console.log('[App Init] ℹ️ No user logged in - skipping data load');
