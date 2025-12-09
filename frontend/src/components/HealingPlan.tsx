@@ -42,13 +42,18 @@ export const HealingPlan = () => {
 
   const fetchHealingPlan = async () => {
     try {
-      const { data, error } = await supabase
-        .from("healing_plan_days")
-        .select("*")
-        .order("day_number");
+      const result = await queryWithRetry(
+        async () => {
+          return await supabase
+            .from("healing_plan_days")
+            .select("*")
+            .order("day_number");
+        },
+        'HealingPlan-Days'
+      );
 
-      if (error) throw error;
-      setHealingDays(data || []);
+      if (result.error) throw result.error;
+      setHealingDays(result.data || []);
       
       // Create default healing plan if none exists
       if (!data || data.length === 0) {
