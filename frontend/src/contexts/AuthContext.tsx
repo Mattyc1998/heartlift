@@ -200,69 +200,83 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  /**
+   * Check subscription with timeout protection
+   * Used by auth state listener
+   */
   const checkSubscription = async () => {
     if (!user) return;
 
     try {
-      console.log('[AuthContext] Checking subscription for user:', user.id);
+      console.log('[checkSubscription] 🔄 Starting check for user:', user.id);
       
-      // CRITICAL: Ensure session is ready before making Supabase queries
-      await ensureSessionReady();
-      
-      // Check premium status from subscribers table
-      const { data: subscriberData, error: subError } = await supabase
-        .from('subscribers')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
+      // Wrap in timeout to prevent hanging
+      await executeWithTimeout(
+        async () => {
+          // Ensure session is ready
+          const sessionReady = await ensureSessionReady();
+          if (!sessionReady) {
+            console.warn('[checkSubscription] ⚠️ Session not ready, using cached data');
+            return;
+          }
+          
+          // Check premium status from subscribers table
+          const { data: subscriberData, error: subError } = await supabase
+            .from('subscribers')
+            .select('*')
+            .eq('user_id', user.id)
+            .maybeSingle();
 
-      let isPremiumActive = false;
-      if (!subError && subscriberData) {
-        console.log('[AuthContext] RAW Subscriber data:', JSON.stringify(subscriberData));
-        
-        // Check if premium is active
-        // EITHER: subscribed=true (works for both Stripe and Apple IAP)
-        // OR: plan_type=premium AND payment_status=active
-        if (subscriberData.subscribed === true) {
-          isPremiumActive = true;
-          console.log('[AuthContext] ✅ Premium ACTIVE (subscribed=true)');
-        } else if (subscriberData.plan_type === 'premium' && subscriberData.payment_status === 'active') {
-          isPremiumActive = true;
-          console.log('[AuthContext] ✅ Premium ACTIVE (plan_type=premium, payment_status=active)');
-        } else {
-          console.log('[AuthContext] ❌ NO PREMIUM - Data:', subscriberData);
-        }
-      } else if (subError) {
-        console.error('[AuthContext] Error fetching subscriber:', subError);
-      } else {
-        console.log('[AuthContext] No subscriber record found for user');
-      }
+          let isPremiumActive = false;
+          if (!subError && subscriberData) {
+            console.log('[checkSubscription] RAW Subscriber data:', JSON.stringify(subscriberData));
+            
+            // Check if premium is active
+            if (subscriberData.subscribed === true) {
+              isPremiumActive = true;
+              console.log('[checkSubscription] ✅ Premium ACTIVE (subscribed=true)');
+            } else if (subscriberData.plan_type === 'premium' && subscriberData.payment_status === 'active') {
+              isPremiumActive = true;
+              console.log('[checkSubscription] ✅ Premium ACTIVE (plan_type=premium, payment_status=active)');
+            } else {
+              console.log('[checkSubscription] ❌ NO PREMIUM - Data:', subscriberData);
+            }
+          } else if (subError) {
+            console.error('[checkSubscription] Error fetching subscriber:', subError);
+          } else {
+            console.log('[checkSubscription] No subscriber record found for user');
+          }
 
-      // Check healing kit status using the RPC function (correct table is healing_kit_purchases)
-      const { data: healingKitStatus, error: kitError } = await supabase
-        .rpc('user_has_healing_kit', { user_uuid: user.id });
+          // Check healing kit status
+          const { data: healingKitStatus, error: kitError } = await supabase
+            .rpc('user_has_healing_kit', { user_uuid: user.id });
 
-      let hasKit = false;
-      if (!kitError) {
-        console.log('[AuthContext] Healing kit status:', healingKitStatus);
-        hasKit = healingKitStatus === true;
-      } else {
-        console.error('[AuthContext] Error checking healing kit:', kitError);
-      }
+          let hasKit = false;
+          if (!kitError) {
+            console.log('[checkSubscription] Healing kit status:', healingKitStatus);
+            hasKit = healingKitStatus === true;
+          } else {
+            console.error('[checkSubscription] Error checking healing kit:', kitError);
+          }
 
-      // Update state
-      setIsPremium(isPremiumActive);
-      setSubscriptionStatus(isPremiumActive ? 'premium' : 'free');
-      setHasHealingKit(hasKit);
-      
-      // Cache for immediate access
-      localStorage.setItem('isPremium', JSON.stringify(isPremiumActive));
-      localStorage.setItem('subscriptionStatus', JSON.stringify(isPremiumActive ? 'premium' : 'free'));
-      localStorage.setItem('hasHealingKit', JSON.stringify(hasKit));
-      
-      console.log('[AuthContext] Subscription check complete - Premium:', isPremiumActive, 'Healing Kit:', hasKit);
-    } catch (error) {
-      console.error('[AuthContext] Error checking subscription:', error);
+          // Update state
+          setIsPremium(isPremiumActive);
+          setSubscriptionStatus(isPremiumActive ? 'premium' : 'free');
+          setHasHealingKit(hasKit);
+          
+          // Cache for immediate access
+          localStorage.setItem('isPremium', JSON.stringify(isPremiumActive));
+          localStorage.setItem('subscriptionStatus', JSON.stringify(isPremiumActive ? 'premium' : 'free'));
+          localStorage.setItem('hasHealingKit', JSON.stringify(hasKit));
+          
+          console.log('[checkSubscription] ✅ Complete - Premium:', isPremiumActive, 'Healing Kit:', hasKit);
+        },
+        7000, // 7 second timeout
+        'checkSubscription'
+      );
+    } catch (error: any) {
+      console.error('[checkSubscription] ❌ Failed:', error.message);
+      console.log('[checkSubscription] ℹ️ Using cached subscription data');
     }
   };
 
