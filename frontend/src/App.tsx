@@ -32,7 +32,26 @@ const AppContent = () => {
     // CRITICAL: Reinitialize app on app resume
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible') {
-        console.log('[App] 👁️ App resumed - reinitializing...');
+        console.log('[App] 👁️ App resumed - checking auth session...');
+        
+        // DIAGNOSTIC: Check auth session
+        try {
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+          console.log('🔍 Auth Session Check:', {
+            hasSession: !!session,
+            userId: session?.user?.id,
+            expiresAt: session?.expires_at,
+            sessionError: sessionError?.message
+          });
+          
+          if (!session) {
+            console.error('❌ NO SESSION on app resume!');
+          }
+        } catch (error) {
+          console.error('❌ Session check failed:', error);
+        }
+        
+        // Reinitialize
         try {
           await initializeApp();
         } catch (error) {
