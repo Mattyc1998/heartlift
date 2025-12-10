@@ -232,6 +232,63 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkSubscription();
   }, [user]);
 
+  // CRITICAL: Keep checking for purchases in background if app timed out
+  useEffect(() => {
+    // Only start polling if app is ready AND purchases are NOT true
+    // Check the actual boolean values, not just if they exist
+    const needsPolling = isAppReady && 
+                         user &&
+                         hasHealingKit !== true && 
+                         isPremium !== true;
+    
+    if (!needsPolling) {
+      console.log('[AuthContext] ℹ️ No polling needed:', { 
+        isAppReady, 
+        hasUser: !!user,
+        hasHealingKit, 
+        isPremium,
+        needsPolling 
+      });
+      return;
+    }
+    
+    console.log('[AuthContext] ⏰ Starting background polling - purchases not loaded correctly');
+    console.log('[AuthContext] Current state: hasHealingKit:', hasHealingKit, 'isPremium:', isPremium);
+    
+    let checksPerformed = 0;
+    const maxChecks = 15; // Check for 30 seconds (15 checks × 2 seconds)
+    
+    const interval = setInterval(async () => {
+      checksPerformed++;
+      console.log(`[AuthContext] 🔄 Background check ${checksPerformed}/${maxChecks} for purchases...`);
+      
+      try {
+        await checkSupabaseSubscriptionStatus();
+      } catch (error) {
+        console.error('[AuthContext] Background check failed:', error);
+      }
+      
+      // Stop after max checks
+      if (checksPerformed >= maxChecks) {
+        console.log('[AuthContext] ⏹️ Stopped background polling after 30 seconds');
+        clearInterval(interval);
+      }
+    }, 2000); // Check every 2 seconds
+    
+    // Also set a timeout to clean up after 30 seconds
+    const timeoutId = setTimeout(() => {
+      clearInterval(interval);
+      console.log('[AuthContext] ⏹️ Timeout: Stopped background polling after 30s');
+    }, 30000);
+    
+    // Cleanup on unmount
+    return () => {
+      console.log('[AuthContext] 🛑 Cleaning up background polling');
+      clearInterval(interval);
+      clearTimeout(timeoutId);
+    };
+  }, [isAppReady, hasHealingKit, isPremium, user]);
+
   const signIn = async (email: string, password: string) => {
     try {
       console.log('[AuthContext] Attempting sign in for:', email);
