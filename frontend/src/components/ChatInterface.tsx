@@ -235,7 +235,23 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
         .order('created_at', { ascending: true })
         .limit(50); // Load last 50 messages
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ SUPABASE ERROR - conversation_history:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          userId: user.id,
+          coachId: coachPersonality
+        });
+        throw error;
+      }
+      
+      console.log('✅ Loaded conversation history:', {
+        count: history?.length || 0,
+        userId: user.id,
+        coachId: coachPersonality
+      });
 
       // Always generate a fresh greeting regardless of history
       const personalizedGreeting = getRandomGreeting();
