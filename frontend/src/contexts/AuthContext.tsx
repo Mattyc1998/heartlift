@@ -61,58 +61,74 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   /**
-   * NEW NON-BLOCKING INITIALIZATION
-   * CRITICAL: Does NOT block on Supabase or purchases
-   * Follows the sequence:
+   * FINAL NON-BLOCKING INITIALIZATION WITH NETWORK WARMUP
+   * CRITICAL: Fixes iOS WKWebView networking stack hang
+   * 
+   * Sequence:
    * 1. Device/platform ready (handled by Capacitor)
-   * 2. Wait for Supabase client to be ready (300ms delay for iOS)
-   * 3. Initialize purchase service (non-blocking)
-   * 4. Set isAppReady = true IMMEDIATELY
-   * 5. Run subscription check in background with timeout + retries
+   * 2. Warm up iOS network stack (lightweight fetch)
+   * 3. Initialize IAP immediately (runs in parallel)
+   * 4. Set isAppReady = true IMMEDIATELY (no blocking)
+   * 5. Run Supabase subscription check in background with warmup + timeout + retries
    */
   const initializeApp = async () => {
-    console.log('[App Init] 🚀 Starting NON-BLOCKING initialization...');
+    console.log('[App Init] 🚀 Starting FINAL non-blocking initialization...');
+    console.log('[App Init] 📱 Platform: iOS Capacitor with WKWebView');
     
     try {
-      // STEP 1: Wait for Supabase client to be ready on iOS
-      // This prevents the first query from hanging
-      await waitForSupabaseReady();
+      // STEP 1: Warm up iOS networking stack BEFORE any Supabase queries
+      // This prevents the first network request from hanging in WKWebView
+      console.log('[App Init] 🔥 Step 1: Warming up network...');
+      await warmupNetwork();
       
-      // STEP 2: Check if user is logged in (with timeout)
-      console.log('[App Init] 🔍 Checking for user session...');
-      const { data: { user: currentUser } } = await executeWithTimeout(
-        () => supabase.auth.getUser(),
-        5000,
-        'getUser'
-      );
-      
-      if (currentUser) {
-        console.log('[App Init] ✅ User logged in:', currentUser.id);
+      // STEP 2: Quick user check (with timeout, but don't use for IAP)
+      console.log('[App Init] 🔍 Step 2: Quick user session check...');
+      let currentUser: any = null;
+      try {
+        const result = await executeWithTimeout(
+          () => supabase.auth.getUser(),
+          5000,
+          'getUser (quick check)'
+        );
+        currentUser = result.data?.user;
         
-        // STEP 3: Initialize purchase service (don't wait for it)
-        console.log('[App Init] 🛍️ Initializing purchase service...');
-        purchaseService.initialize(currentUser.id).catch((error) => {
-          console.error('[App Init] ⚠️ Purchase service init failed (non-critical):', error);
-        });
-        
-      } else {
-        console.log('[App Init] ℹ️ No user logged in');
+        if (currentUser) {
+          console.log('[App Init] ✅ User logged in:', currentUser.id);
+        } else {
+          console.log('[App Init] ℹ️ No user session');
+        }
+      } catch (error: any) {
+        console.error('[App Init] ⚠️ User check failed:', error.message);
+        // Continue anyway - user might still be logged in
       }
       
-      // STEP 4: Set app ready IMMEDIATELY - don't wait for anything
-      console.log('[App Init] ✅ App initialized - setting ready NOW');
-      setIsAppReady(true);
-      
-      // STEP 5: Run subscription check in BACKGROUND with timeout + retries
+      // STEP 3: Initialize IAP IMMEDIATELY (don't wait)
+      // This is critical for purchase restoration
       if (currentUser) {
-        console.log('[App Init] 🔄 Starting BACKGROUND subscription check...');
+        console.log('[App Init] 🛍️ Step 3: Initializing IAP (non-blocking)...');
+        purchaseService.initialize(currentUser.id).catch((error) => {
+          console.error('[App Init] ⚠️ IAP init failed (non-critical):', error.message);
+        });
+      }
+      
+      // STEP 4: Set app ready IMMEDIATELY
+      // User can start using the app while subscription loads in background
+      console.log('[App Init] ✅ Step 4: Setting app ready NOW (no blocking)');
+      setIsAppReady(true);
+      console.log('[App Init] 🎉 App is ready! User can interact.');
+      
+      // STEP 5: Run subscription check in BACKGROUND
+      // Network is warmed up, so Supabase queries won't hang
+      if (currentUser) {
+        console.log('[App Init] 🔄 Step 5: Starting BACKGROUND subscription check...');
         checkSubscriptionInBackground(currentUser.id);
       }
       
     } catch (error: any) {
-      console.error('[App Init] ❌ Initialization error:', error.message);
-      // Even if init fails, set app ready so user can use the app
+      console.error('[App Init] ❌ Critical initialization error:', error.message);
+      // Always set app ready - never block user
       setIsAppReady(true);
+      console.log('[App Init] ⚠️ App set to ready despite error');
     }
   };
 
