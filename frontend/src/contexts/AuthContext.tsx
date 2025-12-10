@@ -176,11 +176,52 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  /**
+   * Ensure Supabase session is ready before making queries
+   * CRITICAL: Prevents hanging queries when auth state is SIGNED_IN
+   */
+  const ensureSessionReady = async () => {
+    console.log('[AuthContext] 🔍 Ensuring Supabase session is ready...');
+    
+    const { data: { session }, error } = await supabase.auth.getSession();
+    
+    if (error) {
+      console.error('[AuthContext] ❌ Error getting session:', error);
+      throw error;
+    }
+    
+    console.log('[AuthContext] 📊 Session check:', {
+      hasSession: !!session,
+      expiresAt: session?.expires_at,
+      isExpired: session ? new Date(session.expires_at * 1000) < new Date() : null,
+      userId: session?.user?.id
+    });
+    
+    // If session expired, refresh it
+    if (session && new Date(session.expires_at * 1000) < new Date()) {
+      console.log('[AuthContext] ⚠️ Session expired, refreshing...');
+      const { data, error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError) {
+        console.error('[AuthContext] ❌ Session refresh failed:', refreshError);
+        throw refreshError;
+      }
+      console.log('[AuthContext] ✅ Session refreshed successfully');
+    } else if (session) {
+      console.log('[AuthContext] ✅ Session is valid and ready');
+    } else {
+      console.error('[AuthContext] ❌ No session found');
+      throw new Error('No session found');
+    }
+  };
+
   const checkSubscription = async () => {
     if (!user) return;
 
     try {
       console.log('[AuthContext] Checking subscription for user:', user.id);
+      
+      // CRITICAL: Ensure session is ready before making Supabase queries
+      await ensureSessionReady();
       
       // Check premium status from subscribers table
       const { data: subscriberData, error: subError } = await supabase
