@@ -1,119 +1,92 @@
-# Debug Console Guide for HeartLift IAP Testing
+# Debug Console Visual Guide
 
-## What I Added
+## What You'll See
 
-I've added an **on-screen debug console** to your app that captures and displays all console logs in real-time. This allows you to see exactly what's happening with the IAP initialization without needing a Mac or Safari DevTools.
+### 1. **Purple LOG Button** (Bottom Right Corner)
+When you open the app, you'll see a purple circular button in the bottom-right corner that says "LOG"
 
-## How to Use It
+### 2. **When You Tap LOG**
+A full-screen black debug console will appear with:
+- **Header**: "Debug Console" with Copy, Clear, Close buttons
+- **Log area**: Scrollable list of all console messages
+- **Footer**: Stats showing total logs, errors, and warnings
 
-1. **Build and Install:**
-   - Push this code to GitHub
-   - Build on CodeMagic
-   - Install the new TestFlight build on your iPhone
+## Color-Coded Messages
 
-2. **Open the Debug Console:**
-   - Look for a purple circular button labeled "LOG" in the bottom-right corner of the screen
-   - Tap it to open the debug console overlay
-
-3. **View Logs:**
-   - All console logs will appear in the overlay with timestamps
-   - Logs are color-coded:
-     - **Green**: Normal logs
-     - **Yellow**: Warnings
-     - **Red**: Errors
-   - The console auto-scrolls to show the latest logs
-
-4. **Test IAP Initialization:**
-   - Open the app and log in
-   - The debug console will show all initialization logs with `[INIT]` prefix
-   - Look for these key messages:
-     - `[INIT] Device ready event fired`
-     - `[INIT] CdvPurchase is defined`
-     - `[INIT] Store instance obtained`
-     - `[INIT] Products registered`
-     - `[INIT] store.initialize() completed`
-     - `[INIT] Store initialized successfully`
-
-5. **Test Purchase Flow:**
-   - Navigate to a purchase page (Premium or Healing Kit)
-   - Tap the purchase button
-   - The console will show logs with `[BUY_PREMIUM]` or `[BUY_KIT]` prefix
-   - Look for:
-     - `[BUY_PREMIUM] Store is initialized`
-     - `[BUY_PREMIUM] Product found`
-     - `[BUY_PREMIUM] Offer found`
-     - `[BUY_PREMIUM] Premium purchase initiated successfully`
-
-6. **Take Screenshots:**
-   - Take screenshots of the debug console showing:
-     - The initialization sequence
-     - Any errors or warnings
-     - The purchase flow logs
-   - Share these screenshots so I can analyze them
-
-7. **Copy Logs:**
-   - Tap the "Copy" button in the console header
-   - Paste the logs into Notes or Messages
-   - Share them for detailed analysis
-
-8. **Clear Logs:**
-   - Tap "Clear" to remove old logs and start fresh
-   - Useful when testing multiple scenarios
+- **Green** `[LOG]` = Normal information ✅
+- **Yellow** `[WARN]` = Warnings ⚠️  
+- **Red** `[ERROR]` = Errors ❌
 
 ## What to Look For
 
-### ✅ Success Indicators:
-- `✅ [INIT] Store initialized successfully with v13 API`
-- `✅ [INIT] Premium product:` (shows product details)
-- `✅ [BUY_PREMIUM] Premium purchase initiated successfully`
-- StoreKit payment sheet appears
+### ✅ **Success Messages** (Green)
+```
+✅ Loaded conversation history: { count: 5 }
+✅ Loaded user progress: { currentDay: 3, completedDays: 2 }
+✅ Loaded mood history: { count: 10 }
+```
+This means data loaded successfully.
 
-### ❌ Failure Indicators:
-- `❌ [INIT] CdvPurchase is not defined`
-- `❌ [INIT] Failed to initialize Apple IAP`
-- `❌ [BUY_PREMIUM] Premium subscription product not found`
-- `❌ [BUY_PREMIUM] No offer available`
-- Any errors about "Purchase service not initialized"
+### ❌ **Error Messages** (Red)
+```
+❌ SUPABASE ERROR - conversation_history: {
+  message: "permission denied for table conversation_history",
+  details: null,
+  hint: null,
+  code: "42501",
+  userId: "fe868152..."
+}
+```
+This shows **exactly** what went wrong with Supabase queries.
 
-## Specific Things to Check
+### 🔍 **Session Check**
+```
+🔍 Auth Session Check: {
+  hasSession: true,
+  userId: "fe868152-2eb9-4cda-a2d7-5e0d803e17bf",
+  expiresAt: "2024-12-11T18:43:52+00:00"
+}
+```
+or
+```
+❌ NO SESSION on app resume!
+```
+This tells you if the auth session is present or lost.
 
-When you test, please look for and share:
+## How to Use It
 
-1. **Does deviceready fire?**
-   - Look for: `📱 [INIT] Cordova deviceready event fired`
+### During Testing:
+1. **Open the app** - The purple LOG button appears in bottom-right
+2. **Navigate around** - Chat, Healing Plan, Mood Tracker
+3. **When content fails to load** - Tap the purple LOG button
+4. **Look for RED error messages** - These show what failed
+5. **Tap COPY** - Copies all logs to clipboard
+6. **Share the logs** - Paste into chat or take screenshots
 
-2. **Is CdvPurchase loaded?**
-   - Look for: `✅ [INIT] CdvPurchase is defined`
-   - If you see: `❌ [INIT] CdvPurchase is not defined` → Plugin not loaded
+### Buttons in Console:
+- **Copy**: Copies all logs to clipboard
+- **Clear**: Erases current logs (starts fresh)
+- **Close**: Closes the console (LOG button still visible)
 
-3. **Are products registered?**
-   - Look for: `✅ [INIT] Products registered`
-   - Then: `🔍 [INIT] Store products after registration: [...]`
+## Example Scenario
 
-4. **Does store.initialize() complete?**
-   - Look for: `✅ [INIT] store.initialize() completed`
-   - Then: `📦 [INIT] Premium product: [product details]`
+**Problem**: Mood Tracker won't load
 
-5. **Are products available?**
-   - After initialization, look for product objects with:
-     - `id`, `title`, `price`, `description`
-   - If products are null or undefined → Products not loaded from App Store Connect
+**What to do:**
+1. Open Mood Tracker (see blank/loading state)
+2. Tap purple LOG button
+3. Look for logs mentioning "mood_entries"
+4. You might see:
+   ```
+   ❌ SUPABASE ERROR - mood_entries: {
+     message: "permission denied",
+     code: "42501"
+   }
+   ```
+5. Tap COPY and share the logs
 
-6. **What happens when you tap purchase?**
-   - Look for the full `[BUY_PREMIUM]` or `[BUY_KIT]` sequence
-   - Does it get to "placing order" or fail before that?
+This tells me **exactly** what's wrong (RLS policy blocking access).
 
-## Next Steps
+---
 
-After testing with the debug console:
-
-1. Take screenshots of the entire initialization sequence
-2. Take screenshots of a purchase attempt
-3. Copy all logs using the "Copy" button
-4. Share the screenshots and logs with me
-
-This will allow me to see exactly where the StoreKit initialization is failing and fix the root cause.
-
-## Removing the Debug Console Later
-
-Once the IAP is working, I can remove the debug console in a future update. For now, it's essential for troubleshooting.
+**The debug console captures EVERYTHING that happens in the app, so we can see exactly where and why things fail!**
