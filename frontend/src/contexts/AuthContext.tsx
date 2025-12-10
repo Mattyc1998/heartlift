@@ -59,112 +59,92 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return cached ? JSON.parse(cached) : 'free';
   });
 
+  /**
+   * NEW NON-BLOCKING INITIALIZATION
+   * CRITICAL: Does NOT block on Supabase or purchases
+   * Follows the sequence:
+   * 1. Device/platform ready (handled by Capacitor)
+   * 2. Wait for Supabase client to be ready (300ms delay for iOS)
+   * 3. Initialize purchase service (non-blocking)
+   * 4. Set isAppReady = true IMMEDIATELY
+   * 5. Run subscription check in background with timeout + retries
+   */
   const initializeApp = async () => {
-    console.log('[App Init] 🚀 Initializing app...');
-    setIsAppReady(false);
-    
-    // SAFETY: Force ready after 15 seconds no matter what
-    const timeoutId = setTimeout(() => {
-      console.warn('[App Init] ⏱️ Timeout (15s) - forcing ready');
-      setIsAppReady(true);
-    }, 15000);
+    console.log('[App Init] 🚀 Starting NON-BLOCKING initialization...');
     
     try {
-      // Check Supabase connection
-      const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
+      // STEP 1: Wait for Supabase client to be ready on iOS
+      // This prevents the first query from hanging
+      await waitForSupabaseReady();
       
-      if (authError) {
-        console.error('[App Init] ❌ Auth error:', authError);
-        return;
-      }
-      
-      console.log('[App Init] ✅ Supabase connected, user:', currentUser?.id || 'none');
+      // STEP 2: Check if user is logged in (with timeout)
+      console.log('[App Init] 🔍 Checking for user session...');
+      const { data: { user: currentUser } } = await executeWithTimeout(
+        () => supabase.auth.getUser(),
+        5000,
+        'getUser'
+      );
       
       if (currentUser) {
-        // Load purchases from Supabase
-        console.log('[App Init] 📦 Loading purchases from Supabase...');
-        await checkSupabaseSubscriptionStatus();
-        console.log('[App Init] ✅ checkSupabaseSubscriptionStatus() completed');
+        console.log('[App Init] ✅ User logged in:', currentUser.id);
         
-        // CRITICAL: Actually verify state has the data
-        console.log('[App Init] 🔍 Verifying state has purchase data...');
-        let stateVerified = false;
-        let attempts = 0;
-        const maxAttempts = 30; // 30 attempts × 100ms = 3 seconds max
+        // STEP 3: Initialize purchase service (don't wait for it)
+        console.log('[App Init] 🛍️ Initializing purchase service...');
+        purchaseService.initialize(currentUser.id).catch((error) => {
+          console.error('[App Init] ⚠️ Purchase service init failed (non-critical):', error);
+        });
         
-        while (!stateVerified && attempts < maxAttempts) {
-          // Check if state actually has data by checking localStorage
-          const localHealingKit = localStorage.getItem('hasHealingKit');
-          const localPremium = localStorage.getItem('isPremium');
-          
-          console.log(`[App Init] Attempt ${attempts + 1}: localStorage hasHealingKit=${localHealingKit}, isPremium=${localPremium}`);
-          
-          // If localStorage has values (even if false), state is initialized
-          if (localHealingKit !== null || localPremium !== null) {
-            // Give React one more moment to sync
-            await new Promise(resolve => setTimeout(resolve, 100));
-            stateVerified = true;
-            console.log('[App Init] ✅ State verified - purchases loaded into localStorage and state');
-            console.log('[App Init] 📊 Final localStorage - hasHealingKit:', localHealingKit, 'isPremium:', localPremium);
-          } else {
-            // Wait and retry
-            await new Promise(resolve => setTimeout(resolve, 100));
-            attempts++;
-          }
-        }
-        
-        if (!stateVerified) {
-          console.warn('[App Init] ⚠️ Could not verify state after 3 seconds - proceeding anyway');
-        }
-        
-        // Purchases verified in localStorage ✓
-        // Now verify Supabase is ready for CONTENT queries (chats, journals, etc.)
-        console.log('[App Init] 🔍 Verifying Supabase connection for content queries...');
-        let connectionVerified = false;
-        let connectionAttempts = 0;
-        const maxConnectionAttempts = 20; // 20 × 200ms = 4 seconds
-        
-        while (!connectionVerified && connectionAttempts < maxConnectionAttempts) {
-          try {
-            // Test if Supabase can actually respond to queries
-            const { data, error } = await supabase
-              .from('profiles') // Test with profiles table
-              .select('id')
-              .eq('id', currentUser.id)
-              .limit(1);
-            
-            if (!error && data !== undefined) {
-              connectionVerified = true;
-              console.log('[App Init] ✅ Supabase connection verified - content queries will work');
-            } else {
-              console.log(`[App Init] Connection test ${connectionAttempts + 1}/${maxConnectionAttempts} - no response yet, error:`, error?.message);
-              await new Promise(resolve => setTimeout(resolve, 200));
-              connectionAttempts++;
-            }
-          } catch (err: any) {
-            console.log(`[App Init] Connection test ${connectionAttempts + 1} failed:`, err?.message);
-            await new Promise(resolve => setTimeout(resolve, 200));
-            connectionAttempts++;
-          }
-        }
-        
-        if (!connectionVerified) {
-          console.warn('[App Init] ⚠️ Could not verify Supabase connection for queries after 4 seconds - proceeding anyway');
-        }
-        
-        console.log('[App Init] ✅ All data loaded and verified');
       } else {
-        console.log('[App Init] ℹ️ No user logged in - skipping data load');
+        console.log('[App Init] ℹ️ No user logged in');
       }
       
-      console.log('[App Init] ✅ App initialized successfully');
-    } catch (error) {
-      console.error('[App Init] ❌ App init failed:', error);
-    } finally {
-      clearTimeout(timeoutId); // Cancel timeout if we finished
-      setIsAppReady(true); // ALWAYS set to true
-      console.log('[App Init] ✅ App ready (isAppReady = true)');
-      console.log('[App Init] 📊 Final state check - hasHealingKit:', localStorage.getItem('hasHealingKit'), 'isPremium:', localStorage.getItem('isPremium'));
+      // STEP 4: Set app ready IMMEDIATELY - don't wait for anything
+      console.log('[App Init] ✅ App initialized - setting ready NOW');
+      setIsAppReady(true);
+      
+      // STEP 5: Run subscription check in BACKGROUND with timeout + retries
+      if (currentUser) {
+        console.log('[App Init] 🔄 Starting BACKGROUND subscription check...');
+        checkSubscriptionInBackground(currentUser.id);
+      }
+      
+    } catch (error: any) {
+      console.error('[App Init] ❌ Initialization error:', error.message);
+      // Even if init fails, set app ready so user can use the app
+      setIsAppReady(true);
+    }
+  };
+
+  /**
+   * Run subscription check in background with timeout and retries
+   * This does NOT block app initialization
+   */
+  const checkSubscriptionInBackground = async (userId: string) => {
+    console.log('[Background Check] 🔄 Starting subscription check with retries...');
+    
+    try {
+      // Use retry logic: 3 attempts with 1 second delay
+      await executeWithRetry(
+        async () => {
+          // Wrap the actual check in a timeout
+          await executeWithTimeout(
+            async () => {
+              console.log('[Background Check] 📊 Checking Supabase subscription...');
+              await checkSupabaseSubscriptionStatus();
+            },
+            7000, // 7 second timeout per attempt
+            'checkSupabaseSubscriptionStatus'
+          );
+        },
+        3, // 3 attempts
+        1000, // 1 second between attempts
+        'Background subscription check'
+      );
+      
+      console.log('[Background Check] ✅ Subscription check completed successfully');
+    } catch (error: any) {
+      console.error('[Background Check] ❌ All attempts failed:', error.message);
+      console.error('[Background Check] ℹ️ App will use cached subscription status from localStorage');
     }
   };
 
