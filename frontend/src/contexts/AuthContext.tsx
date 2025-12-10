@@ -134,10 +134,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   /**
    * Run subscription check in background with timeout and retries
+   * Network is already warmed up by initializeApp, so Supabase won't hang
    * This does NOT block app initialization
    */
   const checkSubscriptionInBackground = async (userId: string) => {
-    console.log('[Background Check] 🔄 Starting subscription check with retries...');
+    console.log('[Background Check] 🔄 Starting subscription check (network pre-warmed)...');
+    console.log('[Background Check] ℹ️ Using retries + timeout for reliability');
     
     try {
       // Use retry logic: 3 attempts with 1 second delay
@@ -146,11 +148,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Wrap the actual check in a timeout
           await executeWithTimeout(
             async () => {
-              console.log('[Background Check] 📊 Checking Supabase subscription...');
+              console.log('[Background Check] 📊 Querying Supabase for subscription...');
               await checkSupabaseSubscriptionStatus();
+              console.log('[Background Check] ✅ Query completed');
             },
             7000, // 7 second timeout per attempt
-            'checkSupabaseSubscriptionStatus'
+            'Supabase subscription query'
           );
         },
         3, // 3 attempts
@@ -158,10 +161,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         'Background subscription check'
       );
       
-      console.log('[Background Check] ✅ Subscription check completed successfully');
+      console.log('[Background Check] 🎉 All subscription data loaded successfully');
     } catch (error: any) {
-      console.error('[Background Check] ❌ All attempts failed:', error.message);
-      console.error('[Background Check] ℹ️ App will use cached subscription status from localStorage');
+      console.error('[Background Check] ❌ All 3 attempts failed:', error.message);
+      console.warn('[Background Check] ⚠️ App will use CACHED subscription status from localStorage');
+      console.log('[Background Check] 📦 Cached: isPremium =', localStorage.getItem('isPremium'));
+      console.log('[Background Check] 📦 Cached: hasHealingKit =', localStorage.getItem('hasHealingKit'));
     }
   };
 
