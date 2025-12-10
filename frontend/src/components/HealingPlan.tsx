@@ -56,7 +56,7 @@ export const HealingPlan = () => {
       setHealingDays(result.data || []);
       
       // Create default healing plan if none exists
-      if (!data || data.length === 0) {
+      if (!result.data || result.data.length === 0) {
         await createDefaultHealingPlan();
       }
     } catch (error: any) {
