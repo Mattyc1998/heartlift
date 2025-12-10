@@ -6,6 +6,29 @@
 import { supabase } from '@/integrations/supabase/client';
 
 /**
+ * Warm up iOS WKWebView networking stack
+ * CRITICAL: First network request in WKWebView can hang if networking stack isn't ready
+ * This lightweight fetch wakes up the network layer before Supabase queries
+ */
+export const warmupNetwork = async (): Promise<void> => {
+  console.log('[Network Warmup] 🔥 Warming up iOS networking stack...');
+  
+  try {
+    const startTime = Date.now();
+    // Simple GET request to wake up WKWebView networking
+    await fetch('https://httpbin.org/get', { 
+      method: 'GET',
+      cache: 'no-cache'
+    });
+    const elapsed = Date.now() - startTime;
+    console.log(`[Network Warmup] ✅ Network ready (${elapsed}ms)`);
+  } catch (err: any) {
+    console.warn('[Network Warmup] ⚠️ Warmup failed, continuing anyway:', err.message);
+    // Don't throw - we'll proceed even if warmup fails
+  }
+};
+
+/**
  * Wait for Supabase client to be ready on iOS
  * CRITICAL: iOS needs 200-400ms for Supabase client to fully initialize
  */
