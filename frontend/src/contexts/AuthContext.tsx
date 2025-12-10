@@ -569,6 +569,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     console.log('[AuthContext] 🔍 Checking Supabase for subscription status...');
 
     try {
+      // CRITICAL: Ensure session is ready before making Supabase queries
+      await ensureSessionReady();
+      
       const [subResult, kitResult] = await Promise.all([
         supabase.from('subscribers').select('subscribed').eq('user_id', user.id).single(),
         supabase.from('healing_kit_purchases').select('status').eq('user_id', user.id).single()
