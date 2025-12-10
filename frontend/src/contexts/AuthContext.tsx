@@ -565,51 +565,78 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // Check Supabase subscription status and update local state
+  /**
+   * Check Supabase subscription status with timeout and retry protection
+   * THIS IS CALLED FROM BACKGROUND - does not block app initialization
+   */
   const checkSupabaseSubscriptionStatus = async (): Promise<{ isPremium: boolean; hasHealingKit: boolean }> => {
     if (!user) {
+      console.log('[checkSupabaseStatus] ⚠️ No user, returning false');
       return { isPremium: false, hasHealingKit: false };
     }
 
-    console.log('[AuthContext] 🔍 Checking Supabase for subscription status...');
+    console.log('[checkSupabaseStatus] 🔍 Checking Supabase with timeout protection...');
 
     try {
-      // CRITICAL: Ensure session is ready before making Supabase queries
-      await ensureSessionReady();
+      // Wrap the entire check in timeout
+      const result = await executeWithTimeout(
+        async () => {
+          // Ensure session is ready
+          const sessionReady = await ensureSessionReady();
+          if (!sessionReady) {
+            console.warn('[checkSupabaseStatus] ⚠️ Session not ready, using cached data');
+            const localIsPremium = localStorage.getItem('isPremium') === 'true';
+            const localHasHealingKit = localStorage.getItem('hasHealingKit') === 'true';
+            return { isPremium: localIsPremium, hasHealingKit: localHasHealingKit };
+          }
+          
+          console.log('[checkSupabaseStatus] 📊 Querying subscribers and healing_kit_purchases...');
+          const [subResult, kitResult] = await Promise.all([
+            supabase.from('subscribers').select('subscribed').eq('user_id', user.id).single(),
+            supabase.from('healing_kit_purchases').select('status').eq('user_id', user.id).single()
+          ]);
+
+          const isPremiumFromDB = subResult.data?.subscribed || false;
+          const hasHealingKitFromDB = kitResult.data?.status === 'completed';
+
+          console.log('[checkSupabaseStatus] 📊 Supabase results:', { isPremiumFromDB, hasHealingKitFromDB });
+
+          // Check localStorage as backup
+          const localIsPremium = localStorage.getItem('isPremium') === 'true';
+          const localHasHealingKit = localStorage.getItem('hasHealingKit') === 'true';
+
+          // Update state based on Supabase OR localStorage (whichever is true)
+          const finalPremium = isPremiumFromDB || localIsPremium;
+          const finalKit = hasHealingKitFromDB || localHasHealingKit;
+
+          if (finalPremium) {
+            unlockPremium();
+          } else {
+            lockPremium();
+          }
+
+          if (finalKit) {
+            unlockHealingKit();
+          } else {
+            lockHealingKit();
+          }
+
+          console.log('[checkSupabaseStatus] ✅ Final state - Premium:', finalPremium, 'HealingKit:', finalKit);
+          return { isPremium: finalPremium, hasHealingKit: finalKit };
+        },
+        7000, // 7 second timeout
+        'checkSupabaseSubscriptionStatus'
+      );
       
-      const [subResult, kitResult] = await Promise.all([
-        supabase.from('subscribers').select('subscribed').eq('user_id', user.id).single(),
-        supabase.from('healing_kit_purchases').select('status').eq('user_id', user.id).single()
-      ]);
-
-      const isPremiumFromDB = subResult.data?.subscribed || false;
-      const hasHealingKitFromDB = kitResult.data?.status === 'completed';
-
-      console.log('[AuthContext] 📊 Supabase status:', { isPremiumFromDB, hasHealingKitFromDB });
-
-      // CRITICAL FIX: Check localStorage FIRST - it's the source of truth for recent purchases
+      return result;
+    } catch (error: any) {
+      console.error('[checkSupabaseStatus] ❌ Query failed:', error.message);
+      console.log('[checkSupabaseStatus] ℹ️ Using cached data from localStorage');
+      
+      // Fallback to cached data
       const localIsPremium = localStorage.getItem('isPremium') === 'true';
       const localHasHealingKit = localStorage.getItem('hasHealingKit') === 'true';
-
-      // Update local state based on Supabase OR localStorage (whichever is true)
-      // This prevents race conditions where DB sync is slower than local state update
-      if (isPremiumFromDB || localIsPremium) {
-        unlockPremium();
-      } else {
-        lockPremium();
-      }
-
-      if (hasHealingKitFromDB || localHasHealingKit) {
-        unlockHealingKit();
-      } else {
-        lockHealingKit();
-      }
-
-      console.log('[AuthContext] ✅ Final state - Premium:', (isPremiumFromDB || localIsPremium), 'HealingKit:', (hasHealingKitFromDB || localHasHealingKit));
-
-      return { isPremium: isPremiumFromDB || localIsPremium, hasHealingKit: hasHealingKitFromDB || localHasHealingKit };
-    } catch (error) {
-      console.error('[AuthContext] ❌ Error checking Supabase:', error);
-      return { isPremium: false, hasHealingKit: false };
+      return { isPremium: localIsPremium, hasHealingKit: localHasHealingKit };
     }
   };
 
