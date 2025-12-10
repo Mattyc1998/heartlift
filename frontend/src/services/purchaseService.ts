@@ -549,11 +549,24 @@ class PurchaseService {
         }
       }
 
-      console.log('✅ [SYNC] All purchases synced to Supabase successfully');
+        console.log('✅ [SYNC] All purchases synced to Supabase successfully');
+      } catch (error: any) {
+        console.error('❌ [SYNC] Failed to sync purchases to Supabase:', error);
+        console.error('❌ [SYNC] Error stack:', error?.stack);
+        throw error;
+      }
+    };
+
+    // Apply 5-second timeout to prevent hanging
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Supabase sync timeout after 5s')), 5000);
+    });
+
+    try {
+      await Promise.race([syncWithTimeout(), timeoutPromise]);
     } catch (error: any) {
-      console.error('❌ [SYNC] Failed to sync purchases to Supabase:', error);
-      console.error('❌ [SYNC] Error stack:', error?.stack);
-      throw error;
+      console.error('❌ [SYNC] Sync failed or timed out:', error.message);
+      // Don't throw - allow app to continue even if sync fails
     }
   }
 
