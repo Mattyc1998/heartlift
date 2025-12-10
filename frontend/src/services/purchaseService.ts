@@ -473,26 +473,30 @@ class PurchaseService {
   /**
    * 🚨 CRITICAL: Sync purchase status to SUPABASE
    * This is where subscription data is stored and checked
+   * 
+   * TIMEOUT: 5 seconds - if Supabase doesn't respond, we continue anyway
    */
   private async syncToSupabase(hasPremium: boolean, hasHealingKit: boolean) {
-    try {
-      console.log('🔄 [SYNC] Starting Supabase sync...');
-      console.log('🔄 [SYNC] hasPremium:', hasPremium, 'hasHealingKit:', hasHealingKit);
-      
-      // CRITICAL: Get authenticated user
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError) {
-        console.error('❌ [SYNC] Auth error:', authError);
-        throw new Error('Failed to get authenticated user: ' + authError.message);
-      }
-      
-      if (!user) {
-        console.error('❌ [SYNC] No authenticated user found');
-        throw new Error('No user logged in - cannot sync to Supabase');
-      }
+    // Wrap in timeout to prevent hanging
+    const syncWithTimeout = async () => {
+      try {
+        console.log('🔄 [SYNC] Starting Supabase sync...');
+        console.log('🔄 [SYNC] hasPremium:', hasPremium, 'hasHealingKit:', hasHealingKit);
+        
+        // CRITICAL: Get authenticated user
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError) {
+          console.error('❌ [SYNC] Auth error:', authError);
+          throw new Error('Failed to get authenticated user: ' + authError.message);
+        }
+        
+        if (!user) {
+          console.error('❌ [SYNC] No authenticated user found');
+          throw new Error('No user logged in - cannot sync to Supabase');
+        }
 
-      console.log('✅ [SYNC] Authenticated user:', user.id);
+        console.log('✅ [SYNC] Authenticated user:', user.id);
 
       // Update Premium subscription in Supabase
       if (hasPremium) {
