@@ -109,6 +109,7 @@ const App = () => (
       <AuthProvider>
         <Toaster />
         <Sonner />
+        <DebugConsole />
         <AppContent />
       </AuthProvider>
     </TooltipProvider>
