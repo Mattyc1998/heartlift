@@ -112,8 +112,19 @@ export const MoodTracker = () => {
         .order('entry_date', { ascending: false })
         .limit(30);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ SUPABASE ERROR - mood_entries:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          userId: user.id
+        });
+        throw error;
+      }
+      
       setMoodHistory(data || []);
+      console.log('✅ Loaded mood history:', { count: data?.length || 0 });
     } catch (error: any) {
       console.error('Error loading mood history:', error);
     }
