@@ -146,25 +146,18 @@ class PurchaseService {
         console.log('✅ [EVENT] Transaction:', transaction);
         
         try {
-          // Check which products were purchased
-          const products = transaction.products || [];
-          console.log('✅ [EVENT] Transaction products array:', products);
+          // FIX: Apple sometimes returns app bundle ID (com.mattyc.heartlift) in transaction.products
+          // instead of actual product IDs, so we check product.owned directly from store
+          console.log('✅ [EVENT] Checking product ownership from store (not transaction)...');
           
-          let isPremium = false;
-          let isHealingKit = false;
+          const premiumProduct = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+          const healingKitProduct = this.store.get(PRODUCT_IDS.HEALING_KIT);
+          
+          const isPremium = premiumProduct && premiumProduct.owned ? true : false;
+          const isHealingKit = healingKitProduct && healingKitProduct.owned ? true : false;
 
-          for (const product of products) {
-            console.log('✅ [EVENT] Checking product:', product.id);
-            if (product.id === PRODUCT_IDS.PREMIUM_MONTHLY) {
-              isPremium = true;
-              console.log('✅ [EVENT] ✓ Premium detected');
-            }
-            if (product.id === PRODUCT_IDS.HEALING_KIT) {
-              isHealingKit = true;
-              console.log('✅ [EVENT] ✓ Healing Kit detected');
-            }
-          }
-
+          console.log('✅ [EVENT] Premium product owned:', isPremium, premiumProduct);
+          console.log('✅ [EVENT] Healing Kit product owned:', isHealingKit, healingKitProduct);
           console.log('✅ [EVENT] Final detection:', { isPremium, isHealingKit });
 
           // CRITICAL: Resolve pending purchase promises IMMEDIATELY
