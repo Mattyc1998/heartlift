@@ -56,7 +56,8 @@ const AppContent = () => {
     };
 
     initializeApp();
-  }, [checkSupabaseSubscriptionStatus]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     // CRITICAL: Check Supabase on app resume (catches expirations & cancellations)
@@ -80,7 +81,8 @@ const AppContent = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [checkSupabaseSubscriptionStatus]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <BrowserRouter>
