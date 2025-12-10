@@ -76,10 +76,22 @@ export const HealingPlan = () => {
         .eq("user_id", user?.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && error.code !== 'PGRST116') {
+        console.error('❌ SUPABASE ERROR - user_healing_progress:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          userId: user?.id
+        });
+        throw error;
+      }
       
       if (data) {
         setUserProgress(data);
+        console.log('✅ Loaded user progress:', { currentDay: data.current_day, completedDays: data.completed_days.length });
+      } else {
+        console.log('ℹ️ No user progress found (new user)');
       }
     } catch (error: any) {
       console.error("Error fetching progress:", error);
