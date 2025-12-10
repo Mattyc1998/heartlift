@@ -112,9 +112,10 @@ export const executeWithRetry = async <T>(
 
 /**
  * Check if Supabase session is valid and ready
+ * NOTE: Network should be pre-warmed by initializeApp before calling this
  */
 export const ensureSessionReady = async (): Promise<boolean> => {
-  console.log('[Session Check] 🔍 Checking Supabase session...');
+  console.log('[Session Check] 🔍 Checking Supabase session (network pre-warmed)...');
   
   try {
     const { data: { session }, error } = await executeWithTimeout(
