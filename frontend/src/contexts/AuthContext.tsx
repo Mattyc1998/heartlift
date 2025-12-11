@@ -303,20 +303,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return;
         }
         
-        // Check subscription when user logs in OR when we detect an existing session
+        // When user logs in OR existing session detected
         if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
-          console.log('[AuthContext] User session detected, checking subscription immediately');
+          console.log('[AuthContext] User session detected');
+          console.log('[AuthContext] ℹ️ Subscription check will be handled by background check');
           
-          // Initialize purchase service for this user
-          try {
-            await purchaseService.initialize(session.user.id);
-            console.log('[AuthContext] Purchase service initialized successfully');
-          } catch (error) {
-            console.error('[AuthContext] Failed to initialize purchase service:', error);
-          }
+          // Initialize purchase service for this user (non-blocking)
+          purchaseService.initialize(session.user.id).catch((error) => {
+            console.error('[AuthContext] Purchase service init failed:', error);
+          });
           
-          // Call checkSubscription synchronously to ensure immediate update
-          setTimeout(() => checkSubscription(), 0);
+          // Don't call checkSubscription here - let background check handle it
+          // This prevents double-checking and timeout conflicts
+          
         } else if (event === 'SIGNED_OUT') {
           console.log('[AuthContext] User signed out, clearing state');
           // Clear all conversations when user logs out
