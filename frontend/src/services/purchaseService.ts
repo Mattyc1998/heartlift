@@ -282,6 +282,14 @@ class PurchaseService {
       await this.syncToSupabase(isPremium, hasHealingKit);
       console.log('✅ [STATUS] Status synced to Supabase');
 
+      // CRITICAL: Trigger UI unlock by dispatching custom event
+      if (isPremium || hasHealingKit) {
+        console.log('🔔 [STATUS] Dispatching ownership event to unlock UI');
+        window.dispatchEvent(new CustomEvent('purchaseOwnershipDetected', {
+          detail: { isPremium, hasHealingKit }
+        }));
+      }
+
       return { isPremium, hasHealingKit };
     } catch (error) {
       console.error('❌ [STATUS] Error checking subscription status:', error);
