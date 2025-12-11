@@ -409,6 +409,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    // Listen for purchase ownership detection from purchaseService
+    const handleOwnershipDetected = (event: any) => {
+      console.log('🔔 [AuthContext] Received ownership event:', event.detail);
+      
+      if (event.detail.isPremium) {
+        console.log('🔔 [AuthContext] Unlocking Premium from ownership event');
+        unlockPremium();
+      }
+      if (event.detail.hasHealingKit) {
+        console.log('🔔 [AuthContext] Unlocking Healing Kit from ownership event');
+        unlockHealingKit();
+      }
+    };
+    
+    window.addEventListener('purchaseOwnershipDetected', handleOwnershipDetected);
+    
+    return () => {
+      window.removeEventListener('purchaseOwnershipDetected', handleOwnershipDetected);
+    };
+  }, []);
+
+  useEffect(() => {
     // Only check subscription once on mount when user exists - no polling
     if (!user) return;
 
