@@ -251,6 +251,19 @@ class PurchaseService {
         return { isPremium: false, hasHealingKit: false };
       }
 
+      // CRITICAL: Restore purchases to sync with Apple's receipt
+      // This loads existing purchases that were made previously
+      console.log('🔄 [STATUS] Restoring purchases from Apple receipt...');
+      try {
+        await this.store.restorePurchases();
+        console.log('✅ [STATUS] Purchases restored from receipt');
+        
+        // Wait 500ms for store to update ownership status
+        await new Promise(resolve => setTimeout(resolve, 500));
+      } catch (restoreError) {
+        console.warn('⚠️ [STATUS] Restore failed, checking anyway:', restoreError);
+      }
+
       // Get products from store
       const premiumProduct = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
       const healingKitProduct = this.store.get(PRODUCT_IDS.HEALING_KIT);
