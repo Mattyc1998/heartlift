@@ -62,66 +62,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   /**
    * FINAL NON-BLOCKING INITIALIZATION WITH NETWORK WARMUP
-   * CRITICAL: Fixes iOS WKWebView networking stack hang
+   * CRITICAL: Uses user from auth listener, doesn't call getUser() again
    * 
    * Sequence:
-   * 1. Device/platform ready (handled by Capacitor)
-   * 2. Warm up iOS network stack (lightweight fetch)
-   * 3. Initialize IAP immediately (runs in parallel)
-   * 4. Set isAppReady = true IMMEDIATELY (no blocking)
-   * 5. Run Supabase subscription check in background with warmup + timeout + retries
+   * 1. Warm up iOS network stack (400ms delay)
+   * 2. Set isAppReady = true IMMEDIATELY (no blocking)
+   * 3. Initialize IAP if user exists (from context)
+   * 4. Run Supabase subscription check in background
    */
   const initializeApp = async () => {
     console.log('[App Init] 🚀 Starting FINAL non-blocking initialization...');
     console.log('[App Init] 📱 Platform: iOS Capacitor with WKWebView');
     
     try {
-      // STEP 1: Warm up iOS networking stack BEFORE any Supabase queries
-      // This prevents the first network request from hanging in WKWebView
+      // STEP 1: Warm up iOS networking stack
+      // Simple delay approach - more reliable than fetch
       console.log('[App Init] 🔥 Step 1: Warming up network...');
       await warmupNetwork();
       
-      // STEP 2: Quick user check (with timeout, but don't use for IAP)
-      console.log('[App Init] 🔍 Step 2: Quick user session check...');
-      let currentUser: any = null;
-      try {
-        const result = await executeWithTimeout(
-          () => supabase.auth.getUser(),
-          5000,
-          'getUser (quick check)'
-        );
-        currentUser = result.data?.user;
-        
-        if (currentUser) {
-          console.log('[App Init] ✅ User logged in:', currentUser.id);
-        } else {
-          console.log('[App Init] ℹ️ No user session');
-        }
-      } catch (error: any) {
-        console.error('[App Init] ⚠️ User check failed:', error.message);
-        // Continue anyway - user might still be logged in
-      }
-      
-      // STEP 3: Initialize IAP IMMEDIATELY (don't wait)
-      // This is critical for purchase restoration
-      if (currentUser) {
-        console.log('[App Init] 🛍️ Step 3: Initializing IAP (non-blocking)...');
-        purchaseService.initialize(currentUser.id).catch((error) => {
-          console.error('[App Init] ⚠️ IAP init failed (non-critical):', error.message);
-        });
-      }
-      
-      // STEP 4: Set app ready IMMEDIATELY
-      // User can start using the app while subscription loads in background
-      console.log('[App Init] ✅ Step 4: Setting app ready NOW (no blocking)');
+      // STEP 2: Set app ready IMMEDIATELY
+      // Don't wait for user check or subscriptions
+      console.log('[App Init] ✅ Step 2: Setting app ready NOW (no blocking)');
       setIsAppReady(true);
       console.log('[App Init] 🎉 App is ready! User can interact.');
       
-      // STEP 5: Run subscription check in BACKGROUND
-      // Network is warmed up, so Supabase queries won't hang
-      if (currentUser) {
+      // STEP 3: Check if user exists (from context, not a new query)
+      console.log('[App Init] 🔍 Step 3: Checking user from context...');
+      if (user) {
+        console.log('[App Init] ✅ User found in context:', user.id);
+        
+        // Initialize IAP (non-blocking)
+        console.log('[App Init] 🛍️ Step 4: Initializing IAP (non-blocking)...');
+        purchaseService.initialize(user.id).catch((error) => {
+          console.error('[App Init] ⚠️ IAP init failed (non-critical):', error.message);
+        });
+        
+        // Run subscription check in BACKGROUND
         console.log('[App Init] 🔄 Step 5: Starting BACKGROUND subscription check...');
-        checkSubscriptionInBackground(currentUser.id);
+        checkSubscriptionInBackground(user.id);
+      } else {
+        console.log('[App Init] ℹ️ No user in context yet, will wait for auth listener');
       }
       
     } catch (error: any) {
