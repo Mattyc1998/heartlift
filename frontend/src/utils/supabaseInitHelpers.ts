@@ -8,24 +8,16 @@ import { supabase } from '@/integrations/supabase/client';
 /**
  * Warm up iOS WKWebView networking stack
  * CRITICAL: First network request in WKWebView can hang if networking stack isn't ready
- * This lightweight fetch wakes up the network layer before Supabase queries
+ * Simple delay approach - more reliable than fetch which can also fail
  */
 export const warmupNetwork = async (): Promise<void> => {
-  console.log('[Network Warmup] 🔥 Warming up iOS networking stack...');
+  console.log('[Network Warmup] 🔥 Warming up iOS networking stack (delay approach)...');
   
-  try {
-    const startTime = Date.now();
-    // Simple GET request to wake up WKWebView networking
-    await fetch('https://httpbin.org/get', { 
-      method: 'GET',
-      cache: 'no-cache'
-    });
-    const elapsed = Date.now() - startTime;
-    console.log(`[Network Warmup] ✅ Network ready (${elapsed}ms)`);
-  } catch (err: any) {
-    console.warn('[Network Warmup] ⚠️ Warmup failed, continuing anyway:', err.message);
-    // Don't throw - we'll proceed even if warmup fails
-  }
+  // Simple 400ms delay to let WKWebView networking initialize
+  // This is more reliable than fetch which can fail and cause cascading issues
+  await new Promise(resolve => setTimeout(resolve, 400));
+  
+  console.log('[Network Warmup] ✅ Network warmup complete (400ms delay)');
 };
 
 /**
