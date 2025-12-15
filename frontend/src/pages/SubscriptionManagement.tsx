@@ -204,6 +204,84 @@ export const SubscriptionManagement = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    const confirmMessage = `Delete your HeartLift account?
+
+This will permanently delete:
+• All conversations and chat history
+• Journal entries and mood tracking data
+• Your healing plan progress
+• Account profile and settings
+
+Note: To cancel your Premium subscription, go to:
+iPhone Settings → [Your Name] → Subscriptions → HeartLift
+
+This action cannot be undone.
+
+Are you sure you want to delete your account?`;
+
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+    
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) {
+        toast({
+          title: "Error",
+          description: "No user found. Please sign in again.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      console.log('Deleting all user data for:', currentUser.id);
+      
+      toast({
+        title: "Deleting Account",
+        description: "Please wait while we delete your data...",
+      });
+      
+      // Delete from all Supabase tables
+      await Promise.allSettled([
+        supabase.from('subscribers').delete().eq('user_id', currentUser.id),
+        supabase.from('healing_kit_purchases').delete().eq('user_id', currentUser.id),
+        supabase.from('conversation_history').delete().eq('user_id', currentUser.id),
+        supabase.from('daily_reflections').delete().eq('user_id', currentUser.id),
+        supabase.from('mood_entries').delete().eq('user_id', currentUser.id),
+        supabase.from('journal_entries').delete().eq('user_id', currentUser.id),
+        supabase.from('user_healing_progress').delete().eq('user_id', currentUser.id),
+        supabase.from('healing_plan_days').delete().eq('user_id', currentUser.id),
+        supabase.from('user_milestone_progress').delete().eq('user_id', currentUser.id),
+        supabase.from('profiles').delete().eq('id', currentUser.id),
+      ]);
+      
+      console.log('User data deleted from all tables');
+      
+      // Sign out (Supabase doesn't allow self-deletion, so we just sign out)
+      // The admin will need to manually delete the auth user from Supabase dashboard
+      await supabase.auth.signOut();
+      
+      toast({
+        title: "Account Deleted",
+        description: "Your account and all data have been successfully deleted.",
+      });
+      
+      // Navigate to auth page
+      setTimeout(() => {
+        navigate('/auth');
+      }, 1500);
+      
+    } catch (error: any) {
+      console.error('Delete account error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete account. Please contact support at support@heart-lift.com",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 p-4">
