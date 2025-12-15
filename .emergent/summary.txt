@@ -1,128 +1,145 @@
-<analysis>**original_problem_statement:** The initial goal was to finalize the HeartLift iOS application for production launch. This involved resolving numerous bugs and addressing multiple App Store rejections, primarily related to broken In-App Purchase (IAP) functionality. After many failed attempts, the core issue of getting the Apple payment sheet to appear has been solved, but now the app fails to unlock the paid features after a successful purchase, which is the final critical blocker for submission.
+<analysis>**original_problem_statement:** The initial goal was to finalize the HeartLift iOS application for production launch. This involved resolving a critical bug where In-App Purchase (IAP) features would not unlock. While that was fixed, it led to severe app instability where content would not load reliably on app launch. The agent attempted numerous complex fixes which worsened the situation, leading to a blank screen crash. After several reverts to stabilize the app, the focus shifted to a new critical requirement from Apple: implementing a functional account deletion feature. The current implementation of account deletion is broken; users can still log back in after deleting their account, which is a hard blocker for App Store review. The user is extremely frustrated with the lack of progress and the app's instability.
 
 **PRODUCT REQUIREMENTS:**
--   Upon successful IAP (Premium or Healing Kit), the corresponding features must be unlocked immediately for the user.
--   The app must handle subscription lifecycle events, such as expirations and cancellations, by locking features when a subscription is no longer active.
--   The app must support multi-device scenarios, where a purchase on one device is reflected on another device for the same user.
--   The IAP flow must provide clear user feedback, including success modals and messages for users who have already purchased an item.
+- All Supabase-dependent content (AI chats, journal, healing plan, etc.) must load reliably every time the app is launched or resumed.
+- Users must be able to permanently delete their account and all associated data, preventing them from logging back in with the same credentials.
+- The app must be stable and pass App Store review.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a full-stack React/FastAPI app using Supabase. The IAP system has been through a major overhaul. It now uses the correct  v13 API. The current architecture follows a local state first pattern for immediate feature unlocks:
-1.  Upon purchase approval, a function in  (/) is called to immediately set the React state and .
-2.  The purchase is then synced to the Supabase database in the background.
-3.  On app launch and resume, the app checks Supabase to synchronize the subscription status, handling expirations, cancellations, and multi-device access.
+The application is a React/Capacitor stack using Supabase for the backend and  for IAP. The codebase is in a fragile state. The agent's attempts to fix content loading instability by simplifying the  resulted in a white screen crash. The code was reverted to a semi-stable state where the app loads but content loading is still inconsistent.
 
-Despite this logic, features are still not unlocking after a purchase. Extensive logging was added, but the user could not access console logs. The agent is now in the process of adding a debug console and -based debugging for better visibility on the device.
+The current focus is on a non-functional Delete Account feature. The agent created a Supabase SQL function () to be called via RPC to permanently delete the user from , but the implementation is flawed. When the user tried to create the function in the Supabase SQL Editor, it failed.
 
 **Last working item**:
--   Last item agent was working: The user reported that features still were not unlocking after a successful purchase. As the previously-added console logs were not visible to the user, the agent was instructed to re-implement the on-screen debug console and add  popups at critical points in the code ( unlock functions, purchase pages, and feature pages) to visually trace the state update flow on the device.
--   Status: **IN PROGRESS**
--   Agent Testing Done: N
--   Which testing method agent to use? **Manual testing by user on TestFlight**. The user will need to trigger a purchase and document the sequence of  popups that appear.
--   User Testing Done: Y (User confirmed the previous build failed to unlock features).
+- Last item agent was working: Fixing the account deletion feature. The user reported that they can still log in after deleting their account. The agent's latest attempt was to create a  SQL function in Supabase to delete the user from the  table. However, the user reported that creating this SQL function failed in the Supabase dashboard.
+- Status: **IN PROGRESS**
+- Agent Testing Done: N
+- Which testing method agent to use? The next agent needs to provide the user with a corrected SQL function to run in the Supabase SQL Editor. Once the function is created, the user will test the full deletion flow on TestFlight.
+- User Testing Done: Y (User confirmed the latest attempt to fix account deletion failed).
 
 **All Pending/In progress Issue list**:
--   Issue 1: Features Don't Unlock After Successful Purchase (P0 - CRITICAL)
+- Issue 1: Account Deletion does not work, which is an Apple review blocker. (P0 - CRITICAL BLOCKER)
+- Issue 2: Inconsistent Content Loading on App Resume/Launch. (P1 - CRITICAL)
 
 **Issues Detail:**
--   **Issue 1: Features Don't Unlock After Successful Purchase**
-    -   **Attempted fixes:**
-        1.  **DB Roundtrip:** Relied on fetching from Supabase after purchase, but this was too slow and created race conditions.
-        2.  **Forced Page Reloads:** Used  to try and force a state refresh, but this broke the user's session and logged them out.
-        3.  **Local State First (Current):** Implemented a pattern to update local state (React Context/localStorage) immediately upon purchase. This is the correct pattern, but it's still failing.
-        4.  **Missing Imports:** Fixed an issue where purchase pages were not importing  and  from the Auth context. This did not solve the root problem.
-    -   **Next debug checklist:**
-        1.  Complete the addition of the on-screen debug console and  popups in , , , and .
-        2.  Ensure  calls are placed correctly to track if  functions are called, what the state is immediately after, and what state the feature page reads from context and localStorage on load.
-        3.  Build the project and run .
-        4.  Instruct the user to build on CodeMagic, install on TestFlight, and trigger a purchase.
-        5.  Ask the user to provide screenshots or a video of the  popups in the order they appear.
-        6.  Analyze the  sequence to pinpoint where the state update is failing or being lost.
-    -   **Why fix this issue and what will be achieved with the fix?** This is the last and most critical bug preventing the app from being monetized and approved by the App Store. Fixing it will make the app launch-ready.
-    -   **Status:** IN PROGRESS
-    -   **Is recurring issue?** Y
-    -   **Should Test frontend/backend/both after fix?** Frontend (on TestFlight)
-    -   **Blocked on other issue:** None. This is the primary blocker.
+- **Issue 1: Account Deletion does not work**
+    - **Attempted fixes:**
+        1.  Client-side deletion from data tables only: This failed because the authentication user in  was not deleted, allowing the user to log back in.
+        2.  Calling a Supabase Edge Function: This failed because the function was never deployed, leading to a function not found error in the app.
+        3.  Client-side RPC call to a SQL function (): This is the current approach. The agent provided SQL for the user to run, but it failed during creation in the Supabase UI. The error Failed: No authenticated user suggests the function was flawed, likely by relying on  in a context where it's null (like the SQL Editor).
+    - **Next debug checklist:**
+        1.  **Correct the SQL Function:** The SQL function must not rely on . It should be a  function that accepts  as a parameter. Provide the user with the corrected SQL to run in their Supabase SQL Editor.
+            
+        2.  **Update Frontend Code:** Modify the  function in  to call the new RPC with the user's ID as a parameter: .
+        3.  **Confirm with User:** Guide the user to run the new SQL and then test the deletion flow in the app. They should confirm they cannot log back in.
+    - **Why fix this issue and what will be achieved with the fix?** This is a mandatory requirement (Guideline 5.1.1(v)) for the app to be approved on the Apple App Store. It is the highest priority blocker.
+    - **Status:** IN PROGRESS
+    - **Is recurring issue?** Y
+    - **Should Test frontend/backend/both after fix?** Both. The SQL function (backend) needs to be created, and the frontend flow needs to be tested by the user.
+    - **Blocked on other issue:** None. This is the top priority.
+
+- **Issue 2: Inconsistent Content Loading on App Resume/Launch**
+    - **Attempted fixes:** This issue has a long history of failed fixes, including complex  state management, timeouts, polling, and a  helper. Most of these were reverted because they caused blank screen crashes. The app was eventually reverted to an older, semi-stable state where it loads but content loading remains unreliable.
+    - **Next debug checklist:** Once the Account Deletion feature is fixed and verified, this issue must be revisited. The root cause appears to be a race condition in  related to Supabase client initialization. The  helper was a good idea but its effectiveness is unknown. A full, careful review of the app's initialization sequence is required.
+    - **Why fix this issue and what will be achieved with the fix?** The app is currently unreliable and offers a poor user experience. Fixing this is critical for user retention and app stability.
+    - **Status:** NOT STARTED (Sidelined to fix the P0 blocker)
+    - **Is recurring issue?** Y
+    - **Should Test frontend/backend/both after fix?** Frontend (on TestFlight, multiple close/reopen cycles).
+    - **Blocked on other issue:** Issue 1: Account Deletion.
 
 **In progress Task List**:
--   Task 1: Add On-Screen Debugging
-    -   Where to resume: The agent was in the middle of adding the purple debug LOG button back and replacing  statements with  popups for debugging the feature unlock flow. A syntax error during the build was just fixed. The next step is to complete the implementation of the alert-based debugging as requested.
-    -   What will be achieved with this? It will provide on-device visibility into the state management flow, helping to diagnose why features are not unlocking.
-    -   Status: IN PROGRESS
+- None besides the issues listed above.
 
 **Upcoming and Future Tasks**
--   **(P0)** Get a fully working TestFlight build where purchasing an IAP immediately unlocks the corresponding features.
--   **(P1)** Final confirmation from the user that the entire IAP flow is stable and works as expected.
--   **(P2)** Remove all debugging tools (, s).
--   **(P3)** Resubmit the app to the Apple App Store with detailed notes explaining the fixes.
+- **P0: Finalize and Verify Account Deletion:** Implement the corrected SQL function and frontend RPC call, then get user confirmation that it works as expected.
+- **P1: Permanently Fix Content Loading Instability:** After the deletion feature is approved, conduct a thorough investigation and fix the root cause of the content loading race condition.
+- **P2: Final User Verification and App Store Resubmission:** Get final sign-off from the user on app stability and resubmit to the App Store.
 
 **Completed work in this session**
--   **IAP API Migration:** Successfully migrated the entire IAP service () from a broken implementation to the correct  v13 API.
--   **Apple Payment Sheet Fix:** Resolved the issue where the payment sheet wouldn't appear by correctly passing an  object to .
--   **On-Screen Debug Console:** Created a React component to display console logs in an overlay on the device, bypassing the need for a Mac.
--   **Architecture Refactor:** Restructured the purchase flow to a local state first pattern, which is the correct approach for providing instant feedback to the user.
--   **Subscription Lifecycle Management:** Added logic to check subscription status on app launch and resume to handle expirations, cancellations, and multi-device sync.
--   **TestFlight Sandbox Handling:** Improved the purchase flow to gracefully handle the TestFlight environment where a single Apple ID may be used to purchase items for multiple test accounts.
+- **IAP Flow Fixes:** Resolved multiple IAP bugs, including one where Apple returned the wrong product ID and another where existing purchases weren't detected on launch ().
+- **iOS Network Permissions Fixed:** Identified and fixed a missing  key in  that was blocking all network requests on iOS.
+- **Supabase Client for iOS Fixed:** Corrected the Supabase client configuration to be compatible with iOS WKWebView by removing  as the storage provider.
+- **Infinite Loop Bug Fixed:** Found and fixed an infinite render loop in  caused by an incorrect  dependency.
+- **Stabilization Reverts:** Performed several  operations to bring the app back from a white screen crash state to a semi-functional one.
 
 **Earlier issues found/mentioned but not fixed**
-- None. All efforts are focused on the critical IAP bug.
+- The core issue of inconsistent content loading on app launch/resume remains unresolved. It was temporarily patched by reverting to an older commit, but the underlying race condition still exists.
+
+**Known issue recurrence from previous fork**
+- **Issue recurrence in previous fork:** Yes, the core problem of state management and race conditions with Supabase auth and data loading has been the primary recurring issue throughout the job.
+- **Recurrence count:** High.
+- **Status:** NOT STARTED (pending fix of P0 issue).
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Frameworks:** React (Vite), FastAPI
--   **Mobile:** Capacitor with  v13
--   **Database:** Supabase (PostgreSQL)
--   **State Management:** React Context API () combined with .
+- **Frameworks:** React, Vite
+- **Mobile:** Capacitor (wrapping a web app for iOS)
+- **Backend:** Supabase (PostgreSQL, Auth, RLS, SQL Functions)
+- **IAP:**  v13 for Apple StoreKit
+- **Core Problems:** Asynchronous state management, race conditions between Supabase auth and data queries, iOS-specific platform issues (WKWebView networking, App Transport Security).
 
 **key DB schema**
--   **premium_subscriptions**: 
--   **healing_kit_purchases**: 
+- **auth.users**:  (Target for deletion)
+- **profiles**: 
+- **subscribers**: 
+- And 9 other tables storing user-specific data that need to be deleted: , , , , , , , , .
+
+**changes in tech stack**
+- Attempted to introduce a Supabase SQL function () to handle privileged operations (deleting from ), which is a sound architectural choice but was implemented incorrectly.
 
 **All files of reference**
--   : Contains the core logic for interacting with the  library. This is where purchase events are handled.
--   : The source of truth for the app's local state regarding whether a user owns Premium or the Healing Kit. Contains the  and  functions.
--    & : The UI pages where the purchase flow is initiated. They call the  functions from .
--   : The feature page that is failing to unlock. It checks the  state from .
--   : The entry point of the React app, where app launch/resume listeners are configured to check subscription status.
+- : Location of the Delete Account button and its handler function that needs to be fixed.
+- : This file was created by the agent but the SQL within it was likely still flawed. The next agent should provide a corrected version.
+- : The source of the content loading instability, will need to be refactored after the P0 issue is solved.
+- : Contains the critical  configuration.
+
+**Areas that need refactoring**:
+- : The entire app initialization logic is overly complex, fragile, and the source of major bugs. It needs a complete, careful rewrite to follow a simple and robust sequence.
+
+**key api endpoints**
+- : The currently broken RPC call for account deletion. This needs to be changed to .
 
 **Critical Info for New Agent**
--   **The user is extremely frustrated.** This IAP issue has been ongoing for a very long time. Be methodical and clearly explain your reasoning.
--   **The architecture is Local State First.** Do not revert to solutions that rely on a database roundtrip for immediate feature access. The current pattern is correct in theory but failing in practice.
--   **The Bug:** The core problem is a state management failure. The purchase completes, but the / state in  is not being successfully updated or propagated to the feature pages before they render.
--   **Current Debugging Strategy:** You must complete the implementation of -based debugging. This is a direct and explicit request from the user to get visibility into the state flow on their device. Do not deviate from this plan until you have analyzed the results of the  sequence.
+- **USER IS EXTREMELY FRUSTRATED.** The situation is critical. The user has been dealing with a cascade of bugs and feels the app is getting worse. Prioritize clear communication and delivering a working fix.
+- **ACCOUNT DELETION IS THE #1 BLOCKER.** This feature is required by Apple. The current implementation is broken. You must provide the user with a corrected SQL function to create in their Supabase dashboard and update the frontend code to call it correctly. Do not rely on  in the SQL function.
+- **THE CONTENT LOADING BUG IS STILL PRESENT.** Once the deletion feature is working, you must pivot back to fixing the app's core instability. Do not assume the previous fixes (timeouts, retries, warmups) are correct; they were part of a chaotic debugging process and likely need to be removed or simplified.
+
+**documents created in this job**
+- /app/SUPABASE_DIAGNOSTIC_INSTRUCTIONS.md
+- /app/DEBUG_CONSOLE_GUIDE.md
+- /app/IAP_FIX_SUMMARY.md
+- /app/FINAL_IOS_FIX_DOCUMENTATION.md
+- /app/SUPABASE_DELETE_USER_FUNCTION.sql
+- /app/FIXED_DELETE_USER_FUNCTION.sql
 
 **Last 10 User Messages and any pending user messages**
-1.  **User**: Reports the app crashes/logs out after purchasing Healing Kit. - **Status**: IN PROGRESS
-2.  **User**: Clarifies that the already owned check should not block the payment sheet for TestFlight accounts. - **Status**: ADDRESSED
-3.  **User**: you literally havent changed anything, reports the app still logs out and crashes. - **Status**: IN PROGRESS
-4.  **User**: Confirms the immediate sync to Supabase is desired. - **Status**: ADDRESSED
-5.  **User**: Asks for a GitHub PR description for the latest changes. - **Status**: ADDRESSED
-6.  **User**: Reports that the purchase completes, but features don't unlock. - **Status**: IN PROGRESS
-7.  **User**: WHY CANT THE FEATURES FUCKING UNLOCK AFTER PURCHASE - reports that after a delay, they are sent back to the purchase page. - **Status**: IN PROGRESS
-8.  **User**: now were back to fucking square one with it logging the user out - reports the  fix broke sessions again. - **Status**: IN PROGRESS
-9.  **User (via Claude)**: Provides a detailed, correct implementation plan: update local state immediately, then sync to DB in the background. Check DB only on app launch/resume. - **Status**: ADDRESSED (Agent implemented this).
-10. **User (via Claude)**: Reports the local state first implementation is still failing and provides a detailed debug plan using . - **Status**: ADDRESSED (Agent implemented this).
-11. **User**: Provides a screenshot showing the purchase is successful, but features remain locked. They request the debug log be put back and to use  instead of  for debugging. - **Status**: **IN PROGRESS (Current Task)**.
+1.  **User**: Confirms they ran the SQL provided by the agent. - **Status**: ADDRESSED.
+2.  **User**: DOESNT FUCKING WORK!! I CAN STILL LOG IN AFTER DELETING MY ACCOUNT... - **Status**: PENDING. This is the current active problem.
+3.  **User**: Provides a screenshot showing an error trying to run the fixed SQL function. - **Status**: ADDRESSED (Agent identified it's a warning).
+4.  **User**: Confirms they clicked Run this query. - **Status**: ADDRESSED.
+5.  **User**: it failed, i get this error - The SQL function creation failed with No authenticated user. - **Status**: PENDING. This is the immediate bug to fix. The agent's diagnosis that this is a session issue is correct, and the next step is to fix the SQL function itself.
+6.  **Rest of the messages** are the user providing logs, reporting bugs (like the blank screen), and expressing extreme frustration as the agent attempted and reverted various fixes for the app's instability and the failing account deletion.
 
 **Project Health Check:**
--   **Broken:** The core monetization flow is critically broken. Users can pay, but they do not receive the features they paid for.
+- **Broken**: The account deletion feature is non-functional and is blocking App Store release. The app's core content loading mechanism is also fundamentally unstable.
 
 **3rd Party Integrations**
--   OpenAI GPT-4o-mini — uses Emergent LLM Key
--   Supabase (PostgreSQL, Auth, Storage) — requires User-provided keys
--   Apple In-App Purchases (StoreKit) via  — configured in App Store Connect
+- **Supabase**: PostgreSQL, Auth, Storage, and now SQL Functions. Requires user-provided keys.
+- **Apple In-App Purchases (StoreKit)**: via . Configured in App Store Connect.
+- **OpenAI GPT-4o-mini**: Uses Emergent LLM Key for chat features.
 
 **Testing status**
--   Testing agent used after significant changes: NO
--   Troubleshoot agent used after agent stuck in loop: NO
--   Test files created: None
--   Known regressions: The  fix caused session logouts, which was a regression. This has since been reverted.
+- Testing agent used after significant changes: NO
+- Troubleshoot agent used after agent stuck in loop: NO
+- Test files created: None
+- Known regressions: The app's stability on launch has severely degraded. Many attempted fixes for content loading led to a total white screen crash, forcing reverts to a less stable but at least partially working state.
+
+**Credentials to test flow:**
+User will provide test credentials if needed, but testing is primarily done by the user on their own device via TestFlight.
 
 **What agent forgot to execute**
--   The agent repeatedly used incorrect methods from the  v13 API, causing numerous failed build cycles.
--   The agent struggled with React state management, initially creating race conditions by not understanding the asynchronous nature of state updates and database writes. This led to multiple failed attempts to fix the features not unlocking issue.
--   The agent forgot to import necessary state variables (, ) from the  hook on the purchase pages, leading to a variable not found error.</analysis>
+- The agent failed to provide a correctly implemented SQL function for account deletion. The reliance on  within the function was a mistake, as its context is not guaranteed, especially when called from the client after other operations. The function needs to be rewritten to accept a  parameter.</analysis>
