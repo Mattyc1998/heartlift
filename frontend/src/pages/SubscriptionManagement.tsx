@@ -284,23 +284,35 @@ Are you sure you want to delete your account?`;
       
       // CRITICAL: Delete the auth account entirely using SQL function
       console.log('[Delete Account] Attempting to delete auth account...');
-      const { error: deleteAuthError } = await supabase.rpc('delete_user');
+      const { data: rpcData, error: deleteAuthError } = await supabase.rpc('delete_user');
+      
+      console.log('[Delete Account] RPC response:', { data: rpcData, error: deleteAuthError });
       
       if (deleteAuthError) {
-        console.error('❌ Delete auth error:', deleteAuthError);
-        console.log('⚠️ Auth account delete failed, but data is gone. Signing out...');
-        // Even if auth delete fails, data is gone - proceed with sign out
-      } else {
-        console.log('✅ Auth account deleted successfully');
+        console.error('❌ Delete auth error:', JSON.stringify(deleteAuthError));
+        
+        // STOP if auth deletion fails - this is critical
+        toast({
+          title: "Error Deleting Account",
+          description: `Failed to delete auth account: ${deleteAuthError.message}. Please contact support@heart-lift.com`,
+          variant: "destructive",
+        });
+        return; // Don't continue if auth deletion failed
       }
       
-      // Sign out
+      console.log('✅ Auth account deleted successfully');
+      
+      // Sign out (this will fail since account is gone, which is expected)
       console.log('[Delete Account] Signing out...');
-      await supabase.auth.signOut();
+      try {
+        await supabase.auth.signOut();
+      } catch (signOutError) {
+        console.log('Sign out error (expected if account already deleted):', signOutError);
+      }
       
       toast({
         title: "Account Deleted",
-        description: "Account and all data deleted. You cannot log back in with these credentials.",
+        description: "Account and all data permanently deleted. You cannot log back in.",
       });
       
       // Navigate to auth page
