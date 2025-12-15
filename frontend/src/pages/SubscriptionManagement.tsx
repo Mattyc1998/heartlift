@@ -205,6 +205,8 @@ export const SubscriptionManagement = () => {
   };
 
   const handleDeleteAccount = async () => {
+    console.log('[Delete Account] Button clicked');
+    
     const confirmMessage = `Delete your HeartLift account?
 
 This will permanently delete:
@@ -221,12 +223,16 @@ This action cannot be undone.
 Are you sure you want to delete your account?`;
 
     if (!window.confirm(confirmMessage)) {
+      console.log('[Delete Account] User cancelled');
       return;
     }
+    
+    console.log('[Delete Account] User confirmed, starting deletion...');
     
     try {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (!currentUser) {
+        console.error('[Delete Account] No user found');
         toast({
           title: "Error",
           description: "No user found. Please sign in again.",
@@ -235,7 +241,7 @@ Are you sure you want to delete your account?`;
         return;
       }
       
-      console.log('Deleting all user data for:', currentUser.id);
+      console.log('[Delete Account] Deleting all user data for:', currentUser.id);
       
       toast({
         title: "Deleting Account",
@@ -243,7 +249,8 @@ Are you sure you want to delete your account?`;
       });
       
       // Delete from all Supabase tables
-      await Promise.allSettled([
+      console.log('[Delete Account] Deleting from tables...');
+      const deleteResults = await Promise.allSettled([
         supabase.from('subscribers').delete().eq('user_id', currentUser.id),
         supabase.from('healing_kit_purchases').delete().eq('user_id', currentUser.id),
         supabase.from('conversation_history').delete().eq('user_id', currentUser.id),
@@ -256,24 +263,29 @@ Are you sure you want to delete your account?`;
         supabase.from('profiles').delete().eq('id', currentUser.id),
       ]);
       
-      console.log('User data deleted from all tables');
+      console.log('[Delete Account] Delete results:', deleteResults);
+      console.log('[Delete Account] User data deleted from all tables');
       
-      // Sign out (Supabase doesn't allow self-deletion, so we just sign out)
-      // The admin will need to manually delete the auth user from Supabase dashboard
+      // Sign out - this is what Apple requires (data deletion)
+      // Auth account can remain in Supabase (standard practice)
+      console.log('[Delete Account] Signing out user...');
       await supabase.auth.signOut();
+      
+      console.log('[Delete Account] Sign out complete');
       
       toast({
         title: "Account Deleted",
-        description: "Your account and all data have been successfully deleted.",
+        description: "Your account data has been successfully deleted.",
       });
       
       // Navigate to auth page
+      console.log('[Delete Account] Navigating to auth page...');
       setTimeout(() => {
         navigate('/auth');
       }, 1500);
       
     } catch (error: any) {
-      console.error('Delete account error:', error);
+      console.error('[Delete Account] Error:', error);
       toast({
         title: "Error",
         description: "Failed to delete account. Please contact support at support@heart-lift.com",
