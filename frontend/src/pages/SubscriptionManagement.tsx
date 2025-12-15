@@ -283,36 +283,46 @@ Are you sure you want to delete your account?`;
       localStorage.clear();
       
       // CRITICAL: Delete the auth account entirely using SQL function
-      console.log('[Delete Account] Attempting to delete auth account...');
-      const { data: rpcData, error: deleteAuthError } = await supabase.rpc('delete_user');
+      console.log('[Delete Account] Calling delete_user() RPC function...');
+      const { data: rpcResponse, error: rpcError } = await supabase.rpc('delete_user');
       
-      console.log('[Delete Account] RPC response:', { data: rpcData, error: deleteAuthError });
+      console.log('[Delete Account] RPC full response:', { data: rpcResponse, error: rpcError });
       
-      if (deleteAuthError) {
-        console.error('❌ Delete auth error:', JSON.stringify(deleteAuthError));
-        
-        // STOP if auth deletion fails - this is critical
+      // Check for RPC call error
+      if (rpcError) {
+        console.error('❌ RPC call failed:', JSON.stringify(rpcError));
         toast({
-          title: "Error Deleting Account",
-          description: `Failed to delete auth account: ${deleteAuthError.message}. Please contact support@heart-lift.com`,
+          title: "Error",
+          description: `RPC Error: ${rpcError.message}. Contact support@heart-lift.com`,
           variant: "destructive",
         });
-        return; // Don't continue if auth deletion failed
+        return;
       }
       
-      console.log('✅ Auth account deleted successfully');
+      // Check the response from the function
+      if (!rpcResponse || !rpcResponse.success) {
+        console.error('❌ Function returned error:', rpcResponse);
+        toast({
+          title: "Error",
+          description: `Failed: ${rpcResponse?.error || 'Unknown error'}. Contact support@heart-lift.com`,
+          variant: "destructive",
+        });
+        return;
+      }
       
-      // Sign out (this will fail since account is gone, which is expected)
-      console.log('[Delete Account] Signing out...');
+      console.log('✅ Auth account deleted successfully:', rpcResponse.deleted_user_id);
+      
+      // Sign out locally
+      console.log('[Delete Account] Signing out locally...');
       try {
         await supabase.auth.signOut();
       } catch (signOutError) {
-        console.log('Sign out error (expected if account already deleted):', signOutError);
+        console.log('⚠️ Sign out error (may be expected):', signOutError);
       }
       
       toast({
         title: "Account Deleted",
-        description: "Account and all data permanently deleted. You cannot log back in.",
+        description: "Your account has been permanently deleted. You cannot log back in.",
       });
       
       // Navigate to auth page
