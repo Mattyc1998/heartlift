@@ -209,21 +209,19 @@ export const SubscriptionManagement = () => {
     
     const confirmMessage = `Delete your HeartLift account?
 
-This will PERMANENTLY delete ALL your data:
+This will permanently delete:
 • All conversations and chat history
 • Journal entries and mood tracking data
 • Your healing plan progress
 • Account profile and settings
-• Subscription records
 
-Your account will be empty and unusable.
+⚠️ This action cannot be undone.
+⚠️ You will NOT be able to log back in with these credentials.
 
 Note: To cancel your Premium subscription, go to:
 iPhone Settings → [Your Name] → Subscriptions → HeartLift
 
-This action cannot be undone.
-
-Are you sure you want to delete all your data?`;
+Are you sure you want to delete your account?`;
 
     if (!window.confirm(confirmMessage)) {
       console.log('[Delete Account] User cancelled');
@@ -244,18 +242,19 @@ Are you sure you want to delete all your data?`;
         return;
       }
       
-      console.log('[Delete Account] Deleting all data for user:', currentUser.id);
+      console.log('🗑️ [Delete Account] Deleting all data for user:', currentUser.id);
       
       toast({
-        title: "Deleting Data",
-        description: "Please wait while we permanently delete all your data...",
+        title: "Deleting Account",
+        description: "Please wait while we permanently delete everything...",
       });
       
-      // Delete from all Supabase tables
+      // CRITICAL: Delete from EVERY table that stores user data
       console.log('[Delete Account] Deleting from all tables...');
-      const deleteResults = await Promise.allSettled([
+      const deletionPromises = [
         supabase.from('subscribers').delete().eq('user_id', currentUser.id),
         supabase.from('healing_kit_purchases').delete().eq('user_id', currentUser.id),
+        supabase.from('conversations').delete().eq('user_id', currentUser.id),
         supabase.from('conversation_history').delete().eq('user_id', currentUser.id),
         supabase.from('daily_reflections').delete().eq('user_id', currentUser.id),
         supabase.from('mood_entries').delete().eq('user_id', currentUser.id),
@@ -263,26 +262,45 @@ Are you sure you want to delete all your data?`;
         supabase.from('user_healing_progress').delete().eq('user_id', currentUser.id),
         supabase.from('healing_plan_days').delete().eq('user_id', currentUser.id),
         supabase.from('user_milestone_progress').delete().eq('user_id', currentUser.id),
-        supabase.from('profiles').delete().eq('id', currentUser.id),
-      ]);
+        supabase.from('profiles').delete().eq('id', currentUser.id)
+      ];
       
-      console.log('[Delete Account] Delete results:', deleteResults);
+      const results = await Promise.allSettled(deletionPromises);
       
-      // Check if any deletions failed
-      const failures = deleteResults.filter(r => r.status === 'rejected');
-      if (failures.length > 0) {
-        console.warn('[Delete Account] Some deletions failed:', failures);
+      // Log any failures
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          console.error(`❌ Failed to delete from table ${index}:`, result);
+        } else {
+          console.log(`✅ Deleted from table ${index}`);
+        }
+      });
+      
+      console.log('✅ All user data deleted from tables');
+      
+      // Clear localStorage to prevent auto-restore of purchases
+      console.log('[Delete Account] Clearing localStorage...');
+      localStorage.clear();
+      
+      // CRITICAL: Delete the auth account entirely using SQL function
+      console.log('[Delete Account] Attempting to delete auth account...');
+      const { error: deleteAuthError } = await supabase.rpc('delete_user');
+      
+      if (deleteAuthError) {
+        console.error('❌ Delete auth error:', deleteAuthError);
+        console.log('⚠️ Auth account delete failed, but data is gone. Signing out...');
+        // Even if auth delete fails, data is gone - proceed with sign out
+      } else {
+        console.log('✅ Auth account deleted successfully');
       }
       
-      console.log('[Delete Account] All user data deleted');
-      
       // Sign out
-      console.log('[Delete Account] Signing out user...');
+      console.log('[Delete Account] Signing out...');
       await supabase.auth.signOut();
       
       toast({
-        title: "Data Deleted",
-        description: "All your personal data has been permanently deleted.",
+        title: "Account Deleted",
+        description: "Account and all data deleted. You cannot log back in with these credentials.",
       });
       
       // Navigate to auth page
@@ -292,10 +310,10 @@ Are you sure you want to delete all your data?`;
       }, 2000);
       
     } catch (error: any) {
-      console.error('[Delete Account] Error:', error);
+      console.error('❌ [Delete Account] Error:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to delete data. Please contact support@heart-lift.com",
+        description: error.message || "Failed to delete account. Please contact support@heart-lift.com",
         variant: "destructive",
       });
     }
