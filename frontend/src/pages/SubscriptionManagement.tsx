@@ -283,25 +283,12 @@ Are you sure you want to delete your account?`;
       localStorage.clear();
       
       // CRITICAL: Delete the auth account entirely using SQL function
-      // Get fresh session to ensure it's valid
-      console.log('[Delete Account] Getting fresh session...');
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      // We pass the user_id as a parameter to avoid auth.uid() being NULL
+      console.log('[Delete Account] Calling delete_user_by_id RPC with user ID:', currentUser.id);
       
-      if (sessionError || !session) {
-        console.error('[Delete Account] No valid session:', sessionError);
-        toast({
-          title: "Error",
-          description: "Session expired. Please log out and log back in, then try deleting again.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      console.log('[Delete Account] Valid session found, calling delete_user() RPC...');
-      console.log('[Delete Account] Session user ID:', session.user.id);
-      console.log('[Delete Account] Session expires at:', session.expires_at);
-      
-      const { data: rpcResponse, error: rpcError } = await supabase.rpc('delete_user');
+      const { data: rpcResponse, error: rpcError } = await supabase.rpc('delete_user_by_id', {
+        user_id_to_delete: currentUser.id
+      });
       
       console.log('[Delete Account] RPC full response:', { data: rpcResponse, error: rpcError });
       
@@ -310,7 +297,7 @@ Are you sure you want to delete your account?`;
         console.error('❌ RPC call failed:', JSON.stringify(rpcError));
         toast({
           title: "Error",
-          description: `RPC Error: ${rpcError.message}. Contact support@heart-lift.com`,
+          description: `Failed to delete account. Error: ${rpcError.message}. Contact support@heart-lift.com`,
           variant: "destructive",
         });
         return;
