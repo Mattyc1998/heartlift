@@ -283,7 +283,24 @@ Are you sure you want to delete your account?`;
       localStorage.clear();
       
       // CRITICAL: Delete the auth account entirely using SQL function
-      console.log('[Delete Account] Calling delete_user() RPC function...');
+      // Get fresh session to ensure it's valid
+      console.log('[Delete Account] Getting fresh session...');
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        console.error('[Delete Account] No valid session:', sessionError);
+        toast({
+          title: "Error",
+          description: "Session expired. Please log out and log back in, then try deleting again.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      console.log('[Delete Account] Valid session found, calling delete_user() RPC...');
+      console.log('[Delete Account] Session user ID:', session.user.id);
+      console.log('[Delete Account] Session expires at:', session.expires_at);
+      
       const { data: rpcResponse, error: rpcError } = await supabase.rpc('delete_user');
       
       console.log('[Delete Account] RPC full response:', { data: rpcResponse, error: rpcError });
