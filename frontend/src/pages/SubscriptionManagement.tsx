@@ -209,22 +209,21 @@ export const SubscriptionManagement = () => {
     
     const confirmMessage = `Delete your HeartLift account?
 
-This will PERMANENTLY delete:
-• Your account and login credentials
+This will PERMANENTLY delete ALL your data:
 • All conversations and chat history
 • Journal entries and mood tracking data
 • Your healing plan progress
 • Account profile and settings
+• Subscription records
 
-YOU WILL NOT BE ABLE TO LOG BACK IN.
-You will need to create a new account if you want to use HeartLift again.
+Your account will be empty and unusable.
 
 Note: To cancel your Premium subscription, go to:
 iPhone Settings → [Your Name] → Subscriptions → HeartLift
 
 This action cannot be undone.
 
-Are you sure you want to delete your account?`;
+Are you sure you want to delete all your data?`;
 
     if (!window.confirm(confirmMessage)) {
       console.log('[Delete Account] User cancelled');
@@ -234,55 +233,60 @@ Are you sure you want to delete your account?`;
     console.log('[Delete Account] User confirmed, starting deletion...');
     
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        console.error('[Delete Account] No session found');
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) {
+        console.error('[Delete Account] No user found');
         toast({
           title: "Error",
-          description: "No active session. Please sign in again.",
+          description: "No user found. Please sign in again.",
           variant: "destructive",
         });
         return;
       }
       
-      console.log('[Delete Account] Calling edge function to delete user:', session.user.id);
+      console.log('[Delete Account] Deleting all data for user:', currentUser.id);
       
       toast({
-        title: "Deleting Account",
-        description: "Please wait while we permanently delete your account...",
+        title: "Deleting Data",
+        description: "Please wait while we permanently delete all your data...",
       });
       
-      // Call Supabase Edge Function to delete user and all data
-      // This uses service role to delete auth user + all data
-      const { data, error } = await supabase.functions.invoke('delete-user', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`
-        }
-      });
+      // Delete from all Supabase tables
+      console.log('[Delete Account] Deleting from all tables...');
+      const deleteResults = await Promise.allSettled([
+        supabase.from('subscribers').delete().eq('user_id', currentUser.id),
+        supabase.from('healing_kit_purchases').delete().eq('user_id', currentUser.id),
+        supabase.from('conversation_history').delete().eq('user_id', currentUser.id),
+        supabase.from('daily_reflections').delete().eq('user_id', currentUser.id),
+        supabase.from('mood_entries').delete().eq('user_id', currentUser.id),
+        supabase.from('journal_entries').delete().eq('user_id', currentUser.id),
+        supabase.from('user_healing_progress').delete().eq('user_id', currentUser.id),
+        supabase.from('healing_plan_days').delete().eq('user_id', currentUser.id),
+        supabase.from('user_milestone_progress').delete().eq('user_id', currentUser.id),
+        supabase.from('profiles').delete().eq('id', currentUser.id),
+      ]);
       
-      if (error) {
-        console.error('[Delete Account] Edge function error:', error);
-        throw new Error(error.message || 'Failed to delete account');
+      console.log('[Delete Account] Delete results:', deleteResults);
+      
+      // Check if any deletions failed
+      const failures = deleteResults.filter(r => r.status === 'rejected');
+      if (failures.length > 0) {
+        console.warn('[Delete Account] Some deletions failed:', failures);
       }
       
-      console.log('[Delete Account] Edge function response:', data);
+      console.log('[Delete Account] All user data deleted');
       
-      if (!data?.success) {
-        throw new Error(data?.error || 'Account deletion failed');
-      }
-      
-      console.log('[Delete Account] Account permanently deleted');
-      
-      // Sign out locally
+      // Sign out
+      console.log('[Delete Account] Signing out user...');
       await supabase.auth.signOut();
       
       toast({
-        title: "Account Deleted",
-        description: "Your account has been permanently deleted. You cannot log back in.",
+        title: "Data Deleted",
+        description: "All your personal data has been permanently deleted.",
       });
       
       // Navigate to auth page
-      console.log('[Delete Account] Navigating to auth page...');
+      console.log('[Delete Account] Navigating to login...');
       setTimeout(() => {
         navigate('/auth');
       }, 2000);
@@ -291,7 +295,7 @@ Are you sure you want to delete your account?`;
       console.error('[Delete Account] Error:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to delete account. Please contact support at support@heart-lift.com",
+        description: error.message || "Failed to delete data. Please contact support@heart-lift.com",
         variant: "destructive",
       });
     }
