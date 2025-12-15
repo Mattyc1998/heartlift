@@ -514,6 +514,44 @@ export const SubscriptionManagement = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Account Deletion Section */}
+        <Card className="mb-6 border-red-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-600">
+              <X className="w-5 h-5" />
+              Delete Account
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <h4 className="font-medium text-red-800 mb-2">Permanent Account Deletion</h4>
+              <p className="text-sm text-red-700 mb-3">
+                Deleting your account will permanently remove:
+              </p>
+              <ul className="text-sm text-red-700 space-y-1 mb-3">
+                <li>• All conversations and chat history</li>
+                <li>• Journal entries and mood tracking data</li>
+                <li>• Your healing plan progress</li>
+                <li>• Account profile and settings</li>
+              </ul>
+              <p className="text-sm text-red-700 font-medium mb-2">
+                ⚠️ This action cannot be undone.
+              </p>
+              <p className="text-sm text-red-700">
+                <strong>Note:</strong> To cancel your Premium subscription, go to: iPhone Settings → [Your Name] → Subscriptions → HeartLift
+              </p>
+            </div>
+            <Button 
+              variant="destructive"
+              onClick={handleDeleteAccount}
+              className="w-full bg-red-600 hover:bg-red-700"
+            >
+              <X className="w-4 h-4 mr-2" />
+              Delete My Account
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
