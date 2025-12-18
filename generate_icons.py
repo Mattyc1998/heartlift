@@ -4,67 +4,40 @@ Generates 3 premium icon variations using OpenAI gpt-image-1
 """
 
 import os
-import requests
-import base64
-from datetime import datetime
+import asyncio
 
 # Set the Emergent LLM key
 os.environ["EMERGENT_LLM_KEY"] = "sk-emergent-a8bA8F422Bb2e71BcE"
 
 from emergentintegrations.llm.openai.image_generation import OpenAIImageGeneration
 
-def generate_icon(prompt: str, filename: str):
+async def generate_icon(prompt: str, filename: str):
     """Generate an icon using OpenAI image generation"""
     print(f"\n🎨 Generating: {filename}")
-    print(f"   Prompt: {prompt[:100]}...")
+    print(f"   Prompt preview: {prompt[:80].strip()}...")
     
     try:
         generator = OpenAIImageGeneration(
             api_key=os.environ["EMERGENT_LLM_KEY"]
         )
         
-        # Generate the image
-        result = generator.generate_image(
+        # Generate the image (async, returns List[bytes])
+        result = await generator.generate_images(
             prompt=prompt,
-            size="1024x1024",
-            quality="high"
+            model="gpt-image-1",
+            number_of_images=1,
+            quality="hd"  # High quality for app icon
         )
         
-        # Save the image
-        output_path = f"/app/app_icons/{filename}"
-        
-        if hasattr(result, 'url') and result.url:
-            # Download from URL
-            response = requests.get(result.url)
+        if result and len(result) > 0:
+            # Save the image bytes
+            output_path = f"/app/app_icons/{filename}"
             with open(output_path, 'wb') as f:
-                f.write(response.content)
+                f.write(result[0])
             print(f"   ✅ Saved to: {output_path}")
             return output_path
-        elif hasattr(result, 'b64_json') and result.b64_json:
-            # Decode base64
-            image_data = base64.b64decode(result.b64_json)
-            with open(output_path, 'wb') as f:
-                f.write(image_data)
-            print(f"   ✅ Saved to: {output_path}")
-            return output_path
-        elif isinstance(result, str):
-            # Result might be URL string
-            if result.startswith('http'):
-                response = requests.get(result)
-                with open(output_path, 'wb') as f:
-                    f.write(response.content)
-                print(f"   ✅ Saved to: {output_path}")
-                return output_path
-            else:
-                # Might be base64
-                image_data = base64.b64decode(result)
-                with open(output_path, 'wb') as f:
-                    f.write(image_data)
-                print(f"   ✅ Saved to: {output_path}")
-                return output_path
         else:
-            print(f"   ❌ Unexpected result type: {type(result)}")
-            print(f"   Result: {result}")
+            print(f"   ❌ No image data returned")
             return None
             
     except Exception as e:
@@ -73,79 +46,67 @@ def generate_icon(prompt: str, filename: str):
         traceback.print_exc()
         return None
 
-def main():
+async def main():
     print("=" * 60)
     print("🚀 HeartLift Premium App Icon Generator")
     print("=" * 60)
     
     # Base style requirements for all icons
-    base_style = """
-    App icon design, 1024x1024 pixels, iOS app icon format.
-    Single elegant heart shape, refined and premium looking.
-    NO text, NO words, NO letters, NO sparkles, NO stars.
-    Clean minimalist design. Matte finish look.
-    Smooth gradient. Professional quality.
-    The heart should be centered and fill most of the icon space.
-    Rounded corners (iOS app icon style with rounded square background).
-    """
+    base_style = """iOS app icon, 1024x1024 pixels, square with rounded corners.
+Single elegant heart shape centered in the icon.
+NO text, NO words, NO letters, NO sparkles, NO stars, NO extra decorations.
+Clean minimalist design. Matte finish. Smooth gradient. Professional premium quality.
+The heart should be beautifully refined, not clipart-style."""
     
     icons = [
         {
             "name": "heartlift_icon_A_calm_elegance.png",
-            "prompt": f"""
-            {base_style}
-            VARIATION A - CALM ELEGANCE:
-            A beautiful refined heart shape on a subtle gradient background.
-            Heart color: Soft pink (#FF6B9D) gradient to deep rose (#C9184A).
-            Background: Very subtle lighter pink to soft rose gradient.
-            The heart has a soft 3D depth effect with subtle shading.
-            Matte finish, calm and sophisticated like the Calm app icon.
-            Premium wellness app aesthetic. Elegant and refined.
-            """
+            "prompt": f"""{base_style}
+STYLE: Calm Elegance - Premium wellness app aesthetic like the Calm app.
+Heart with soft pink (#FF6B9D) to deep rose (#C9184A) gradient.
+Subtle gradient background in lighter pink tones.
+Soft 3D depth effect with gentle shading on the heart.
+Matte finish, calm, sophisticated, and refined."""
         },
         {
             "name": "heartlift_icon_B_warm_glow.png",
-            "prompt": f"""
-            {base_style}
-            VARIATION B - WARM GLOW:
-            A beautiful refined heart shape with warm tones.
-            Heart color: Pink (#FF6B9D) with hints of coral/peach warmth.
-            Gradient flowing from soft pink to deeper rose-coral.
-            Background: Soft warm gradient, very subtle.
-            The heart has gentle depth and a warm, inviting glow.
-            Clean and optimistic feel. Premium wellness aesthetic.
-            """
+            "prompt": f"""{base_style}
+STYLE: Warm Glow - Inviting and optimistic wellness feel.
+Heart with pink to warm coral-rose gradient tones.
+Soft warm gradient background.
+The heart has gentle depth and a warm, welcoming appearance.
+Clean, bright, and premium quality."""
         },
         {
             "name": "heartlift_icon_C_deep_rose.png", 
-            "prompt": f"""
-            {base_style}
-            VARIATION C - DEEP ROSE PREMIUM:
-            A beautiful refined heart shape, luxurious feel.
-            Heart color: Rich gradient from pink (#FF6B9D) to deep burgundy rose (#C9184A).
-            Background: Subtle gradient that complements the heart.
-            The heart has sophisticated depth, slightly more contrast.
-            Matte finish with premium, high-end wellness app look.
-            Like a luxury brand icon. Refined and elegant.
-            """
+            "prompt": f"""{base_style}
+STYLE: Deep Rose Premium - Luxurious and high-end feel.
+Heart with rich gradient from pink (#FF6B9D) to deep burgundy rose (#C9184A).
+Subtle complementary gradient background.
+More contrast and depth for a sophisticated, luxury brand look.
+Refined, elegant, premium matte finish."""
         }
     ]
     
     results = []
     for icon in icons:
-        result = generate_icon(icon["prompt"], icon["name"])
+        result = await generate_icon(icon["prompt"], icon["name"])
         results.append({"name": icon["name"], "path": result})
     
     print("\n" + "=" * 60)
     print("📋 GENERATION SUMMARY")
     print("=" * 60)
     
+    success_count = 0
     for r in results:
         status = "✅ SUCCESS" if r["path"] else "❌ FAILED"
+        if r["path"]:
+            success_count += 1
         print(f"   {status}: {r['name']}")
     
+    print(f"\n   Generated: {success_count}/3 icons")
     print("\n📁 Icons saved to: /app/app_icons/")
     print("=" * 60)
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
