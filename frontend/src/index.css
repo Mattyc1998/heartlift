@@ -8,6 +8,49 @@ html {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* Mobile keyboard-aware viewport handling */
+html, body {
+  /* Use dvh (dynamic viewport height) which accounts for mobile browser chrome and keyboard */
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Prevent iOS bounce/overscroll */
+body {
+  position: fixed;
+  width: 100%;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Allow scrolling within the app container */
+#root {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Chat-specific scroll behavior */
+.chat-scroll-container {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Prevent input zoom on iOS (font-size must be 16px+) */
+@supports (-webkit-touch-callout: none) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
+/* Smooth scroll for chat messages */
+[data-radix-scroll-area-viewport] {
+  scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
