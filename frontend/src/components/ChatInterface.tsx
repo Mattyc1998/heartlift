@@ -727,24 +727,12 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
                   }
                 }}
                 onFocus={() => {
-                  // On mobile, prevent aggressive scrolling when keyboard appears
-                  // Use a small delay to let the keyboard appear first
+                  // Simple scroll to keep input visible without scrolling past content
                   setTimeout(() => {
-                    // Scroll the input into view gently, keeping messages visible
                     if (inputRef.current) {
                       inputRef.current.scrollIntoView({
                         behavior: 'smooth',
-                        block: 'nearest',
-                        inline: 'nearest'
-                      });
-                    }
-                    
-                    // Also ensure the latest messages are visible in the chat area
-                    const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]');
-                    if (scrollContainer) {
-                      scrollContainer.scrollTo({
-                        top: scrollContainer.scrollHeight,
-                        behavior: 'smooth'
+                        block: 'end'
                       });
                     }
                   }, 300);
