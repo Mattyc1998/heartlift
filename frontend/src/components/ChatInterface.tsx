@@ -592,7 +592,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
         isPremium={isPremium}
       />
 
-      <Card ref={chatCardRef} className="h-[600px] sm:h-[600px] max-h-[800px] flex flex-col shadow-gentle overflow-hidden">
+      <Card ref={chatCardRef} className="h-[calc(100svh-280px)] sm:h-[600px] min-h-[400px] max-h-[700px] flex flex-col shadow-gentle overflow-hidden">
         <CardHeader className="pb-3 flex-shrink-0">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
