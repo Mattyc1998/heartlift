@@ -50,40 +50,6 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
 
-  // Handle mobile keyboard visibility using visualViewport API
-  useEffect(() => {
-    const handleViewportResize = () => {
-      // When keyboard appears, visualViewport height decreases
-      if (window.visualViewport && chatCardRef.current) {
-        const viewportHeight = window.visualViewport.height;
-        const windowHeight = window.innerHeight;
-        const keyboardHeight = windowHeight - viewportHeight;
-        
-        // If keyboard is open (significant height difference)
-        if (keyboardHeight > 100) {
-          // Scroll chat messages to bottom when keyboard opens
-          const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]');
-          if (scrollContainer) {
-            setTimeout(() => {
-              scrollContainer.scrollTo({
-                top: scrollContainer.scrollHeight,
-                behavior: 'smooth'
-              });
-            }, 100);
-          }
-        }
-      }
-    };
-
-    // Add visualViewport listener if available
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleViewportResize);
-      return () => {
-        window.visualViewport?.removeEventListener('resize', handleViewportResize);
-      };
-    }
-  }, []);
-
   // Auto-scroll chat messages DOWN when new messages arrive
   useEffect(() => {
     if (messages.length > prevMessageCountRef.current) {
