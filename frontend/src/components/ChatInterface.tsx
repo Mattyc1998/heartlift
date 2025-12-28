@@ -727,19 +727,27 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
                   }
                 }}
                 onFocus={() => {
-                  // On mobile, keep chat card visible when keyboard appears
-                  requestAnimationFrame(() => {
-                    if (chatCardRef.current) {
-                      const headerOffset = 60; // Account for header
-                      const elementPosition = chatCardRef.current.getBoundingClientRect().top;
-                      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                      
-                      window.scrollTo({
-                        top: offsetPosition,
+                  // On mobile, prevent aggressive scrolling when keyboard appears
+                  // Use a small delay to let the keyboard appear first
+                  setTimeout(() => {
+                    // Scroll the input into view gently, keeping messages visible
+                    if (inputRef.current) {
+                      inputRef.current.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest',
+                        inline: 'nearest'
+                      });
+                    }
+                    
+                    // Also ensure the latest messages are visible in the chat area
+                    const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]');
+                    if (scrollContainer) {
+                      scrollContainer.scrollTo({
+                        top: scrollContainer.scrollHeight,
                         behavior: 'smooth'
                       });
                     }
-                  });
+                  }, 300);
                 }}
                 className="flex-1 text-base sm:text-base py-3 px-4 sm:py-3 sm:px-4 min-h-[44px] sm:min-h-[44px]"
                 disabled={(!canSendMessage && !isPremium) || isTyping}
