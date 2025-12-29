@@ -727,11 +727,14 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
                   }
                 }}
                 onFocus={() => {
-                  // Scroll chat card into view when keyboard appears
-                  scrollInputIntoView();
-                  // Follow-up for iOS cold start
-                  setTimeout(scrollInputIntoView, 150);
-                  setTimeout(scrollInputIntoView, 300);
+                  // Simple scroll - no debounce, no state, just scroll every time
+                  const doScroll = () => {
+                    inputRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
+                  };
+                  doScroll();
+                  setTimeout(doScroll, 100);
+                  setTimeout(doScroll, 200);
+                  setTimeout(doScroll, 350);
                 }}
                 className="flex-1 text-base sm:text-base py-3 px-4 sm:py-3 sm:px-4 min-h-[44px] sm:min-h-[44px]"
                 disabled={(!canSendMessage && !isPremium) || isTyping}
