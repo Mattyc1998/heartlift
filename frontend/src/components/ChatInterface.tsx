@@ -12,7 +12,6 @@ import { UsageCounter } from "./UsageCounter";
 import { WelcomeToPremiumModal } from "./WelcomeToPremiumModal";
 import { PremiumBadge } from "./PremiumBadge";
 import { DailyReflection } from "./DailyReflection";
-import { Keyboard } from '@capacitor/keyboard';
 
 interface Message {
   id: string;
