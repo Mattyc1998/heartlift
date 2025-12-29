@@ -49,6 +49,33 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
 
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
+  
+  // Track if we just scrolled to prevent double-scroll
+  const lastScrollTime = useRef(0);
+
+  // Handle iOS keyboard - fires when keyboard actually appears
+  useEffect(() => {
+    const handleViewportResize = () => {
+      // Debounce: skip if we scrolled in last 300ms
+      const now = Date.now();
+      if (now - lastScrollTime.current < 300) return;
+      
+      if (window.visualViewport && inputRef.current && document.activeElement === inputRef.current) {
+        lastScrollTime.current = now;
+        inputRef.current.scrollIntoView({
+          behavior: 'auto',
+          block: 'end'
+        });
+      }
+    };
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportResize);
+      return () => {
+        window.visualViewport?.removeEventListener('resize', handleViewportResize);
+      };
+    }
+  }, []);
 
   // Auto-scroll chat messages DOWN when new messages arrive
   useEffect(() => {
