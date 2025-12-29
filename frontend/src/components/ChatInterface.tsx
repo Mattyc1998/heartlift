@@ -50,27 +50,6 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
 
-  // Handle iOS keyboard using visualViewport API (works without native plugin)
-  useEffect(() => {
-    const handleViewportResize = () => {
-      // When keyboard shows, visualViewport height shrinks
-      if (window.visualViewport && inputRef.current && document.activeElement === inputRef.current) {
-        // Instant scroll when keyboard appears
-        inputRef.current.scrollIntoView({
-          behavior: 'auto',
-          block: 'end'
-        });
-      }
-    };
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleViewportResize);
-      return () => {
-        window.visualViewport?.removeEventListener('resize', handleViewportResize);
-      };
-    }
-  }, []);
-
   // Auto-scroll chat messages DOWN when new messages arrive
   useEffect(() => {
     if (messages.length > prevMessageCountRef.current) {
