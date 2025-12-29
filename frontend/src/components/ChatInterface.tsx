@@ -54,16 +54,12 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   useEffect(() => {
     const handleViewportResize = () => {
       // When keyboard shows, visualViewport height shrinks
-      if (window.visualViewport && inputRef.current) {
-        // Scroll input into view when keyboard appears
-        setTimeout(() => {
-          if (inputRef.current && document.activeElement === inputRef.current) {
-            inputRef.current.scrollIntoView({
-              behavior: 'smooth',
-              block: 'end'
-            });
-          }
-        }, 50);
+      if (window.visualViewport && inputRef.current && document.activeElement === inputRef.current) {
+        // Instant scroll when keyboard appears
+        inputRef.current.scrollIntoView({
+          behavior: 'auto',
+          block: 'end'
+        });
       }
     };
 
