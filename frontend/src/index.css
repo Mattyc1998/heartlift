@@ -13,9 +13,8 @@ body {
   overscroll-behavior: none;
 }
 
-/* Smooth scroll for chat messages */
+/* Smooth scroll for chat messages - but not for keyboard scroll */
 [data-radix-scroll-area-viewport] {
-  scroll-behavior: smooth;
   overscroll-behavior-y: contain;
 }
 
