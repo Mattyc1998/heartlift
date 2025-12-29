@@ -727,15 +727,26 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
                   }
                 }}
                 onFocus={() => {
-                  // Simple scroll to keep input visible without scrolling past content
-                  setTimeout(() => {
+                  // Handle keyboard appearance - especially first time after app launch
+                  // iOS keyboard takes longer to appear on first focus (cold start)
+                  const scrollToInput = () => {
                     if (inputRef.current) {
                       inputRef.current.scrollIntoView({
                         behavior: 'smooth',
                         block: 'end'
                       });
                     }
-                  }, 300);
+                  };
+                  
+                  // Multiple scroll attempts to handle iOS first-focus delay
+                  // First attempt: immediate for subsequent focuses
+                  scrollToInput();
+                  // Second attempt: after keyboard starts appearing
+                  setTimeout(scrollToInput, 150);
+                  // Third attempt: after keyboard fully appears (first-time focus)
+                  setTimeout(scrollToInput, 400);
+                  // Fourth attempt: safety net for slow devices
+                  setTimeout(scrollToInput, 600);
                 }}
                 className="flex-1 text-base sm:text-base py-3 px-4 sm:py-3 sm:px-4 min-h-[44px] sm:min-h-[44px]"
                 disabled={(!canSendMessage && !isPremium) || isTyping}
