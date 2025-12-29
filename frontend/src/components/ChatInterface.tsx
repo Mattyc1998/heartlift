@@ -754,11 +754,15 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
                   }
                 }}
                 onFocus={() => {
-                  // Handle keyboard appearance - fast scroll, works on first focus
+                  // Handle keyboard appearance - fast scroll with debounce
                   const scrollToInput = () => {
+                    const now = Date.now();
+                    if (now - lastScrollTime.current < 300) return; // Skip if recent scroll
+                    
                     if (inputRef.current) {
+                      lastScrollTime.current = now;
                       inputRef.current.scrollIntoView({
-                        behavior: 'auto', // Instant, not smooth
+                        behavior: 'auto',
                         block: 'end'
                       });
                     }
@@ -766,10 +770,8 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
                   
                   // Immediate attempt
                   scrollToInput();
-                  // Quick follow-up for first-time keyboard (iOS cold start)
-                  setTimeout(scrollToInput, 100);
-                  // Final attempt for slow first-focus
-                  setTimeout(scrollToInput, 250);
+                  // Follow-up for first-time keyboard (iOS cold start)
+                  setTimeout(scrollToInput, 150);
                 }}
                 className="flex-1 text-base sm:text-base py-3 px-4 sm:py-3 sm:px-4 min-h-[44px] sm:min-h-[44px]"
                 disabled={(!canSendMessage && !isPremium) || isTyping}
