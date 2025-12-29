@@ -752,26 +752,22 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
                   }
                 }}
                 onFocus={() => {
-                  // Handle keyboard appearance - especially first time after app launch
-                  // iOS keyboard takes longer to appear on first focus (cold start)
+                  // Handle keyboard appearance - fast scroll, works on first focus
                   const scrollToInput = () => {
                     if (inputRef.current) {
                       inputRef.current.scrollIntoView({
-                        behavior: 'smooth',
+                        behavior: 'auto', // Instant, not smooth
                         block: 'end'
                       });
                     }
                   };
                   
-                  // Multiple scroll attempts to handle iOS first-focus delay
-                  // First attempt: immediate for subsequent focuses
+                  // Immediate attempt
                   scrollToInput();
-                  // Second attempt: after keyboard starts appearing
-                  setTimeout(scrollToInput, 150);
-                  // Third attempt: after keyboard fully appears (first-time focus)
-                  setTimeout(scrollToInput, 400);
-                  // Fourth attempt: safety net for slow devices
-                  setTimeout(scrollToInput, 600);
+                  // Quick follow-up for first-time keyboard (iOS cold start)
+                  setTimeout(scrollToInput, 100);
+                  // Final attempt for slow first-focus
+                  setTimeout(scrollToInput, 250);
                 }}
                 className="flex-1 text-base sm:text-base py-3 px-4 sm:py-3 sm:px-4 min-h-[44px] sm:min-h-[44px]"
                 disabled={(!canSendMessage && !isPremium) || isTyping}
