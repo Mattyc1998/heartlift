@@ -50,20 +50,6 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
 
-  // Simple keyboard scroll - scroll window to show input
-  const scrollInputIntoView = () => {
-    if (chatCardRef.current) {
-      // Get position of chat card and scroll window to show it
-      const rect = chatCardRef.current.getBoundingClientRect();
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      // Scroll to position chat card near top with some padding
-      window.scrollTo({
-        top: scrollTop + rect.top - 60,
-        behavior: 'auto'
-      });
-    }
-  };
-
   // Auto-scroll chat messages DOWN when new messages arrive
   useEffect(() => {
     if (messages.length > prevMessageCountRef.current) {
