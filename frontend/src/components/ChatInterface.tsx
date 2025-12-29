@@ -50,38 +50,29 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
 
-  // Capacitor Keyboard handling for iOS
+  // Handle iOS keyboard using visualViewport API (works without native plugin)
   useEffect(() => {
-    const setupKeyboardListeners = async () => {
-      try {
-        // When keyboard shows, scroll input into view
-        await Keyboard.addListener('keyboardWillShow', () => {
-          setTimeout(() => {
-            if (inputRef.current) {
-              inputRef.current.scrollIntoView({
-                behavior: 'smooth',
-                block: 'end'
-              });
-            }
-          }, 50);
-        });
-
-        // Optional: handle keyboard hide if needed
-        await Keyboard.addListener('keyboardDidHide', () => {
-          // Keyboard hidden - no action needed
-        });
-      } catch (error) {
-        // Keyboard plugin not available (web browser)
-        console.log('Capacitor Keyboard not available (running in browser)');
+    const handleViewportResize = () => {
+      // When keyboard shows, visualViewport height shrinks
+      if (window.visualViewport && inputRef.current) {
+        // Scroll input into view when keyboard appears
+        setTimeout(() => {
+          if (inputRef.current && document.activeElement === inputRef.current) {
+            inputRef.current.scrollIntoView({
+              behavior: 'smooth',
+              block: 'end'
+            });
+          }
+        }, 50);
       }
     };
 
-    setupKeyboardListeners();
-
-    return () => {
-      // Cleanup listeners
-      Keyboard.removeAllListeners().catch(() => {});
-    };
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportResize);
+      return () => {
+        window.visualViewport?.removeEventListener('resize', handleViewportResize);
+      };
+    }
   }, []);
 
   // Auto-scroll chat messages DOWN when new messages arrive
