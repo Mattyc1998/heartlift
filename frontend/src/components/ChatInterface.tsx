@@ -726,15 +726,22 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
                     sendMessage();
                   }
                 }}
-                onFocus={() => {
-                  // Simple scroll - no debounce, no state, just scroll every time
+                onFocus={(e) => {
+                  // Prevent iOS default scroll behavior
+                  e.preventDefault();
+                  
+                  // Consistent scroll - center the input in view
                   const doScroll = () => {
-                    inputRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
+                    inputRef.current?.scrollIntoView({ 
+                      behavior: 'auto', 
+                      block: 'center'  // Center instead of end for consistency
+                    });
                   };
-                  doScroll();
-                  setTimeout(doScroll, 100);
-                  setTimeout(doScroll, 200);
-                  setTimeout(doScroll, 350);
+                  
+                  // Multiple attempts for iOS cold start
+                  setTimeout(doScroll, 50);
+                  setTimeout(doScroll, 150);
+                  setTimeout(doScroll, 300);
                 }}
                 className="flex-1 text-base sm:text-base py-3 px-4 sm:py-3 sm:px-4 min-h-[44px] sm:min-h-[44px]"
                 disabled={(!canSendMessage && !isPremium) || isTyping}
