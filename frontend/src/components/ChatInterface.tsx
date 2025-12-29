@@ -51,6 +51,40 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
 
+  // Capacitor Keyboard handling for iOS
+  useEffect(() => {
+    const setupKeyboardListeners = async () => {
+      try {
+        // When keyboard shows, scroll input into view
+        await Keyboard.addListener('keyboardWillShow', () => {
+          setTimeout(() => {
+            if (inputRef.current) {
+              inputRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'end'
+              });
+            }
+          }, 50);
+        });
+
+        // Optional: handle keyboard hide if needed
+        await Keyboard.addListener('keyboardDidHide', () => {
+          // Keyboard hidden - no action needed
+        });
+      } catch (error) {
+        // Keyboard plugin not available (web browser)
+        console.log('Capacitor Keyboard not available (running in browser)');
+      }
+    };
+
+    setupKeyboardListeners();
+
+    return () => {
+      // Cleanup listeners
+      Keyboard.removeAllListeners().catch(() => {});
+    };
+  }, []);
+
   // Auto-scroll chat messages DOWN when new messages arrive
   useEffect(() => {
     if (messages.length > prevMessageCountRef.current) {
