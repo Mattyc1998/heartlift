@@ -50,6 +50,28 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const { user, isPremium, checkSubscription } = useAuth();
   const { toast } = useToast();
 
+  // Detect when keyboard actually appears (viewport shrinks) and scroll then
+  useEffect(() => {
+    let lastHeight = window.visualViewport?.height || window.innerHeight;
+    
+    const handleResize = () => {
+      if (!window.visualViewport) return;
+      
+      const currentHeight = window.visualViewport.height;
+      const heightDiff = lastHeight - currentHeight;
+      
+      // Keyboard appeared (viewport shrunk by more than 100px)
+      if (heightDiff > 100 && inputRef.current && document.activeElement === inputRef.current) {
+        inputRef.current.scrollIntoView({ behavior: 'auto', block: 'end' });
+      }
+      
+      lastHeight = currentHeight;
+    };
+
+    window.visualViewport?.addEventListener('resize', handleResize);
+    return () => window.visualViewport?.removeEventListener('resize', handleResize);
+  }, []);
+
   // Auto-scroll chat messages DOWN when new messages arrive
   useEffect(() => {
     if (messages.length > prevMessageCountRef.current) {
