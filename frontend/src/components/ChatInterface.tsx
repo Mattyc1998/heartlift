@@ -402,7 +402,7 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
         body: JSON.stringify({
           message: inputMessage,
           coach_id: coachPersonality,
-          conversation_history: messages.slice(-5).map(msg => ({
+          conversation_history: messages.slice(-20).map(msg => ({
             content: msg.content,
             sender: msg.sender
           })),
