@@ -435,8 +435,8 @@ Coach: "Hey! I'm good, how are you feeling today?"
                 system_message=system_message
             ).with_model("openai", "gpt-4o-mini")
             
-            # Add conversation history context (last 5 messages for efficiency)
-            context_messages = conversation_history[-5:] if len(conversation_history) > 5 else conversation_history
+            # Add conversation history context (last 20 messages for full context)
+            context_messages = conversation_history[-20:] if len(conversation_history) > 20 else conversation_history
             
             # Build the full message with context
             if context_messages:
