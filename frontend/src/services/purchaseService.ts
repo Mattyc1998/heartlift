@@ -422,6 +422,12 @@ class PurchaseService {
       // Sync restored purchases to Supabase
       if (hasPremium || hasHealingKit) {
         await this.syncToSupabase(hasPremium, hasHealingKit);
+        
+        // CRITICAL: Dispatch event to unlock UI
+        console.log('🔔 [RESTORE] Dispatching ownership event to unlock UI');
+        window.dispatchEvent(new CustomEvent('purchaseOwnershipDetected', {
+          detail: { isPremium: hasPremium, hasHealingKit: hasHealingKit }
+        }));
       }
 
       return { hasPremium, hasHealingKit, platform: 'apple' };
@@ -443,6 +449,14 @@ class PurchaseService {
         const hasHealingKit = kitResult.data?.status === 'completed';
 
         console.log('✅ Purchases restored from Supabase fallback:', { hasPremium, hasHealingKit });
+        
+        // Dispatch event for fallback too
+        if (hasPremium || hasHealingKit) {
+          window.dispatchEvent(new CustomEvent('purchaseOwnershipDetected', {
+            detail: { isPremium: hasPremium, hasHealingKit: hasHealingKit }
+          }));
+        }
+        
         return { hasPremium, hasHealingKit, platform: 'supabase' };
       } catch (fallbackError) {
         console.error('❌ Fallback also failed:', fallbackError);
