@@ -436,6 +436,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Single subscription check when user is detected
     checkSubscription();
+    
+    // CRITICAL: Also trigger Apple restore purchases to sync with App Store
+    // This ensures subscriptions are detected even after sign-out/sign-in
+    const triggerAppleRestore = async () => {
+      try {
+        console.log('[AuthContext] 🍎 Triggering Apple restore purchases...');
+        const result = await purchaseService.restorePurchases();
+        console.log('[AuthContext] 🍎 Apple restore result:', result);
+        
+        // If Apple found purchases, update our state
+        if (result.hasPremium) {
+          console.log('[AuthContext] 🍎 Premium detected from Apple, unlocking...');
+          unlockPremium();
+        }
+        if (result.hasHealingKit) {
+          console.log('[AuthContext] 🍎 Healing Kit detected from Apple, unlocking...');
+          unlockHealingKit();
+        }
+      } catch (error) {
+        console.warn('[AuthContext] 🍎 Apple restore failed (may be on web):', error);
+      }
+    };
+    
+    // Delay Apple restore to ensure store is initialized
+    setTimeout(triggerAppleRestore, 2000);
   }, [user]);
 
   const signIn = async (email: string, password: string) => {
