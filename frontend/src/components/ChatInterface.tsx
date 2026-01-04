@@ -463,9 +463,13 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
 
           if (usageResponse.ok) {
             const usageData = await usageResponse.json();
+            const remaining = usageData.remaining_messages;
             setUsageCount(usageData.message_count);
-            setRemainingMessages(usageData.remaining_messages);
+            setRemainingMessages(remaining);
             setCanSendMessage(usageData.can_send_message);
+            
+            // Cache the remaining messages
+            localStorage.setItem('remainingMessages', remaining.toString());
             
             if (!usageData.can_send_message) {
               setUpgradeModalTrigger("usage_limit");
