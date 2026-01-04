@@ -545,6 +545,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       localStorage.removeItem('isPremium');
       localStorage.removeItem('hasHealingKit');
       localStorage.removeItem('subscriptionStatus');
+      localStorage.removeItem('remainingMessages');
       
       // Clear all conversations if user exists
       if (user) {
