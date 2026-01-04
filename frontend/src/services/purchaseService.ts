@@ -252,33 +252,54 @@ class PurchaseService {
       }
 
       // CRITICAL: Restore purchases to sync with Apple's receipt
-      // This loads existing purchases that were made previously
+      // Production may take longer than sandbox/TestFlight
       console.log('🔄 [STATUS] Restoring purchases from Apple receipt...');
-      try {
-        await this.store.restorePurchases();
-        console.log('✅ [STATUS] Purchases restored from receipt');
+      
+      let restoreAttempts = 0;
+      const maxAttempts = 3;
+      let isPremium = false;
+      let hasHealingKit = false;
+      
+      while (restoreAttempts < maxAttempts) {
+        restoreAttempts++;
+        console.log(`🔄 [STATUS] Restore attempt ${restoreAttempts}/${maxAttempts}...`);
         
-        // Wait 500ms for store to update ownership status
-        await new Promise(resolve => setTimeout(resolve, 500));
-      } catch (restoreError) {
-        console.warn('⚠️ [STATUS] Restore failed, checking anyway:', restoreError);
+        try {
+          await this.store.restorePurchases();
+          console.log('✅ [STATUS] Purchases restored from receipt');
+          
+          // Wait longer for production (1.5 seconds per attempt)
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // Get products from store
+          const premiumProduct = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
+          const healingKitProduct = this.store.get(PRODUCT_IDS.HEALING_KIT);
+
+          console.log('📦 [STATUS] Premium product:', JSON.stringify(premiumProduct));
+          console.log('📦 [STATUS] Healing Kit product:', JSON.stringify(healingKitProduct));
+
+          // Check if user owns them
+          isPremium = premiumProduct && premiumProduct.owned ? true : false;
+          hasHealingKit = healingKitProduct && healingKitProduct.owned ? true : false;
+
+          console.log('📊 [STATUS] Current ownership:', { isPremium, hasHealingKit });
+          
+          // If we found purchases, stop retrying
+          if (isPremium || hasHealingKit) {
+            console.log('✅ [STATUS] Found purchases, stopping retries');
+            break;
+          }
+        } catch (restoreError) {
+          console.warn(`⚠️ [STATUS] Restore attempt ${restoreAttempts} failed:`, restoreError);
+        }
+        
+        // Wait before next attempt
+        if (restoreAttempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       }
 
-      // Get products from store
-      const premiumProduct = this.store.get(PRODUCT_IDS.PREMIUM_MONTHLY);
-      const healingKitProduct = this.store.get(PRODUCT_IDS.HEALING_KIT);
-
-      console.log('📦 [STATUS] Premium product:', premiumProduct);
-      console.log('📦 [STATUS] Healing Kit product:', healingKitProduct);
-
-      // Check if user owns them
-      const isPremium = premiumProduct && premiumProduct.owned ? true : false;
-      const hasHealingKit = healingKitProduct && healingKitProduct.owned ? true : false;
-
-      console.log('📊 [STATUS] Current ownership:', { isPremium, hasHealingKit });
-
       // Sync to Supabase - this updates the database with current status
-      // If user cancelled subscription, owned will be false and we'll lock features
       await this.syncToSupabase(isPremium, hasHealingKit);
       console.log('✅ [STATUS] Status synced to Supabase');
 
