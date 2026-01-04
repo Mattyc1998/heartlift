@@ -34,7 +34,14 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [usageCount, setUsageCount] = useState(0);
-  const [remainingMessages, setRemainingMessages] = useState(10);
+  const [remainingMessages, setRemainingMessages] = useState(() => {
+    // Load cached value to prevent flashing "10" when switching coaches
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem('remainingMessages');
+      return cached ? parseInt(cached, 10) : 10;
+    }
+    return 10;
+  });
   const [canSendMessage, setCanSendMessage] = useState(true);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
