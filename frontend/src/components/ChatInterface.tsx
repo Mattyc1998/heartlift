@@ -361,12 +361,15 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
       if (response.ok) {
         const usageData = await response.json();
         const remaining = usageData.remaining_messages || 10;
+        const canSend = usageData.can_send_message || false;
+        
         setUsageCount(usageData.message_count || 0);
         setRemainingMessages(remaining);
-        setCanSendMessage(usageData.can_send_message || false);
+        setCanSendMessage(canSend);
         
-        // Cache the remaining messages to prevent display flash when switching coaches
+        // Cache values to prevent display flash when switching coaches
         localStorage.setItem('remainingMessages', remaining.toString());
+        localStorage.setItem('canSendMessage', canSend.toString());
       }
     } catch (error) {
       console.error("Error loading usage count:", error);
