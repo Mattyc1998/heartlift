@@ -42,7 +42,14 @@ export const ChatInterface = ({ coachName, coachPersonality, coachGreetings, coa
     }
     return 10;
   });
-  const [canSendMessage, setCanSendMessage] = useState(true);
+  const [canSendMessage, setCanSendMessage] = useState(() => {
+    // Load cached value - default to false to be safe (will be updated by API)
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem('canSendMessage');
+      return cached === 'true';
+    }
+    return true;
+  });
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [upgradeModalTrigger, setUpgradeModalTrigger] = useState<"usage_limit" | "premium_teaser">("usage_limit");
