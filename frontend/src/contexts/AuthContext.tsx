@@ -49,15 +49,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Initialize with cached values for immediate loading
   const [isPremium, setIsPremium] = useState(() => {
     const cached = localStorage.getItem('isPremium');
-    return cached ? JSON.parse(cached) : false;
+    return cached === 'true';
   });
   const [hasHealingKit, setHasHealingKit] = useState(() => {
     const cached = localStorage.getItem('hasHealingKit');
-    return cached ? JSON.parse(cached) : false;
+    return cached === 'true';
   });
   const [subscriptionStatus, setSubscriptionStatus] = useState<'free' | 'premium'>(() => {
     const cached = localStorage.getItem('subscriptionStatus');
-    return cached ? JSON.parse(cached) : 'free';
+    return cached === 'premium' ? 'premium' : 'free';
   });
 
   /**
