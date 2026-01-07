@@ -516,65 +516,99 @@ Coach: "Hey! I'm good, how are you feeling today?"
             # Generate new questions
             logger.info(f"Generating new quiz questions for {today}")
             
-            system_message = """You are an expert psychologist creating FRESH daily attachment style quiz questions for ages 13+.
+            # Use day of year to create variety in themes
+            day_of_year = today.timetuple().tm_yday
+            theme_rotation = day_of_year % 7
+            
+            theme_focuses = [
+                "family dynamics, parent-child relationships, and sibling bonds",
+                "friendships, social groups, and peer connections", 
+                "emotional awareness, self-reflection, and inner feelings",
+                "communication styles, expressing needs, and listening to others",
+                "trust, vulnerability, and opening up to people",
+                "independence, personal space, and alone time preferences",
+                "conflict resolution, disagreements, and making peace"
+            ]
+            
+            today_theme = theme_focuses[theme_rotation]
+            
+            system_message = f"""You are a creative psychologist designing an engaging daily attachment style quiz for ages 13+.
 
-**AGE APPROPRIATENESS (13+) - STRICT REQUIREMENTS:**
+TODAY'S SPECIAL THEME: {today_theme}
+Focus 60% of questions on this theme, 40% on other life areas for variety.
+
+**VARIETY IS KEY - AVOID REPETITION:**
+- Use DIFFERENT question formats: "When...", "How do you feel when...", "If...", "Imagine...", "Your friend...", "After...", "During..."
+- Include DIFFERENT scenarios: home, school/work, social events, holidays, travel, hobbies, texting/messaging, group projects, parties, sports, creative activities
+- Mix emotional scales: sometimes, usually, always, rarely, depends on...
+- Vary perspective: first-person feelings, reactions to others, hypothetical situations
+
+**CREATIVE SCENARIO IDEAS:**
+- Group chat dynamics and texting habits
+- Study groups or project teams
+- Weekend plans with friends
+- Family vacations or road trips  
+- Meeting new people at events
+- Supporting someone going through hard times
+- Sharing good news or achievements
+- Handling misunderstandings
+- Birthday parties and celebrations
+- Quiet nights at home vs social outings
+- Making decisions in groups
+- Dealing with changes (new school, moving, etc.)
+
+**AGE APPROPRIATENESS (13+) - STRICT:**
 - NO sexual content or romantic/dating scenarios
-- Focus on: FAMILY relationships, FRIENDSHIPS, school/work, life situations, emotional responses
-- Use relatable scenarios for teenagers and adults
-- Topics: communication with parents/siblings, friendships, trust, independence, emotions, conflict resolution, support
-
-**CONTENT FOCUS:**
-Generate questions about:
-1. Family dynamics (parents, siblings, relatives)
-2. Friendships and social connections
-3. Emotional expression and regulation
-4. Communication styles
-5. Trust and independence
-6. Handling conflicts
-7. Seeking and giving support
-8. Life challenges and decision-making
+- Focus on: family, friendships, school/work, hobbies, emotions
+- Relatable for teenagers AND adults
 
 **FORMAT RULES:**
 1. Return ONLY valid JSON array - no markdown, no explanations
-2. EACH question must have 4 UNIQUE answer options specific to that question
-3. Answer options describe actual behaviors/feelings (NOT labels like "Secure" or "Anxious")
-4. Make options sound natural and realistic
-5. DO NOT reuse the same options across questions
+2. Each question MUST have exactly 4 UNIQUE answer options
+3. Options describe actual behaviors/feelings (NOT attachment labels)
+4. Make options feel natural and conversational
+5. Each question should feel fresh and different from the others
 
-**GOOD Example:**
+**GOOD Examples:**
 [
-  {"question":"When your parent asks about your day, you usually:","options":["Share openly about what happened","Give short answers and keep things private","Tell them everything and ask what they think","Share some things but leave out details"]},
-  {"question":"If a friend cancels plans last minute, you:","options":["Understand they have their reasons and reschedule","Feel hurt and wonder if they still like you","Feel relieved to have free time","Get upset but don't say anything"]}
+  {{"question":"Your family is planning a vacation. You're most likely to:","options":["Suggest activities everyone can enjoy together","Go along with whatever others decide","Research every detail and share your findings obsessively","Say you're fine with anything but secretly hope for alone time"]}},
+  {{"question":"A friend shares exciting news in the group chat. Your first instinct is to:","options":["Send enthusiastic messages and lots of emojis","Like the message but not add much","Call them immediately to hear all the details","Feel genuinely happy but forget to respond right away"]}},
+  {{"question":"During a group project, someone isn't pulling their weight. You typically:","options":["Talk to them privately to understand what's going on","Take over their tasks without saying anything","Vent to other group members about it","Let the teacher/boss handle it"]}},
+  {{"question":"When you're having a really bad day, you usually:","options":["Reach out to someone you trust to talk about it","Keep it to yourself until you feel better","Post vaguely on social media hoping someone notices","Throw yourself into an activity to distract yourself"]}},
+  {{"question":"At a party where you only know one person, you tend to:","options":["Stick close to your friend most of the night","Wander off and try to meet new people","Feel anxious and count down until you can leave","Become the life of the party once you warm up"]}},
+  {{"question":"Your sibling/roommate borrows something without asking. You:","options":["Calmly tell them it bothered you","Let it go but feel resentful inside","Make a joke about it to avoid confrontation","Set a firm boundary going forward"]}},
+  {{"question":"When making weekend plans, you prefer to:","options":["Have everything scheduled in advance","Keep it flexible and see what happens","Wait for others to invite you to things","Plan solo activities but stay open to joining others"]}},
+  {{"question":"If a close friend seems distant lately, you would:","options":["Ask them directly if something is wrong","Give them space and wait for them to come to you","Overthink whether you did something wrong","Assume they're just busy and not take it personally"]}}
 ]
 
-**BAD Example (generic/repeated options):**
-[
-  {"question":"How do you feel...","options":["Secure","Anxious","Avoidant","Mixed"]},
-  {"question":"When someone...","options":["Secure","Anxious","Avoidant","Mixed"]}
-]
-
-Generate FRESH, VARIED questions that feel natural for everyday life situations."""
+Generate {num_questions} HIGHLY VARIED, CREATIVE questions. Make each one feel unique and engaging!"""
             
             chat = LlmChat(
                 api_key=self.api_key,
-                session_id=f"quiz-{today.strftime('%Y%m%d')}",
+                session_id=f"quiz-{today.strftime('%Y%m%d')}-v2",
                 system_message=system_message
-            ).with_model("openai", "gpt-4o-mini")
+            ).with_model("openai", "gpt-4o")  # Upgraded to GPT-4o for better variety
             
-            prompt = f"Generate {num_questions} FRESH daily quiz questions about family, friendships, and life situations (ages 13+). Each question MUST have 4 UNIQUE answer options. Return ONLY the JSON array, no markdown."
+            prompt = f"""Generate {num_questions} FRESH, CREATIVE quiz questions.
+
+Remember:
+- Today's theme focus: {today_theme}
+- Use different question formats and scenarios
+- Each question should feel unique
+- 4 distinct answer options per question
+- Return ONLY the JSON array"""
             
             user_msg = UserMessage(text=prompt)
             
-            # Increased timeout to 15 seconds for better reliability
+            # Increased timeout to 20 seconds for GPT-4o
             import asyncio
             try:
                 response = await asyncio.wait_for(
                     chat.send_message(user_msg),
-                    timeout=15.0
+                    timeout=20.0
                 )
             except asyncio.TimeoutError:
-                logger.warning("Quiz generation timed out after 15s, using fallback")
+                logger.warning("Quiz generation timed out after 20s, using fallback")
                 return self._get_fallback_questions()
             
             # Parse JSON response
