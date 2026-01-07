@@ -268,6 +268,8 @@ export const HealingPlan = () => {
                   <textarea 
                     placeholder="Write your response here..."
                     className="w-full min-h-[100px] p-3 text-sm border border-secondary/50 rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                    value={promptResponse}
+                    onChange={(e) => setPromptResponse(e.target.value)}
                   />
                 </CardContent>
               </Card>
@@ -284,6 +286,8 @@ export const HealingPlan = () => {
                   <textarea 
                     placeholder="Reflect on your challenge here..."
                     className="w-full min-h-[100px] p-3 text-sm border border-secondary/50 rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                    value={challengeResponse}
+                    onChange={(e) => setChallengeResponse(e.target.value)}
                   />
                 </CardContent>
               </Card>
@@ -313,16 +317,26 @@ export const HealingPlan = () => {
               </Card>
             </div>
 
-            {!userProgress.completed_days.includes(selectedDay.day_number) && (
-              <div className="flex justify-center pt-4">
+            <div className="flex justify-center gap-4 pt-4">
+              <Button 
+                onClick={saveResponses}
+                disabled={isSaving}
+                variant="outline"
+                className="px-6"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {isSaving ? "Saving..." : "Save Responses"}
+              </Button>
+              
+              {!userProgress.completed_days.includes(selectedDay.day_number) && (
                 <Button 
                   onClick={() => markDayComplete(selectedDay.day_number)}
                   className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-semibold px-8"
                 >
                   Mark Day Complete
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
