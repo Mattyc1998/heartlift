@@ -187,8 +187,12 @@ export const HealingPlan = () => {
                     <CardTitle className="text-sm">Today's Prompt</CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{selectedDay.prompt}</p>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-foreground">{selectedDay.prompt}</p>
+                  <textarea 
+                    placeholder="Write your response here..."
+                    className="w-full min-h-[100px] p-3 text-sm border border-secondary/50 rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                  />
                 </CardContent>
               </Card>
 
@@ -199,8 +203,12 @@ export const HealingPlan = () => {
                     <CardTitle className="text-sm">Daily Challenge</CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{selectedDay.challenge}</p>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-foreground">{selectedDay.challenge}</p>
+                  <textarea 
+                    placeholder="Reflect on your challenge here..."
+                    className="w-full min-h-[100px] p-3 text-sm border border-secondary/50 rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                  />
                 </CardContent>
               </Card>
 
@@ -212,7 +220,7 @@ export const HealingPlan = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground italic">"{selectedDay.mindset_reframe}"</p>
+                  <p className="text-sm text-foreground italic">"{selectedDay.mindset_reframe}"</p>
                 </CardContent>
               </Card>
 
@@ -224,7 +232,7 @@ export const HealingPlan = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">{selectedDay.action_item}</p>
+                  <p className="text-sm text-foreground">{selectedDay.action_item}</p>
                 </CardContent>
               </Card>
             </div>
