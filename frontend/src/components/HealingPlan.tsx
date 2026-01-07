@@ -108,6 +108,71 @@ export const HealingPlan = () => {
     }
   };
 
+  // Load saved responses when a day is selected
+  const loadDayResponses = async (dayNumber: number) => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("healing_day_responses")
+        .select("prompt_response, challenge_response")
+        .eq("user_id", user.id)
+        .eq("day_number", dayNumber)
+        .maybeSingle();
+
+      if (!error && data) {
+        setPromptResponse(data.prompt_response || "");
+        setChallengeResponse(data.challenge_response || "");
+      } else {
+        setPromptResponse("");
+        setChallengeResponse("");
+      }
+    } catch (error) {
+      console.error("Error loading day responses:", error);
+      setPromptResponse("");
+      setChallengeResponse("");
+    }
+  };
+
+  // Save responses for the current day
+  const saveResponses = async () => {
+    if (!user || !selectedDay) return;
+    
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from("healing_day_responses")
+        .upsert({
+          user_id: user.id,
+          day_number: selectedDay.day_number,
+          prompt_response: promptResponse,
+          challenge_response: challengeResponse,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id,day_number' });
+
+      if (error) throw error;
+
+      toast({
+        title: "Responses saved! 💚",
+        description: "Your reflections have been saved.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error saving responses",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Handle day selection and load responses
+  const handleDaySelect = async (day: HealingDay) => {
+    setSelectedDay(day);
+    await loadDayResponses(day.day_number);
+  };
+
   const markDayComplete = async (dayNumber: number) => {
     if (!user) return;
 
