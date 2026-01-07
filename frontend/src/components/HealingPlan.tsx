@@ -267,7 +267,7 @@ export const HealingPlan = () => {
                   <p className="text-sm text-foreground">{selectedDay.prompt}</p>
                   <textarea 
                     placeholder="Write your response here..."
-                    className="w-full min-h-[100px] p-3 text-sm border border-secondary/50 rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                    className="w-full min-h-[150px] p-4 text-base border border-secondary/50 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/50 resize-y text-foreground placeholder:text-muted-foreground/60"
                     value={promptResponse}
                     onChange={(e) => setPromptResponse(e.target.value)}
                   />
@@ -285,7 +285,7 @@ export const HealingPlan = () => {
                   <p className="text-sm text-foreground">{selectedDay.challenge}</p>
                   <textarea 
                     placeholder="Reflect on your challenge here..."
-                    className="w-full min-h-[100px] p-3 text-sm border border-secondary/50 rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                    className="w-full min-h-[150px] p-4 text-base border border-secondary/50 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/50 resize-y text-foreground placeholder:text-muted-foreground/60"
                     value={challengeResponse}
                     onChange={(e) => setChallengeResponse(e.target.value)}
                   />
