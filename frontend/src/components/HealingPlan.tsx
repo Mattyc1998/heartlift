@@ -177,6 +177,9 @@ export const HealingPlan = () => {
     if (!user) return;
 
     try {
+      // Save responses first
+      await saveResponses();
+      
       const newCompletedDays = [...userProgress.completed_days, dayNumber];
       const nextDay = Math.min(dayNumber + 1, 30);
 
