@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Calendar, CheckCircle, Circle, Heart, Target, MessageSquare, Lightbulb } from "lucide-react";
+import { Calendar, CheckCircle, Circle, Heart, Target, MessageSquare, Lightbulb, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,11 +25,19 @@ interface UserProgress {
   completed_days: number[];
 }
 
+interface DayResponse {
+  prompt_response: string;
+  challenge_response: string;
+}
+
 export const HealingPlan = () => {
   const [healingDays, setHealingDays] = useState<HealingDay[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgress>({ current_day: 1, completed_days: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState<HealingDay | null>(null);
+  const [promptResponse, setPromptResponse] = useState("");
+  const [challengeResponse, setChallengeResponse] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
