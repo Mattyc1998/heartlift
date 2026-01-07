@@ -317,12 +317,12 @@ export const HealingPlan = () => {
               </Card>
             </div>
 
-            <div className="flex justify-center gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-3 pt-6">
               <Button 
                 onClick={saveResponses}
                 disabled={isSaving}
                 variant="outline"
-                className="px-6"
+                className="px-6 py-3 border-primary text-primary hover:bg-primary/10 font-medium"
               >
                 <Save className="w-4 h-4 mr-2" />
                 {isSaving ? "Saving..." : "Save Responses"}
@@ -331,7 +331,7 @@ export const HealingPlan = () => {
               {!userProgress.completed_days.includes(selectedDay.day_number) && (
                 <Button 
                   onClick={() => markDayComplete(selectedDay.day_number)}
-                  className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-semibold px-8"
+                  className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-semibold px-6 py-3"
                 >
                   Mark Day Complete
                 </Button>
