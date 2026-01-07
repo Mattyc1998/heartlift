@@ -331,7 +331,7 @@ export const HealingPlan = () => {
               {!userProgress.completed_days.includes(selectedDay.day_number) && (
                 <Button 
                   onClick={() => markDayComplete(selectedDay.day_number)}
-                  className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-semibold px-6 py-3"
+                  className="bg-primary hover:bg-primary/90 text-white font-semibold px-6 py-3"
                 >
                   Mark Day Complete
                 </Button>
