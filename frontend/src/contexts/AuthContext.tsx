@@ -245,6 +245,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const sessionReady = await ensureSessionReady();
           if (!sessionReady) {
             console.warn('[checkSubscription] ⚠️ Session not ready, using cached data');
+            // Still try to load from cache
+            const cachedPremium = localStorage.getItem('isPremium');
+            const cachedKit = localStorage.getItem('hasHealingKit');
+            if (cachedPremium === 'true') {
+              setIsPremium(true);
+              setSubscriptionStatus('premium');
+            }
+            if (cachedKit === 'true') {
+              setHasHealingKit(true);
+            }
             return;
           }
           
@@ -259,13 +269,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           if (!subError && subscriberData) {
             console.log('[checkSubscription] RAW Subscriber data:', JSON.stringify(subscriberData));
             
-            // Check if premium is active
+            // Check if premium is active - be MORE LENIENT
             if (subscriberData.subscribed === true) {
               isPremiumActive = true;
               console.log('[checkSubscription] ✅ Premium ACTIVE (subscribed=true)');
-            } else if (subscriberData.plan_type === 'premium' && subscriberData.payment_status === 'active') {
+            } else if (subscriberData.plan_type === 'premium') {
               isPremiumActive = true;
-              console.log('[checkSubscription] ✅ Premium ACTIVE (plan_type=premium, payment_status=active)');
+              console.log('[checkSubscription] ✅ Premium ACTIVE (plan_type=premium)');
+            } else if (subscriberData.payment_status === 'active' || subscriberData.payment_status === 'completed') {
+              isPremiumActive = true;
+              console.log('[checkSubscription] ✅ Premium ACTIVE (payment_status=active/completed)');
+            } else if (subscriberData.id) {
+              // If they have ANY record in subscribers table, they likely paid
+              isPremiumActive = true;
+              console.log('[checkSubscription] ✅ Premium ACTIVE (has subscriber record)');
             } else {
               console.log('[checkSubscription] ❌ NO PREMIUM - Data:', subscriberData);
             }
@@ -276,26 +293,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
 
           // Check healing kit status
-          const { data: healingKitStatus, error: kitError } = await supabase
-            .rpc('user_has_healing_kit', { user_uuid: user.id });
-
           let hasKit = false;
-          if (!kitError) {
-            console.log('[checkSubscription] Healing kit status:', healingKitStatus);
-            hasKit = healingKitStatus === true;
-          } else {
-            console.error('[checkSubscription] Error checking healing kit:', kitError);
+          try {
+            const { data: healingKitStatus, error: kitError } = await supabase
+              .rpc('user_has_healing_kit', { user_uuid: user.id });
+
+            if (!kitError) {
+              console.log('[checkSubscription] Healing kit status:', healingKitStatus);
+              hasKit = healingKitStatus === true;
+            } else {
+              console.error('[checkSubscription] Error checking healing kit RPC:', kitError);
+              // Fallback: check healing_kit_purchases table directly
+              const { data: kitData } = await supabase
+                .from('healing_kit_purchases')
+                .select('status')
+                .eq('user_id', user.id)
+                .maybeSingle();
+              
+              if (kitData && (kitData.status === 'completed' || kitData.status === 'active')) {
+                hasKit = true;
+                console.log('[checkSubscription] ✅ Healing Kit found via direct table check');
+              }
+            }
+          } catch (kitCheckError) {
+            console.error('[checkSubscription] Healing kit check failed:', kitCheckError);
           }
 
-          // Update state
+          // Update state IMMEDIATELY
+          console.log('[checkSubscription] 🔓 Setting state - Premium:', isPremiumActive, 'Healing Kit:', hasKit);
           setIsPremium(isPremiumActive);
           setSubscriptionStatus(isPremiumActive ? 'premium' : 'free');
           setHasHealingKit(hasKit);
           
           // Cache for immediate access
-          localStorage.setItem('isPremium', JSON.stringify(isPremiumActive));
-          localStorage.setItem('subscriptionStatus', JSON.stringify(isPremiumActive ? 'premium' : 'free'));
-          localStorage.setItem('hasHealingKit', JSON.stringify(hasKit));
+          localStorage.setItem('isPremium', isPremiumActive.toString());
+          localStorage.setItem('subscriptionStatus', isPremiumActive ? 'premium' : 'free');
+          localStorage.setItem('hasHealingKit', hasKit.toString());
           
           console.log('[checkSubscription] ✅ Complete - Premium:', isPremiumActive, 'Healing Kit:', hasKit);
         },
@@ -304,7 +337,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       );
     } catch (error: any) {
       console.error('[checkSubscription] ❌ Failed:', error.message);
-      console.log('[checkSubscription] ℹ️ Using cached subscription data');
+      // On error, try to load from cache
+      const cachedPremium = localStorage.getItem('isPremium');
+      const cachedKit = localStorage.getItem('hasHealingKit');
+      if (cachedPremium === 'true') {
+        console.log('[checkSubscription] Using cached Premium status: true');
+        setIsPremium(true);
+        setSubscriptionStatus('premium');
+      }
+      if (cachedKit === 'true') {
+        console.log('[checkSubscription] Using cached Healing Kit status: true');
+        setHasHealingKit(true);
+      }
     }
   };
 
