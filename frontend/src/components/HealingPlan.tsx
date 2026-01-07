@@ -388,7 +388,7 @@ export const HealingPlan = () => {
                   ? 'border-secondary/30 hover:border-primary/30 hover:bg-primary/5'
                   : 'border-muted/50 bg-muted/20 opacity-60'
               }`}
-              onClick={() => isAvailable && setSelectedDay(day)}
+              onClick={() => isAvailable && handleDaySelect(day)}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
