@@ -176,7 +176,7 @@ export const HealingPlan = () => {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="prose prose-sm max-w-none">
-              <p className="text-muted-foreground leading-relaxed">{selectedDay.content}</p>
+              <p className="text-foreground leading-relaxed">{selectedDay.content}</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
